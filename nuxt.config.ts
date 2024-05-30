@@ -8,5 +8,8 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  modules: ['@nuxt/eslint'],
+  modules: ['@nuxt/eslint', '@nuxtjs/tailwindcss'],
+  typescript: {
+    typeCheck: true,
+  },
 });
