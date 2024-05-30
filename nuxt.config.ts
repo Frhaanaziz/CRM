@@ -9,4 +9,7 @@ export default defineNuxtConfig({
     },
   },
   modules: ['@nuxt/eslint', '@nuxtjs/tailwindcss'],
+  typescript: {
+    typeCheck: true,
+  },
 });
