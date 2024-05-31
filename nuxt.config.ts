@@ -8,7 +8,7 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', "@nuxt/image"],
+  modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image'],
 
   // UI module options
   colorMode: {
@@ -25,7 +25,7 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/auth/signin',
       callback: '/auth/callback',
-      include: ['/dashboard(/*)?'],
+      include: ['/', '/dashboard(/*)?'],
     },
   },
 });
