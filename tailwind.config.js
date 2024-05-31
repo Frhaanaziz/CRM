@@ -11,7 +11,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        pipeline: {
+        brand: {
           50: '#ecfaff',
           100: '#d4f2ff',
           200: '#b3ebff',
