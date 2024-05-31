@@ -8,7 +8,14 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  modules: ['@nuxt/eslint', '@nuxtjs/tailwindcss', '@nuxtjs/supabase'],
+  modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui'],
+
+  // UI module options
+  colorMode: {
+    preference: 'light',
+  },
+
+  // TypeScript module options
   typescript: {
     typeCheck: true,
   },
