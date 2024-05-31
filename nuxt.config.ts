@@ -8,7 +8,7 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui'],
+  modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image'],
 
   // UI module options
   colorMode: {
@@ -18,5 +18,14 @@ export default defineNuxtConfig({
   // TypeScript module options
   typescript: {
     typeCheck: true,
+  },
+
+  // Supabase module options
+  supabase: {
+    redirectOptions: {
+      login: '/auth/signin',
+      callback: '/auth/callback',
+      include: ['/', '/dashboard(/*)?'],
+    },
   },
 });
