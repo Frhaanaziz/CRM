@@ -1,23 +1,36 @@
 import { H3Event } from 'h3'
 import { serverSupabaseClient } from '#supabase/server'
+import { signUpSchema } from '~/utils/validators/auth'
 
 export default defineEventHandler(async (event: H3Event) => {
   const supabase = await serverSupabaseClient(event)
-  const { email, password, confirmPassword, firstName, lastName, phone } = await readBody(event)
 
-  if (password !== confirmPassword) return { error: 'Passwords do not match' }
+  const body = await readValidatedBody(event, signUpSchema.safeParse)
+  if (!body.success) {
+    let errors = ''
+    for (const issue in body.error.issues) {
+      if (Number(issue) === body.error.issues.length - 1) {
+        errors += `${body.error.issues[issue].message}`
+      } else {
+        errors += `${body.error.issues[issue].message}, `
+      }
+    }
+    throw createError({ status: 400, message: errors })
+  }
+
+  const { email, password, password_confirmation, first_name, last_name, phone } = body.data
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: {
-        firstName,
-        lastName,
+        first_name,
+        last_name,
         phone
       }
     }
   })
-  if (error) return { error }
+  if (error) throw createError({ status: 400, message: error.message })
 
   return { data }
 })
