@@ -15,7 +15,7 @@ export default defineEventHandler(async (event: H3Event) => {
         errors += `${body.error.issues[issue].message}, `
       }
     }
-    throw createError({ status: 400, message: errors })
+    throw createError({ status: 400, statusMessage: errors })
   }
 
   const { email, password, password_confirmation, first_name, last_name, phone } = body.data
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event: H3Event) => {
       }
     }
   })
-  if (error) throw createError({ status: 400, message: error.message })
+  if (error) throw createError({ status: 400, statusMessage: error.message })
 
   return { data }
 })
