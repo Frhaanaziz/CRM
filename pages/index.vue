@@ -2,7 +2,7 @@
 definePageMeta({
     middleware: [
         function () {
-            return navigateTo('/dashboard/companies')
+            return navigateTo('/dashboard')
         },
     ],
 });

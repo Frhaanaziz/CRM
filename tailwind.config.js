@@ -23,6 +23,7 @@ export default {
           800: '#012756',
           900: '#00152D',
           950: '#000914',
+          DEFAULT: '#0265DC',
         },
         secondary: {
           50: '#FEFBF1',
@@ -36,6 +37,7 @@ export default {
           800: '#826A07',
           900: '#3F3304',
           950: '#221B02',
+          DEFAULT: '#F6D860',
         },
         base: {
           100: '#ffffff',

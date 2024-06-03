@@ -1,3 +1,39 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.text-default {
+  color: #1f2122;
+}
+
+.text-weak {
+  color: #414346;
+}
+
+.text-strong {
+  color: #000000;
+}
+
+.text-disabled {
+  color: #66696d;
+}
+
+.border-default {
+  border-color: #aaadb1;
+}
+
+.border-hover {
+  border-color: #414346;
+}
+
+.border-down {
+  border-color: #000000;
+}
+
+.border-down {
+  border-color: #e1e3e6;
+}
+
+.border-negative {
+  border-color: #ffffff;
+}
