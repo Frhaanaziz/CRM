@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "generate:db-types": "npx supabase gen types typescript --project-id kemtzjsqvpxabgqjtnoi > types/supabase.d.ts"
+    "generate:db-types": "npx supabase gen types typescript --project-id saqscbgrtekxbgavecpy > types/supabase.d.ts"
   },
   "dependencies": {
     "@nuxt/eslint": "^0.3.13",
