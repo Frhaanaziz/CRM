@@ -34,6 +34,9 @@ const { isSubmitting, state, submit } = useSignIn()
                 Log In
             </UButton>
         </UForm>
+        <LoginLink to="/api/login" external>
+            Sign in Kinde
+        </LoginLink>
 
         <p class="mt-4 text-center">Don't have an account? <NuxtLink to="/auth/signup" class="text-brand font-medium">
                 Sign Up

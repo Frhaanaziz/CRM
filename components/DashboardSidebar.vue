@@ -34,9 +34,14 @@ const navigation = [
                 </ul>
             </li>
             <li class="-mx-6 mt-auto">
-                <a href="#"
-                    class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50">
-                    <NuxtImg class="h-8 w-8 rounded-full bg-gray-50"
+                <NuxtLink to="/api/logout" external
+                    class="flex gap-x-2 items-center rounded p-2 mx-4 text-sm font-semibold text-red-500">
+                    <UIcon name="i-heroicons-arrow-left-start-on-rectangle" class="h-6 w-6 shrink-0 "
+                        aria-hidden="true" />
+                    Log out
+                </NuxtLink>
+                <a href="#" class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6">
+                    <NuxtImg class="h-8 w-8 rounded-full"
                         src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                         alt="" />
                     <span class="sr-only">Your profile</span>

@@ -8,7 +8,13 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image'],
+  modules: [
+    '@nuxt/eslint',
+    '@nuxtjs/supabase',
+    '@nuxt/ui',
+    '@nuxt/image',
+    '@nuxtjs/kinde',
+  ],
 
   // UI module options
   colorMode: {
@@ -22,11 +28,12 @@ export default defineNuxtConfig({
 
   // Supabase module options
   supabase: {
-    redirectOptions: {
-      login: '/auth/signin',
-      callback: '/dashboard',
-      include: ['/', '/dashboard(/*)?'],
-      cookieRedirect: true,
-    },
+    redirect: false,
+    // redirectOptions: {
+    //   login: '/auth/signin',
+    //   callback: '/dashboard',
+    //   include: ['/', '/dashboard(/*)?'],
+    //   cookieRedirect: true,
+    // },
   },
 });

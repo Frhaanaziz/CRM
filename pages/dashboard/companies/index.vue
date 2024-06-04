@@ -1,12 +1,15 @@
 <script setup lang="ts">
-definePageMeta({
-    layout: 'dashboard'
-});
-
 //     Be careful, if you want to call this route on SSR, you must send your browser cookies including your supabase token.
 // const { data: { libraries }} = await useFetch('/api/libraries', {
 //   headers: useRequestHeaders(['cookie'])
 // })
+// onMounted(() => {
+//     console.log($auth.user)
+// })
+// const kinde = useKindeClient()
+// console.log(kinde)
+// const auth = useState('auth')
+// console.log('auth', auth.value)
 </script>
 
 
@@ -16,6 +19,9 @@ definePageMeta({
         <h1 class="text-2xl font-semibold">
             B2B Company Database
         </h1>
+        <pre class="text-2xl font-semibold">
+            {{ $auth.user }}
+        </pre>
 
         <div class="mt-10 grid grid-cols-3 gap-5">
             <div class="p-3 border border-default rounded-md">
