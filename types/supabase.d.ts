@@ -33,7 +33,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "Cities_province_id_fkey"
+            foreignKeyName: "cities_province_id_fkey"
             columns: ["province_id"]
             isOneToOne: false
             referencedRelation: "Provinces"
@@ -98,28 +98,28 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "Companies_city_id_fkey"
+            foreignKeyName: "companies_city_id_fkey"
             columns: ["city_id"]
             isOneToOne: false
             referencedRelation: "Cities"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Companies_industry_id_fkey"
+            foreignKeyName: "companies_industry_id_fkey"
             columns: ["industry_id"]
             isOneToOne: false
             referencedRelation: "Industries"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Companies_province_id_fkey"
+            foreignKeyName: "companies_province_id_fkey"
             columns: ["province_id"]
             isOneToOne: false
             referencedRelation: "Provinces"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Companies_size_id_fkey"
+            foreignKeyName: "companies_size_id_fkey"
             columns: ["size_id"]
             isOneToOne: false
             referencedRelation: "Sizes"
@@ -131,19 +131,19 @@ export type Database = {
         Row: {
           created_at: string
           id: number
-          name: string
+          name: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: number
-          name: string
+          name?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: number
-          name?: string
+          name?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -172,7 +172,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "Photos_company_id_fkey"
+            foreignKeyName: "photos_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "Companies"
@@ -222,12 +222,51 @@ export type Database = {
         }
         Relationships: []
       }
+      Users: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          linkedin: string | null
+          phone: string
+          photo: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          linkedin?: string | null
+          phone: string
+          photo?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          linkedin?: string | null
+          phone?: string
+          photo?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
