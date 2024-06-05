@@ -6,14 +6,13 @@ export const useSignUp = () => {
 
   const toast = useToast()
   const isSubmitting = ref(false)
-  const state = ref<SignUpType>({
+  const initialForm = {
     first_name: '',
     last_name: '',
     email: '',
     phone: '',
-    password: '',
-    password_confirmation: '',
-  })
+  }
+  const state = ref<SignUpType>(initialForm)
 
   async function onSubmit(event: FormSubmitEvent<SignUpType>) {
     try {
@@ -23,13 +22,17 @@ export const useSignUp = () => {
         body: JSON.stringify(event.data),
       })
 
+      
+      state.value = initialForm
       toast.add({
         title: 'Success',
-        description: 'Please check your email to verify your account.',
+        description: 'You have successfully created an account',
         icon: 'i-heroicons-check-circle',
         color: 'green',
         timeout: 10000,
       })
+
+      await navigateTo('/auth/signin', {replace: true})
     } catch (e) {
       console.error('Error creating account:', e)
       toast.add({

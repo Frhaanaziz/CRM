@@ -1,6 +1,6 @@
 import type { z } from 'zod';
-
 export * from './validators/auth';
+export * from './validators/profile';
 
 export function getErrorMessage(error: unknown): string {
   let message: string;
@@ -65,3 +65,19 @@ export function calculatePagination({
     savePage,
   };
 }
+
+export const toastSuccess = (message: string) => useToast().add({
+  title: 'Success',
+  description: message,
+  icon: 'i-heroicons-check-circle',
+  color: 'green',
+  timeout: 10000,
+})
+
+export const toastError = (message: string) => useToast().add({
+  title: 'Error',
+  description: message,
+  icon: 'i-heroicons-x-circle',
+  color: 'red',
+  timeout: 10000,
+})

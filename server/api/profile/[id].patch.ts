@@ -1,6 +1,6 @@
 import { H3Event } from 'h3'
 import { serverSupabaseClient } from '#supabase/server'
-import { Database } from '~/types/supabase'
+import type { Database } from '~/types/supabase'
 import { updateProfileSchema } from '~/utils/validators/profile'
 
 export default defineEventHandler(async (event: H3Event) => {

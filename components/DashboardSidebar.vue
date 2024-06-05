@@ -1,46 +1,37 @@
 <script setup lang="ts">
-const pathname = useRoute().path;
+const route = useRoute();
+const pathname = ref(route.path);
 
-const isCurrent = (path: string) => pathname.replace('/dashboard', '') === path;
+watch(
+    () => route.path,
+    () => (pathname.value = route.path)
+);
 
-const navigation = [
-    {
-        name: 'Dashboard',
-        href: '/dashboard',
-        icon: 'i-heroicons-home',
-        current: isCurrent('/'),
-    },
-    {
-        name: 'Companies',
-        href: '/dashboard/companies',
-        icon: 'i-heroicons-user',
-        current: isCurrent('/companies'),
-    },
-    {
-        name: 'Projects',
-        href: '#',
-        icon: 'i-heroicons-folder',
-        current: isCurrent('/'),
-    },
-    {
-        name: 'Calendar',
-        href: '#',
-        icon: 'i-heroicons-calendar',
-        current: isCurrent('/'),
-    },
-    {
-        name: 'Documents',
-        href: '#',
-        icon: 'i-heroicons-document-duplicate',
-        current: isCurrent('/'),
-    },
-    {
-        name: 'Reports',
-        href: '#',
-        icon: 'i-heroicons-chart-pie',
-        current: isCurrent('/'),
-    },
-];
+const navigation = computed(() => {
+    const isCurrent = (path: string) =>
+        pathname.value.replace('/dashboard', '') === path;
+
+    return [
+        {
+            name: 'Dashboard',
+            href: '/dashboard/',
+            icon: 'i-heroicons-home',
+            current: isCurrent('/'),
+        },
+        {
+            name: 'Companies',
+            href: '/dashboard/companies',
+            icon: 'i-heroicons-user',
+            current: isCurrent('/companies'),
+        },
+        {
+            name: 'Settings',
+            href: '/dashboard/settings',
+            icon: 'i-heroicons-cog-6-tooth',
+            current: isCurrent('/settings'),
+        },
+    ];
+});
 </script>
 
 <template>

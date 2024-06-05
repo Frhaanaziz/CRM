@@ -1,5 +1,6 @@
 import type { Tables } from './supabase';
 
+export type User = Tables<'Users'>;
 export type Province = Tables<'Provinces'>;
 export type City = Tables<'Cities'>;
 export type Industry = Tables<'Industries'>;
