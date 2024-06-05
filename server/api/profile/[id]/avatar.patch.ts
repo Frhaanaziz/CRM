@@ -1,6 +1,6 @@
 import { H3Event } from 'h3'
 import { serverSupabaseClient } from '#supabase/server'
-import { Database } from '~/types/supabase'
+import type { Database } from '~/types/supabase'
 
 export default defineEventHandler(async (event: H3Event) => {
   const supabase = await serverSupabaseClient<Database>(event)
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event: H3Event) => {
     const fileName: string = photoUser.photo!.split('/').pop() as string
 
     // delete old photo from supabase storage
-    const { data, error: deleteError } = await supabase.storage.from('avatars').remove([fileName])
+    const { error: deleteError } = await supabase.storage.from('avatars').remove([fileName])
     if (deleteError) throw createError({ status: 500, statusMessage: deleteError.message })
   }
 
