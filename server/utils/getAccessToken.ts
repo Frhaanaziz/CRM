@@ -1,7 +1,7 @@
-import { AccessTokenResponse } from '~/types/kinde'
+import type { AccessTokenResponse } from '~/types/kinde'
 
 export const getAccessToken = async (): Promise<string | undefined> => {
-  const response: AccessTokenResponse = await $fetch(`${process.env.KINDE_API_URL}/oauth2/token`, {
+  const response = await $fetch<AccessTokenResponse>(`${process.env.KINDE_API_URL}/oauth2/token`, {
     method: 'POST',
     headers: {
       'content-type': 'application/x-www-form-urlencoded'

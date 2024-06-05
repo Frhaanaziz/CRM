@@ -1,17 +1,67 @@
-export * from './validators/auth'
+import type { z } from 'zod';
+
+export * from './validators/auth';
 
 export function getErrorMessage(error: unknown): string {
-  let message: string
+  let message: string;
 
   if (error && typeof error === 'object' && 'statusMessage' in error) {
-    message = String(error.statusMessage)
+    message = String(error.statusMessage);
   } else if (error instanceof Error) {
-    message = error.message
+    message = error.message;
   } else if (typeof error === 'string') {
-    message = error
+    message = error;
   } else {
-    message = 'Something went wrong, please try again later.'
+    message = 'Something went wrong, please try again later.';
   }
 
-  return message
+  return message;
+}
+
+export function getZodErrorMessage(result: z.SafeParseError<any>): string {
+  let errorMessage = '';
+
+  result.error.issues.forEach((issue) => {
+    errorMessage = errorMessage + issue.path[0] + ': ' + issue.message + '. ';
+  });
+
+  return errorMessage;
+}
+
+/**
+ * Calculates pagination values based on the given parameters.
+ * @param {Object} options - The pagination options.
+ * @param {number} options.page - The current page number.
+ * @param {number} options.take - The number of rows to display per page.
+ * @param {number} options.totalRow - The total number of rows.
+ * @returns {Object} - The pagination values.
+ */
+export function calculatePagination({
+  page,
+  take,
+  totalRow,
+}: {
+  page: number;
+  take: number;
+  totalRow: number;
+}) {
+  const savePage = page < 1 ? 1 : page;
+  const rowsPerPage = take;
+  const totalPages = Math.ceil(totalRow / rowsPerPage) || 1;
+  const isFirstPage = savePage === 1;
+  const isLastPage = savePage >= totalPages;
+  const previousPage = isFirstPage ? 1 : savePage - 1;
+  const nextPage = isLastPage ? totalPages : savePage + 1;
+
+  return {
+    currentPage: page,
+    isFirstPage,
+    isLastPage,
+    previousPage,
+    nextPage,
+    rowsPerPage,
+    totalPages,
+    totalRow,
+    savePage,
+  };
 }
