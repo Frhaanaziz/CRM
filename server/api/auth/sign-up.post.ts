@@ -1,8 +1,8 @@
 import { H3Event } from 'h3'
 import { serverSupabaseClient } from '#supabase/server'
 import { signUpSchema } from '~/utils/validators/auth'
-import { CreateUserResponse } from '~/types/kinde'
-import { Database } from '~/types/supabase'
+import type { CreateUserResponse } from '~/types/kinde'
+import type { Database } from '~/types/supabase'
 
 export default defineEventHandler(async (event: H3Event) => {
   const supabase = await serverSupabaseClient<Database>(event)
@@ -46,7 +46,7 @@ export default defineEventHandler(async (event: H3Event) => {
   const token = await getAccessToken()
 
   // create user in kinde
-  const response: CreateUserResponse = await $fetch(`${process.env.KINDE_API_URL}/api/v1/user`, {
+  const response  = await $fetch<CreateUserResponse>(`${process.env.KINDE_API_URL}/api/v1/user`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
