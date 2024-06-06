@@ -54,8 +54,8 @@ export default defineEventHandler(async (event: H3Event) => {
     last_name,
     phone,
     linkedin
-  }).eq('id', id).select()
+  }).eq('id', id).select().single()
   if (updateError) throw createError({ status: 500, statusMessage: updateError.message })
 
-  return { data: user }
+  return user
 })

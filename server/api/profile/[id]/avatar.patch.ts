@@ -58,5 +58,5 @@ export default defineEventHandler(async (event: H3Event) => {
   }).eq('id', id)
   if (updateError) throw createError({ status: 500, statusMessage: updateError.message })
 
-  return { data: url.publicUrl }
+  return url.publicUrl
 })
