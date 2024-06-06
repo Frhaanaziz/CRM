@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useDebounce } from '@vueuse/core';
+
 const { data: companies, pending } = await useLazyFetch('/api/companies', {
     key: 'companies',
     transform: (v) =>
@@ -13,10 +15,11 @@ const { data: companies, pending } = await useLazyFetch('/api/companies', {
 });
 
 const search = ref('');
+const debounceSearch = useDebounce(search, 300);
 const page = ref(1);
 const LIMIT = 10;
 const filteredRows = computed(() => {
-    if (!search.value)
+    if (!debounceSearch.value)
         return companies.value?.slice(
             (page.value - 1) * LIMIT,
             page.value * LIMIT
@@ -24,7 +27,7 @@ const filteredRows = computed(() => {
 
     // search
     const searchedCompanies = companies.value?.filter((company) =>
-        company.name.toLowerCase().includes(search.value.toLowerCase())
+        company.name.toLowerCase().includes(debounceSearch.value.toLowerCase().trim())
     );
 
     // pagination
