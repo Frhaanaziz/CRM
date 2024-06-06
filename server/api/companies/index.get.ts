@@ -7,7 +7,15 @@ export default defineEventHandler(async (event: H3Event) => {
 
     const res = await supabase
         .from('Companies')
-        .select()
+        .select(
+            `
+            *,
+            industry: Industries(name),
+            size: Sizes(size_range),
+            province: Provinces(name),
+            city: Cities(name)
+            `
+        )
         .order('created_at', { ascending: false });
     if (res.error) {
         console.error('Error fetching companies', res.error);
