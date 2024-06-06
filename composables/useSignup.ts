@@ -4,7 +4,6 @@ import type { FormSubmitEvent } from '#ui/types'
 export const useSignUp = () => {
   type SignUpType = z.infer<typeof signUpSchema>
 
-  const toast = useToast()
   const isSubmitting = ref(false)
   const initialForm = {
     first_name: '',
@@ -24,23 +23,12 @@ export const useSignUp = () => {
 
       
       state.value = initialForm
-      toast.add({
-        title: 'Success',
-        description: 'You have successfully created an account',
-        icon: 'i-heroicons-check-circle',
-        color: 'green',
-        timeout: 10000,
-      })
+      toast.success('You have successfully created an account')
 
       await navigateTo('/auth/signin', {replace: true})
     } catch (e) {
       console.error('Error creating account:', e)
-      toast.add({
-        title: 'Error',
-        description: 'Failed to create account. Please try again later.',
-        icon: 'i-heroicons-x-circle',
-        color: 'red',
-      })
+      toast.error('Failed to create account. Please try again later.')
     } finally {
       isSubmitting.value = false
     }
