@@ -43,6 +43,7 @@ export type Database = {
       }
       Companies: {
         Row: {
+          avatar: string | null
           city_id: number
           created_at: string
           description: string
@@ -61,6 +62,7 @@ export type Database = {
           zip_code: string | null
         }
         Insert: {
+          avatar?: string | null
           city_id: number
           created_at?: string
           description: string
@@ -79,6 +81,7 @@ export type Database = {
           zip_code?: string | null
         }
         Update: {
+          avatar?: string | null
           city_id?: number
           created_at?: string
           description?: string
