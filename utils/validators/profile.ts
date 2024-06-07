@@ -8,7 +8,7 @@ export const profileSchema =  z.object({
   last_name: z.string().min(1, { message: 'Last name is required' }),
   linkedin: z.string().nullable().optional(),
   phone: z.string().min(1, { message: 'Phone number is required' }),
-  photo: z.string().nullable().optional(),
+  photo: z.string().url().nullable().optional(),
   updated_at: z.coerce.date()
 })
 
