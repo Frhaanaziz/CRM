@@ -11,6 +11,7 @@ const { data: companies, pending } = await useLazyFetch('/api/companies', {
             size: company.size?.size_range ?? '',
             location: `${company?.city?.name}, ${company?.province?.name}`,
             website: company.website,
+            avatar: company.avatar,
         })),
 });
 
@@ -27,7 +28,9 @@ const filteredRows = computed(() => {
 
     // search
     const searchedCompanies = companies.value?.filter((company) =>
-        company.name.toLowerCase().includes(debounceSearch.value.toLowerCase().trim())
+        company.name
+            .toLowerCase()
+            .includes(debounceSearch.value.toLowerCase().trim())
     );
 
     // pagination
@@ -36,15 +39,56 @@ const filteredRows = computed(() => {
         page.value * LIMIT
     );
 });
+
+const columns = [
+    {
+        label: 'Name',
+        key: 'name',
+    },
+    {
+        label: 'Industry',
+        key: 'industry',
+    },
+    {
+        label: 'Size',
+        key: 'size',
+    },
+    {
+        label: 'Location',
+        key: 'location',
+    },
+    {
+        label: 'Website',
+        key: 'website',
+    },
+];
 </script>
 
 <template>
     <div class="p-3 bg-base-200 mt-3 flex justify-between items-center rounded">
         <div class="flex items-center gap-2">
             <p>Filter:</p>
-            <UButton variant="outline">Industry</UButton>
-            <UButton variant="outline" color="gray">Size</UButton>
-            <UButton variant="outline" color="gray">Location</UButton>
+            <UPopover mode="hover">
+                <UButton
+                    variant="outline"
+                    color="gray"
+                    label="Open"
+                    class="focus:text-brand"
+                    >Industry</UButton
+                >
+
+                <template #panel>
+                    <div class="p-4">
+                        <Placeholder class="h-20 w-48" />
+                    </div>
+                </template>
+            </UPopover>
+            <UButton variant="outline" color="gray" class="focus:text-brand"
+                >Size</UButton
+            >
+            <UButton variant="outline" color="gray" class="focus:text-brand"
+                >Location</UButton
+            >
         </div>
 
         <UInput
@@ -57,6 +101,7 @@ const filteredRows = computed(() => {
 
     <UTable
         :rows="filteredRows ?? []"
+        :columns="columns"
         class="mt-5"
         :loading="pending"
         :loading-state="{
@@ -66,12 +111,18 @@ const filteredRows = computed(() => {
         :progress="{ color: 'primary', animation: 'carousel' }"
     >
         <template #name-data="{ row }">
-            <NuxtLink
-                :href="`/dashboard/companies/${row.id}`"
-                class="text-brand hover:underline"
-            >
-                {{ row.name }}
-            </NuxtLink>
+            <div class="flex items-center gap-2">
+                <UAvatar
+                    :src="row?.avatar ?? '/images/avatar-fallback.jpg'"
+                    size="xs"
+                />
+                <NuxtLink
+                    :href="`/dashboard/companies/${row.id}`"
+                    class="text-brand hover:underline"
+                >
+                    {{ row.name }}
+                </NuxtLink>
+            </div>
         </template>
 
         <template #website-data="{ row }">
@@ -84,13 +135,27 @@ const filteredRows = computed(() => {
                 {{ extractDomain(row.website) }}
             </NuxtLink>
         </template>
+
+        <template #empty-state>
+            <div
+                class="flex flex-col items-center justify-center py-10 gap-y-5"
+            >
+                <NuxtImg
+                    src="/icons/magnifying-glass-x.svg"
+                    alt=""
+                    width="64"
+                    height="64"
+                />
+                <p>No companies found</p>
+            </div>
+        </template>
     </UTable>
 
-    <div v-if="companies" class="flex justify-end mt-4">
+    <div v-if="filteredRows?.length" class="flex justify-end mt-4">
         <UPagination
             v-model="page"
             :page-count="LIMIT"
-            :total="companies.length"
+            :total="companies?.length ?? 0"
         />
     </div>
 </template>
