@@ -2,8 +2,9 @@ import { H3Event } from 'h3';
 import { faker } from '@faker-js/faker';
 import { z } from 'zod';
 import { getZodErrorMessage } from '~/utils';
-import type { City, Industry, Size } from '~/types';
-
+import type { City } from '~/types';
+import { serverSupabaseClient } from '#supabase/server';
+import type { Database } from '~/types/supabase';
 const schema = z.object({
     clean: z.coerce.boolean().optional(),
 });
@@ -32,18 +33,28 @@ export default defineEventHandler(async (event: H3Event) => {
     const zodResult = schema.safeParse(getQuery(event));
     if (!zodResult.success) return { error: getZodErrorMessage(zodResult) };
 
-    const supabase = event.context.supabase;
+    const supabase = await serverSupabaseClient<Database>(event);
 
     if (zodResult.data.clean) {
         console.info('Cleaning up...');
-        await Promise.all([
-            await supabase.from('Provinces').delete().match({}),
-            await supabase.from('Cities').delete().match({}),
-            await supabase.from('Industries').delete().match({}),
-            await supabase.from('Sizes').delete().match({}),
-            await supabase.from('Photos').delete().match({}),
-            await supabase.from('Companies').delete().match({}),
+        const result = await Promise.all([
+            await supabase.from('Provinces').delete().neq('id', 0),
+            await supabase.from('Cities').delete().neq('id', 0),
+            await supabase.from('Industries').delete().neq('id', 0),
+            await supabase.from('Sizes').delete().neq('id', 0),
+            await supabase.from('Photos').delete().neq('id', 0),
+            await supabase.from('Companies').delete().neq('id', 0),
         ]);
+        const errors = result.filter((res) => res.error);
+        console.log(result)
+        if (errors.length) {
+            console.error('Failed to clean up', errors);
+            throw createError({
+                status: 500,
+                statusMessage: 'Failed to clean up',
+            });
+        }
+        console.info('Clean up successful');
     }
 
     console.info('Creating Provinces...');
@@ -62,51 +73,64 @@ export default defineEventHandler(async (event: H3Event) => {
             supabase.from('Provinces').insert({ id: parseInt(id), name })
         )
     );
+    // const provinceErrors = provinceRes.filter((res) => res.error);
+    // if (provinceErrors.length) {
+    //     console.error('Failed to create provinces', provinceErrors);
+    //     throw createError({
+    //         status: 500,
+    //         statusMessage: 'Failed to create provinces',
+    //     });
+    // }
 
     console.info('Creating Cities...');
     const citiesData: Pick<City, 'id' | 'name' | 'province_id'>[] = [];
-    await Promise.all(
-        provincesData.map(async (province) => {
-            console.info(
-                `Fetching cities for province ${province.name.toUpperCase()}...`
-            );
-            const citiesRes = await fetch(
-                `https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${province.id}.json`
-            );
-            const cities = (await citiesRes.json()) as {
-                id: string;
-                name: string;
-            }[];
+    for (const province of provincesData) {
+        console.info(
+            `Fetching cities for province ${province.name.toUpperCase()}...`
+        );
+        const citiesRes = await fetch(
+            `https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${province.id}.json`
+        );
+        const cities = (await citiesRes.json()) as {
+            id: string;
+            name: string;
+        }[];
 
-            console.info(
-                `Creating ${
-                    cities.length
-                } cities for province ${province.name.toUpperCase()}...`
-            );
-            await Promise.all(
-                cities.map(({ id, name }) =>
-                    supabase.from('Cities').insert({
-                        id: parseInt(id),
-                        province_id: parseInt(province.id),
-                        name,
-                    })
-                )
-            );
-
-            citiesData.push(
-                ...cities.map(({ id, name }) => ({
+        console.info(
+            `Creating ${
+                cities.length
+            } cities for province ${province.name.toUpperCase()}...`
+        );
+        await Promise.all(
+            cities.map(({ id, name }) =>
+                supabase.from('Cities').insert({
                     id: parseInt(id),
-                    name,
                     province_id: parseInt(province.id),
-                }))
-            );
-        })
-    );
+                    name,
+                })
+            )
+        );
+        // const cityErrors = cityRes.filter((res) => res.error);
+        // if (cityErrors.length) {
+        //     console.error('Failed to create cities', cityErrors);
+        //     throw createError({
+        //         status: 500,
+        //         statusMessage: 'Failed to create cities',
+        //     });
+        // }
+
+        citiesData.push(
+            ...cities.map(({ id, name }) => ({
+                id: parseInt(id),
+                name,
+                province_id: parseInt(province.id),
+            }))
+        );
+    }
 
     console.info('Creating Industries...');
     console.info(`Creating ${industries.length} industries...`);
-    const industriesData: Industry[] = [];
-    await Promise.all(
+    const industriesData = await Promise.all(
         industries.map(async (name) => {
             const res = await supabase
                 .from('Industries')
@@ -115,16 +139,18 @@ export default defineEventHandler(async (event: H3Event) => {
                 .single();
             if (res.error) {
                 console.error('Failed to create industry', res.error);
-                throw new Error('Failed to create industry');
+                throw createError({
+                    status: 500,
+                    statusMessage: res.error.message,
+                })
             }
 
-            industriesData.push(res.data);
+            return res.data;
         })
     );
 
     console.info('Creating Sizes...');
-    const sizesData: Size[] = [];
-    await Promise.all(
+    const sizesData = await Promise.all(
         [
             { size_range: '1-10' },
             { size_range: '11-50' },
@@ -141,7 +167,8 @@ export default defineEventHandler(async (event: H3Event) => {
                 .select()
                 .single();
             if (!sizeRes.data) throw new Error('Failed to create size');
-            sizesData.push(sizeRes.data);
+
+            return sizeRes.data
         })
     );
 
@@ -167,14 +194,20 @@ export default defineEventHandler(async (event: H3Event) => {
 
         const companyRes = await supabase.from('Companies').insert({
             name,
+            email,
             phone,
+            description: faker.lorem.paragraphs(),
+            services: faker.lorem.paragraphs(2),
+            website: faker.internet.url(),
+            linkedin: `https://linkedin.com/company/${name
+                .toLowerCase()
+                .replace(/\s/g, '-')}`,
+            size_id,
             province_id: parseInt(province.id),
             city_id,
-            description: faker.company.catchPhrase(),
-            email,
             industry_id,
-            services: faker.company.buzzPhrase(),
-            size_id,
+            street: faker.location.streetAddress(),
+            zip_code: faker.location.zipCode(),
             created_at: faker.date.past().toISOString(),
             updated_at: faker.date.recent().toISOString(),
         });

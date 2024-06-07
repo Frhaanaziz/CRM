@@ -21,10 +21,10 @@ export default function useUpdateProfile({ user }: { user: User }) {
                 body: JSON.stringify(event.data),
             });
 
-            toastSuccess('Profile updated successfully');
+            toast.success('Profile updated successfully');
         } catch (e) {
             console.log('Error updating profile', e);
-            toastError('Error updating profile');
+            toast.error('Error updating profile');
         } finally {
             isSubmitting.value = false;
         }

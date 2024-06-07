@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import type { KindeAuthState } from '~/types/kinde';
-import type { User } from '~/types';
 import useUpdateProfile from '~/composables/useUpdateProfile';
 
 const auth = useState('auth') as Ref<KindeAuthState>;
-const { data } = await useFetch<{ data: User }>(
+const { data } = await useFetch(
     `/api/profile/${auth.value.user?.id}`
 );
-if (!data.value?.data)
+if (!data.value)
     throw createError({ status: 404, message: 'User not found' });
 
 const { state, isSubmitting, submit } = useUpdateProfile({
-    user: data.value.data,
+    user: data.value,
 });
 </script>
 
