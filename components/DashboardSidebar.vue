@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LazyModalSignOut from '~/components/modal/ModalSignOut.vue';
 const route = useRoute();
 const pathname = ref(route.path);
 
@@ -32,6 +33,13 @@ const navigation = computed(() => {
         },
     ];
 });
+
+const modal = useModal();
+function openLogOutModal() {
+    modal.open(LazyModalSignOut, {
+        onClose: () => modal.close(),
+    });
+}
 </script>
 
 <template>
@@ -63,18 +71,17 @@ const navigation = computed(() => {
                 </ul>
             </li>
             <li class="-mx-6 mt-auto">
-                <NuxtLink
-                    href="/api/logout"
-                    external
+                <button
                     class="flex gap-x-2 items-center rounded p-2 mx-4 text-sm font-semibold text-red-500"
+                    @click="openLogOutModal"
                 >
                     <UIcon
                         name="i-heroicons-arrow-left-start-on-rectangle"
                         class="h-6 w-6 shrink-0"
                         aria-hidden="true"
                     />
-                    Log out
-                </NuxtLink>
+                    <span>Sign out</span>
+                </button>
                 <div
                     href="#"
                     class="flex items-center gap-x-3 px-6 py-3 text-sm font-semibold leading-6"

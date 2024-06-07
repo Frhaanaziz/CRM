@@ -3,15 +3,19 @@ import type { KindeAuthState } from '~/types/kinde';
 import useUpdateProfile from '~/composables/useUpdateProfile';
 
 const auth = useState('auth') as Ref<KindeAuthState>;
-const { data } = await useFetch(
-    `/api/profile/${auth.value.user?.id}`
+const { data: profile } = await useFetch(
+    `/api/profile/${auth.value.user?.id}`,
+    {
+        key: 'profile',
+    }
 );
-if (!data.value)
+if (!profile.value)
     throw createError({ status: 404, message: 'User not found' });
 
-const { state, isSubmitting, submit } = useUpdateProfile({
-    user: data.value,
-});
+const { state, isSubmitting, submit, onChangeFile, photoError } =
+    useUpdateProfile({
+        user: profile.value,
+    });
 </script>
 
 <template>
@@ -24,10 +28,21 @@ const { state, isSubmitting, submit } = useUpdateProfile({
             <h2 class="text-2xl font-semibold mb-2">Profile</h2>
 
             <p class="font-semibold">Profile Image</p>
-            <div class="group inline-block relative hover:cursor-pointer">
+            <label
+                for="photo"
+                class="group inline-block relative hover:cursor-pointer"
+            >
+                <input
+                    id="photo"
+                    type="file"
+                    accept="image/png, image/jpeg, image/jpg"
+                    multiple="false"
+                    class="hidden"
+                    @change="onChangeFile"
+                />
                 <NuxtImg
-                    :src="$auth.user?.picture ?? '/images/avatar-fallback.jpg'"
-                    :alt="$auth.user?.given_name + 'Profile'"
+                    :src="profile?.photo ?? '/images/avatar-fallback.jpg'"
+                    :alt="profile?.first_name + 'Profile'"
                     icon="i-heroicons-user"
                     width="160"
                     height="160"
@@ -37,7 +52,10 @@ const { state, isSubmitting, submit } = useUpdateProfile({
                     name="i-heroicons-pencil-square"
                     class="opacity-0 text-base-300 group-hover:opacity-100 transition-opacity w-10 h-10 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                 />
-            </div>
+                <p v-if="photoError" class="text-sm text-red-500">
+                    {{ photoError }}
+                </p>
+            </label>
 
             <UForm
                 :schema="updateProfileSchema"
@@ -47,10 +65,7 @@ const { state, isSubmitting, submit } = useUpdateProfile({
                 @error="console.log"
             >
                 <UFormGroup label="Email" name="email">
-                    <UInput
-                        v-model="state.email"
-                        disabled
-                    />
+                    <UInput v-model="state.email" disabled />
                 </UFormGroup>
 
                 <UFormGroup label="First Name" name="first_name">

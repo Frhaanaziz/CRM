@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import LazyModalAddCompanyToCRM from '~/components/modal/ModalAddCompanyToCRM.vue';
+
 const route = useRoute();
 const company_id = route.params.company_id;
 
@@ -6,11 +8,17 @@ const { data: company } = await useFetch(
     `/api/companies/detail/${company_id}`,
     {
         key: `companies-${company_id}`,
-        // pick: ['']
     }
 );
 if (!company.value)
     throw createError({ status: 404, message: 'Company not found' });
+
+const modal = useModal();
+function openAddToCRMModal() {
+    modal.open(LazyModalAddCompanyToCRM, {
+        onClose: () => modal.close(),
+    });
+}
 </script>
 
 <template>
@@ -27,7 +35,10 @@ if (!company.value)
 
             <div class="p-4 flex justify-between items-center">
                 <div class="flex items-center gap-2">
-                    <UAvatar src="/images/avatar-fallback.jpg" size="lg" />
+                    <UAvatar
+                        :src="company?.avatar ?? '/images/avatar-fallback.jpg'"
+                        size="lg"
+                    />
                     <div>
                         <h1 class="font-bold text-lg">{{ company?.name }}</h1>
                         <p class="text-sm text-default">
@@ -40,6 +51,7 @@ if (!company.value)
                     variant="outline"
                     icon="i-heroicons-plus"
                     :trailing="false"
+                    @click="openAddToCRMModal"
                 >
                     Add to CRM
                 </UButton>
@@ -134,9 +146,15 @@ if (!company.value)
                         </div>
                         <p class="line-clamp-1">{{ company?.phone }}</p>
                         <p class="line-clamp-1">{{ company?.email }}</p>
-                        <p class="line-clamp-1">{{ company?.industry?.name }}</p>
-                        <p class="line-clamp-1">{{ company?.size?.size_range }}</p>
-                        <p class="line-clamp-1">{{ company?.province?.name }}</p>
+                        <p class="line-clamp-1">
+                            {{ company?.industry?.name }}
+                        </p>
+                        <p class="line-clamp-1">
+                            {{ company?.size?.size_range }}
+                        </p>
+                        <p class="line-clamp-1">
+                            {{ company?.province?.name }}
+                        </p>
                         <p class="line-clamp-1">{{ company?.city?.name }}</p>
                         <p class="line-clamp-1">{{ company?.street }}</p>
                         <p class="line-clamp-1">{{ company?.zip_code }}</p>

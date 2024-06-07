@@ -4,5 +4,6 @@
 		<UNotifications />
 
 		<NuxtPage class="text-default" />
+		<UModals />
 	</NuxtLayout>
 </template>
