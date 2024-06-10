@@ -1,8 +1,10 @@
 <script setup lang="ts">
+const { $api } = useNuxtApp();
+
 const { data: dataSummary } = await useAsyncData(async () => {
     const model = ['companies', 'industries', 'locations'];
     const data = await Promise.all(
-        model.map((model) => $fetch(`/api/${model}/count`))
+        model.map((model) => $api(`/api/${model}/count`))
     );
     return data.map((value, i) => ({ title: model[i], value }));
 });

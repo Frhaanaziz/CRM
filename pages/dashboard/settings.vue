@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { KindeAuthState } from '~/types/kinde';
 import useUpdateProfile from '~/composables/useUpdateProfile';
+import type { User } from '~/types';
 
 const auth = useState('auth') as Ref<KindeAuthState>;
-const { data: profile } = await useFetch(
+const { data: profile } = await useAPI<User>(
     `/api/profile/${auth.value.user?.id}`,
     {
         key: 'profile',
