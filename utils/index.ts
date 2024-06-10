@@ -2,6 +2,11 @@ import type { z } from 'zod';
 export * from './validators/auth';
 export * from './validators/profile';
 
+/**
+ * Returns the error message from a Zod parse result.
+ * @param result - The Zod parse result.
+ * @returns The error message.
+ */
 export function getZodErrorMessage(result: z.SafeParseError<any>): string {
   let errorMessage = '';
 
@@ -12,9 +17,12 @@ export function getZodErrorMessage(result: z.SafeParseError<any>): string {
   return errorMessage;
 }
 
+/**
+ * Extracts the domain from a given URL.
+ * @param url - The URL from which to extract the domain.
+ * @returns The extracted domain.
+ */
 export function extractDomain(url: string): string {
-  // Menggunakan regex untuk mengekstrak domain
-  // const domainRegex = /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)/;
   const domainRegex = /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:/\n]+)/;
   const match = url.match(domainRegex);
 
@@ -25,7 +33,14 @@ export function extractDomain(url: string): string {
   }
 }
 
+/**
+ * A utility object for displaying toast messages.
+ */
 export const toast = {
+  /**
+   * Displays a success toast message.
+   * @param message - The message to be displayed.
+   */
   success(message: string): void {
     useToast().add({
       title: 'Success',
@@ -36,6 +51,10 @@ export const toast = {
     });
   },
 
+  /**
+   * Displays an error toast message.
+   * @param message - The message to be displayed.
+   */
   error(message: string): void {
     useToast().add({
       title: 'Error',
