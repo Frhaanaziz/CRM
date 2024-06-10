@@ -9,7 +9,7 @@ const props = defineProps({
 });
 
 if (props.error && props.error.statusCode === 401)
-    clearError({ redirect: '/auth/signin' });
+    await navigateTo('/auth/signin');
 
 const handleError = () => clearError({ redirect: '/' });
 </script>
