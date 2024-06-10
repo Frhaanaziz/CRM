@@ -1,19 +1,24 @@
 <script setup lang="ts">
 import { useDebounce } from '@vueuse/core';
 
-const { data: companies, pending } = await useLazyFetch('/api/companies', {
-    key: 'companies',
-    transform: (v) =>
-        v.map((company) => ({
-            id: company.id,
-            name: company.name,
-            industry: company?.industry?.name ?? '',
-            size: company.size?.size_range ?? '',
-            location: `${company?.city?.name}, ${company?.province?.name}`,
-            website: company.website,
-            avatar: company.avatar,
-        })),
-});
+// Unable to use custom useAPI due to potential type error in the transform function
+const { data: companies, pending } = await useLazyFetch(
+    '/api/companies',
+    {
+        key: 'companies',
+        $fetch: useNuxtApp().$api,
+        transform: (v) =>
+            v.map((company) => ({
+                id: company.id,
+                name: company.name,
+                industry: company?.industry?.name ?? '',
+                size: company.size?.size_range ?? '',
+                location: `${company?.city?.name}, ${company?.province?.name}`,
+                website: company.website,
+                avatar: company.avatar,
+            })),
+    }
+);
 
 const search = ref('');
 const debounceSearch = useDebounce(search, 300);
@@ -77,11 +82,11 @@ const columns = [
                     >Industry</UButton
                 >
 
-                <template #panel>
+                <!-- <template #panel>
                     <div class="p-4">
                         <Placeholder class="h-20 w-48" />
                     </div>
-                </template>
+                </template> -->
             </UPopover>
             <UButton variant="outline" color="gray" class="focus:text-brand"
                 >Size</UButton
