@@ -15,6 +15,10 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxtjs/kinde',
   ],
+  
+  runtimeConfig: {
+    JWT_SECRET: process.env.NUXT_JWT_SECRET,
+  },
 
   // UI module options
   colorMode: {
