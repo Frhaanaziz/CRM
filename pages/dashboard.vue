@@ -2,7 +2,7 @@
 definePageMeta({
     layout: 'dashboard',
     middleware: [
-        'auth-logged-in'
+        'auth'
     ],
 });
 </script>

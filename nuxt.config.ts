@@ -40,4 +40,10 @@ export default defineNuxtConfig({
     //   cookieRedirect: true,
     // },
   },
+
+  kinde: {
+    // This is true by default and adds 'auth-logged-in' and 'auth-logged-out'
+    // middleware to your Nuxt application.
+    middleware: false,
+  }
 });
