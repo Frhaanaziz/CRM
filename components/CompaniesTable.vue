@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useDateFormat } from '@vueuse/core';
-import type { City, Company, Industry, Province, Size } from '~/types';
+import type { Industry, City, Company, Province, Size } from '~/types';
 
 interface IDataCompany extends Company {
     industry: Pick<Industry, 'name'>;
@@ -9,11 +9,11 @@ interface IDataCompany extends Company {
     city: Pick<City, 'name'>;
 }
 
-interface ITableCompany
-    extends Pick<Company, 'id' | 'name' | 'website' | 'avatar'> {
+interface ITableCompany extends Pick<Company, 'id' | 'name' | 'website' | 'avatar'> {
     industry: string;
     size: string;
-    location: string;
+    province: string;
+    city: string;
 }
 
 interface FilterOptions {
@@ -22,16 +22,39 @@ interface FilterOptions {
     limit: number;
     sort: string;
     order: 'asc' | 'desc';
+    industries?: string[];
+    sizes?: string[];
+    province?: string[];
+    cities?: string[];
 }
 
-function filterAndPaginate(
-    data: ITableCompany[],
-    options: FilterOptions
-): ITableCompany[] {
+function filterAndPaginate(data: ITableCompany[], options: FilterOptions): ITableCompany[] {
     // Filter by search term
-    const filteredData = data.filter((person) =>
-        person.name.toLowerCase().includes(options.search.toLowerCase())
-    );
+    let filteredData = data.filter((company) => company.name.toLowerCase().includes(options.search.toLowerCase()));
+
+    // Filter by industries
+    if (options.industries && options.industries.length > 0) {
+        filteredData = filteredData.filter((company) => options.industries?.includes(company.industry));
+    }
+
+    // Filter by sizes
+    if (options.sizes && options.sizes.length > 0) {
+        filteredData = filteredData.filter((company) => options.sizes?.includes(company.size));
+    }
+
+    // Filter by province
+    // if (options.province && options.province.length > 0) {
+    //     filteredData = filteredData.filter((company) =>
+    //         options.province.includes(company.province)
+    //     );
+    // }
+
+    // Filter by city
+    // if (options.cities.length > 0) {
+    //     filteredData = filteredData.filter((person) =>
+    //         options.cities.includes(person.city)
+    //     );
+    // }
 
     // Sort data
     const sortedData = filteredData.sort((a, b) => {
@@ -116,16 +139,24 @@ const columns = [
     },
 ];
 
-const selectedProvinces = ref([]);
-const selectedCities = ref([]);
+const inputIndustries = ref<string[]>([]);
+const inputSizes = ref<string[]>([]);
+const selectedIndustries = ref<string[]>([]);
+const selectedSizes = ref<string[]>([]);
+const selectedProvinces = ref<string[]>([]);
+const selectedCities = ref<string[]>([]);
 const selectedColumns = ref(initialColumns);
-const columnsTable = computed(() =>
-    columns.filter((column) => selectedColumns.value.includes(column))
-);
+const columnsTable = computed(() => columns.filter((column) => selectedColumns.value.includes(column)));
 
 const search = ref('');
 const resetFilters = () => {
     search.value = '';
+    inputIndustries.value = [];
+    inputSizes.value = [];
+    selectedIndustries.value = [];
+    selectedSizes.value = [];
+    selectedProvinces.value = [];
+    selectedCities.value = [];
 };
 
 // Pagination
@@ -133,56 +164,50 @@ const sort = ref({ column: 'id', direction: 'asc' as const });
 const page = ref(1);
 const pageCount = ref(10);
 const pageFrom = computed(() => (page.value - 1) * pageCount.value + 1);
-const pageTo = computed(() =>
-    Math.min(page.value * pageCount.value, pageTotal.value)
-);
+const pageTo = computed(() => Math.min(page.value * pageCount.value, pageTotal.value));
 
 const { $api } = useNuxtApp();
-const [
-    { data: companies, pending },
-    { data: industries },
-    { data: sizes },
-    { data: provinces },
-    { data: cities },
-] = await Promise.all([
-    useLazyAsyncData(
-        'companies-paginated',
-        async () => {
-            const companies = await $api<IDataCompany[]>('/api/companies');
-            return companies.map((company) => ({
-                id: company.id,
-                name: company.name,
-                industry: company?.industry?.name ?? '',
-                size: company.size?.size_range ?? '',
-                location: `${company?.city?.name}, ${company?.province?.name}`,
-                website: company.website,
-                avatar: company.avatar,
-                created_at: company.created_at,
-                email: company.email,
-                linkedin: company.linkedin,
-                phone: company.phone,
-                street: company.street,
-                zip_code: company.zip_code,
-            }));
-        },
-        {
-            default: () => [],
-            watch: [page, search, pageCount, sort],
-        }
-    ),
-    useAPI<Industry[]>('/api/industries', {
-        lazy: true,
-    }),
-    useAPI<Size[]>('/api/sizes', {
-        lazy: true,
-    }),
-    useAPI<Province[]>('/api/provinces', {
-        lazy: true,
-    }),
-    useAPI<City[]>('/api/cities', {
-        lazy: true,
-    }),
-]);
+const [{ data: companies, pending }, { data: industries }, { data: sizes }, { data: provinces }, { data: cities }] =
+    await Promise.all([
+        useLazyAsyncData(
+            'companies-paginated',
+            async () => {
+                const companies = await $api<IDataCompany[]>('/api/companies');
+                return companies.map((company) => ({
+                    id: company.id,
+                    name: company.name,
+                    industry: company?.industry?.name ?? '',
+                    size: company.size?.size_range ?? '',
+                    province: company?.province?.name ?? '',
+                    city: company?.city?.name ?? '',
+                    website: company.website,
+                    avatar: company.avatar,
+                    created_at: company.created_at,
+                    email: company.email,
+                    linkedin: company.linkedin,
+                    phone: company.phone,
+                    street: company.street,
+                    zip_code: company.zip_code,
+                }));
+            },
+            {
+                default: () => [],
+                watch: [page, search, pageCount, sort, selectedCities, selectedProvinces, selectedIndustries, selectedSizes],
+            }
+        ),
+        useAPI<Industry[]>('/api/industries', {
+            lazy: true,
+        }),
+        useAPI<Size[]>('/api/sizes', {
+            lazy: true,
+        }),
+        useAPI<Province[]>('/api/provinces', {
+            lazy: true,
+        }),
+        useAPI<City[]>('/api/cities', {
+            lazy: true,
+        }),
+    ]);
 
 const pageTotal = ref(companies.value.length);
 const filteredCompanies = computed(() => {
@@ -194,6 +219,10 @@ const filteredCompanies = computed(() => {
         limit: pageCount.value,
         sort: sort.value.column,
         order: sort.value.direction,
+        industries: selectedIndustries.value,
+        sizes: selectedSizes.value,
+        province: selectedProvinces.value,
+        cities: selectedCities.value,
     });
 });
 </script>
@@ -205,11 +234,7 @@ const filteredCompanies = computed(() => {
     <!-- Header and Action buttons -->
     <div class="p-3 bg-base-200 mt-3 flex justify-between items-center rounded">
         <div class="flex items-center gap-4">
-            <UInput
-                v-model="search"
-                icon="i-heroicons-magnifying-glass-20-solid"
-                placeholder="Search..."
-            />
+            <UInput v-model="search" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search..." />
 
             <div class="flex items-center gap-2">
                 <p>Filter:</p>
@@ -228,42 +253,37 @@ const filteredCompanies = computed(() => {
                     >
                     <template #panel>
                         <div class="min-w-72">
-                            <p class="p-3 border-b font-semibold">
-                                Filter by Industry
-                            </p>
+                            <p class="p-3 border-b font-semibold">Filter by Industry</p>
                             <template v-if="industries">
-                                <div
-                                    class="p-3 bg-base-200 space-y-3 max-h-52 overflow-x-auto"
-                                >
-                                    <div
-                                        v-for="industry in industries"
-                                        :key="industry.id"
-                                        class="flex items-center gap-2"
-                                    >
+                                <div class="p-3 bg-base-200 space-y-3 max-h-52 overflow-x-auto">
+                                    <div v-for="industry in industries" :key="industry.id" class="flex items-center gap-2">
                                         <UCheckbox
                                             :id="`industry-${industry.id}`"
+                                            v-model="inputIndustries"
+                                            :value="industry.name"
                                         />
-                                        <label
-                                            :for="`industry-${industry.id}`"
-                                            class="text-sm"
-                                        >
+                                        <label :for="`industry-${industry.id}`" class="text-sm">
                                             {{ industry.name }}
                                         </label>
                                     </div>
                                 </div>
-                                <div
-                                    class="p-3 flex justify-end gap-2 bg-base-200"
-                                >
-                                    <UButton variant="outline" size="sm"
-                                        >Cancel</UButton
-                                    >
-                                    <UButton size="sm">Apply</UButton>
+                                <div class="p-3 flex justify-end gap-2 bg-base-200">
+                                    <UButton
+                                        variant="outline"
+                                        size="sm"
+                                        @click="
+                                            () => {
+                                                inputIndustries = [];
+                                                selectedIndustries = [];
+                                            }
+                                        "
+                                        >Cancel
+                                    </UButton>
+                                    <UButton size="sm" @click="selectedIndustries = inputIndustries"> Apply </UButton>
                                 </div>
                             </template>
                             <template v-else>
-                                <p class="p-3 flex justify-center items-center">
-                                    no data
-                                </p>
+                                <p class="p-3 flex justify-center items-center">no data</p>
                             </template>
                         </div>
                     </template>
@@ -284,40 +304,33 @@ const filteredCompanies = computed(() => {
                     >
                     <template #panel>
                         <div class="min-w-72">
-                            <p class="p-3 border-b font-semibold">
-                                Filter by Company Size
-                            </p>
+                            <p class="p-3 border-b font-semibold">Filter by Company Size</p>
                             <template v-if="sizes">
-                                <div
-                                    class="p-3 bg-base-200 space-y-3 max-h-52 overflow-x-auto"
-                                >
-                                    <div
-                                        v-for="size in sizes"
-                                        :key="size.id"
-                                        class="flex items-center gap-2"
-                                    >
-                                        <UCheckbox :id="`size-${size.id}`" />
-                                        <label
-                                            :for="`size-${size.id}`"
-                                            class="text-sm"
-                                        >
+                                <div class="p-3 bg-base-200 space-y-3 max-h-52 overflow-x-auto">
+                                    <div v-for="size in sizes" :key="size.id" class="flex items-center gap-2">
+                                        <UCheckbox :id="`size-${size.id}`" v-model="inputSizes" :value="size.size_range" />
+                                        <label :for="`size-${size.id}`" class="text-sm">
                                             {{ size.size_range }}
                                         </label>
                                     </div>
                                 </div>
-                                <div
-                                    class="p-3 flex justify-end gap-2 bg-base-200"
-                                >
-                                    <UButton variant="outline" size="sm"
+                                <div class="p-3 flex justify-end gap-2 bg-base-200">
+                                    <UButton
+                                        variant="outline"
+                                        size="sm"
+                                        @click="
+                                            () => {
+                                                inputSizes = [];
+                                                selectedSizes = [];
+                                            }
+                                        "
                                         >Cancel</UButton
                                     >
-                                    <UButton size="sm">Apply</UButton>
+                                    <UButton size="sm" @click="selectedSizes = inputSizes">Apply</UButton>
                                 </div>
                             </template>
                             <template v-else>
-                                <p class="p-3 flex justify-center items-center">
-                                    no data
-                                </p>
+                                <p class="p-3 flex justify-center items-center">no data</p>
                             </template>
                         </div>
                     </template>
@@ -337,38 +350,18 @@ const filteredCompanies = computed(() => {
                     >
                     <template #panel>
                         <div class="min-w-72">
-                            <p class="p-3 border-b font-semibold">
-                                Filter by Location
-                            </p>
-                            <div
-                                class="p-3 bg-base-200 space-y-3 max-h-52 overflow-x-auto"
-                            >
+                            <p class="p-3 border-b font-semibold">Filter by Location</p>
+                            <div class="p-3 bg-base-200 space-y-3 max-h-52 overflow-x-auto">
                                 <UFormGroup label="Province" name="province">
-                                    <UInputMenu
-                                        v-model="selectedProvinces"
-                                        :options="
-                                            provinces?.map(
-                                                ({ name }) => name ?? []
-                                            )
-                                        "
-                                    />
+                                    <UInputMenu v-model="selectedProvinces" :options="provinces?.map(({ name }) => name ?? [])" />
                                 </UFormGroup>
 
                                 <UFormGroup label="City" name="city">
-                                    <UInputMenu
-                                        v-model="selectedCities"
-                                        :options="
-                                            cities?.map(
-                                                ({ name }) => name ?? []
-                                            )
-                                        "
-                                    />
+                                    <UInputMenu v-model="selectedCities" :options="cities?.map(({ name }) => name ?? [])" />
                                 </UFormGroup>
                             </div>
                             <div class="p-3 flex justify-end gap-2 bg-base-200">
-                                <UButton variant="outline" size="sm"
-                                    >Cancel</UButton
-                                >
+                                <UButton variant="outline" size="sm">Cancel</UButton>
                                 <UButton size="sm">Apply</UButton>
                             </div>
                         </div>
@@ -379,15 +372,8 @@ const filteredCompanies = computed(() => {
 
         <div class="flex gap-1.5 items-center">
             <!-- Columns Selector -->
-            <USelectMenu
-                v-model="selectedColumns"
-                :options="columns"
-                multiple
-                :uiMenu="{ width: 'min-w-32' }"
-            >
-                <UButton icon="i-heroicons-view-columns" color="gray" size="xs">
-                    Columns
-                </UButton>
+            <USelectMenu v-model="selectedColumns" :options="columns" multiple :uiMenu="{ width: 'min-w-32' }">
+                <UButton icon="i-heroicons-view-columns" color="gray" size="xs"> Columns </UButton>
             </USelectMenu>
 
             <!-- Reset Filters Button -->
@@ -395,7 +381,15 @@ const filteredCompanies = computed(() => {
                 icon="i-heroicons-funnel"
                 color="gray"
                 size="xs"
-                :disabled="search === ''"
+                :disabled="
+                    !(
+                        !!search.length ||
+                        !!selectedIndustries.length ||
+                        !!selectedSizes.length ||
+                        !!selectedProvinces.length ||
+                        !!selectedCities.length
+                    )
+                "
                 @click="resetFilters"
             >
                 Reset
@@ -420,60 +414,36 @@ const filteredCompanies = computed(() => {
     >
         <template #name-data="{ row }">
             <div class="flex items-center gap-2">
-                <UAvatar
-                    :src="row?.avatar ?? '/images/avatar-fallback.jpg'"
-                    size="xs"
-                />
-                <NuxtLink
-                    :href="`/dashboard/companies/${row.id}`"
-                    class="text-brand hover:underline"
-                >
+                <UAvatar :src="row?.avatar ?? '/images/avatar-fallback.jpg'" size="xs" />
+                <NuxtLink :href="`/dashboard/companies/${row.id}`" class="text-brand hover:underline">
                     {{ row.name }}
                 </NuxtLink>
             </div>
         </template>
 
         <template #website-data="{ row }">
-            <NuxtLink
-                :href="row.website"
-                class="text-brand hover:underline"
-                external
-                target="_blank"
-            >
+            <NuxtLink :href="row.website" class="text-brand hover:underline" external target="_blank">
                 {{ extractDomain(row.website) }}
             </NuxtLink>
         </template>
 
         <template #linkedin-data="{ row }">
-            <NuxtLink
-                :href="row.linkedin"
-                class="text-brand hover:underline"
-                external
-                target="_blank"
-            >
+            <NuxtLink :href="row.linkedin" class="text-brand hover:underline" external target="_blank">
                 {{ row.linkedin }}
             </NuxtLink>
         </template>
 
         <template #created_at-data="{ row }">
-            {{
-                useDateFormat(
-                    row.created_at,
-                    'YYYY-MM-DD HH:mm:ss'
-                ).value.replace('"', '')
-            }}
+            {{ useDateFormat(row.created_at, 'YYYY-MM-DD HH:mm:ss').value.replace('"', '') }}
+        </template>
+
+        <template #location-data="{ row }">
+            {{ `${row.city}, ${row.province}` }}
         </template>
 
         <template #empty-state>
-            <div
-                class="flex flex-col items-center justify-center py-10 gap-y-5"
-            >
-                <NuxtImg
-                    src="/icons/magnifying-glass-x.svg"
-                    alt=""
-                    width="64"
-                    height="64"
-                />
+            <div class="flex flex-col items-center justify-center py-10 gap-y-5">
+                <NuxtImg src="/icons/magnifying-glass-x.svg" alt="" width="64" height="64" />
                 <p>No companies found</p>
             </div>
         </template>
@@ -497,12 +467,7 @@ const filteredCompanies = computed(() => {
         <div class="flex items-center gap-1.5">
             <span class="text-sm leading-5">Rows per page:</span>
 
-            <USelect
-                v-model="pageCount"
-                :options="[3, 5, 10, 20, 30, 40]"
-                class="me-2 w-20"
-                size="xs"
-            />
+            <USelect v-model="pageCount" :options="[3, 5, 10, 20, 30, 40]" class="me-2 w-20" size="xs" />
         </div>
 
         <UPagination
