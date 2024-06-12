@@ -40,7 +40,7 @@ export default function useUpdateProfile({ user }: { user: User }) {
             toast.success('Profile updated successfully');
         } catch (e) {
             console.log('Error updating profile', e);
-            toast.error('Error updating profile');
+            toast.error('Failed to update profile, please try again later');
         } finally {
             isSubmitting.value = false;
         }
@@ -76,7 +76,9 @@ export default function useUpdateProfile({ user }: { user: User }) {
             await refreshNuxtData('profile');
         } catch (e) {
             console.log('Error updating profile photo', e);
-            toast.error('Error updating profile photo');
+            toast.error(
+                'Failed to update profile photo, please try again later'
+            );
         }
 
         isSubmitting.value = false;
