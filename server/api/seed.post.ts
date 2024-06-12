@@ -1,4 +1,4 @@
-import { H3Event } from 'h3';
+import type { H3Event } from 'h3';
 import { faker } from '@faker-js/faker';
 import { z } from 'zod';
 import { getZodErrorMessage } from '~/utils';
