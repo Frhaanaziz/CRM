@@ -1,39 +1,43 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devtools: { enabled: true },
-  css: ['~/assets/css/tailwind.css'],
-  postcss: {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
+    devtools: { enabled: true },
+    css: ['~/assets/css/tailwind.css'],
+    postcss: {
+        plugins: {
+            tailwindcss: {},
+            autoprefixer: {},
+        },
     },
-  },
-  modules: [
-    '@nuxt/eslint',
-    '@nuxtjs/supabase',
-    '@nuxt/ui',
-    '@nuxt/image',
-    '@nuxtjs/kinde',
-  ],
+    modules: [
+        '@nuxt/eslint',
+        '@nuxtjs/supabase',
+        '@nuxt/ui',
+        '@nuxt/image',
+        '@nuxtjs/kinde',
+    ],
 
-  // UI module options
-  colorMode: {
-    preference: 'light',
-  },
+    runtimeConfig: {
+        JWT_SECRET: process.env.NUXT_JWT_SECRET,
+    },
 
-  // TypeScript module options
-  typescript: {
-    typeCheck: true,
-  },
+    // UI module options
+    colorMode: {
+        preference: 'light',
+    },
 
-  // Supabase module options
-  supabase: {
-    redirect: false,
-    // redirectOptions: {
-    //   login: '/auth/signin',
-    //   callback: '/dashboard',
-    //   include: ['/', '/dashboard(/*)?'],
-    //   cookieRedirect: true,
-    // },
-  },
+    // TypeScript module options
+    typescript: {
+        typeCheck: true,
+    },
+
+    // Supabase module options
+    supabase: {
+        redirect: false,
+        // redirectOptions: {
+        //   login: '/auth/signin',
+        //   callback: '/dashboard',
+        //   include: ['/', '/dashboard(/*)?'],
+        //   cookieRedirect: true,
+        // },
+    },
 });
