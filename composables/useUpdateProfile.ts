@@ -3,7 +3,14 @@ import type { FormSubmitEvent } from '#ui/types';
 import type { User } from '~/types';
 import { photoSchema } from '~/utils/validators';
 
+/**
+ * Custom composable function for updating user profile.
+ * @param {Object} options - The options object.
+ * @param {User} options.user - The user object.
+ * @returns {Object} - The state and functions for updating the profile.
+ */
 export default function useUpdateProfile({ user }: { user: User }) {
+    const { $api } = useNuxtApp();
     type UpdateUserType = z.infer<typeof updateProfileSchema>;
 
     const userProfile = ref(user);
@@ -15,10 +22,15 @@ export default function useUpdateProfile({ user }: { user: User }) {
         linkedin: userProfile.value.linkedin ?? '',
     });
 
-    async function onSubmit(event: FormSubmitEvent<UpdateUserType>) {
+    /**
+     * Handles the form submission event.
+     * @param {FormSubmitEvent<UpdateUserType>} event - The form submission event.
+     * @returns {Promise<void>} - A promise that resolves when the profile is updated successfully.
+     */
+    async function onSubmit(event: FormSubmitEvent<UpdateUserType>): Promise<void> {
         try {
             isSubmitting.value = true;
-            await $fetch(`/api/profile/${userProfile.value?.id}`, {
+            await $api(`/api/profile/${userProfile.value?.id}`, {
                 method: 'PATCH',
                 body: JSON.stringify(event.data),
             });
@@ -26,13 +38,18 @@ export default function useUpdateProfile({ user }: { user: User }) {
             toast.success('Profile updated successfully');
         } catch (e) {
             console.log('Error updating profile', e);
-            toast.error('Error updating profile');
+            toast.error('Failed to update profile, please try again later');
         } finally {
             isSubmitting.value = false;
         }
     }
 
-    async function onChangeFile(event: Event) {
+    /**
+     * Handles the file change event.
+     * @param {Event} event - The file change event.
+     * @returns {Promise<void>} - A promise that resolves when the profile photo is updated successfully.
+     */
+    async function onChangeFile(event: Event): Promise<void> {
         photoError.value = '';
         isSubmitting.value = true;
 
@@ -48,7 +65,7 @@ export default function useUpdateProfile({ user }: { user: User }) {
         formData.append('photo', zodResult.data);
 
         try {
-            await $fetch(`/api/profile/${user.id}/avatar`, {
+            await $api(`/api/profile/${user.id}/avatar`, {
                 method: 'PATCH',
                 body: formData,
             });
@@ -57,7 +74,7 @@ export default function useUpdateProfile({ user }: { user: User }) {
             await refreshNuxtData('profile');
         } catch (e) {
             console.log('Error updating profile photo', e);
-            toast.error('Error updating profile photo');
+            toast.error('Failed to update profile photo, please try again later');
         }
 
         isSubmitting.value = false;

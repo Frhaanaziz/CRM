@@ -1,4 +1,4 @@
-import { H3Event } from 'h3';
+import type { H3Event } from 'h3';
 import type { Database } from '~/types/supabase';
 import { serverSupabaseClient } from '#supabase/server';
 
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event: H3Event) => {
             size: Sizes(size_range),
             province: Provinces(name),
             city: Cities(name)
-            `
+            `,
         )
         .order('created_at', { ascending: false });
     if (res.error) {

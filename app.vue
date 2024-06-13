@@ -1,9 +1,9 @@
 <template>
-	<NuxtLayout>
-		<NuxtLoadingIndicator color='#0265DC' />
-		<UNotifications />
+    <NuxtLayout>
+        <NuxtLoadingIndicator color="#0265DC" />
+        <UNotifications />
 
-		<NuxtPage class="text-default" />
-		<UModals />
-	</NuxtLayout>
+        <NuxtPage class="text-default" />
+        <UModals />
+    </NuxtLayout>
 </template>

@@ -14,7 +14,7 @@ export type CreateUserResponse = {
             result: {
                 created: boolean;
             };
-        }
+        },
     ];
 };
 

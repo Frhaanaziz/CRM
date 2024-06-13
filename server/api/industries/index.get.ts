@@ -5,14 +5,14 @@ import { serverSupabaseClient } from '#supabase/server';
 export default defineEventHandler(async (event: H3Event) => {
     const supabase = await serverSupabaseClient<Database>(event);
 
-    const countRes = await supabase.from('Industries').select('*', { count: 'exact', head: true });
-    if (countRes.error) {
-        console.error('Failed to get Industries count', countRes.error);
+    const res = await supabase.from('Industries').select().order('created_at', { ascending: false });
+    if (res.error) {
+        console.error('Error fetching industries', res.error);
         throw createError({
             status: 500,
-            statusMessage: 'Failed to get Industries count',
+            statusMessage: res.error.message,
         });
     }
 
-    return countRes.count;
+    return res.data;
 });

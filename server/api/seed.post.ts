@@ -1,4 +1,4 @@
-import { H3Event } from 'h3';
+import type { H3Event } from 'h3';
 import { faker } from '@faker-js/faker';
 import { z } from 'zod';
 import { getZodErrorMessage } from '~/utils';
@@ -57,9 +57,7 @@ export default defineEventHandler(async (event: H3Event) => {
 
     console.info('Creating Provinces...');
     console.info('Fetching provinces from API...');
-    const provincesRes = await fetch(
-        'https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json'
-    );
+    const provincesRes = await fetch('https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json');
     const provincesData = (await provincesRes.json()) as {
         id: string;
         name: string;
@@ -67,9 +65,7 @@ export default defineEventHandler(async (event: H3Event) => {
 
     console.info(`Creating ${provincesData.length} provinces...`);
     const provinceRes = await Promise.all(
-        provincesData.map(({ id, name }) =>
-            supabase.from('Provinces').insert({ id: parseInt(id), name })
-        )
+        provincesData.map(({ id, name }) => supabase.from('Provinces').insert({ id: parseInt(id), name })),
     );
     const provinceErrors = provinceRes.filter((res) => res.error);
     if (provinceErrors.length) {
@@ -84,30 +80,22 @@ export default defineEventHandler(async (event: H3Event) => {
     const citiesData: Pick<City, 'id' | 'name' | 'province_id'>[] = [];
     await Promise.all(
         provincesData.map(async (province) => {
-            console.info(
-                `Fetching cities for province ${province.name.toUpperCase()}...`
-            );
-            const citiesRes = await fetch(
-                `https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${province.id}.json`
-            );
+            console.info(`Fetching cities for province ${province.name.toUpperCase()}...`);
+            const citiesRes = await fetch(`https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${province.id}.json`);
             const cities = (await citiesRes.json()) as {
                 id: string;
                 name: string;
             }[];
 
-            console.info(
-                `Creating ${
-                    cities.length
-                } cities for province ${province.name.toUpperCase()}...`
-            );
+            console.info(`Creating ${cities.length} cities for province ${province.name.toUpperCase()}...`);
             const cityRes = await Promise.all(
                 cities.map(({ id, name }) =>
                     supabase.from('Cities').insert({
                         id: parseInt(id),
                         province_id: parseInt(province.id),
                         name,
-                    })
-                )
+                    }),
+                ),
             );
             const cityErrors = cityRes.filter((res) => res.error);
             if (cityErrors.length) {
@@ -123,20 +111,16 @@ export default defineEventHandler(async (event: H3Event) => {
                     id: parseInt(id),
                     name,
                     province_id: parseInt(province.id),
-                }))
+                })),
             );
-        })
+        }),
     );
 
     console.info('Creating Industries...');
     console.info(`Creating ${industries.length} industries...`);
     const industriesData = await Promise.all(
         industries.map(async (name) => {
-            const res = await supabase
-                .from('Industries')
-                .insert({ name })
-                .select()
-                .single();
+            const res = await supabase.from('Industries').insert({ name }).select().single();
             if (res.error) {
                 console.error('Failed to create industry', res.error);
                 throw createError({
@@ -146,7 +130,7 @@ export default defineEventHandler(async (event: H3Event) => {
             }
 
             return res.data;
-        })
+        }),
     );
 
     console.info('Creating Sizes...');
@@ -161,15 +145,11 @@ export default defineEventHandler(async (event: H3Event) => {
             { size_range: '5001-10000' },
             { size_range: '10001+' },
         ].map(async (size) => {
-            const sizeRes = await supabase
-                .from('Sizes')
-                .insert(size)
-                .select()
-                .single();
+            const sizeRes = await supabase.from('Sizes').insert(size).select().single();
             if (!sizeRes.data) throw new Error('Failed to create size');
 
             return sizeRes.data;
-        })
+        }),
     );
 
     console.info('Creating Companies...');
@@ -184,11 +164,7 @@ export default defineEventHandler(async (event: H3Event) => {
             allowSpecialCharacters: false,
             provider: 'gmail.com',
         });
-        const city_id = faker.helpers.arrayElement(
-            citiesData.filter(
-                (city) => city.province_id === parseInt(province.id)
-            )
-        ).id;
+        const city_id = faker.helpers.arrayElement(citiesData.filter((city) => city.province_id === parseInt(province.id))).id;
         const size_id = faker.helpers.arrayElement(sizesData).id;
         const industry_id = faker.helpers.arrayElement(industriesData).id;
 
@@ -199,9 +175,7 @@ export default defineEventHandler(async (event: H3Event) => {
             description: faker.lorem.paragraphs(),
             services: faker.lorem.paragraphs(2),
             website: faker.internet.url(),
-            linkedin: `https://linkedin.com/company/${name
-                .toLowerCase()
-                .replace(/\s/g, '-')}`,
+            linkedin: `https://linkedin.com/company/${name.toLowerCase().replace(/\s/g, '-')}`,
             size_id,
             province_id: parseInt(province.id),
             city_id,
