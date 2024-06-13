@@ -13,14 +13,10 @@ interface ICompany extends Company {
 const route = useRoute();
 const company_id = route.params.company_id;
 
-const { data: company } = await useAPI<ICompany>(
-    `/api/companies/detail/${company_id}`,
-    {
-        key: `companies-${company_id}`,
-    }
-);
-if (!company.value)
-    throw createError({ status: 404, message: 'Company not found' });
+const { data: company } = await useAPI<ICompany>(`/api/companies/detail/${company_id}`, {
+    key: `companies-${company_id}`,
+});
+if (!company.value) throw createError({ status: 404, message: 'Company not found' });
 
 const modal = useModal();
 function openAddToCRMModal() {
@@ -34,76 +30,57 @@ function openAddToCRMModal() {
     <div class="min-h-screen bg-base-200">
         <header class="bg-base-100">
             <div class="border-b">
-                <NuxtLink
-                    href="/dashboard/companies"
-                    class="border inline-block pt-2 px-2"
-                >
-                    <UIcon name="i-heroicons-arrow-left" class="w-6 h-6" />
+                <NuxtLink href="/dashboard/companies" class="inline-block border px-2 pt-2">
+                    <UIcon name="i-heroicons-arrow-left" class="h-6 w-6" />
                 </NuxtLink>
             </div>
 
-            <div class="p-4 flex justify-between items-center">
+            <div class="flex items-center justify-between p-4">
                 <div class="flex items-center gap-2">
-                    <UAvatar
-                        :src="company?.avatar ?? '/images/avatar-fallback.jpg'"
-                        size="lg"
-                    />
+                    <UAvatar :src="company?.avatar ?? '/images/avatar-fallback.jpg'" size="lg" />
                     <div>
-                        <h1 class="font-bold text-lg">{{ company?.name }}</h1>
-                        <p class="text-sm text-default">
+                        <h1 class="text-lg font-bold">{{ company?.name }}</h1>
+                        <p class="text-default text-sm">
                             {{ company?.industry?.name }}
                         </p>
                     </div>
                 </div>
 
-                <UButton
-                    variant="outline"
-                    icon="i-heroicons-plus"
-                    :trailing="false"
-                    @click="openAddToCRMModal"
-                >
+                <UButton variant="outline" icon="i-heroicons-plus" :trailing="false" @click="openAddToCRMModal">
                     Add to CRM
                 </UButton>
             </div>
         </header>
 
-        <section class="p-3 grid grid-cols-2 gap-x-4">
+        <section class="grid grid-cols-2 gap-x-4 p-3">
             <UCard>
                 <template #header>
-                    <h2 class="font-semibold text-xl">OVERVIEW</h2>
+                    <h2 class="text-xl font-semibold">OVERVIEW</h2>
                 </template>
 
                 <h3 class="font-semibold">Description</h3>
-                <p class="text-sm mt-1">
+                <p class="mt-1 text-sm">
                     {{ company?.description }}
                 </p>
 
-                <h3 class="font-semibold mt-5">Services</h3>
-                <p class="text-sm mt-1">
+                <h3 class="mt-5 font-semibold">Services</h3>
+                <p class="mt-1 text-sm">
                     {{ company?.services }}
                 </p>
 
-                <h3 class="font-semibold mt-5">Gallery</h3>
+                <h3 class="mt-5 font-semibold">Gallery</h3>
                 <div class="mt-1 flex items-center gap-2">
-                    <NuxtImg
-                        src="/images/company-gallery-1.svg"
-                        width="258"
-                        height="144"
-                    />
-                    <NuxtImg
-                        src="/images/company-gallery-2.svg"
-                        width="258"
-                        height="144"
-                    />
+                    <NuxtImg src="/images/company-gallery-1.svg" width="258" height="144" />
+                    <NuxtImg src="/images/company-gallery-2.svg" width="258" height="144" />
                 </div>
             </UCard>
             <UCard>
                 <template #header>
-                    <h2 class="font-semibold text-xl">DETAILS</h2>
+                    <h2 class="text-xl font-semibold">DETAILS</h2>
                 </template>
 
                 <div class="flex gap-6">
-                    <div class="text-weak grid grid-rows-11 gap-y-8 shrink-0">
+                    <div class="text-weak grid shrink-0 grid-rows-11 gap-y-8">
                         <p>Company Name</p>
                         <p>Website</p>
                         <p>LinkedIn URL</p>
@@ -117,11 +94,9 @@ function openAddToCRMModal() {
                         <p>ZIP/Postal Code</p>
                     </div>
 
-                    <div
-                        class="text-default font-semibold grow grid grid-rows-11 gap-y-8"
-                    >
+                    <div class="text-default grid grow grid-rows-11 gap-y-8 font-semibold">
                         <p class="line-clamp-1">{{ company?.name }}</p>
-                        <div class="flex justify-between items-center">
+                        <div class="flex items-center justify-between">
                             <template v-if="company?.website">
                                 <NuxtLink
                                     :href="company?.website ?? '#'"
@@ -133,15 +108,15 @@ function openAddToCRMModal() {
                                 </NuxtLink>
                                 <UIcon
                                     name="i-heroicons-arrow-top-right-on-square shrink-0"
-                                    class="w-5 text-weak h-5 text-weak"
+                                    class="text-weak text-weak h-5 w-5"
                                 />
                             </template>
                         </div>
-                        <div class="flex justify-between items-center">
+                        <div class="flex items-center justify-between">
                             <template v-if="company?.linkedin">
                                 <NuxtLink
                                     :href="company?.linkedin ?? '#'"
-                                    class="text-brand hover:underline line-clamp-1"
+                                    class="line-clamp-1 text-brand hover:underline"
                                     external
                                     target="_blank"
                                 >
@@ -149,7 +124,7 @@ function openAddToCRMModal() {
                                 </NuxtLink>
                                 <UIcon
                                     name="i-heroicons-arrow-top-right-on-square"
-                                    class="w-5 text-weak h-5 text-weak shrink-0"
+                                    class="text-weak text-weak h-5 w-5 shrink-0"
                                 />
                             </template>
                         </div>

@@ -5,12 +5,11 @@ const pathname = ref(route.path);
 
 watch(
     () => route.path,
-    () => (pathname.value = route.path)
+    () => (pathname.value = route.path),
 );
 
 const navigation = computed(() => {
-    const isCurrent = (path: string) =>
-        pathname.value.replace('/dashboard', '') === path;
+    const isCurrent = (path: string) => pathname.value.replace('/dashboard', '') === path;
 
     return [
         {
@@ -57,14 +56,10 @@ function openLogOutModal() {
                                 item.current
                                     ? 'border-l-4 border-l-brand'
                                     : 'border-l-4 border-l-transparent hover:border-l-brand',
-                                'transition text-weak flex gap-x-3 rounded p-2 text-sm leading-6 font-semibold',
+                                'text-weak flex gap-x-3 rounded p-2 text-sm font-semibold leading-6 transition',
                             ]"
                         >
-                            <UIcon
-                                :name="item.icon"
-                                class="h-6 w-6 shrink-0 text-weak"
-                                aria-hidden="true"
-                            />
+                            <UIcon :name="item.icon" class="text-weak h-6 w-6 shrink-0" aria-hidden="true" />
                             {{ item.name }}
                         </NuxtLink>
                     </li>
@@ -72,32 +67,18 @@ function openLogOutModal() {
             </li>
             <li class="-mx-6 mt-auto">
                 <button
-                    class="flex gap-x-2 items-center rounded p-2 mx-4 text-sm font-semibold text-red-500"
+                    class="mx-4 flex items-center gap-x-2 rounded p-2 text-sm font-semibold text-red-500"
                     @click="openLogOutModal"
                 >
-                    <UIcon
-                        name="i-heroicons-arrow-left-start-on-rectangle"
-                        class="h-6 w-6 shrink-0"
-                        aria-hidden="true"
-                    />
+                    <UIcon name="i-heroicons-arrow-left-start-on-rectangle" class="h-6 w-6 shrink-0" aria-hidden="true" />
                     <span>Sign out</span>
                 </button>
-                <div
-                    href="#"
-                    class="flex items-center gap-x-3 px-6 py-3 text-sm font-semibold leading-6"
-                >
-                    <UAvatar
-                        :src="
-                            $auth?.user?.picture ??
-                            '/images/avatar-fallback.jpg'
-                        "
-                        icon="i-heroicons-photo"
-                        alt="Avatar"
-                    />
+                <div href="#" class="flex items-center gap-x-3 px-6 py-3 text-sm font-semibold leading-6">
+                    <UAvatar :src="$auth?.user?.picture ?? '/images/avatar-fallback.jpg'" icon="i-heroicons-photo" alt="Avatar" />
 
                     <div>
                         <p>{{ `${$auth?.user?.given_name}` }}</p>
-                        <p class="text-sm text-weak font-normal">
+                        <p class="text-weak text-sm font-normal">
                             {{ $auth?.user?.email }}
                         </p>
                     </div>

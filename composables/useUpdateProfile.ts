@@ -27,9 +27,7 @@ export default function useUpdateProfile({ user }: { user: User }) {
      * @param {FormSubmitEvent<UpdateUserType>} event - The form submission event.
      * @returns {Promise<void>} - A promise that resolves when the profile is updated successfully.
      */
-    async function onSubmit(
-        event: FormSubmitEvent<UpdateUserType>
-    ): Promise<void> {
+    async function onSubmit(event: FormSubmitEvent<UpdateUserType>): Promise<void> {
         try {
             isSubmitting.value = true;
             await $api(`/api/profile/${userProfile.value?.id}`, {
@@ -76,9 +74,7 @@ export default function useUpdateProfile({ user }: { user: User }) {
             await refreshNuxtData('profile');
         } catch (e) {
             console.log('Error updating profile photo', e);
-            toast.error(
-                'Failed to update profile photo, please try again later'
-            );
+            toast.error('Failed to update profile photo, please try again later');
         }
 
         isSubmitting.value = false;

@@ -1,21 +1,21 @@
 {
-  // Enable ESlint flat config support
-  "eslint.experimental.useFlatConfig": true,
+    // Enable ESlint flat config support
+    "eslint.experimental.useFlatConfig": true,
 
-  // For Tailwind CSS IntelliSense
-  "files.associations": {
-    "*.css": "tailwindcss"
-  },
-  "editor.quickSuggestions": {
-    "strings": true
-  },
+    // For Tailwind CSS IntelliSense
+    "files.associations": {
+        "*.css": "tailwindcss"
+    },
+    "editor.quickSuggestions": {
+        "strings": true
+    },
 
-  // For Tailwind CSS IntelliSense on app.config.ts
-  "tailwindCSS.experimental.classRegex": [
-    ["ui:\\s*{([^)]*)\\s*}", "[\"'`]([^\"'`]*).*?[\"'`]"],
-    ["/\\*\\s?ui\\s?\\*/\\s*{([^;]*)}", ":\\s*[\"'`]([^\"'`]*).*?[\"'`]"]
-  ],
+    // For Tailwind CSS IntelliSense on app.config.ts
+    "tailwindCSS.experimental.classRegex": [
+        ["ui:\\s*{([^)]*)\\s*}", "[\"'`]([^\"'`]*).*?[\"'`]"],
+        ["/\\*\\s?ui\\s?\\*/\\s*{([^;]*)}", ":\\s*[\"'`]([^\"'`]*).*?[\"'`]"]
+    ],
 
-  // To enable enable IntelliSense when using the ui prop
-  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "ui"]
+    // To enable enable IntelliSense when using the ui prop
+    "tailwindCSS.classAttributes": ["class", "className", "ngClass", "ui"]
 }

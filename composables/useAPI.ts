@@ -1,4 +1,4 @@
-import type { UseFetchOptions } from 'nuxt/app'
+import type { UseFetchOptions } from 'nuxt/app';
 
 /**
  * Custom hook for making API requests.
@@ -8,12 +8,9 @@ import type { UseFetchOptions } from 'nuxt/app'
  * @param {UseFetchOptions<T>} [options={}] - Additional options for the API request.
  * @returns {UseFetchReturn<T>} - The response data and other fetch-related properties.
  */
-export function useAPI<T>(
-  url: MaybeRefOrGetter<string>,
-  options: UseFetchOptions<T> = {},
-) {
-  return useFetch(url, {
-    ...options,
-    $fetch: useNuxtApp().$api,
-  })
+export function useAPI<T>(url: MaybeRefOrGetter<string>, options: UseFetchOptions<T> = {}) {
+    return useFetch(url, {
+        ...options,
+        $fetch: useNuxtApp().$api,
+    });
 }

@@ -102,7 +102,7 @@ const [{ data: companies, pending }, { data: industries }, { data: sizes }, { da
             },
             {
                 default: () => [],
-            }
+            },
         ),
         useAPI<Industry[]>('/api/industries', {
             lazy: true,
@@ -145,7 +145,7 @@ filters.value = {
     <div class="flex items-center justify-between gap-3 px-4 py-3"></div>
 
     <!-- Header and Action buttons -->
-    <div class="p-3 bg-base-200 mt-3 flex justify-between items-center rounded">
+    <div class="mt-3 flex items-center justify-between rounded bg-base-200 p-3">
         <div class="flex items-center gap-4">
             <UInput v-model="search" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search..." />
 
@@ -166,9 +166,9 @@ filters.value = {
                     >
                     <template #panel>
                         <div class="min-w-72">
-                            <p class="p-3 border-b font-semibold">Filter by Industry</p>
+                            <p class="border-b p-3 font-semibold">Filter by Industry</p>
                             <template v-if="industries">
-                                <div class="p-3 bg-base-200 space-y-3 max-h-52 overflow-x-auto">
+                                <div class="max-h-52 space-y-3 overflow-x-auto bg-base-200 p-3">
                                     <div v-for="industry in industries" :key="industry.id" class="flex items-center gap-2">
                                         <UCheckbox
                                             :id="`industry-${industry.id}`"
@@ -180,7 +180,7 @@ filters.value = {
                                         </label>
                                     </div>
                                 </div>
-                                <div class="p-3 flex justify-end gap-2 bg-base-200">
+                                <div class="flex justify-end gap-2 bg-base-200 p-3">
                                     <UButton
                                         variant="outline"
                                         size="sm"
@@ -196,7 +196,7 @@ filters.value = {
                                 </div>
                             </template>
                             <template v-else>
-                                <p class="p-3 flex justify-center items-center">no data</p>
+                                <p class="flex items-center justify-center p-3">no data</p>
                             </template>
                         </div>
                     </template>
@@ -217,9 +217,9 @@ filters.value = {
                     >
                     <template #panel>
                         <div class="min-w-72">
-                            <p class="p-3 border-b font-semibold">Filter by Company Size</p>
+                            <p class="border-b p-3 font-semibold">Filter by Company Size</p>
                             <template v-if="sizes">
-                                <div class="p-3 bg-base-200 space-y-3 max-h-52 overflow-x-auto">
+                                <div class="max-h-52 space-y-3 overflow-x-auto bg-base-200 p-3">
                                     <div v-for="size in sizes" :key="size.id" class="flex items-center gap-2">
                                         <UCheckbox :id="`size-${size.id}`" v-model="inputSizes" :value="size.size_range" />
                                         <label :for="`size-${size.id}`" class="text-sm">
@@ -227,7 +227,7 @@ filters.value = {
                                         </label>
                                     </div>
                                 </div>
-                                <div class="p-3 flex justify-end gap-2 bg-base-200">
+                                <div class="flex justify-end gap-2 bg-base-200 p-3">
                                     <UButton
                                         variant="outline"
                                         size="sm"
@@ -243,7 +243,7 @@ filters.value = {
                                 </div>
                             </template>
                             <template v-else>
-                                <p class="p-3 flex justify-center items-center">no data</p>
+                                <p class="flex items-center justify-center p-3">no data</p>
                             </template>
                         </div>
                     </template>
@@ -263,8 +263,8 @@ filters.value = {
                     >
                     <template #panel>
                         <div class="min-w-72">
-                            <p class="p-3 border-b font-semibold">Filter by Location</p>
-                            <div class="p-3 bg-base-200 space-y-3 max-h-52 overflow-x-auto">
+                            <p class="border-b p-3 font-semibold">Filter by Location</p>
+                            <div class="max-h-52 space-y-3 overflow-x-auto bg-base-200 p-3">
                                 <UFormGroup label="Province" name="province">
                                     <!-- <UInputMenu v-model="selectedProvinces" :options="provinces?.map(({ name }) => name ?? [])" /> -->
                                     <UInputMenu :options="provinces?.map(({ name }) => name ?? [])" />
@@ -275,7 +275,7 @@ filters.value = {
                                     <UInputMenu :options="cities?.map(({ name }) => name ?? [])" />
                                 </UFormGroup>
                             </div>
-                            <div class="p-3 flex justify-end gap-2 bg-base-200">
+                            <div class="flex justify-end gap-2 bg-base-200 p-3">
                                 <UButton variant="outline" size="sm">Cancel</UButton>
                                 <UButton size="sm">Apply</UButton>
                             </div>
@@ -285,7 +285,7 @@ filters.value = {
             </div>
         </div>
 
-        <div class="flex gap-1.5 items-center">
+        <div class="flex items-center gap-1.5">
             <!-- Columns Selector -->
             <USelectMenu v-model="selectedColumns" :options="columns" multiple :uiMenu="{ width: 'min-w-32' }">
                 <UButton icon="i-heroicons-view-columns" color="gray" size="xs"> Columns </UButton>
@@ -357,7 +357,7 @@ filters.value = {
         </template>
 
         <template #empty-state>
-            <div class="flex flex-col items-center justify-center py-10 gap-y-5">
+            <div class="flex flex-col items-center justify-center gap-y-5 py-10">
                 <NuxtImg src="/icons/magnifying-glass-x.svg" alt="" width="64" height="64" />
                 <p>No companies found</p>
             </div>
@@ -366,7 +366,7 @@ filters.value = {
 
     <!-- Number of rows & Pagination -->
 
-    <div class="flex flex-wrap justify-between items-center mt-5">
+    <div class="mt-5 flex flex-wrap items-center justify-between">
         <div>
             <span class="text-sm leading-5">
                 Showing
