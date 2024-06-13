@@ -9,74 +9,6 @@ interface IDataCompany extends Company {
     city: Pick<City, 'name'>;
 }
 
-interface ITableCompany extends Pick<Company, 'id' | 'name' | 'website' | 'avatar'> {
-    industry: string;
-    size: string;
-    province: string;
-    city: string;
-}
-
-interface FilterOptions {
-    search: string;
-    page: number;
-    limit: number;
-    sort: string;
-    order: 'asc' | 'desc';
-    industries?: string[];
-    sizes?: string[];
-    province?: string[];
-    cities?: string[];
-}
-
-function filterAndPaginate(data: ITableCompany[], options: FilterOptions): ITableCompany[] {
-    // Filter by search term
-    let filteredData = data.filter((company) => company.name.toLowerCase().includes(options.search.toLowerCase()));
-
-    // Filter by industries
-    if (options.industries && options.industries.length > 0) {
-        filteredData = filteredData.filter((company) => options.industries?.includes(company.industry));
-    }
-
-    // Filter by sizes
-    if (options.sizes && options.sizes.length > 0) {
-        filteredData = filteredData.filter((company) => options.sizes?.includes(company.size));
-    }
-
-    // Filter by province
-    // if (options.province && options.province.length > 0) {
-    //     filteredData = filteredData.filter((company) =>
-    //         options.province.includes(company.province)
-    //     );
-    // }
-
-    // Filter by city
-    // if (options.cities.length > 0) {
-    //     filteredData = filteredData.filter((person) =>
-    //         options.cities.includes(person.city)
-    //     );
-    // }
-
-    // Sort data
-    const sortedData = filteredData.sort((a, b) => {
-        const sortField = options.sort as keyof ITableCompany;
-        const aValue = a[sortField];
-        const bValue = b[sortField];
-        // Skip sorting if the value is null or undefined
-        if (!aValue || !bValue) return 0;
-
-        if (aValue < bValue) return options.order === 'asc' ? -1 : 1;
-        if (aValue > bValue) return options.order === 'asc' ? 1 : -1;
-        return 0;
-    });
-
-    // Paginate data
-    const startIndex = (options.page - 1) * options.limit;
-    const endIndex = startIndex + options.limit;
-    const paginatedData = sortedData.slice(startIndex, endIndex);
-
-    return paginatedData;
-}
-
 // Columns
 const initialColumns = [
     {
@@ -141,30 +73,8 @@ const columns = [
 
 const inputIndustries = ref<string[]>([]);
 const inputSizes = ref<string[]>([]);
-const selectedIndustries = ref<string[]>([]);
-const selectedSizes = ref<string[]>([]);
-const selectedProvinces = ref<string[]>([]);
-const selectedCities = ref<string[]>([]);
 const selectedColumns = ref(initialColumns);
 const columnsTable = computed(() => columns.filter((column) => selectedColumns.value.includes(column)));
-
-const search = ref('');
-const resetFilters = () => {
-    search.value = '';
-    inputIndustries.value = [];
-    inputSizes.value = [];
-    selectedIndustries.value = [];
-    selectedSizes.value = [];
-    selectedProvinces.value = [];
-    selectedCities.value = [];
-};
-
-// Pagination
-const sort = ref({ column: 'id', direction: 'asc' as const });
-const page = ref(1);
-const pageCount = ref(10);
-const pageFrom = computed(() => (page.value - 1) * pageCount.value + 1);
-const pageTo = computed(() => Math.min(page.value * pageCount.value, pageTotal.value));
 
 const { $api } = useNuxtApp();
 const [{ data: companies, pending }, { data: industries }, { data: sizes }, { data: provinces }, { data: cities }] =
@@ -192,7 +102,6 @@ const [{ data: companies, pending }, { data: industries }, { data: sizes }, { da
             },
             {
                 default: () => [],
-                watch: [page, search, pageCount, sort, selectedCities, selectedProvinces, selectedIndustries, selectedSizes],
             }
         ),
         useAPI<Industry[]>('/api/industries', {
@@ -209,22 +118,26 @@ const [{ data: companies, pending }, { data: industries }, { data: sizes }, { da
         }),
     ]);
 
-const pageTotal = ref(companies.value.length);
-const filteredCompanies = computed(() => {
-    if (!companies.value) return [];
+const {
+    filteredData: filteredCompanies,
+    search,
+    page,
+    pageCount,
+    sort,
+    filters,
+    pageTotal,
+    pageFrom,
+    pageTo,
+    resetFilters,
+} = useFilterAndPaginate(companies);
 
-    return filterAndPaginate(companies.value, {
-        search: search.value,
-        page: page.value,
-        limit: pageCount.value,
-        sort: sort.value.column,
-        order: sort.value.direction,
-        industries: selectedIndustries.value,
-        sizes: selectedSizes.value,
-        province: selectedProvinces.value,
-        cities: selectedCities.value,
-    });
-});
+// Update filters
+filters.value = {
+    industry: [],
+    size: [],
+    province: [],
+    city: [],
+};
 </script>
 
 <template>
@@ -274,12 +187,12 @@ const filteredCompanies = computed(() => {
                                         @click="
                                             () => {
                                                 inputIndustries = [];
-                                                selectedIndustries = [];
+                                                filters.industry = [];
                                             }
                                         "
                                         >Cancel
                                     </UButton>
-                                    <UButton size="sm" @click="selectedIndustries = inputIndustries"> Apply </UButton>
+                                    <UButton size="sm" @click="filters.industry = inputIndustries"> Apply </UButton>
                                 </div>
                             </template>
                             <template v-else>
@@ -321,12 +234,12 @@ const filteredCompanies = computed(() => {
                                         @click="
                                             () => {
                                                 inputSizes = [];
-                                                selectedSizes = [];
+                                                filters.size = [];
                                             }
                                         "
                                         >Cancel</UButton
                                     >
-                                    <UButton size="sm" @click="selectedSizes = inputSizes">Apply</UButton>
+                                    <UButton size="sm" @click="filters.size = inputSizes">Apply</UButton>
                                 </div>
                             </template>
                             <template v-else>
@@ -353,11 +266,13 @@ const filteredCompanies = computed(() => {
                             <p class="p-3 border-b font-semibold">Filter by Location</p>
                             <div class="p-3 bg-base-200 space-y-3 max-h-52 overflow-x-auto">
                                 <UFormGroup label="Province" name="province">
-                                    <UInputMenu v-model="selectedProvinces" :options="provinces?.map(({ name }) => name ?? [])" />
+                                    <!-- <UInputMenu v-model="selectedProvinces" :options="provinces?.map(({ name }) => name ?? [])" /> -->
+                                    <UInputMenu :options="provinces?.map(({ name }) => name ?? [])" />
                                 </UFormGroup>
 
                                 <UFormGroup label="City" name="city">
-                                    <UInputMenu v-model="selectedCities" :options="cities?.map(({ name }) => name ?? [])" />
+                                    <!-- <UInputMenu v-model="selectedCities" :options="cities?.map(({ name }) => name ?? [])" /> -->
+                                    <UInputMenu :options="cities?.map(({ name }) => name ?? [])" />
                                 </UFormGroup>
                             </div>
                             <div class="p-3 flex justify-end gap-2 bg-base-200">
@@ -384,10 +299,10 @@ const filteredCompanies = computed(() => {
                 :disabled="
                     !(
                         !!search.length ||
-                        !!selectedIndustries.length ||
-                        !!selectedSizes.length ||
-                        !!selectedProvinces.length ||
-                        !!selectedCities.length
+                        !!filters.industry?.length ||
+                        !!filters.size?.length ||
+                        !!filters.province?.length ||
+                        !!filters.city?.length
                     )
                 "
                 @click="resetFilters"
