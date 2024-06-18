@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import type { KindeAuthState } from '~/types/kinde';
 import useUpdateProfile from '~/composables/useUpdateProfile';
 import type { User } from '~/types';
 
-const auth = useState('auth') as Ref<KindeAuthState>;
-const { data: profile } = await useAPI<User>(`/api/profile/${auth.value.user?.id}`, {
+const user = useSupabaseUser();
+const { data: profile } = await useAPI<User>(`/api/users/${user.value?.id}`, {
     key: 'profile',
 });
 if (!profile.value) throw createError({ status: 404, message: 'User not found' });
@@ -31,7 +30,7 @@ const { state, isSubmitting, submit, onChangeFile, photoError } = useUpdateProfi
                     accept="image/png, image/jpeg, image/jpg"
                     multiple="false"
                     class="hidden"
-                    @change="onChangeFile"
+                    @input="onChangeFile"
                 />
                 <NuxtImg
                     :src="profile?.photo ?? '/images/avatar-fallback.jpg'"
@@ -50,7 +49,7 @@ const { state, isSubmitting, submit, onChangeFile, photoError } = useUpdateProfi
                 </p>
             </label>
 
-            <UForm :schema="updateProfileSchema" :state="state" class="mt-6 space-y-3" @submit="submit" @error="console.log">
+            <UForm :schema="updateProfileSchema" :state="state" class="mt-6 space-y-3" @submit="submit" @error="console.error">
                 <UFormGroup label="Email" name="email">
                     <UInput v-model="state.email" disabled />
                 </UFormGroup>

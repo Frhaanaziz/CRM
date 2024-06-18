@@ -235,6 +235,7 @@ export type Database = {
           linkedin: string | null
           phone: string
           photo: string | null
+          role: string
           updated_at: string
         }
         Insert: {
@@ -246,6 +247,7 @@ export type Database = {
           linkedin?: string | null
           phone: string
           photo?: string | null
+          role: string
           updated_at?: string
         }
         Update: {
@@ -257,6 +259,7 @@ export type Database = {
           linkedin?: string | null
           phone?: string
           photo?: string | null
+          role?: string
           updated_at?: string
         }
         Relationships: []

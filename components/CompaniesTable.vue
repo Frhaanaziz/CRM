@@ -145,11 +145,11 @@ filters.value = {
     <div class="flex items-center justify-between gap-3 px-4 py-3"></div>
 
     <!-- Header and Action buttons -->
-    <div class="mt-3 flex items-center justify-between rounded bg-base-200 p-3">
+    <div class="mt-3 flex items-center justify-between gap-x-3 rounded bg-base-200 p-3">
         <div class="flex items-center gap-4">
             <UInput v-model="search" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search..." />
 
-            <div class="flex items-center gap-2">
+            <div class="hidden sm:flex sm:items-center sm:gap-2">
                 <p>Filter:</p>
                 <!-- Industries Popover -->
                 <UPopover mode="hover">
@@ -285,7 +285,7 @@ filters.value = {
             </div>
         </div>
 
-        <div class="flex items-center gap-1.5">
+        <div class="hidden sm:flex sm:items-center sm:gap-1.5">
             <!-- Columns Selector -->
             <USelectMenu v-model="selectedColumns" :options="columns" multiple :uiMenu="{ width: 'min-w-32' }">
                 <UButton icon="i-heroicons-view-columns" color="gray" size="xs"> Columns </UButton>
@@ -379,7 +379,7 @@ filters.value = {
             </span>
         </div>
 
-        <div class="flex items-center gap-1.5">
+        <div class="hidden md:flex md:items-center md:gap-1.5">
             <span class="text-sm leading-5">Rows per page:</span>
 
             <USelect v-model="pageCount" :options="[3, 5, 10, 20, 30, 40]" class="me-2 w-20" size="xs" />

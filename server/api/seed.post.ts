@@ -153,7 +153,7 @@ export default defineEventHandler(async (event: H3Event) => {
     );
 
     console.info('Creating Companies...');
-    const COMPANY_AMOUNT = 100;
+    const COMPANY_AMOUNT = 10_000;
     for (let i = 0; i < COMPANY_AMOUNT; i++) {
         const name = faker.company.name();
         const phone = faker.phone.number();

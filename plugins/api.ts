@@ -1,7 +1,6 @@
 export default defineNuxtPlugin({
     setup() {
-        const auth = useAuth();
-        const userId = auth.user?.id;
+        const userId = null;
 
         const api = $fetch.create({
             onRequest({ options }) {
@@ -18,9 +17,9 @@ export default defineNuxtPlugin({
                 }
             },
             async onResponseError({ response }) {
-                if (response.status === 401) {
-                    await navigateTo('/auth/signin');
-                }
+                // if (response.status === 401) {
+                //     await navigateTo('/auth/signin');
+                // }
             },
         });
 

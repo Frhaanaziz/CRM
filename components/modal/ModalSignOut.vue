@@ -1,8 +1,19 @@
 <script setup lang="ts">
+const supabase = useSupabaseClient();
 const emit = defineEmits(['close']);
 
 function closeModal() {
     emit('close');
+}
+
+async function handleSignout() {
+    closeModal();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+        console.error('Sign out error:', error.message);
+        toast.error('Failed to sign out, please try again.');
+    }
+    await navigateTo('/auth/signin');
 }
 </script>
 
@@ -26,9 +37,7 @@ function closeModal() {
             <div class="flex items-center justify-end gap-x-2">
                 <UButton color="red" variant="outline" @click="closeModal"> Cancel </UButton>
 
-                <UButton color="red">
-                    <NuxtLink href="/api/logout" external> Sign Out </NuxtLink>
-                </UButton>
+                <UButton color="red" @click="handleSignout"> Sign Out </UButton>
             </div>
         </div>
     </UModal>
