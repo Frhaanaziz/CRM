@@ -36,7 +36,7 @@ export default function useUpdateProfile({ user }: { user: User }) {
             });
 
             toast.success('Profile updated successfully');
-            reloadNuxtApp();
+            reloadNuxtApp({ force: true });
         } catch (e) {
             console.error('Error updating profile', e);
             toast.error('Failed to update profile, please try again later');
