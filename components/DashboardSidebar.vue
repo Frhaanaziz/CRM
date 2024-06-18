@@ -1,39 +1,11 @@
 <script setup lang="ts">
 import LazyModalSignOut from '~/components/modal/ModalSignOut.vue';
-const route = useRoute();
-const pathname = ref(route.path);
 const emit = defineEmits(['close']);
-const { user } = userSessionStore();
-
-watch(
-    () => route.path,
-    () => (pathname.value = route.path),
-);
-
-const navigation = computed(() => {
-    const isCurrent = (path: string) => pathname.value.replace('/dashboard', '') === path;
-
-    return [
-        {
-            name: 'Dashboard',
-            href: '/dashboard/',
-            icon: 'i-heroicons-home',
-            current: isCurrent('/'),
-        },
-        {
-            name: 'Companies',
-            href: '/dashboard/companies',
-            icon: 'i-heroicons-user',
-            current: isCurrent('/companies'),
-        },
-        {
-            name: 'Settings',
-            href: '/dashboard/settings',
-            icon: 'i-heroicons-cog-6-tooth',
-            current: isCurrent('/settings'),
-        },
-    ];
-});
+const { user } = storeToRefs(userSessionStore());
+const props = defineProps<{
+    navigation: { name: string; href: string; icon: string; current: boolean }[];
+}>();
+const { navigation } = toRefs(props);
 
 const modal = useModal();
 function openLogOutModal() {
@@ -54,11 +26,11 @@ function openLogOutModal() {
                     <li v-for="item in navigation" :key="item.name">
                         <NuxtLink
                             :href="item.href"
+                            class="text-weak flex gap-x-3 rounded p-2 text-sm font-semibold leading-6 transition"
                             :class="[
                                 item.current
                                     ? 'border-l-4 border-l-brand'
                                     : 'border-l-4 border-l-transparent hover:border-l-brand',
-                                'text-weak flex gap-x-3 rounded p-2 text-sm font-semibold leading-6 transition',
                             ]"
                             @click="() => emit('close')"
                         >
@@ -81,7 +53,7 @@ function openLogOutModal() {
                     <UIcon name="i-heroicons-arrow-left-start-on-rectangle" class="h-6 w-6 shrink-0" aria-hidden="true" />
                     <span>Sign out</span>
                 </button>
-                <div v-if="user" class="flex items-center gap-x-3 px-6 py-3 text-sm font-semibold leading-6">
+                <div v-if="user" class="flex items-center gap-x-3 px-6 py-3 text-xs font-semibold leading-6">
                     <UAvatar
                         :src="user.user_metadata?.photo ?? '/images/avatar-fallback.jpg'"
                         icon="i-heroicons-photo"
@@ -89,9 +61,9 @@ function openLogOutModal() {
                     />
 
                     <div>
-                        <p>{{ `${user.user_metadata?.first_name} ${user.user_metadata.last_name}` }}</p>
-                        <p class="text-weak text-sm font-normal">
-                            {{ user?.email }}
+                        <p>{{ truncateString(`${user.user_metadata?.first_name} ${user.user_metadata.last_name}`, 20) }}</p>
+                        <p class="text-weak text-xs font-normal">
+                            {{ truncateString(user?.email ?? '', 20) }}
                         </p>
                     </div>
                 </div>

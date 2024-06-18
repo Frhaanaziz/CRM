@@ -2,6 +2,39 @@ import type { z } from 'zod';
 export * from './validators/auth';
 export * from './validators/profile';
 
+/**
+ * A utility object for displaying toast messages.
+ */
+export const toast = {
+    /**
+     * Displays a success toast message.
+     * @param message - The message to be displayed.
+     */
+    success(message: string): void {
+        useToast().add({
+            title: 'Success',
+            description: message,
+            icon: 'i-heroicons-check-circle',
+            color: 'green',
+            timeout: 10000,
+        });
+    },
+
+    /**
+     * Displays an error toast message.
+     * @param message - The message to be displayed.
+     */
+    error(message: string): void {
+        useToast().add({
+            title: 'Failed',
+            description: message,
+            icon: 'i-heroicons-x-circle',
+            color: 'red',
+            timeout: 10000,
+        });
+    },
+};
+
 export function getErrorMessage(error: unknown): string {
     let message: string;
 
@@ -49,35 +82,14 @@ export function extractDomain(url: string): string {
     }
 }
 
-/**
- * A utility object for displaying toast messages.
- */
-export const toast = {
-    /**
-     * Displays a success toast message.
-     * @param message - The message to be displayed.
-     */
-    success(message: string): void {
-        useToast().add({
-            title: 'Success',
-            description: message,
-            icon: 'i-heroicons-check-circle',
-            color: 'green',
-            timeout: 10000,
-        });
-    },
+export function truncateString(str: string, maxLength: number, suffix?: string): string {
+    if (str.length <= maxLength) {
+        return str; // Jika panjang string kurang dari atau sama dengan maxLength, kembalikan string asli
+    }
 
-    /**
-     * Displays an error toast message.
-     * @param message - The message to be displayed.
-     */
-    error(message: string): void {
-        useToast().add({
-            title: 'Failed',
-            description: message,
-            icon: 'i-heroicons-x-circle',
-            color: 'red',
-            timeout: 10000,
-        });
-    },
-};
+    // Jika suffix tidak diberikan, gunakan elipsis "..." sebagai default
+    const ellipsis = suffix || '...';
+
+    // Potong string hingga panjang maksimum dan tambahkan suffix
+    return str.slice(0, maxLength - ellipsis.length) + ellipsis;
+}
