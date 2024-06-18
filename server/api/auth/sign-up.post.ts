@@ -15,7 +15,25 @@ export default defineEventHandler(async (event: H3Event) => {
     }
 
     const { email, first_name, last_name, phone, password } = body.data;
-    const { data, error } = await supabase.auth.signUp({
+
+    const { data: initialUser } = await supabase.from('Users').select().eq('email', email).single();
+    if (initialUser) {
+        console.info('Resending signup email to:', initialUser.email);
+        const { error } = await supabase.auth.resend({
+            type: 'signup',
+            email: initialUser.email,
+            options: {
+                emailRedirectTo: runtimeConfig.public.BASE_URL + '/dashboard',
+            },
+        });
+        if (error) {
+            console.error('Error resending signup:', error.message);
+            throw createError({ status: error.status ?? 400, statusMessage: error.message });
+        }
+        return;
+    }
+
+    const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -27,9 +45,9 @@ export default defineEventHandler(async (event: H3Event) => {
             },
         },
     });
-    if (error) {
-        console.error('Error signing up:', error.message);
-        throw createError({ status: error.status ?? 400, statusMessage: error.message });
+    if (signUpError) {
+        console.error('Error signing up:', signUpError.message);
+        throw createError({ status: signUpError.status ?? 400, statusMessage: signUpError.message });
     }
 
     const user = data.user;
@@ -44,7 +62,8 @@ export default defineEventHandler(async (event: H3Event) => {
         first_name,
         last_name,
         phone,
-        role: 'owner',
+        role_id: 1,
+        organization_id: 2,
     });
     if (insertError) {
         console.error('Error inserting user:', insertError.message);
