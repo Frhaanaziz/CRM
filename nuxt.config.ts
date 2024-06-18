@@ -1,17 +1,16 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     devtools: { enabled: true },
-    css: ['~/assets/css/tailwind.css'],
-    postcss: {
-        plugins: {
-            tailwindcss: {},
-            autoprefixer: {},
-        },
+    modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image', '@pinia/nuxt'],
+    routeRules: {
+        '/auth/**': { prerender: true },
     },
-    modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image', '@nuxtjs/kinde'],
 
     runtimeConfig: {
         JWT_SECRET: process.env.NUXT_JWT_SECRET,
+        public: {
+            BASE_URL: process.env.NUXT_PUBLIC_BASE_URL,
+        },
     },
 
     // UI module options
@@ -26,18 +25,11 @@ export default defineNuxtConfig({
 
     // Supabase module options
     supabase: {
-        redirect: false,
-        // redirectOptions: {
-        //   login: '/auth/signin',
-        //   callback: '/dashboard',
-        //   include: ['/', '/dashboard(/*)?'],
-        //   cookieRedirect: true,
-        // },
-    },
-
-    kinde: {
-        // This is true by default and adds 'auth-logged-in' and 'auth-logged-out'
-        // middleware to your Nuxt application.
-        middleware: false,
+        redirectOptions: {
+            login: '/auth/signin',
+            callback: '/auth/confirm',
+            exclude: ['/auth(/*)?'],
+            cookieRedirect: true,
+        },
     },
 });

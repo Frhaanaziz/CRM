@@ -30,14 +30,15 @@ export default function useUpdateProfile({ user }: { user: User }) {
     async function onSubmit(event: FormSubmitEvent<UpdateUserType>): Promise<void> {
         try {
             isSubmitting.value = true;
-            await $api(`/api/profile/${userProfile.value?.id}`, {
+            await $api(`/api/users/${userProfile.value?.id}`, {
                 method: 'PATCH',
                 body: JSON.stringify(event.data),
             });
 
             toast.success('Profile updated successfully');
+            reloadNuxtApp();
         } catch (e) {
-            console.log('Error updating profile', e);
+            console.error('Error updating profile', e);
             toast.error('Failed to update profile, please try again later');
         } finally {
             isSubmitting.value = false;
@@ -65,7 +66,7 @@ export default function useUpdateProfile({ user }: { user: User }) {
         formData.append('photo', zodResult.data);
 
         try {
-            await $api(`/api/profile/${user.id}/avatar`, {
+            await $api(`/api/users/${user.id}/avatar`, {
                 method: 'PATCH',
                 body: formData,
             });
@@ -73,7 +74,7 @@ export default function useUpdateProfile({ user }: { user: User }) {
             toast.success('Profile photo updated');
             await refreshNuxtData('profile');
         } catch (e) {
-            console.log('Error updating profile photo', e);
+            console.error('Error updating profile photo', e);
             toast.error('Failed to update profile photo, please try again later');
         }
 

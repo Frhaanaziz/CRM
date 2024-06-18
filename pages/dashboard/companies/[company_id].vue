@@ -31,7 +31,7 @@ function openAddToCRMModal() {
         <header class="bg-base-100">
             <div class="border-b">
                 <NuxtLink href="/dashboard/companies" class="inline-block border px-2 pt-2">
-                    <UIcon name="i-heroicons-arrow-left" class="h-6 w-6" />
+                    <UIcon name="i-heroicons-arro1left" class="h-6 w-6" />
                 </NuxtLink>
             </div>
 
@@ -40,19 +40,25 @@ function openAddToCRMModal() {
                     <UAvatar :src="company?.avatar ?? '/images/avatar-fallback.jpg'" size="lg" />
                     <div>
                         <h1 class="text-lg font-bold">{{ company?.name }}</h1>
-                        <p class="text-default text-sm">
+                        <p class="text-sm">
                             {{ company?.industry?.name }}
                         </p>
                     </div>
                 </div>
 
-                <UButton variant="outline" icon="i-heroicons-plus" :trailing="false" @click="openAddToCRMModal">
+                <UButton
+                    variant="outline"
+                    icon="i-heroicons-plus"
+                    :trailing="false"
+                    class="hidden sm:flex"
+                    @click="openAddToCRMModal"
+                >
                     Add to CRM
                 </UButton>
             </div>
         </header>
 
-        <section class="grid grid-cols-2 gap-x-4 p-3">
+        <section class="grid gap-4 py-3 md:grid-cols-2">
             <UCard>
                 <template #header>
                     <h2 class="text-xl font-semibold">OVERVIEW</h2>
@@ -79,7 +85,7 @@ function openAddToCRMModal() {
                     <h2 class="text-xl font-semibold">DETAILS</h2>
                 </template>
 
-                <div class="flex gap-6">
+                <div class="flex gap-6 text-sm sm:text-base">
                     <div class="text-weak grid shrink-0 grid-rows-11 gap-y-8">
                         <p>Company Name</p>
                         <p>Website</p>
@@ -94,40 +100,35 @@ function openAddToCRMModal() {
                         <p>ZIP/Postal Code</p>
                     </div>
 
-                    <div class="text-default grid grow grid-rows-11 gap-y-8 font-semibold">
+                    <div class="grid grow grid-rows-11 gap-y-8 font-semibold">
                         <p class="line-clamp-1">{{ company?.name }}</p>
-                        <div class="flex items-center justify-between">
-                            <template v-if="company?.website">
-                                <NuxtLink
-                                    :href="company?.website ?? '#'"
-                                    class="text-brand hover:underline"
-                                    external
-                                    target="_blank"
-                                >
-                                    {{ company?.website }}
-                                </NuxtLink>
-                                <UIcon
-                                    name="i-heroicons-arrow-top-right-on-square shrink-0"
-                                    class="text-weak text-weak h-5 w-5"
-                                />
-                            </template>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <template v-if="company?.linkedin">
-                                <NuxtLink
-                                    :href="company?.linkedin ?? '#'"
-                                    class="line-clamp-1 text-brand hover:underline"
-                                    external
-                                    target="_blank"
-                                >
-                                    {{ company?.linkedin }}
-                                </NuxtLink>
-                                <UIcon
-                                    name="i-heroicons-arrow-top-right-on-square"
-                                    class="text-weak text-weak h-5 w-5 shrink-0"
-                                />
-                            </template>
-                        </div>
+                        <NuxtLink
+                            :href="company?.website ?? '#'"
+                            class="line-clamp-1 text-brand hover:underline"
+                            external
+                            target="_blank"
+                        >
+                            {{ company?.website }}
+                        </NuxtLink>
+                        <NuxtLink
+                            :href="company?.linkedin ?? '#'"
+                            class="line-clamp-1 text-brand hover:underline"
+                            external
+                            target="_blank"
+                        >
+                            {{ company?.linkedin }}
+                        </NuxtLink>
+                        <!-- <div class="flex items-center justify-between">
+                           <NuxtLink
+                                :href="company?.linkedin ?? '#'"
+                                class="line-clamp-1 text-brand hover:underline"
+                                external
+                                target="_blank"
+                            >
+                                {{ company?.linkedin }}
+                            </NuxtLink>
+                            <UIcon name="i-heroicons-arrow-top-right-on-square" class="text-weak text-weak h-5 w-5 shrink-0" /> 
+                        </div> -->
                         <p class="line-clamp-1">{{ company?.phone }}</p>
                         <p class="line-clamp-1">{{ company?.email }}</p>
                         <p class="line-clamp-1">

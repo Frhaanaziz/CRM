@@ -1,42 +1,35 @@
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
 
-/**
- * Custom hook for sign up functionality.
- * @returns An object containing the sign up state, submission status, and submit function.
- */
 export const useSignUp = () => {
-    const { $api } = useNuxtApp();
     type SignUpType = z.infer<typeof signUpSchema>;
 
     const isSubmitting = ref(false);
-    const initialForm = {
+
+    const initialState: SignUpType = {
         first_name: '',
         last_name: '',
         email: '',
         phone: '',
+        password: '',
+        confirm_password: '',
     };
-    const state = ref<SignUpType>(initialForm);
+    const state = ref<SignUpType>(initialState);
 
-    /**
-     * Handles the form submission for sign up.
-     * @param event - The form submit event containing the sign up data.
-     */
     async function onSubmit(event: FormSubmitEvent<SignUpType>) {
         try {
             isSubmitting.value = true;
-            await $api('/api/auth/sign-up', {
+            await $fetch('/api/auth/sign-up', {
                 method: 'POST',
                 body: JSON.stringify(event.data),
             });
 
-            state.value = initialForm;
-            toast.success('You have successfully created an account');
-
-            await navigateTo('/auth/signin', { replace: true });
+            state.value = initialState;
+            toast.success('Please check your email to verify your account.');
+            await navigateTo('/auth/signin');
         } catch (e) {
             console.error('Error creating account:', e);
-            toast.error('Failed to create account. Please try again later.');
+            toast.error(getErrorMessage(e));
         } finally {
             isSubmitting.value = false;
         }

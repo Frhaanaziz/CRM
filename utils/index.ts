@@ -2,6 +2,22 @@ import type { z } from 'zod';
 export * from './validators/auth';
 export * from './validators/profile';
 
+export function getErrorMessage(error: unknown): string {
+    let message: string;
+
+    if (error && typeof error === 'object' && 'statusMessage' in error) {
+        message = String(error.statusMessage);
+    } else if (error instanceof Error) {
+        message = error.message;
+    } else if (typeof error === 'string') {
+        message = error;
+    } else {
+        message = 'Something went wrong, please try again later.';
+    }
+
+    return message;
+}
+
 /**
  * Returns the error message from a Zod parse result.
  * @param result - The Zod parse result.
@@ -57,7 +73,7 @@ export const toast = {
      */
     error(message: string): void {
         useToast().add({
-            title: 'Error',
+            title: 'Failed',
             description: message,
             icon: 'i-heroicons-x-circle',
             color: 'red',
