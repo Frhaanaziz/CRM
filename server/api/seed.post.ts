@@ -44,15 +44,22 @@ export default defineEventHandler(async (event: H3Event) => {
         await supabase.from('Sizes').delete().neq('id', 0).throwOnError();
         await supabase.from('Cities').delete().neq('id', 0).throwOnError();
         await supabase.from('Provinces').delete().neq('id', 0).throwOnError();
-        // const errors = result.filter((res) => res.error);
-        // if (errors.length) {
-        //     console.error('Failed to clean up', errors);
-        //     throw createError({
-        //         status: 500,
-        //         statusMessage: 'Failed to clean up',
-        //     });
-        // }
+        await supabase.from('Countries').delete().neq('id', 0).throwOnError();
         console.info('Clean up successful');
+    }
+
+    console.info('Creating Country...');
+    const { data: country, error: countryError } = await supabase
+        .from('Countries')
+        .insert({ name: 'Indonesia' })
+        .select()
+        .single();
+    if (countryError) {
+        console.error('Failed to create country', countryError);
+        throw createError({
+            status: 500,
+            statusMessage: countryError.message,
+        });
     }
 
     console.info('Creating Provinces...');
@@ -65,7 +72,9 @@ export default defineEventHandler(async (event: H3Event) => {
 
     console.info(`Creating ${provincesData.length} provinces...`);
     const provinceRes = await Promise.all(
-        provincesData.map(({ id, name }) => supabase.from('Provinces').insert({ id: parseInt(id), name })),
+        provincesData.map(({ id, name }) =>
+            supabase.from('Provinces').insert({ id: parseInt(id), name, country_id: country.id }),
+        ),
     );
     const provinceErrors = provinceRes.filter((res) => res.error);
     if (provinceErrors.length) {
@@ -92,6 +101,7 @@ export default defineEventHandler(async (event: H3Event) => {
                 cities.map(({ id, name }) =>
                     supabase.from('Cities').insert({
                         id: parseInt(id),
+                        country_id: country.id,
                         province_id: parseInt(province.id),
                         name,
                     }),

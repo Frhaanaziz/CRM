@@ -11,6 +11,7 @@ export type Database = {
     Tables: {
       Cities: {
         Row: {
+          country_id: number
           created_at: string
           id: number
           name: string
@@ -18,6 +19,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          country_id: number
           created_at?: string
           id?: number
           name: string
@@ -25,6 +27,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          country_id?: number
           created_at?: string
           id?: number
           name?: string
@@ -32,6 +35,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "Cities_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "Countries"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "cities_province_id_fkey"
             columns: ["province_id"]
@@ -130,6 +140,27 @@ export type Database = {
           },
         ]
       }
+      Countries: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       Industries: {
         Row: {
           created_at: string
@@ -150,6 +181,94 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      Organizations: {
+        Row: {
+          city_id: number
+          country_id: number
+          created_at: string
+          description: string | null
+          id: number
+          industry_id: number
+          name: string
+          province_id: number
+          size_id: number
+          updated_at: string
+          user_owner_id: string
+          website: string
+        }
+        Insert: {
+          city_id: number
+          country_id: number
+          created_at?: string
+          description?: string | null
+          id?: number
+          industry_id: number
+          name: string
+          province_id: number
+          size_id: number
+          updated_at?: string
+          user_owner_id: string
+          website: string
+        }
+        Update: {
+          city_id?: number
+          country_id?: number
+          created_at?: string
+          description?: string | null
+          id?: number
+          industry_id?: number
+          name?: string
+          province_id?: number
+          size_id?: number
+          updated_at?: string
+          user_owner_id?: string
+          website?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Organizations_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "Cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Organizations_country_id_fkey1"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "Countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Organizations_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "Industries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Organizations_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "Provinces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Organizations_size_id_fkey"
+            columns: ["size_id"]
+            isOneToOne: false
+            referencedRelation: "Sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Organizations_user_owner_id_fkey"
+            columns: ["user_owner_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       Photos: {
         Row: {
@@ -184,6 +303,38 @@ export type Database = {
         ]
       }
       Provinces: {
+        Row: {
+          country_id: number
+          created_at: string
+          id: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          country_id: number
+          created_at?: string
+          id?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          country_id?: number
+          created_at?: string
+          id?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Provinces_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "Countries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Roles: {
         Row: {
           created_at: string
           id: number
@@ -233,9 +384,10 @@ export type Database = {
           id: string
           last_name: string
           linkedin: string | null
+          organization_id: number
           phone: string
           photo: string | null
-          role: string
+          role_id: number
           updated_at: string
         }
         Insert: {
@@ -245,9 +397,10 @@ export type Database = {
           id: string
           last_name: string
           linkedin?: string | null
+          organization_id: number
           phone: string
           photo?: string | null
-          role: string
+          role_id: number
           updated_at?: string
         }
         Update: {
@@ -257,12 +410,35 @@ export type Database = {
           id?: string
           last_name?: string
           linkedin?: string | null
+          organization_id?: number
           phone?: string
           photo?: string | null
-          role?: string
+          role_id?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "Users_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Users_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "Organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Users_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "Roles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

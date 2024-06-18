@@ -4,6 +4,84 @@ import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessu
 
 const sidebarOpen = ref(false);
 const { user } = userSessionStore();
+const route = useRoute();
+const pathname = ref(route.path);
+
+watch(
+    () => route.path,
+    () => (pathname.value = route.path),
+);
+
+const navigation = computed(() => {
+    const isCurrent = (path: string) => pathname.value.replace('/dashboard', '') === path;
+
+    return [
+        {
+            name: 'Dashboard',
+            href: '/dashboard/',
+            icon: 'i-heroicons-home',
+            current: isCurrent('/'),
+        },
+        {
+            name: 'Companies',
+            href: '/dashboard/companies',
+            icon: 'i-heroicons-user',
+            current: isCurrent('/companies'),
+        },
+        {
+            name: 'Settings',
+            href: '/dashboard/settings',
+            icon: 'i-heroicons-cog-6-tooth',
+            current: isCurrent('/settings'),
+            children: [
+                {
+                    id: 1,
+                    name: null,
+                    links: [
+                        {
+                            name: 'Account',
+                            href: '/dashboard/settings',
+                            current: isCurrent('/settings'),
+                        },
+                    ],
+                },
+                {
+                    id: 2,
+                    name: 'Organization',
+                    links: [
+                        {
+                            name: 'General',
+                            href: '/dashboard/settings/organization/general',
+                            current: isCurrent('/settings/organization/general'),
+                        },
+                        {
+                            name: 'Team Management',
+                            href: '/dashboard/settings/organization/team',
+                            current: isCurrent('/settings/organization/team'),
+                        },
+                    ],
+                },
+                {
+                    id: 3,
+                    name: 'Connect',
+                    links: [
+                        {
+                            name: 'Integrations',
+                            href: '/dashboard/settings/connect/integrations',
+                            current: isCurrent('/settings/connect/integrations'),
+                        },
+                        {
+                            name: 'Developer',
+                            href: '/dashboard/settings/connect/developer',
+                            current: isCurrent('/settings/connect/developer'),
+                        },
+                    ],
+                },
+            ],
+        },
+    ];
+});
+const currentNavigation = computed(() => navigation.value.find((item) => item.current));
 </script>
 
 <template>
@@ -52,7 +130,7 @@ const { user } = userSessionStore();
 
                             <!-- Sidebar component, swap this element with another sidebar if you like -->
                             <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-base-200 px-6 pb-2">
-                                <DashboardSidebar @close="sidebarOpen = false" />
+                                <DashboardSidebar :navigation="navigation" @close="sidebarOpen = false" />
                             </div>
                         </DialogPanel>
                     </TransitionChild>
@@ -61,10 +139,9 @@ const { user } = userSessionStore();
         </TransitionRoot>
 
         <!-- Static sidebar for desktop -->
-        <!-- <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col"> -->
-        <div class="hidden gap-y-5 overflow-y-auto bg-base-200 px-6 lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-            <!-- Sidebar component, swap this element with another sidebar if you like -->
-            <DashboardSidebar />
+        <!-- <div class="hidden gap-y-5 overflow-y-auto bg-base-200 px-6 lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-48 lg:flex-col"> -->
+        <div class="hidden gap-y-5 bg-base-200 px-6 lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-48 lg:flex-col">
+            <DashboardSidebar :navigation="navigation" />
         </div>
 
         <div class="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden">
@@ -85,8 +162,30 @@ const { user } = userSessionStore();
             </NuxtLink>
         </div>
 
-        <main class="lg:pl-72">
+        <main :class="[currentNavigation?.children ? 'lg:pl-96' : 'lg:pl-48']">
             <slot />
         </main>
+
+        <nav
+            v-if="currentNavigation?.children"
+            class="fixed inset-y-0 left-48 hidden w-48 overflow-y-auto border-l bg-base-200 py-14 lg:block lg:px-3"
+        >
+            <ul class="divide-y-2 text-sm">
+                <li v-for="navigationLinks in currentNavigation.children" :key="navigationLinks.id" class="py-5">
+                    <p v-if="navigationLinks.name" class="text-xs font-semibold">{{ navigationLinks.name }}</p>
+                    <div class="flex flex-col">
+                        <NuxtLink
+                            v-for="link in navigationLinks.links"
+                            :key="link.href"
+                            :href="link.href"
+                            class="py-3 transition-colors hover:text-brand"
+                            :class="[link.current ? 'text-brand' : '']"
+                        >
+                            {{ link.name }}
+                        </NuxtLink>
+                    </div>
+                </li>
+            </ul>
+        </nav>
     </div>
 </template>
