@@ -17,8 +17,6 @@ const { state, isSubmitting, submit, onChangeFile, photoError } = useUpdateProfi
     <div>
         <h1 class="p-7 text-2xl font-semibold">Account Settings</h1>
 
-        <div class="h-5 bg-base-300" />
-
         <section class="max-w-screen-sm p-7">
             <h2 class="mb-2 text-2xl font-semibold">Profile</h2>
 
