@@ -1,6 +1,7 @@
 import type { z } from 'zod';
 export * from './validators/auth';
 export * from './validators/profile';
+export * from './validators/organization';
 
 /**
  * A utility object for displaying toast messages.
