@@ -182,47 +182,102 @@ export type Database = {
         }
         Relationships: []
       }
+      Invitations: {
+        Row: {
+          code: string
+          created_at: string
+          email: string
+          id: number
+          organization_id: number
+          role_id: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          email: string
+          id?: number
+          organization_id: number
+          role_id: number
+          status: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          email?: string
+          id?: number
+          organization_id?: number
+          role_id?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Invitations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "Organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Invitations_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "Roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Invitations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Organizations: {
         Row: {
-          city_id: number
-          country_id: number
+          city_id: number | null
+          country_id: number | null
           created_at: string
           description: string | null
           id: number
-          industry_id: number
+          industry_id: number | null
           name: string
-          province_id: number
-          size_id: number
+          province_id: number | null
+          size_id: number | null
           updated_at: string
-          user_owner_id: string
           website: string
         }
         Insert: {
-          city_id: number
-          country_id: number
+          city_id?: number | null
+          country_id?: number | null
           created_at?: string
           description?: string | null
           id?: number
-          industry_id: number
+          industry_id?: number | null
           name: string
-          province_id: number
-          size_id: number
+          province_id?: number | null
+          size_id?: number | null
           updated_at?: string
-          user_owner_id: string
           website: string
         }
         Update: {
-          city_id?: number
-          country_id?: number
+          city_id?: number | null
+          country_id?: number | null
           created_at?: string
           description?: string | null
           id?: number
-          industry_id?: number
+          industry_id?: number | null
           name?: string
-          province_id?: number
-          size_id?: number
+          province_id?: number | null
+          size_id?: number | null
           updated_at?: string
-          user_owner_id?: string
           website?: string
         }
         Relationships: [
@@ -234,7 +289,7 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Organizations_country_id_fkey1"
+            foreignKeyName: "Organizations_country_id_fkey"
             columns: ["country_id"]
             isOneToOne: false
             referencedRelation: "Countries"
@@ -259,13 +314,6 @@ export type Database = {
             columns: ["size_id"]
             isOneToOne: false
             referencedRelation: "Sizes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Organizations_user_owner_id_fkey"
-            columns: ["user_owner_id"]
-            isOneToOne: false
-            referencedRelation: "Users"
             referencedColumns: ["id"]
           },
         ]
@@ -384,7 +432,7 @@ export type Database = {
           id: string
           last_name: string
           linkedin: string | null
-          organization_id: number
+          organization_id: number | null
           phone: string
           photo: string | null
           role_id: number
@@ -397,7 +445,7 @@ export type Database = {
           id: string
           last_name: string
           linkedin?: string | null
-          organization_id: number
+          organization_id?: number | null
           phone: string
           photo?: string | null
           role_id: number
@@ -410,7 +458,7 @@ export type Database = {
           id?: string
           last_name?: string
           linkedin?: string | null
-          organization_id?: number
+          organization_id?: number | null
           phone?: string
           photo?: string | null
           role_id?: number
