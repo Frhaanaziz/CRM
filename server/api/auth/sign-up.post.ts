@@ -18,7 +18,7 @@ export default defineEventHandler(async (event: H3Event) => {
 
     const { data: initialUser } = await supabase.from('Users').select().eq('email', email).single();
     if (initialUser) {
-        console.info('Resending signup email to:', initialUser.email);
+        console.log('Resending signup email to:', initialUser.email);
         const { error } = await supabase.auth.resend({
             type: 'signup',
             email: initialUser.email,
