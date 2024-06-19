@@ -33,55 +33,9 @@ const navigation = computed(() => {
             href: '/dashboard/settings',
             icon: 'i-heroicons-cog-6-tooth',
             current: isCurrent('/settings'),
-            children: [
-                {
-                    id: 1,
-                    name: null,
-                    links: [
-                        {
-                            name: 'Account',
-                            href: '/dashboard/settings',
-                            current: isCurrent('/settings'),
-                        },
-                    ],
-                },
-                {
-                    id: 2,
-                    name: 'Organization',
-                    links: [
-                        {
-                            name: 'General',
-                            href: '/dashboard/settings/organization/general',
-                            current: isCurrent('/settings/organization/general'),
-                        },
-                        {
-                            name: 'Team Management',
-                            href: '/dashboard/settings/organization/team',
-                            current: isCurrent('/settings/organization/team'),
-                        },
-                    ],
-                },
-                {
-                    id: 3,
-                    name: 'Connect',
-                    links: [
-                        {
-                            name: 'Integrations',
-                            href: '/dashboard/settings/connect/integrations',
-                            current: isCurrent('/settings/connect/integrations'),
-                        },
-                        {
-                            name: 'Developer',
-                            href: '/dashboard/settings/connect/developer',
-                            current: isCurrent('/settings/connect/developer'),
-                        },
-                    ],
-                },
-            ],
         },
     ];
 });
-const currentNavigation = computed(() => navigation.value.find((item) => item.current));
 </script>
 
 <template>
@@ -139,7 +93,6 @@ const currentNavigation = computed(() => navigation.value.find((item) => item.cu
         </TransitionRoot>
 
         <!-- Static sidebar for desktop -->
-        <!-- <div class="hidden gap-y-5 overflow-y-auto bg-base-200 px-6 lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-48 lg:flex-col"> -->
         <div class="hidden gap-y-5 bg-base-200 px-6 lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-48 lg:flex-col">
             <DashboardSidebar :navigation="navigation" />
         </div>
@@ -162,30 +115,8 @@ const currentNavigation = computed(() => navigation.value.find((item) => item.cu
             </NuxtLink>
         </div>
 
-        <main :class="[currentNavigation?.children ? 'lg:pl-96' : 'lg:pl-48']">
+        <main class="lg:pl-48">
             <slot />
         </main>
-
-        <nav
-            v-if="currentNavigation?.children"
-            class="fixed inset-y-0 left-48 hidden w-48 overflow-y-auto border-l bg-base-200 py-14 lg:block lg:px-3"
-        >
-            <ul class="divide-y-2 text-sm">
-                <li v-for="navigationLinks in currentNavigation.children" :key="navigationLinks.id" class="py-5">
-                    <p v-if="navigationLinks.name" class="text-xs font-semibold">{{ navigationLinks.name }}</p>
-                    <div class="flex flex-col">
-                        <NuxtLink
-                            v-for="link in navigationLinks.links"
-                            :key="link.href"
-                            :href="link.href"
-                            class="py-3 transition-colors hover:text-brand"
-                            :class="[link.current ? 'text-brand' : '']"
-                        >
-                            {{ link.name }}
-                        </NuxtLink>
-                    </div>
-                </li>
-            </ul>
-        </nav>
     </div>
 </template>
