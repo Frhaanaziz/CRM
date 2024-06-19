@@ -77,7 +77,7 @@ const selectedColumns = ref(initialColumns);
 const columnsTable = computed(() => columns.filter((column) => selectedColumns.value.includes(column)));
 
 const { $api } = useNuxtApp();
-const [{ data: companies, pending }, { data: industries }, { data: sizes }, { data: provinces }, { data: cities }] =
+const [{ data: companies, status }, { data: industries }, { data: sizes }, { data: provinces }, { data: cities }] =
     await Promise.all([
         useLazyAsyncData(
             'companies-paginated',
@@ -117,6 +117,7 @@ const [{ data: companies, pending }, { data: industries }, { data: sizes }, { da
             lazy: true,
         }),
     ]);
+const pending = computed(() => status.value === 'pending');
 
 const {
     filteredData: filteredCompanies,
@@ -382,12 +383,12 @@ filters.value = {
         <div class="hidden md:flex md:items-center md:gap-1.5">
             <span class="text-sm leading-5">Rows per page:</span>
 
-            <USelect v-model="pageCount" :options="[3, 5, 10, 20, 30, 40]" class="me-2 w-20" size="xs" />
+            <USelect v-model="pageCount" :options="['3', '5', '10', '20', '30', '40']" class="me-2 w-20" size="xs" />
         </div>
 
         <UPagination
             v-model="page"
-            :page-count="pageCount"
+            :page-count="parseInt(pageCount)"
             :total="pageTotal"
             :ui="{
                 wrapper: 'flex items-center gap-1',
