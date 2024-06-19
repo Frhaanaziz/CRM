@@ -2,7 +2,7 @@ import type { H3Event } from 'h3';
 import { faker } from '@faker-js/faker';
 import { z } from 'zod';
 import { getZodErrorMessage } from '~/utils';
-import type { City } from '~/types';
+import type { City, Company } from '~/types';
 import { serverSupabaseClient } from '#supabase/server';
 import type { Database } from '~/types/supabase';
 const schema = z.object({
@@ -163,7 +163,8 @@ export default defineEventHandler(async (event: H3Event) => {
     );
 
     console.info('Creating Companies...');
-    const COMPANY_AMOUNT = 10_000;
+    const COMPANY_AMOUNT = 1_000;
+    const companiesData: Company[] = [];
     for (let i = 0; i < COMPANY_AMOUNT; i++) {
         const name = faker.company.name();
         const phone = faker.phone.number();
@@ -178,24 +179,28 @@ export default defineEventHandler(async (event: H3Event) => {
         const size_id = faker.helpers.arrayElement(sizesData).id;
         const industry_id = faker.helpers.arrayElement(industriesData).id;
 
-        const companyRes = await supabase.from('Companies').insert({
-            name,
-            email,
-            phone,
-            description: faker.lorem.paragraphs(),
-            services: faker.lorem.paragraphs(2),
-            website: faker.internet.url(),
-            linkedin: `https://linkedin.com/company/${name.toLowerCase().replace(/\s/g, '-')}`,
-            size_id,
-            province_id: parseInt(province.id),
-            city_id,
-            industry_id,
-            street: faker.location.streetAddress(),
-            zip_code: faker.location.zipCode(),
-            avatar: faker.image.avatarGitHub(),
-            created_at: faker.date.past().toISOString(),
-            updated_at: faker.date.recent().toISOString(),
-        });
+        const companyRes = await supabase
+            .from('Companies')
+            .insert({
+                name,
+                email,
+                phone,
+                description: faker.lorem.paragraphs(),
+                services: faker.lorem.paragraphs(2),
+                website: faker.internet.url(),
+                linkedin: `https://linkedin.com/company/${name.toLowerCase().replace(/\s/g, '-')}`,
+                size_id,
+                province_id: parseInt(province.id),
+                city_id,
+                industry_id,
+                street: faker.location.streetAddress(),
+                zip_code: faker.location.zipCode(),
+                avatar: faker.image.avatarGitHub(),
+                created_at: faker.date.past().toISOString(),
+                updated_at: faker.date.recent().toISOString(),
+            })
+            .select()
+            .single();
         if (companyRes.error) {
             console.error('Failed to create company', companyRes.error);
             throw createError({
@@ -205,5 +210,29 @@ export default defineEventHandler(async (event: H3Event) => {
         }
 
         console.info(`Created company ${i + 1}/${COMPANY_AMOUNT}`);
+        companiesData.push(companyRes.data);
+    }
+
+    console.info('Creating Photos...');
+    const PHOTOS_AMOUNT = 3_000;
+    for (let i = 0; i < PHOTOS_AMOUNT; i++) {
+        const company = faker.helpers.arrayElement(companiesData);
+        const photoRes = await supabase
+            .from('Photos')
+            .insert({
+                company_id: company.id,
+                file: faker.image.urlLoremFlickr({ category: 'business' }),
+            })
+            .select()
+            .single();
+        if (photoRes.error) {
+            console.error('Failed to create photo', photoRes.error);
+            throw createError({
+                status: 500,
+                statusMessage: photoRes.error.message,
+            });
+        }
+
+        console.info(`Created photo ${i + 1}/${PHOTOS_AMOUNT}`);
     }
 });
