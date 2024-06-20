@@ -19,31 +19,37 @@ const [{ data: industries }, { data: sizes }, { data: countries }, { data: provi
     useLazyFetch('/api/provinces'),
     useLazyFetch('/api/cities'),
 ]);
-const industriesOption = industries.value?.map((industry) => ({
-    id: industry.id,
-    name: industry.name,
-}));
+const industriesOption = computed(() =>
+    industries.value?.map((industry) => ({
+        id: industry.id,
+        name: industry.name,
+    })),
+);
 
-const sizesOption = sizes.value?.map((size) => ({
-    id: size.id,
-    size_range: size.size_range,
-}));
-
-const provincesOption = provinces.value?.map((province) => ({
-    id: province.id,
-    name: province.name,
-}));
-
-const citiesOption = cities.value?.map((city) => ({
-    id: city.id,
-    name: city.name,
-}));
-
-const countriesOption = countries.value?.map((country) => ({
-    id: country.id,
-    name: country.name,
-}));
-
+const sizesOption = computed(() =>
+    sizes.value?.map((size) => ({
+        id: size.id,
+        size_range: size.size_range,
+    })),
+);
+const provincesOption = computed(() =>
+    provinces.value?.map((province) => ({
+        id: province.id,
+        name: province.name,
+    })),
+);
+const citiesOption = computed(() =>
+    cities.value?.map((city) => ({
+        id: city.id,
+        name: city.name,
+    })),
+);
+const countriesOption = computed(() =>
+    countries.value?.map((country) => ({
+        id: country.id,
+        name: country.name,
+    })),
+);
 const isSubmitting = ref(false);
 const isLoadingData = computed(
     () => !organization.value || !industries.value || !sizes.value || !provinces.value || !cities.value || !countries.value,
