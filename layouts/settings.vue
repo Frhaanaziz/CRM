@@ -47,11 +47,6 @@ const navigations = computed(() => {
                     href: '/dashboard/settings/connect/integrations',
                     current: isCurrent('/settings/connect/integrations'),
                 },
-                {
-                    name: 'Developer',
-                    href: '/dashboard/settings/connect/developer',
-                    current: isCurrent('/settings/connect/developer'),
-                },
             ],
         },
     ];
