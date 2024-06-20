@@ -1,6 +1,7 @@
 import type { z } from 'zod';
 export * from './validators/auth';
 export * from './validators/profile';
+export * from './validators/organization';
 
 /**
  * A utility object for displaying toast messages.
@@ -92,4 +93,8 @@ export function truncateString(str: string, maxLength: number, suffix?: string):
 
     // Potong string hingga panjang maksimum dan tambahkan suffix
     return str.slice(0, maxLength - ellipsis.length) + ellipsis;
+}
+
+export function capitalize(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
