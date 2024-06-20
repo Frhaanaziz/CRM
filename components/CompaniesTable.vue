@@ -324,8 +324,8 @@ filters.value = {
         sort-mode="manual"
         class="w-full"
         :ui="{
-            td: { base: 'max-w-[0] truncate' },
-            default: { checkbox: { color: 'gray' } },
+            tr: { base: '[&>td]:hover:bg-base-200' },
+            td: { base: 'max-w-[0] truncate text-default' },
         }"
     >
         <template #name-data="{ row }">
