@@ -13,6 +13,14 @@ export default defineNuxtConfig({
         },
     },
 
+    app: {
+        head: {
+            htmlAttrs: {
+                lang: 'en',
+            },
+        },
+    },
+
     // UI module options
     colorMode: {
         preference: 'light',
