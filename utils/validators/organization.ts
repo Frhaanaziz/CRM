@@ -23,7 +23,3 @@ export const inviteUserSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
     role: z.string().min(1, { message: 'Role is required' }),
 });
-
-export const updateUserOrganizationSchema = z.object({
-    role: z.string().min(1, { message: 'Role is required' }),
-});
