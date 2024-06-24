@@ -10,8 +10,7 @@ import { photoSchema } from '~/utils/validators';
  * @returns {Object} - The state and functions for updating the profile.
  */
 export default function useUpdateProfile({ user }: { user: User }) {
-    const { $api } = useNuxtApp();
-    type UpdateUserType = z.infer<typeof updateProfileSchema>;
+    type UpdateUserType = z.infer<typeof updateUserSchema>;
 
     const userProfile = ref(user);
 
@@ -30,7 +29,7 @@ export default function useUpdateProfile({ user }: { user: User }) {
     async function onSubmit(event: FormSubmitEvent<UpdateUserType>): Promise<void> {
         try {
             isSubmitting.value = true;
-            await $api(`/api/users/${userProfile.value?.id}`, {
+            await $fetch(`/api/users/${userProfile.value?.id}`, {
                 method: 'PATCH',
                 body: JSON.stringify(event.data),
             });
@@ -66,7 +65,7 @@ export default function useUpdateProfile({ user }: { user: User }) {
         formData.append('photo', zodResult.data);
 
         try {
-            await $api(`/api/users/${user.id}/avatar`, {
+            await $fetch(`/api/users/${user.id}/avatar`, {
                 method: 'PATCH',
                 body: formData,
             });

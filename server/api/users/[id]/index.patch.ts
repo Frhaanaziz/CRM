@@ -1,7 +1,7 @@
 import type { H3Event } from 'h3';
 import { serverSupabaseClient } from '#supabase/server';
 import type { Database } from '~/types/supabase';
-import { updateProfileSchema } from '~/utils/validators/profile';
+import { updateUserSchema } from '~/utils/validators/user';
 import { getZodErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event: H3Event) => {
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event: H3Event) => {
     const id = event.context.params?.id;
     if (!id) throw createError({ status: 400, statusMessage: 'User id is needed' });
 
-    const body = await readValidatedBody(event, updateProfileSchema.safeParse);
+    const body = await readValidatedBody(event, updateUserSchema.safeParse);
     if (!body.success) {
         console.error('Error validating request body', body.error);
         throw createError({ status: 400, statusMessage: getZodErrorMessage(body) });
