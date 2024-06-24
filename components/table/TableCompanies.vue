@@ -1,13 +1,5 @@
 <script lang="ts" setup>
 import { useDateFormat } from '@vueuse/core';
-import type { Industry, City, Company, Province, Size } from '~/types';
-
-interface IDataCompany extends Company {
-    industry: Pick<Industry, 'name'>;
-    size: Pick<Size, 'size_range'>;
-    province: Pick<Province, 'name'>;
-    city: Pick<City, 'name'>;
-}
 
 // Columns
 const initialColumns = [
@@ -76,14 +68,11 @@ const inputSizes = ref<string[]>([]);
 const selectedColumns = ref(initialColumns);
 const columnsTable = computed(() => columns.filter((column) => selectedColumns.value.includes(column)));
 
-const { $api } = useNuxtApp();
 const [{ data: companies, status }, { data: industries }, { data: sizes }, { data: provinces }, { data: cities }] =
     await Promise.all([
-        useLazyAsyncData(
-            'companies-paginated',
-            async () => {
-                const companies = await $api<IDataCompany[]>('/api/companies');
-                return companies.map((company) => ({
+        useLazyFetch('/api/companies', {
+            transform: (companies) =>
+                companies.map((company) => ({
                     id: company.id,
                     name: company.name,
                     industry: company?.industry?.name ?? '',
@@ -98,24 +87,13 @@ const [{ data: companies, status }, { data: industries }, { data: sizes }, { dat
                     phone: company.phone,
                     street: company.street,
                     zip_code: company.zip_code,
-                }));
-            },
-            {
-                default: () => [],
-            },
-        ),
-        useAPI<Industry[]>('/api/industries', {
-            lazy: true,
+                })),
+            default: () => [],
         }),
-        useAPI<Size[]>('/api/sizes', {
-            lazy: true,
-        }),
-        useAPI<Province[]>('/api/provinces', {
-            lazy: true,
-        }),
-        useAPI<City[]>('/api/cities', {
-            lazy: true,
-        }),
+        useLazyFetch('/api/industries'),
+        useLazyFetch('/api/sizes'),
+        useLazyFetch('/api/provinces'),
+        useLazyFetch('/api/cities'),
     ]);
 const pending = computed(() => status.value === 'pending');
 
@@ -127,8 +105,6 @@ const {
     sort,
     filters,
     pageTotal,
-    pageFrom,
-    pageTo,
     resetFilters,
 } = useFilterAndPaginate(companies);
 
@@ -142,9 +118,6 @@ filters.value = {
 </script>
 
 <template>
-    <!-- Filters -->
-    <div class="flex items-center justify-between gap-3 px-4 py-3"></div>
-
     <!-- Header and Action buttons -->
     <div class="mt-3 flex items-center justify-between gap-x-3 rounded bg-base-200 p-3">
         <div class="flex items-center gap-4">
@@ -250,7 +223,8 @@ filters.value = {
                     </template>
                 </UPopover>
 
-                <UPopover mode="hover">
+                <!-- Location Popover -->
+                <!-- <UPopover mode="hover">
                     <UButton
                         variant="outline"
                         color="gray"
@@ -267,13 +241,11 @@ filters.value = {
                             <p class="border-b p-3 font-semibold">Filter by Location</p>
                             <div class="max-h-52 space-y-3 overflow-x-auto bg-base-200 p-3">
                                 <UFormGroup label="Province" name="province">
-                                    <!-- <UInputMenu v-model="selectedProvinces" :options="provinces?.map(({ name }) => name ?? [])" /> -->
-                                    <UInputMenu :options="provinces?.map(({ name }) => name ?? [])" />
+                                    <UInputMenu v-model="selectedProvinces" :options="provinces?.map(({ name }) => name ?? [])" />
                                 </UFormGroup>
 
                                 <UFormGroup label="City" name="city">
-                                    <!-- <UInputMenu v-model="selectedCities" :options="cities?.map(({ name }) => name ?? [])" /> -->
-                                    <UInputMenu :options="cities?.map(({ name }) => name ?? [])" />
+                                    <UInputMenu v-model="selectedCities" :options="cities?.map(({ name }) => name ?? [])" />
                                 </UFormGroup>
                             </div>
                             <div class="flex justify-end gap-2 bg-base-200 p-3">
@@ -282,7 +254,7 @@ filters.value = {
                             </div>
                         </div>
                     </template>
-                </UPopover>
+                </UPopover> -->
             </div>
         </div>
 
@@ -366,39 +338,5 @@ filters.value = {
     </UTable>
 
     <!-- Number of rows & Pagination -->
-
-    <div class="mt-5 flex flex-wrap items-center justify-between">
-        <div>
-            <span class="text-sm leading-5">
-                Showing
-                <span class="font-medium">{{ pageFrom }}</span>
-                to
-                <span class="font-medium">{{ pageTo }}</span>
-                of
-                <span class="font-medium">{{ pageTotal }}</span>
-                results
-            </span>
-        </div>
-
-        <div class="hidden md:flex md:items-center md:gap-1.5">
-            <span class="text-sm leading-5">Rows per page:</span>
-
-            <USelect v-model="pageCount" :options="['3', '5', '10', '20', '30', '40']" class="me-2 w-20" size="xs" />
-        </div>
-
-        <UPagination
-            v-model="page"
-            :page-count="parseInt(pageCount)"
-            :total="pageTotal"
-            :ui="{
-                wrapper: 'flex items-center gap-1',
-                rounded: '!rounded-full min-w-[32px] justify-center',
-                default: {
-                    activeButton: {
-                        variant: 'outline',
-                    },
-                },
-            }"
-        />
-    </div>
+    <TableFooter v-model:page="page" v-model:pageCount="pageCount" :pageTotal="pageTotal" />
 </template>

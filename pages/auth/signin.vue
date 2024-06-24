@@ -9,18 +9,14 @@ const { query } = useRoute();
 // Get redirect path from cookies
 const cookieName = useRuntimeConfig().public.supabase.cookieName;
 const redirectPath = useCookie(`${cookieName}-redirect-path`).value;
-watch(
-    user,
-    () => {
-        if (user.value) {
-            // Clear cookie
-            useCookie(`${cookieName}-redirect-path`).value = null;
-            // Redirect to path
-            return navigateTo((redirectPath === runtimeConfig.public.BASE_URL && '/dashboard') || '/dashboard');
-        }
-    },
-    { immediate: true },
-);
+watchEffect(() => {
+    if (user.value) {
+        // Clear cookie
+        useCookie(`${cookieName}-redirect-path`).value = null;
+        // Redirect to path
+        return navigateTo((redirectPath === runtimeConfig.public.BASE_URL && '/dashboard') || '/dashboard');
+    }
+});
 
 const { isSubmitting, state, submit } = useSignIn();
 

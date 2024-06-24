@@ -1,12 +1,8 @@
 <script lang="ts" setup>
 import { useDateFormat } from '@vueuse/core';
-import type { User, Role } from '~/types';
+import type { User } from '~/types';
 import LazyModalInviteUser from '~/components/modal/ModalInviteUser.vue';
 import LazyModalUpdateUserOrganization from '~/components/modal/ModalUpdateUserOrganization.vue';
-
-interface IDataUser extends User {
-    role: Pick<Role, 'name'>;
-}
 
 // Columns
 const initialColumns = [
@@ -32,7 +28,7 @@ const initialColumns = [
     },
     {
         key: 'actions',
-        label: '',
+        label: 'Actions',
         sortable: false,
     },
 ];
@@ -61,30 +57,24 @@ const columnsTable = computed(() => columns.filter((column) => selectedColumns.v
 const user = useSupabaseUser();
 if (!user.value) throw new Error('User is not authenticated');
 
-const { data: users, status } = await useLazyAsyncData(
-    async () => {
-        const users = await $fetch<IDataUser[]>(`/api/organizations/${user.value?.app_metadata?.organization_id}/users`);
-        return users.map((user) => ({
+const { data: users, status } = await useLazyFetch(`/api/organizations/${user.value?.app_metadata?.organization_id}/users`, {
+    transform: (users) =>
+        users.map((user) => ({
             ...user,
-            role: user.role.name,
-            // create random true or false
-            status: Math.random() < 0.5 ? 'Active' : 'Inactive',
-        }));
-    },
-    {
-        default: () => [],
-    },
-);
+            role: user.role?.name,
+        })),
+    default: () => [],
+});
 const pending = computed(() => status.value === 'pending');
 
-const { filteredData: filteredUsers, search, page, pageCount, sort, pageTotal, pageFrom, pageTo } = useFilterAndPaginate(users);
+const { filteredData: filteredUsers, search, page, pageCount, sort, pageTotal } = useFilterAndPaginate(users);
 const filteredUsersCustom = computed(() =>
     filteredUsers.value.map((user) => ({
         ...user,
-        role: { value: user.role, class: 'w-44 max-w-44' },
+        role: { value: user.role, id: user.role_id, class: 'w-[120px] max-w-[120px]' },
         status: { value: user.status, class: 'w-40 max-w-40' },
         actions: { value: undefined, class: 'w-28 max-w-28' },
-    })),
+    }))
 );
 
 const modal = useModal();
@@ -93,7 +83,7 @@ function openInviteUserModal() {
         onClose: () => modal.close(),
     });
 }
-function openUpdateUserModal(user: { id: User['id']; role: Role['name'] }) {
+function openUpdateUserModal(user: { id: User['id']; role_id: User['role_id']; status: User['status'] }) {
     modal.open(LazyModalUpdateUserOrganization, {
         onClose: () => modal.close(),
         user,
@@ -103,7 +93,7 @@ function openUpdateUserModal(user: { id: User['id']; role: Role['name'] }) {
 
 <template>
     <!-- Header and Action buttons -->
-    <div class="w- w- w- w- w- flex items-center justify-between gap-y-3 pb-2">
+    <div class="flex items-center justify-between gap-y-3 pb-2">
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-semibold">Members</h2>
         </div>
@@ -156,7 +146,7 @@ function openUpdateUserModal(user: { id: User['id']; role: Role['name'] }) {
         </template>
 
         <template #status-data="{ row }">
-            <UBadge v-if="row.status.value === 'Active'" variant="outline" color="green" :ui="{ rounded: 'rounded-full' }"
+            <UBadge v-if="row.status.value === 'active'" variant="outline" color="green" :ui="{ rounded: 'rounded-full' }"
                 >Active</UBadge
             >
             <UBadge v-else variant="outline" color="red" :ui="{ rounded: 'rounded-full' }">Inactive</UBadge>
@@ -188,7 +178,7 @@ function openUpdateUserModal(user: { id: User['id']; role: Role['name'] }) {
                     variant="ghost"
                     color="gray"
                     :disabled="user?.id === row.id"
-                    @click="() => openUpdateUserModal({ id: row.id, role: row.role.value })"
+                    @click="openUpdateUserModal({ id: row.id, role_id: row.role.id, status: row.status.value })"
                 />
             </div>
         </template>
@@ -202,38 +192,5 @@ function openUpdateUserModal(user: { id: User['id']; role: Role['name'] }) {
     </UTable>
 
     <!-- Number of rows & Pagination -->
-    <div class="mt-5 flex flex-wrap items-center justify-between">
-        <div>
-            <span class="text-sm leading-5">
-                Showing
-                <span class="font-medium">{{ pageFrom }}</span>
-                to
-                <span class="font-medium">{{ pageTo }}</span>
-                of
-                <span class="font-medium">{{ pageTotal }}</span>
-                results
-            </span>
-        </div>
-
-        <div class="hidden md:flex md:items-center md:gap-1.5">
-            <span class="text-sm leading-5">Rows per page:</span>
-
-            <USelect v-model="pageCount" :options="['3', '5', '10', '20', '30', '40']" class="me-2 w-20" size="xs" />
-        </div>
-
-        <UPagination
-            v-model="page"
-            :page-count="parseInt(pageCount)"
-            :total="pageTotal"
-            :ui="{
-                wrapper: 'flex items-center gap-1',
-                rounded: '!rounded-full min-w-[32px] justify-center',
-                default: {
-                    activeButton: {
-                        variant: 'outline',
-                    },
-                },
-            }"
-        />
-    </div>
+    <TableFooter v-model:page="page" v-model:pageCount="pageCount" :pageTotal="pageTotal" />
 </template>

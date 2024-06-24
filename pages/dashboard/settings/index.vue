@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import useUpdateProfile from '~/composables/useUpdateProfile';
-import type { User } from '~/types';
 
 const user = useSupabaseUser();
-const { data: profile } = await useAPI<User>(`/api/users/${user.value?.id}`, {
+const { data: profile } = await useFetch(`/api/users/${user.value?.id}`, {
     key: 'profile',
 });
 if (!profile.value) throw createError({ status: 404, message: 'User not found' });
@@ -47,25 +46,49 @@ const { state, isSubmitting, submit, onChangeFile, photoError } = useUpdateProfi
                 </p>
             </label>
 
-            <UForm :schema="updateProfileSchema" :state="state" class="mt-6 space-y-3" @submit="submit" @error="console.error">
+            <UForm :schema="updateUserSchema" :state="state" class="mt-6 space-y-3" @submit="submit" @error="console.error">
                 <UFormGroup label="Email" name="email">
-                    <UInput v-model="state.email" disabled />
+                    <UInput v-model="state.email" disabled placeholder="Enter your email" autocomplete="email" />
                 </UFormGroup>
 
                 <UFormGroup label="First Name" name="first_name">
-                    <UInput v-model="state.first_name" :disabled="isSubmitting" :loading="isSubmitting" />
+                    <UInput
+                        v-model="state.first_name"
+                        :disabled="isSubmitting"
+                        :loading="isSubmitting"
+                        placeholder="Enter your first name"
+                        autocomplete="given-name"
+                    />
                 </UFormGroup>
 
                 <UFormGroup label="Last Name" name="last_name">
-                    <UInput v-model="state.last_name" :disabled="isSubmitting" :loading="isSubmitting" />
+                    <UInput
+                        v-model="state.last_name"
+                        :disabled="isSubmitting"
+                        :loading="isSubmitting"
+                        placeholder="Enter your last name"
+                        autocomplete="family-name"
+                    />
                 </UFormGroup>
 
                 <UFormGroup label="Phone" name="phone">
-                    <UInput v-model="state.phone" :disabled="isSubmitting" :loading="isSubmitting" />
+                    <UInput
+                        v-model="state.phone"
+                        :disabled="isSubmitting"
+                        :loading="isSubmitting"
+                        placeholder="+1 123 456 7890"
+                        autocomplete="tel"
+                    />
                 </UFormGroup>
 
                 <UFormGroup label="LinkedIn URL" name="linkedin">
-                    <UInput v-model="state.linkedin" :disabled="isSubmitting" :loading="isSubmitting" />
+                    <UInput
+                        v-model="state.linkedin"
+                        :disabled="isSubmitting"
+                        :loading="isSubmitting"
+                        placeholder="https://www.linkedin.com/in/your-profile"
+                        autocomplete="url"
+                    />
                 </UFormGroup>
 
                 <UButton type="submit" size="md" :disabled="isSubmitting" :loading="isSubmitting"> Save </UButton>

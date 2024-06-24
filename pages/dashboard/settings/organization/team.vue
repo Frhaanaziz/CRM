@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1 class="p-7 text-2xl font-semibold">Team management</h1>
+        <h1 class="px-7 pt-7 text-2xl font-semibold">Team management</h1>
 
         <section class="grid gap-3 p-7 sm:grid-cols-3">
             <div class="rounded-md border p-3">

@@ -1,19 +1,10 @@
 <script setup lang="ts">
 import LazyModalAddCompanyToCRM from '~/components/modal/ModalAddCompanyToCRM.vue';
-import type { City, Company, Industry, Photo, Province, Size } from '~/types';
-
-interface ICompany extends Company {
-    industry: Pick<Industry, 'name'>;
-    size: Pick<Size, 'size_range'>;
-    province: Pick<Province, 'name'>;
-    city: Pick<City, 'name'>;
-    photos: Pick<Photo, 'file'>[];
-}
 
 const route = useRoute();
 const company_id = route.params.company_id;
 
-const { data: company } = await useAPI<ICompany>(`/api/companies/detail/${company_id}`, {
+const { data: company } = await useFetch(`/api/companies/detail/${company_id}`, {
     key: `companies-${company_id}`,
 });
 if (!company.value) throw createError({ status: 404, message: 'Company not found' });
