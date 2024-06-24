@@ -1,11 +1,12 @@
 import { z } from 'zod';
+import { phone } from '.';
 
 export const signUpSchema = z
     .object({
         first_name: z.string().min(1, { message: 'First name is required' }),
         last_name: z.string().min(1, { message: 'Last name is required' }),
         email: z.string().email({ message: 'Invalid email address' }),
-        phone: z.string().min(6, { message: 'Invalid phone number' }),
+        phone: phone(z.string()),
         password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
         confirm_password: z.string(),
     })
