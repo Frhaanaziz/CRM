@@ -386,19 +386,19 @@ export type Database = {
         Row: {
           created_at: string
           id: number
-          name: string
+          name: Database["public"]["Enums"]["role_names"]
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: number
-          name: string
+          name: Database["public"]["Enums"]["role_names"]
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: number
-          name?: string
+          name?: Database["public"]["Enums"]["role_names"]
           updated_at?: string
         }
         Relationships: []
@@ -436,6 +436,7 @@ export type Database = {
           phone: string
           photo: string | null
           role_id: number
+          status: Database["public"]["Enums"]["user_statuses"]
           updated_at: string
         }
         Insert: {
@@ -449,6 +450,7 @@ export type Database = {
           phone: string
           photo?: string | null
           role_id: number
+          status?: Database["public"]["Enums"]["user_statuses"]
           updated_at?: string
         }
         Update: {
@@ -462,6 +464,7 @@ export type Database = {
           phone?: string
           photo?: string | null
           role_id?: number
+          status?: Database["public"]["Enums"]["user_statuses"]
           updated_at?: string
         }
         Relationships: [
@@ -496,7 +499,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      role_names: "owner" | "admin" | "manager" | "sales"
+      user_statuses: "active" | "inactive"
     }
     CompositeTypes: {
       [_ in never]: never

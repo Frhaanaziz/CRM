@@ -1,4 +1,7 @@
-import type { Tables } from './supabase';
+import type { Enums, Tables } from './supabase';
+
+export type RoleNames = Enums<'role_names'>;
+export type UserStatuses = Enums<'user_statuses'>;
 
 export type User = Tables<'Users'>;
 export type Province = Tables<'Provinces'>;
