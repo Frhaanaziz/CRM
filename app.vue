@@ -22,6 +22,7 @@ if (import.meta.server) {
 
 <template>
     <NuxtLayout>
+        <NuxtRouteAnnouncer />
         <NuxtLoadingIndicator color="#0265DC" />
         <UNotifications />
 
