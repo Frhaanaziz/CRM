@@ -25,8 +25,8 @@ function openAddToCRMModal() {
     <div class="min-h-screen bg-base-200">
         <header class="bg-base-100">
             <div class="border-b">
-                <NuxtLink href="/dashboard/resources/b2b-database" class="inline-block border px-2 pt-2">
-                    <UIcon name="i-heroicons-arro1left" class="h-6 w-6" />
+                <NuxtLink href="/dashboard/resources/b2b-database" class="flex h-10 w-10 items-center justify-center border">
+                    <UIcon name="i-heroicons-arrow-left-20-solid" class="h-[18px] w-[18px]" />
                 </NuxtLink>
             </div>
 
