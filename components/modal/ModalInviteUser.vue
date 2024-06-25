@@ -49,7 +49,7 @@ async function handleSubmit(event: FormSubmitEvent<InviteUserType>) {
             <p class="text-weak">Invite a user via email to be a member of your organization.</p>
 
             <UForm :schema="inviteUserSchema" :state="state" class="space-y-3" @submit="handleSubmit" @error="console.error">
-                <UFormGroup label="Email" name="email" required :ui="{ label: { base: 'font-semibold' } }">
+                <UFormGroup label="Email" name="email" required>
                     <UInput
                         v-model="state.email"
                         :disabled="isSubmitting"
@@ -58,7 +58,7 @@ async function handleSubmit(event: FormSubmitEvent<InviteUserType>) {
                     />
                 </UFormGroup>
 
-                <UFormGroup label="Role" name="role" required :ui="{ label: { base: 'font-semibold' } }">
+                <UFormGroup label="Role" name="role" required>
                     <USelectMenu
                         v-model="state.role"
                         value-attribute="value"

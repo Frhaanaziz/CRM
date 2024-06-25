@@ -66,7 +66,7 @@ async function handleSubmit(event: FormSubmitEvent<UpdateUserOrganizationType>) 
 
         <div class="space-y-3 bg-base-200 p-3">
             <UForm :schema="schema" :state="state" class="space-y-3" @submit="handleSubmit" @error="console.error">
-                <UFormGroup label="Role" name="role" required :ui="{ label: { base: 'font-semibold' } }">
+                <UFormGroup label="Role" name="role" required>
                     <USelectMenu
                         v-model="state.role_id"
                         value-attribute="value"
@@ -77,7 +77,7 @@ async function handleSubmit(event: FormSubmitEvent<UpdateUserOrganizationType>) 
                         placeholder="Select role"
                     />
                 </UFormGroup>
-                <UFormGroup label="Status" name="status" required :ui="{ label: { base: 'font-semibold' } }">
+                <UFormGroup label="Status" name="status" required>
                     <USelectMenu
                         v-model="state.status"
                         value-attribute="value"

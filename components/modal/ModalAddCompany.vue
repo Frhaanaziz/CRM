@@ -17,7 +17,6 @@ async function handleSubmit(event: FormSubmitEvent<AddCompanyType>) {
     try {
         isSubmitting.value = true;
 
-        console.log('Adding company', event.data);
         await $fetch('/api/companies', {
             method: 'POST',
             body: JSON.stringify(event.data),
@@ -50,7 +49,7 @@ async function handleSubmit(event: FormSubmitEvent<AddCompanyType>) {
             <p class="font-semibold text-brand">Details</p>
 
             <UForm :schema="addCompanySchema" :state="state" class="space-y-3" @submit="handleSubmit" @error="console.error">
-                <UFormGroup label="Company Name" name="name" required :ui="{ label: { base: 'font-semibold' } }">
+                <UFormGroup label="Company Name" name="name" required>
                     <UInput
                         v-model="state.name"
                         :disabled="isSubmitting"
@@ -59,7 +58,7 @@ async function handleSubmit(event: FormSubmitEvent<AddCompanyType>) {
                     />
                 </UFormGroup>
 
-                <UFormGroup label="Website" name="website" required :ui="{ label: { base: 'font-semibold' } }">
+                <UFormGroup label="Website" name="website" required>
                     <UInput
                         v-model="state.website"
                         :disabled="isSubmitting"
