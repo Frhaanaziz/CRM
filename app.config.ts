@@ -11,6 +11,15 @@ export default defineAppConfig({
         input: {
             base: 'disabled:bg-base-300',
         },
+
+        card: {
+            body: {
+                padding: 'px-4 py-2',
+            },
+            header: {
+                padding: 'py-2 px-4 sm:px-4',
+            },
+        },
     },
 
     // fix type-checkin error
