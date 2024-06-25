@@ -3,10 +3,10 @@ import LazyModalDeleteCompany from '~/components/modal/ModalDeleteCompany.vue';
 
 const id = parseInt(useRoute().params.id as string);
 
-const { data: company } = useFetch(`/api/companies/${id}`, {
+const { data: company } = await useFetch(`/api/companies/${id}`, {
     key: `company-${id}`,
 });
-// if (!company.value) throw createError({ status: 404, message: 'Company not found' });
+if (!company.value) throw createError({ status: 404, message: 'Company not found' });
 
 const modal = useModal();
 function openDeleteCompanyModal() {
@@ -84,22 +84,22 @@ function openDeleteCompanyModal() {
 
                     <div class="grid grow grid-rows-11 gap-y-8 font-semibold">
                         <p class="line-clamp-1">{{ company.name }}</p>
-                        <p class="line-clamp-1">{{ company.phone }}</p>
-                        <p class="line-clamp-1">{{ company.industry?.name }}</p>
+                        <p class="line-clamp-1">{{ company.phone ?? '---' }}</p>
+                        <p class="line-clamp-1">{{ company.industry?.name ?? '---' }}</p>
                         <p class="line-clamp-1">
-                            {{ company.size?.size_range }}
+                            {{ company.size?.size_range ?? '---' }}
                         </p>
                         <p class="line-clamp-1">
-                            {{ company.country?.name }}
+                            {{ company.country?.name ?? '---' }}
                         </p>
                         <p class="line-clamp-1">
-                            {{ company.province?.name }}
+                            {{ company.province?.name ?? '---' }}
                         </p>
-                        <p class="line-clamp-1">{{ company.city?.name }}</p>
+                        <p class="line-clamp-1">{{ company.city?.name ?? '---' }}</p>
                         <p class="line-clamp-1">{{ company.street_1 ?? '---' }}</p>
                         <p class="line-clamp-1">{{ company.street_2 ?? '---' }}</p>
                         <p class="line-clamp-1">{{ company.street_3 ?? '---' }}</p>
-                        <p class="line-clamp-1">{{ company.postal_code }}</p>
+                        <p class="line-clamp-1">{{ company.postal_code ?? '---' }}</p>
                     </div>
                 </div>
             </UCard>
