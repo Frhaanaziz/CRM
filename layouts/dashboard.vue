@@ -3,36 +3,49 @@ import { ref } from 'vue';
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue';
 
 const sidebarOpen = ref(false);
-const { user } = userSessionStore();
+const { user } = storeToRefs(userSessionStore());
 const route = useRoute();
 const pathname = ref(route.path);
 
-watch(
-    () => route.path,
-    () => (pathname.value = route.path),
-);
+watchEffect(() => (pathname.value = route.path));
 
-const navigation = computed(() => {
-    const isCurrent = (path: string) => pathname.value.replace('/dashboard', '') === path;
+const navigations = computed(() => {
+    const isCurrent = (path: string) => pathname.value === path;
+    const isCurrentNested = (path: string) => pathname.value.startsWith(path);
 
     return [
         {
-            name: 'Dashboard',
-            href: '/dashboard/',
-            icon: 'i-heroicons-home',
-            current: isCurrent('/'),
+            name: 'My Work',
+            links: [
+                {
+                    name: 'Dashboard',
+                    href: '/dashboard/',
+                    icon: 'i-heroicons-home',
+                    current: isCurrent('/dashboard/'),
+                },
+            ],
         },
         {
-            name: 'Companies',
-            href: '/dashboard/companies',
-            icon: 'i-heroicons-user',
-            current: isCurrent('/companies'),
+            name: 'Customer',
+            links: [
+                {
+                    name: 'Companies',
+                    href: '/dashboard/customer/companies',
+                    icon: 'i-heroicons-user',
+                    current: isCurrentNested('/dashboard/customer/companies'),
+                },
+            ],
         },
         {
-            name: 'Settings',
-            href: '/dashboard/settings',
-            icon: 'i-heroicons-cog-6-tooth',
-            current: isCurrent('/settings'),
+            name: 'Resources',
+            links: [
+                {
+                    name: 'B2B Database',
+                    href: '/dashboard/resources/b2b-database',
+                    icon: 'i-heroicons-circle-stack',
+                    current: isCurrentNested('/dashboard/resources/b2b-database'),
+                },
+            ],
         },
     ];
 });
@@ -84,7 +97,7 @@ const navigation = computed(() => {
 
                             <!-- Sidebar component, swap this element with another sidebar if you like -->
                             <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-base-200 px-6 pb-2">
-                                <DashboardSidebar :navigation="navigation" @close="sidebarOpen = false" />
+                                <DashboardSidebar :navigations="navigations" @close="sidebarOpen = false" />
                             </div>
                         </DialogPanel>
                     </TransitionChild>
@@ -94,7 +107,7 @@ const navigation = computed(() => {
 
         <!-- Static sidebar for desktop -->
         <div class="hidden gap-y-5 bg-base-200 px-6 lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-48 lg:flex-col">
-            <DashboardSidebar :navigation="navigation" />
+            <DashboardSidebar :navigations="navigations" />
         </div>
 
         <div class="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden">

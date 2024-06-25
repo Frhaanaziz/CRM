@@ -1,17 +1,10 @@
 <script setup lang="ts">
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
-
-type UpdateOrganizationType = z.infer<typeof updateOrganizationSchema>;
-
 const user = useSupabaseUser();
-if (!user.value) {
-    console.error('User is not authenticated');
-    throw new Error('User is not authenticated');
-}
+if (!user.value) throw new Error('User is not authenticated');
 
 const { data: organization } = await useLazyFetch(`/api/users/${user.value.id}/organization`);
-
 const [{ data: industries }, { data: sizes }, { data: countries }, { data: provinces }, { data: cities }] = await Promise.all([
     useLazyFetch('/api/industries'),
     useLazyFetch('/api/sizes'),
@@ -19,58 +12,15 @@ const [{ data: industries }, { data: sizes }, { data: countries }, { data: provi
     useLazyFetch('/api/provinces'),
     useLazyFetch('/api/cities'),
 ]);
-const industriesOption = computed(() =>
-    industries.value?.map((industry) => ({
-        id: industry.id,
-        name: industry.name,
-    })),
-);
-
-const sizesOption = computed(() =>
-    sizes.value?.map((size) => ({
-        id: size.id,
-        size_range: size.size_range,
-    })),
-);
-const provincesOption = computed(() =>
-    provinces.value?.map((province) => ({
-        id: province.id,
-        name: province.name,
-    })),
-);
-const citiesOption = computed(() =>
-    cities.value?.map((city) => ({
-        id: city.id,
-        name: city.name,
-    })),
-);
-const countriesOption = computed(() =>
-    countries.value?.map((country) => ({
-        id: country.id,
-        name: country.name,
-    })),
-);
-const isSubmitting = ref(false);
 const isLoadingData = computed(
-    () => !organization.value || !industries.value || !sizes.value || !provinces.value || !cities.value || !countries.value,
+    () => !organization.value || !industries.value || !sizes.value || !provinces.value || !cities.value || !countries.value
 );
 
-const state = computed(() => ({
-    id: organization.value?.id,
-    name: organization.value?.name,
-    city_id: organization.value?.city_id ?? undefined,
-    size_id: organization.value?.size_id ?? undefined,
-    website: organization.value?.website,
-    country_id: organization.value?.country_id ?? undefined,
-    description: organization.value?.description ?? undefined,
-    industry_id: organization.value?.industry_id ?? undefined,
-    province_id: organization.value?.province_id ?? undefined,
-}));
-const stateRef = ref(state.value);
-watchEffect(() => {
-    stateRef.value = state.value;
-});
+const isSubmitting = ref(false);
+const { state, stateRef } = useOrganization();
+const { industriesOption, sizesOption, provincesOption, citiesOption, countriesOption } = useOptionsData();
 
+type UpdateOrganizationType = z.infer<typeof updateOrganizationSchema>;
 async function handleSubmit(event: FormSubmitEvent<UpdateOrganizationType>) {
     try {
         isSubmitting.value = true;
@@ -86,6 +36,66 @@ async function handleSubmit(event: FormSubmitEvent<UpdateOrganizationType>) {
     } finally {
         isSubmitting.value = false;
     }
+}
+
+function useOrganization() {
+    const state = computed(() => ({
+        id: organization.value?.id,
+        name: organization.value?.name,
+        city_id: organization.value?.city_id ?? undefined,
+        size_id: organization.value?.size_id ?? undefined,
+        website: organization.value?.website,
+        country_id: organization.value?.country_id ?? undefined,
+        description: organization.value?.description ?? undefined,
+        industry_id: organization.value?.industry_id ?? undefined,
+        province_id: organization.value?.province_id ?? undefined,
+    }));
+    const stateRef = ref(state.value);
+    watchEffect(() => {
+        stateRef.value = state.value;
+    });
+
+    return { state, stateRef };
+}
+function useOptionsData() {
+    const industriesOption = computed(() =>
+        industries.value?.map((industry) => ({
+            id: industry.id,
+            name: industry.name,
+        }))
+    );
+    const sizesOption = computed(() =>
+        sizes.value?.map((size) => ({
+            id: size.id,
+            size_range: size.size_range,
+        }))
+    );
+    const provincesOption = computed(() =>
+        provinces.value?.map((province) => ({
+            id: province.id,
+            name: province.name,
+        }))
+    );
+    const citiesOption = computed(() =>
+        cities.value?.map((city) => ({
+            id: city.id,
+            name: city.name,
+        }))
+    );
+    const countriesOption = computed(() =>
+        countries.value?.map((country) => ({
+            id: country.id,
+            name: country.name,
+        }))
+    );
+
+    return {
+        industriesOption,
+        sizesOption,
+        provincesOption,
+        citiesOption,
+        countriesOption,
+    };
 }
 </script>
 

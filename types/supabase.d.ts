@@ -9,49 +9,7 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      Cities: {
-        Row: {
-          country_id: number
-          created_at: string
-          id: number
-          name: string
-          province_id: number
-          updated_at: string
-        }
-        Insert: {
-          country_id: number
-          created_at?: string
-          id?: number
-          name: string
-          province_id: number
-          updated_at?: string
-        }
-        Update: {
-          country_id?: number
-          created_at?: string
-          id?: number
-          name?: string
-          province_id?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "Cities_country_id_fkey"
-            columns: ["country_id"]
-            isOneToOne: false
-            referencedRelation: "Countries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cities_province_id_fkey"
-            columns: ["province_id"]
-            isOneToOne: false
-            referencedRelation: "Provinces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      Companies: {
+      B2B_Companies: {
         Row: {
           avatar: string | null
           city_id: number
@@ -140,7 +98,365 @@ export type Database = {
           },
         ]
       }
+      Cities: {
+        Row: {
+          country_id: number
+          created_at: string
+          id: number
+          name: string
+          province_id: number
+          updated_at: string
+        }
+        Insert: {
+          country_id: number
+          created_at?: string
+          id?: number
+          name: string
+          province_id: number
+          updated_at?: string
+        }
+        Update: {
+          country_id?: number
+          created_at?: string
+          id?: number
+          name?: string
+          province_id?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Cities_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "Countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cities_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "Provinces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Companies: {
+        Row: {
+          city_id: number | null
+          company_status_id: number | null
+          country_id: number | null
+          created_at: string
+          id: number
+          industry_id: number | null
+          linkedin: string | null
+          name: string
+          phone: string | null
+          postal_code: string | null
+          primary_contact_id: number | null
+          province_id: number | null
+          size_id: number | null
+          street_1: string | null
+          street_2: string | null
+          street_3: string | null
+          updated_at: string
+          user_id: string | null
+          website: string | null
+        }
+        Insert: {
+          city_id?: number | null
+          company_status_id?: number | null
+          country_id?: number | null
+          created_at?: string
+          id?: number
+          industry_id?: number | null
+          linkedin?: string | null
+          name: string
+          phone?: string | null
+          postal_code?: string | null
+          primary_contact_id?: number | null
+          province_id?: number | null
+          size_id?: number | null
+          street_1?: string | null
+          street_2?: string | null
+          street_3?: string | null
+          updated_at?: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Update: {
+          city_id?: number | null
+          company_status_id?: number | null
+          country_id?: number | null
+          created_at?: string
+          id?: number
+          industry_id?: number | null
+          linkedin?: string | null
+          name?: string
+          phone?: string | null
+          postal_code?: string | null
+          primary_contact_id?: number | null
+          province_id?: number | null
+          size_id?: number | null
+          street_1?: string | null
+          street_2?: string | null
+          street_3?: string | null
+          updated_at?: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Companies_company_status_id_fkey"
+            columns: ["company_status_id"]
+            isOneToOne: false
+            referencedRelation: "Company_Statuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Companies_primary_contact_id_fkey"
+            columns: ["primary_contact_id"]
+            isOneToOne: false
+            referencedRelation: "Contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Companiesass_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "Cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Companiesass_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "Countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Companiesass_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "Industries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Companiesass_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "Provinces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Companiesass_size_id_fkey"
+            columns: ["size_id"]
+            isOneToOne: false
+            referencedRelation: "Sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Companiesass_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Company_Statuses: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      Contact_Statuses: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      Contacts: {
+        Row: {
+          city_id: number | null
+          company_id: number | null
+          contact_status_id: number | null
+          country_id: number | null
+          created_at: string
+          description: string | null
+          email: string | null
+          facebook: string | null
+          first_name: string | null
+          id: number
+          instagram: string | null
+          is_valid_email: boolean | null
+          job_title: string | null
+          last_name: string | null
+          linkedin: string | null
+          main_phone: string | null
+          mobile_phone: string | null
+          postal_code: string | null
+          province_id: number | null
+          street_1: string | null
+          street_2: string | null
+          street_3: string | null
+          updated_at: string
+          user_id: string | null
+          website: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          city_id?: number | null
+          company_id?: number | null
+          contact_status_id?: number | null
+          country_id?: number | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          facebook?: string | null
+          first_name?: string | null
+          id?: number
+          instagram?: string | null
+          is_valid_email?: boolean | null
+          job_title?: string | null
+          last_name?: string | null
+          linkedin?: string | null
+          main_phone?: string | null
+          mobile_phone?: string | null
+          postal_code?: string | null
+          province_id?: number | null
+          street_1?: string | null
+          street_2?: string | null
+          street_3?: string | null
+          updated_at?: string
+          user_id?: string | null
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          city_id?: number | null
+          company_id?: number | null
+          contact_status_id?: number | null
+          country_id?: number | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          facebook?: string | null
+          first_name?: string | null
+          id?: number
+          instagram?: string | null
+          is_valid_email?: boolean | null
+          job_title?: string | null
+          last_name?: string | null
+          linkedin?: string | null
+          main_phone?: string | null
+          mobile_phone?: string | null
+          postal_code?: string | null
+          province_id?: number | null
+          street_1?: string | null
+          street_2?: string | null
+          street_3?: string | null
+          updated_at?: string
+          user_id?: string | null
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Contacts_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "Cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "Companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Contacts_contact_status_id_fkey"
+            columns: ["contact_status_id"]
+            isOneToOne: false
+            referencedRelation: "Contact_Statuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Contacts_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "Countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Contacts_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "Provinces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Contacts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Countries: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      Disqualify_Reasons: {
         Row: {
           created_at: string
           id: number
@@ -239,6 +555,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      Lead_Statuses: {
+        Row: {
+          created_at: string
+          id: number
+          name: Database["public"]["Enums"]["lead_statuses"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: Database["public"]["Enums"]["lead_statuses"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: Database["public"]["Enums"]["lead_statuses"]
+          updated_at?: string
+        }
+        Relationships: []
       }
       Organizations: {
         Row: {
@@ -345,7 +682,7 @@ export type Database = {
             foreignKeyName: "photos_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
-            referencedRelation: "Companies"
+            referencedRelation: "B2B_Companies"
             referencedColumns: ["id"]
           },
         ]
@@ -382,7 +719,7 @@ export type Database = {
           },
         ]
       }
-      Roles: {
+      Ratings: {
         Row: {
           created_at: string
           id: number
@@ -399,6 +736,27 @@ export type Database = {
           created_at?: string
           id?: number
           name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      Roles: {
+        Row: {
+          created_at: string
+          id: number
+          name: Database["public"]["Enums"]["role_names"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: Database["public"]["Enums"]["role_names"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: Database["public"]["Enums"]["role_names"]
           updated_at?: string
         }
         Relationships: []
@@ -424,6 +782,27 @@ export type Database = {
         }
         Relationships: []
       }
+      Sources: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       Users: {
         Row: {
           created_at: string
@@ -436,6 +815,7 @@ export type Database = {
           phone: string
           photo: string | null
           role_id: number
+          status: Database["public"]["Enums"]["user_statuses"]
           updated_at: string
         }
         Insert: {
@@ -449,6 +829,7 @@ export type Database = {
           phone: string
           photo?: string | null
           role_id: number
+          status?: Database["public"]["Enums"]["user_statuses"]
           updated_at?: string
         }
         Update: {
@@ -462,6 +843,7 @@ export type Database = {
           phone?: string
           photo?: string | null
           role_id?: number
+          status?: Database["public"]["Enums"]["user_statuses"]
           updated_at?: string
         }
         Relationships: [
@@ -496,7 +878,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      lead_statuses: "new" | "contacted" | "qualified" | "disqualified"
+      role_names: "owner" | "admin" | "manager" | "sales"
+      user_statuses: "active" | "inactive"
     }
     CompositeTypes: {
       [_ in never]: never

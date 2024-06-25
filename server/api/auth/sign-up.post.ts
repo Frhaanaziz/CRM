@@ -1,10 +1,9 @@
-import type { H3Event } from 'h3';
 import { serverSupabaseClient } from '#supabase/server';
 import { signUpSchema } from '~/utils/validators/auth';
 import { getZodErrorMessage } from '~/utils';
 import type { Database } from '~/types/supabase';
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient<Database>(event);
     const runtimeConfig = useRuntimeConfig();
 
@@ -16,22 +15,22 @@ export default defineEventHandler(async (event: H3Event) => {
 
     const { email, first_name, last_name, phone, password } = body.data;
 
-    const { data: initialUser } = await supabase.from('Users').select().eq('email', email).single();
-    if (initialUser) {
-        console.log('Resending signup email to:', initialUser.email);
-        const { error } = await supabase.auth.resend({
-            type: 'signup',
-            email: initialUser.email,
-            options: {
-                emailRedirectTo: runtimeConfig.public.BASE_URL + '/dashboard',
-            },
-        });
-        if (error) {
-            console.error('Error resending signup:', error.message);
-            throw createError({ status: error.status ?? 400, statusMessage: error.message });
-        }
-        return;
-    }
+    // const { data: initialUser } = await supabase.from('Users').select().eq('email', email).single();
+    // if (initialUser) {
+    //     console.log('Resending signup email to:', initialUser.email);
+    //     const { error } = await supabase.auth.resend({
+    //         type: 'signup',
+    //         email: initialUser.email,
+    //         options: {
+    //             emailRedirectTo: runtimeConfig.public.BASE_URL + '/dashboard',
+    //         },
+    //     });
+    //     if (error) {
+    //         console.error('Error resending signup:', error.message);
+    //         throw createError({ status: error.status ?? 400, statusMessage: error.message });
+    //     }
+    //     return;
+    // }
 
     const { data, error: signUpError } = await supabase.auth.signUp({
         email,
@@ -39,9 +38,12 @@ export default defineEventHandler(async (event: H3Event) => {
         options: {
             emailRedirectTo: runtimeConfig.public.BASE_URL + '/dashboard',
             data: {
+                email,
                 first_name,
                 last_name,
                 phone,
+                role_id: 1,
+                organization_id: 2,
             },
         },
     });

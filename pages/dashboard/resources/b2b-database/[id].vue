@@ -1,22 +1,17 @@
 <script setup lang="ts">
 import LazyModalAddCompanyToCRM from '~/components/modal/ModalAddCompanyToCRM.vue';
-import type { City, Company, Industry, Photo, Province, Size } from '~/types';
+import type { B2BCompany, City, Industry, Province, Size } from '~/types';
 
-interface ICompany extends Company {
+interface IB2BCompany extends B2BCompany {
     industry: Pick<Industry, 'name'>;
     size: Pick<Size, 'size_range'>;
     province: Pick<Province, 'name'>;
     city: Pick<City, 'name'>;
-    photos: Pick<Photo, 'file'>[];
 }
 
-const route = useRoute();
-const company_id = route.params.company_id;
-
-const { data: company } = await useAPI<ICompany>(`/api/companies/detail/${company_id}`, {
-    key: `companies-${company_id}`,
-});
-if (!company.value) throw createError({ status: 404, message: 'Company not found' });
+const id = useRoute().params.id;
+const { data: company } = await useFetch<IB2BCompany>(`/api/b2b-companies/${id}`);
+if (!company.value) throw createError({ status: 404, message: 'B2B Company not found' });
 
 const modal = useModal();
 function openAddToCRMModal() {
@@ -30,8 +25,8 @@ function openAddToCRMModal() {
     <div class="min-h-screen bg-base-200">
         <header class="bg-base-100">
             <div class="border-b">
-                <NuxtLink href="/dashboard/companies" class="inline-block border px-2 pt-2">
-                    <UIcon name="i-heroicons-arro1left" class="h-6 w-6" />
+                <NuxtLink href="/dashboard/resources/b2b-database" class="flex h-10 w-10 items-center justify-center border">
+                    <UIcon name="i-heroicons-arrow-left-20-solid" class="h-[18px] w-[18px]" />
                 </NuxtLink>
             </div>
 

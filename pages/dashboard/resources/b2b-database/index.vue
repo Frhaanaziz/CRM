@@ -1,10 +1,8 @@
 <script setup lang="ts">
-const { $api } = useNuxtApp();
-
 const { data: dataSummary } = await useAsyncData(async () => {
-    const model = ['companies', 'industries', 'locations'];
-    const data = await Promise.all(model.map((model) => $api(`/api/${model}/count`)));
-    return data.map((value, i) => ({ title: model[i], value }));
+    const model = ['b2b-companies', 'industries', 'locations'];
+    const data = await Promise.all(model.map((model) => $fetch(`/api/${model}/count`)));
+    return data.map((value, i) => ({ title: !i ? 'Companies' : model[i], value }));
 });
 </script>
 
@@ -20,6 +18,6 @@ const { data: dataSummary } = await useAsyncData(async () => {
             </div>
         </div>
 
-        <CompaniesTable />
+        <TableB2BCompanies />
     </div>
 </template>

@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import LazyModalSignOut from '~/components/modal/ModalSignOut.vue';
+
 const route = useRoute();
 const pathname = ref(route.path);
 
-watch(
-    () => route.path,
-    () => (pathname.value = route.path),
-);
+watchEffect(() => (pathname.value = route.path));
 
 const navigations = computed(() => {
     const isCurrent = (path: string) => pathname.value.replace('/dashboard', '') === path;
@@ -51,6 +50,13 @@ const navigations = computed(() => {
         },
     ];
 });
+
+const modal = useModal();
+function openLogOutModal() {
+    modal.open(LazyModalSignOut, {
+        onClose: () => modal.close(),
+    });
+}
 </script>
 
 <template>
@@ -70,6 +76,9 @@ const navigations = computed(() => {
                             {{ link.name }}
                         </NuxtLink>
                     </div>
+                </li>
+                <li class="py-5">
+                    <button class="py-3 transition-colors hover:text-brand" @click="openLogOutModal()">Log out</button>
                 </li>
             </ul>
         </nav>

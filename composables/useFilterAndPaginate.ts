@@ -14,15 +14,15 @@ export function useFilterAndPaginate<T extends Record<string, any>>(data: Ref<T[
     const search = ref('');
     const debouncedSearch = refDebounced(search, 300);
     const page = ref(1);
-    const pageCount = ref('10');
-    const sort = ref({ column: 'id', direction: 'asc' as const });
+    const pageCount = ref(10);
+    const sort = ref({ column: 'created_at', direction: 'asc' as const });
     const filters = ref<Partial<Record<keyof T, string[]>>>({});
 
     const filteredData = computed(() => {
         const options: FilterOptions<T> = {
             search: debouncedSearch.value,
             page: page.value,
-            limit: parseInt(pageCount.value),
+            limit: pageCount.value,
             sort: sort.value.column,
             order: sort.value.direction,
             filters: filters.value as Partial<Record<keyof T, string[]>>,
@@ -32,8 +32,6 @@ export function useFilterAndPaginate<T extends Record<string, any>>(data: Ref<T[
     });
 
     const pageTotal = computed(() => data.value.length);
-    const pageFrom = computed(() => (page.value - 1) * parseInt(pageCount.value) + 1);
-    const pageTo = computed(() => Math.min(page.value * parseInt(pageCount.value), pageTotal.value));
 
     const resetFilters = () => {
         search.value = '';
@@ -50,8 +48,6 @@ export function useFilterAndPaginate<T extends Record<string, any>>(data: Ref<T[
         filters,
         filteredData,
         pageTotal,
-        pageFrom,
-        pageTo,
         resetFilters,
     };
 }
