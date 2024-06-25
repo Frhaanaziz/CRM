@@ -38,9 +38,12 @@ export default defineEventHandler(async (event) => {
         options: {
             emailRedirectTo: runtimeConfig.public.BASE_URL + '/dashboard',
             data: {
+                email,
                 first_name,
                 last_name,
                 phone,
+                role_id: 1,
+                organization_id: 2,
             },
         },
     });
