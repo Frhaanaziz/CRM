@@ -10,7 +10,9 @@ const pathname = ref(route.path);
 watchEffect(() => (pathname.value = route.path));
 
 const navigations = computed(() => {
-    const isCurrent = (path: string) => pathname.value.replace('/dashboard', '') === path;
+    const isCurrent = (path: string) => pathname.value === path;
+    const isCurrentNested = (path: string) => pathname.value.startsWith(path);
+
     return [
         {
             name: 'My Work',
@@ -19,7 +21,18 @@ const navigations = computed(() => {
                     name: 'Dashboard',
                     href: '/dashboard/',
                     icon: 'i-heroicons-home',
-                    current: isCurrent('/'),
+                    current: isCurrent('/dashboard/'),
+                },
+            ],
+        },
+        {
+            name: 'Customer',
+            links: [
+                {
+                    name: 'Companies',
+                    href: '/dashboard/customer/companies',
+                    icon: 'i-heroicons-user',
+                    current: isCurrentNested('/dashboard/customer/companies'),
                 },
             ],
         },
@@ -28,9 +41,9 @@ const navigations = computed(() => {
             links: [
                 {
                     name: 'B2B Database',
-                    href: '/dashboard/companies',
+                    href: '/dashboard/resources/b2b-database',
                     icon: 'i-heroicons-circle-stack',
-                    current: isCurrent('/companies'),
+                    current: isCurrentNested('/dashboard/resources/b2b-database'),
                 },
             ],
         },
