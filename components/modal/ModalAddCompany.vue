@@ -9,9 +9,9 @@ function closeModal() {
 
 type AddCompanyType = z.infer<typeof addCompanySchema>;
 const isSubmitting = ref(false);
-const state = ref<AddCompanyType>({
+const state = ref({
     name: '',
-    website: null,
+    website: undefined,
 });
 async function handleSubmit(event: FormSubmitEvent<AddCompanyType>) {
     try {

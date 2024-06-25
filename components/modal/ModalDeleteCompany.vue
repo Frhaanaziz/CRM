@@ -10,7 +10,7 @@ async function handleAction() {
     try {
         isDeleting.value = true;
 
-        await Promise.all(props.companies.map(async (company) => $fetch(`/api/companies/${company.id}`, { method: 'DELETE' })));
+        await Promise.all(props.companies.map((company) => $fetch(`/api/companies/${company.id}`, { method: 'DELETE' })));
 
         toast.success('Company has been deleted successfully.');
         await refreshNuxtData('companies');
