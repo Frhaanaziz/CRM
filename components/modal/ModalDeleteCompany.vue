@@ -15,6 +15,7 @@ async function handleAction() {
         toast.success('Company has been deleted successfully.');
         await refreshNuxtData('companies');
         closeModal();
+        await navigateTo('/dashboard/customer/companies');
     } catch (e) {
         console.error('Failed to delete company:', getErrorMessage(e));
         toast.error('Failed to delete company, please try again later.');
