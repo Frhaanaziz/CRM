@@ -126,8 +126,6 @@ function openUpdateUserModal(user: { id: User['id']; role_id: User['role_id']; s
         :rows="filteredUsersCustom"
         :columns="columnsTable"
         :loading="pending"
-        sort-asc-icon="i-heroicons-arrow-up"
-        sort-desc-icon="i-heroicons-arrow-down"
         sort-mode="manual"
         class="w-full"
         :ui="{
