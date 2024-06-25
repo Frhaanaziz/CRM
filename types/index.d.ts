@@ -9,6 +9,7 @@ export type City = Tables<'Cities'>;
 export type Industry = Tables<'Industries'>;
 export type Size = Tables<'Sizes'>;
 export type Photo = Tables<'Photos'>;
+export type B2BCompany = Tables<'B2B_Companies'>;
 export type Company = Tables<'Companies'>;
 export type Organization = Tables<'Organizations'>;
 export type Invitation = Tables<'Invitations'>;
