@@ -8,6 +8,8 @@ export default defineAppConfig({
             position: 'top-0 bottom-auto',
         },
 
+        formGroup: { label: { base: 'font-semibold' } },
+
         input: {
             base: 'disabled:bg-base-300',
         },
