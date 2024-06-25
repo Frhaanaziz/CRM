@@ -15,7 +15,10 @@ export default defineEventHandler(async (event) => {
             size: Sizes(*),
             country: Countries(*),
             province: Provinces(*),
-            city: Cities(*)
+            city: Cities(*),
+            user: Users(*),
+            primaryContact: Contacts!Companies_primary_contact_id_fkey(*),
+            contacts: Contacts!Contacts_company_id_fkey(*)
             `
         )
         .eq('id', id)
