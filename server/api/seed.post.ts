@@ -2,7 +2,7 @@ import type { H3Event } from 'h3';
 import { faker } from '@faker-js/faker';
 import { z } from 'zod';
 import { getZodErrorMessage } from '~/utils';
-import type { City, Company } from '~/types';
+import type { B2BCompany, City } from '~/types';
 import { serverSupabaseClient } from '#supabase/server';
 import type { Database } from '~/types/supabase';
 const schema = z.object({
@@ -39,6 +39,7 @@ export default defineEventHandler(async (event: H3Event) => {
         console.info('Cleaning up...');
 
         await supabase.from('Photos').delete().neq('id', 0).throwOnError();
+        await supabase.from('B2B_Companies').delete().neq('id', 0).throwOnError();
         await supabase.from('Companies').delete().neq('id', 0).throwOnError();
         await supabase.from('Industries').delete().neq('id', 0).throwOnError();
         await supabase.from('Sizes').delete().neq('id', 0).throwOnError();
@@ -72,9 +73,7 @@ export default defineEventHandler(async (event: H3Event) => {
 
     console.info(`Creating ${provincesData.length} provinces...`);
     const provinceRes = await Promise.all(
-        provincesData.map(({ id, name }) =>
-            supabase.from('Provinces').insert({ id: parseInt(id), name, country_id: country.id }),
-        ),
+        provincesData.map(({ id, name }) => supabase.from('Provinces').insert({ id: parseInt(id), name, country_id: country.id }))
     );
     const provinceErrors = provinceRes.filter((res) => res.error);
     if (provinceErrors.length) {
@@ -104,8 +103,8 @@ export default defineEventHandler(async (event: H3Event) => {
                         country_id: country.id,
                         province_id: parseInt(province.id),
                         name,
-                    }),
-                ),
+                    })
+                )
             );
             const cityErrors = cityRes.filter((res) => res.error);
             if (cityErrors.length) {
@@ -121,9 +120,9 @@ export default defineEventHandler(async (event: H3Event) => {
                     id: parseInt(id),
                     name,
                     province_id: parseInt(province.id),
-                })),
+                }))
             );
-        }),
+        })
     );
 
     console.info('Creating Industries...');
@@ -140,7 +139,7 @@ export default defineEventHandler(async (event: H3Event) => {
             }
 
             return res.data;
-        }),
+        })
     );
 
     console.info('Creating Sizes...');
@@ -159,13 +158,13 @@ export default defineEventHandler(async (event: H3Event) => {
             if (!sizeRes.data) throw new Error('Failed to create size');
 
             return sizeRes.data;
-        }),
+        })
     );
 
-    console.info('Creating Companies...');
-    const COMPANY_AMOUNT = 1_000;
-    const companiesData: Company[] = [];
-    for (let i = 0; i < COMPANY_AMOUNT; i++) {
+    console.info('Creating B2B Companies...');
+    const B2B_COMPANY_AMOUNT = 100;
+    const companiesData: B2BCompany[] = [];
+    for (let i = 0; i < B2B_COMPANY_AMOUNT; i++) {
         const name = faker.company.name();
         const phone = faker.phone.number();
         const province = faker.helpers.arrayElement(provincesData);
@@ -180,7 +179,7 @@ export default defineEventHandler(async (event: H3Event) => {
         const industry_id = faker.helpers.arrayElement(industriesData).id;
 
         const companyRes = await supabase
-            .from('Companies')
+            .from('B2B_Companies')
             .insert({
                 name,
                 email,
@@ -202,6 +201,66 @@ export default defineEventHandler(async (event: H3Event) => {
             .select()
             .single();
         if (companyRes.error) {
+            console.error('Failed to create B2B company', companyRes.error);
+            throw createError({
+                status: 500,
+                statusMessage: companyRes.error.message,
+            });
+        }
+
+        console.info(`Created B2B company ${i + 1}/${B2B_COMPANY_AMOUNT}`);
+        companiesData.push(companyRes.data);
+    }
+
+    // console.info('Creating Photos...');
+    // const PHOTOS_AMOUNT = 3_000;
+    // for (let i = 0; i < PHOTOS_AMOUNT; i++) {
+    //     const company = faker.helpers.arrayElement(companiesData);
+    //     const photoRes = await supabase
+    //         .from('Photos')
+    //         .insert({
+    //             company_id: company.id,
+    //             file: faker.image.urlLoremFlickr({ category: 'business' }),
+    //         })
+    //         .select()
+    //         .single();
+    //     if (photoRes.error) {
+    //         console.error('Failed to create photo', photoRes.error);
+    //         throw createError({
+    //             status: 500,
+    //             statusMessage: photoRes.error.message,
+    //         });
+    //     }
+
+    //     console.info(`Created photo ${i + 1}/${PHOTOS_AMOUNT}`);
+    // }
+
+    console.info('Creating Companies');
+    const COMPANIES_AMOUNT = 100;
+    for (let i = 0; i < COMPANIES_AMOUNT; i++) {
+        const name = faker.company.name();
+        const province = faker.helpers.arrayElement(provincesData);
+        const city_id = faker.helpers.arrayElement(citiesData.filter((city) => city.province_id === parseInt(province.id))).id;
+        const industry_id = faker.helpers.arrayElement(industriesData).id;
+
+        const companyRes = await supabase
+            .from('Companies')
+            .insert({
+                name,
+                phone: faker.phone.number(),
+                website: faker.internet.url(),
+                linkedin: `https://linkedin.com/company/${name.toLowerCase().replace(/\s/g, '-')}`,
+                province_id: parseInt(province.id),
+                city_id,
+                industry_id,
+                street_1: faker.location.streetAddress(),
+                postal_code: faker.location.zipCode(),
+                created_at: faker.date.past().toISOString(),
+                updated_at: faker.date.recent().toISOString(),
+            })
+            .select()
+            .single();
+        if (companyRes.error) {
             console.error('Failed to create company', companyRes.error);
             throw createError({
                 status: 500,
@@ -209,30 +268,9 @@ export default defineEventHandler(async (event: H3Event) => {
             });
         }
 
-        console.info(`Created company ${i + 1}/${COMPANY_AMOUNT}`);
-        companiesData.push(companyRes.data);
+        console.info(`Created company ${i + 1}/${COMPANIES_AMOUNT}`);
     }
 
-    console.info('Creating Photos...');
-    const PHOTOS_AMOUNT = 3_000;
-    for (let i = 0; i < PHOTOS_AMOUNT; i++) {
-        const company = faker.helpers.arrayElement(companiesData);
-        const photoRes = await supabase
-            .from('Photos')
-            .insert({
-                company_id: company.id,
-                file: faker.image.urlLoremFlickr({ category: 'business' }),
-            })
-            .select()
-            .single();
-        if (photoRes.error) {
-            console.error('Failed to create photo', photoRes.error);
-            throw createError({
-                status: 500,
-                statusMessage: photoRes.error.message,
-            });
-        }
-
-        console.info(`Created photo ${i + 1}/${PHOTOS_AMOUNT}`);
-    }
+    console.info('Seed successful');
+    return { success: true };
 });
