@@ -7,36 +7,9 @@ definePageMeta({
     layout: 'auth',
 });
 
+const { isSubmitting, state, submit } = useResetPassword();
+
 const { query } = useRoute();
-type ResetPasswordType = z.infer<typeof resetPasswordSchema>;
-const supabase = useSupabaseClient<Database>();
-
-const isSubmitting = ref(false);
-const initialState: ResetPasswordType = {
-    password: '',
-    confirm_password: '',
-};
-const state = ref<ResetPasswordType>(initialState);
-
-async function handleSubmit(event: FormSubmitEvent<ResetPasswordType>) {
-    try {
-        state.value = initialState;
-        isSubmitting.value = true;
-
-        const { error } = await supabase.auth.updateUser({
-            password: event.data.password,
-        });
-        if (error) throw new Error(error.message);
-
-        await navigateTo('/auth/signin');
-    } catch (e) {
-        console.error('Error resetting password:', e);
-        toast.error(getErrorMessage(e));
-    } finally {
-        isSubmitting.value = false;
-    }
-}
-
 onMounted(async () => {
     const errorDescription = query.error_description as string;
     if (errorDescription) {
@@ -44,12 +17,49 @@ onMounted(async () => {
         await navigateTo('/auth/signin');
     }
 });
+
+function useResetPassword() {
+    type ResetPasswordType = z.infer<typeof resetPasswordSchema>;
+    const supabase = useSupabaseClient<Database>();
+
+    const isSubmitting = ref(false);
+    const initialState: ResetPasswordType = {
+        password: '',
+        confirm_password: '',
+    };
+    const state = ref<ResetPasswordType>(initialState);
+
+    async function submit(event: FormSubmitEvent<ResetPasswordType>) {
+        try {
+            state.value = initialState;
+            isSubmitting.value = true;
+
+            const { error } = await supabase.auth.updateUser({
+                password: event.data.password,
+            });
+            if (error) throw new Error(error.message);
+
+            await navigateTo('/auth/signin');
+        } catch (e) {
+            console.error('Error resetting password:', e);
+            toast.error(getErrorMessage(e));
+        } finally {
+            isSubmitting.value = false;
+        }
+    }
+
+    return {
+        state,
+        isSubmitting,
+        submit,
+    };
+}
 </script>
 
 <template>
     <section class="p-32">
         <h1 class="text-3xl font-semibold">Reset Password</h1>
-        <UForm :schema="resetPasswordSchema" :state="state" class="mt-6 space-y-4" @submit="handleSubmit">
+        <UForm :schema="resetPasswordSchema" :state="state" class="mt-6 space-y-4" @submit="submit">
             <UFormGroup label="New Password" name="password">
                 <UInput v-model="state.password" :disabled="isSubmitting" type="password" placeholder="Enter your new password" />
             </UFormGroup>

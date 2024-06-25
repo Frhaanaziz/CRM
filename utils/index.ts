@@ -2,6 +2,7 @@ import type { z } from 'zod';
 export * from './validators/auth';
 export * from './validators/user';
 export * from './validators/organization';
+export * from './validators/company';
 export * from './constants';
 
 /**
