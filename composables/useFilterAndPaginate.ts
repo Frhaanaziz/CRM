@@ -15,7 +15,7 @@ export function useFilterAndPaginate<T extends Record<string, any>>(data: Ref<T[
     const debouncedSearch = refDebounced(search, 300);
     const page = ref(1);
     const pageCount = ref(10);
-    const sort = ref({ column: 'id', direction: 'asc' as const });
+    const sort = ref({ column: 'created_at', direction: 'asc' as const });
     const filters = ref<Partial<Record<keyof T, string[]>>>({});
 
     const filteredData = computed(() => {

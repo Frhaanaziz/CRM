@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import LazyModalAddCompanyToCRM from '~/components/modal/ModalAddCompanyToCRM.vue';
+import type { B2BCompany, City, Industry, Province, Size } from '~/types';
 
-const route = useRoute();
-const company_id = route.params.company_id;
+interface IB2BCompany extends B2BCompany {
+    industry: Pick<Industry, 'name'>;
+    size: Pick<Size, 'size_range'>;
+    province: Pick<Province, 'name'>;
+    city: Pick<City, 'name'>;
+}
 
-const { data: company } = await useFetch(`/api/companies/detail/${company_id}`, {
-    key: `companies-${company_id}`,
-});
-if (!company.value) throw createError({ status: 404, message: 'Company not found' });
+const id = useRoute().params.id;
+const { data: company } = await useFetch<IB2BCompany>(`/api/b2b-companies/${id}`);
+if (!company.value) throw createError({ status: 404, message: 'B2B Company not found' });
 
 const modal = useModal();
 function openAddToCRMModal() {
@@ -21,7 +25,7 @@ function openAddToCRMModal() {
     <div class="min-h-screen bg-base-200">
         <header class="bg-base-100">
             <div class="border-b">
-                <NuxtLink href="/dashboard/companies" class="inline-block border px-2 pt-2">
+                <NuxtLink href="/dashboard/resources/b2b-database" class="inline-block border px-2 pt-2">
                     <UIcon name="i-heroicons-arro1left" class="h-6 w-6" />
                 </NuxtLink>
             </div>
