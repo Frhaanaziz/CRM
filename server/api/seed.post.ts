@@ -1,4 +1,3 @@
-import type { H3Event } from 'h3';
 import { faker } from '@faker-js/faker';
 import { z } from 'zod';
 import { getZodErrorMessage } from '~/utils';
@@ -29,7 +28,7 @@ const industries = [
     'Nonprofit',
 ];
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
     const zodResult = schema.safeParse(getQuery(event));
     if (!zodResult.success) return { error: getZodErrorMessage(zodResult) };
 

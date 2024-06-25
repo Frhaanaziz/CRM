@@ -1,8 +1,7 @@
-import type { H3Event } from 'h3';
 import { serverSupabaseClient } from '#supabase/server';
 import type { Database } from '~/types/supabase';
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient<Database>(event);
 
     const id = event.context.params!.id;

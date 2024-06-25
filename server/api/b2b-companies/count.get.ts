@@ -1,8 +1,7 @@
-import type { H3Event } from 'h3';
 import type { Database } from '~/types/supabase';
 import { serverSupabaseClient } from '#supabase/server';
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient<Database>(event);
 
     const countRes = await supabase.from('B2B_Companies').select('*', { count: 'exact', head: true });
