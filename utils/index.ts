@@ -3,6 +3,7 @@ export * from './validators/auth';
 export * from './validators/user';
 export * from './validators/organization';
 export * from './validators/company';
+export * from './validators/contact';
 export * from './constants';
 
 /**

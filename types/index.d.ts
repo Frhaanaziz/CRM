@@ -14,3 +14,4 @@ export type Company = Tables<'Companies'>;
 export type Organization = Tables<'Organizations'>;
 export type Invitation = Tables<'Invitations'>;
 export type Role = Tables<'Roles'>;
+export type Contact = Tables<'Contacts'>;
