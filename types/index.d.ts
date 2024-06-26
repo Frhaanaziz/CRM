@@ -15,3 +15,6 @@ export type Organization = Tables<'Organizations'>;
 export type Invitation = Tables<'Invitations'>;
 export type Role = Tables<'Roles'>;
 export type Contact = Tables<'Contacts'>;
+export type ContactStatus = Tables<'Contact_Statuses'>;
+export type Lead = Tables<'Leads'>;
+export type LeadStatus = Tables<'Lead_Statuses'>;
