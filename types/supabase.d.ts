@@ -267,19 +267,19 @@ export type Database = {
         Row: {
           created_at: string
           id: number
-          name: string
+          name: Database["public"]["Enums"]["company_statuses"]
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: number
-          name: string
+          name: Database["public"]["Enums"]["company_statuses"]
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: number
-          name?: string
+          name?: Database["public"]["Enums"]["company_statuses"]
           updated_at?: string
         }
         Relationships: []
@@ -288,19 +288,19 @@ export type Database = {
         Row: {
           created_at: string
           id: number
-          name: string
+          name: Database["public"]["Enums"]["contact_statuses"]
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: number
-          name: string
+          name: Database["public"]["Enums"]["contact_statuses"]
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: number
-          name?: string
+          name?: Database["public"]["Enums"]["contact_statuses"]
           updated_at?: string
         }
         Relationships: []
@@ -576,6 +576,104 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      Leads: {
+        Row: {
+          company_id: number | null
+          contact_id: number | null
+          created_at: string | null
+          disqualify_reason_id: number | null
+          id: number
+          lead_status_id: number | null
+          message: string | null
+          rating_id: number | null
+          score: number | null
+          source_id: number | null
+          topic: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          company_id?: number | null
+          contact_id?: number | null
+          created_at?: string | null
+          disqualify_reason_id?: number | null
+          id?: number
+          lead_status_id?: number | null
+          message?: string | null
+          rating_id?: number | null
+          score?: number | null
+          source_id?: number | null
+          topic?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          company_id?: number | null
+          contact_id?: number | null
+          created_at?: string | null
+          disqualify_reason_id?: number | null
+          id?: number
+          lead_status_id?: number | null
+          message?: string | null
+          rating_id?: number | null
+          score?: number | null
+          source_id?: number | null
+          topic?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Leads_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "Companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Leads_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "Contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Leads_disqualify_reason_id_fkey"
+            columns: ["disqualify_reason_id"]
+            isOneToOne: false
+            referencedRelation: "Disqualify_Reasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Leads_lead_status_id_fkey"
+            columns: ["lead_status_id"]
+            isOneToOne: false
+            referencedRelation: "Lead_Statuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Leads_rating_id_fkey"
+            columns: ["rating_id"]
+            isOneToOne: false
+            referencedRelation: "Ratings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Leads_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "Sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Leads_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       Organizations: {
         Row: {
@@ -878,6 +976,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      company_statuses: "new" | "qualified" | "disqualified"
+      contact_statuses: "new" | "qualified" | "disqualified"
       lead_statuses: "new" | "contacted" | "qualified" | "disqualified"
       role_names: "owner" | "admin" | "manager" | "sales"
       user_statuses: "active" | "inactive"
