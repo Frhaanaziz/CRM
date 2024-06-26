@@ -70,7 +70,7 @@ const columnsTable = computed(() => columns.filter((column) => selectedColumns.v
 
 // const [{ data: companies, status }, { data: industries }, { data: sizes }, { data: provinces }, { data: cities }] =
 const [{ data: companies, status }, { data: industries }, { data: sizes }] = await Promise.all([
-    useLazyFetch('/api/b2b-companies', {
+    await useLazyFetch('/api/b2b-companies', {
         transform: (companies) =>
             companies.map((company) => ({
                 id: company.id,

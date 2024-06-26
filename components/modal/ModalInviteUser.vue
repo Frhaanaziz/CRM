@@ -7,7 +7,7 @@ function closeModal() {
     emit('close');
 }
 
-const { data: roles } = useLazyFetch('/api/roles', { key: 'roles' });
+const { data: roles } = await useLazyFetch('/api/roles', { key: 'roles' });
 const rolesOption = computed(() => roles.value?.map((role) => ({ value: role.name, label: capitalize(role.name) })));
 
 type InviteUserType = z.infer<typeof inviteUserSchema>;
