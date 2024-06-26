@@ -3,248 +3,14 @@ import { useDateFormat } from '@vueuse/core';
 import LazyModalDeleteCompany from '~/components/modal/ModalDeleteCompany.vue';
 import LazyModalAddCompany from '~/components/modal/ModalAddCompany.vue';
 import type { Company } from '~/types';
+import type { Database } from '~/types/supabase';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
-// Columns
-const initialColumns = [
-    {
-        key: 'name',
-        label: 'Company Name',
-        sortable: true,
-    },
-    {
-        key: 'phone',
-        label: 'Business Phone',
-        sortable: true,
-    },
-    {
-        key: 'primaryContact',
-        label: 'Primary Contact',
-        sortable: true,
-    },
-    {
-        key: 'primaryContactEmail',
-        label: 'Email (Primary Contact)',
-        sortable: true,
-    },
-];
-const columns = [...initialColumns];
-
-const selectedColumns = ref(initialColumns);
-const columnsTable = computed(() => columns.filter((column) => selectedColumns.value.includes(column)));
-
-// const companies = ref([
-//     {
-//         id: 1,
-//         name: 'Tech Innovators',
-//         website: 'https://techinnovators.com',
-//         linkedin: 'https://linkedin.com/company/techinnovators',
-//         phone: '+1-234-567-8901',
-//         industry_id: 1,
-//         size_id: 2,
-//         street_1: '123 Innovation Drive',
-//         street_2: '',
-//         street_3: '',
-//         country_id: 1,
-//         state_id: 1,
-//         city_id: 1,
-//         postal_code: '12345',
-//         primary_contact: { id: 1, name: 'John Doe', email: 'johndoe@email.com' },
-//         description: 'Leading tech solutions provider',
-//         business_relationship: 'Partner',
-//         created_at: new Date('2020-01-01'),
-//         updated_at: new Date('2023-06-24'),
-//     },
-//     {
-//         id: 2,
-//         name: 'Health Plus',
-//         website: 'https://healthplus.com',
-//         linkedin: 'https://linkedin.com/company/healthplus',
-//         phone: '+1-345-678-9012',
-//         industry_id: 2,
-//         size_id: 3,
-//         street_1: '456 Wellness Ave',
-//         street_2: 'Suite 100',
-//         street_3: '',
-//         country_id: 1,
-//         state_id: 2,
-//         city_id: 2,
-//         postal_code: '23456',
-//         primary_contact: { id: 2, name: 'Jane Doe', email: 'janedoe@email.com' },
-//         description: 'Healthcare and wellness services',
-//         business_relationship: 'Client',
-//         created_at: new Date('2019-05-15'),
-//         updated_at: new Date('2023-06-24'),
-//     },
-//     {
-//         id: 3,
-//         name: 'Green Energy Solutions',
-//         website: 'https://greenenergysolutions.com',
-//         linkedin: 'https://linkedin.com/company/greenenergysolutions',
-//         phone: '+1-456-789-0123',
-//         industry_id: 3,
-//         size_id: 1,
-//         street_1: '789 Solar St',
-//         street_2: 'Building B',
-//         street_3: '',
-//         country_id: 1,
-//         state_id: 3,
-//         city_id: 3,
-//         postal_code: '34567',
-//         primary_contact: { id: 3, name: 'Alice Doe', email: 'alicedoe@email.com' },
-//         description: 'Renewable energy solutions',
-//         business_relationship: 'Supplier',
-//         created_at: new Date('2021-07-20'),
-//         updated_at: new Date('2023-06-24'),
-//     },
-//     {
-//         id: 4,
-//         name: 'FinTech Future',
-//         website: 'https://fintechfuture.com',
-//         linkedin: 'https://linkedin.com/company/fintechfuture',
-//         phone: '+1-567-890-1234',
-//         industry_id: 4,
-//         size_id: 2,
-//         street_1: '123 Finance Road',
-//         street_2: '',
-//         street_3: '',
-//         country_id: 1,
-//         state_id: 4,
-//         city_id: 4,
-//         postal_code: '45678',
-//         primary_contact: { id: 4, name: 'Bob Doe', email: 'bobdoe@email.com' },
-//         description: 'Innovative financial technology',
-//         business_relationship: 'Partner',
-//         created_at: new Date('2018-03-10'),
-//         updated_at: new Date('2023-06-24'),
-//     },
-//     {
-//         id: 5,
-//         name: 'EduTech Academy',
-//         website: 'https://edutechacademy.com',
-//         linkedin: 'https://linkedin.com/company/edutechacademy',
-//         phone: '+1-678-901-2345',
-//         industry_id: 5,
-//         size_id: 3,
-//         street_1: '456 Learning Blvd',
-//         street_2: 'Floor 2',
-//         street_3: '',
-//         country_id: 1,
-//         state_id: 5,
-//         city_id: 5,
-//         postal_code: '56789',
-//         primary_contact: { id: 5, name: 'Eve Doe', email: 'evedoe@email.com' },
-//         description: 'Educational technology and services',
-//         business_relationship: 'Client',
-//         created_at: new Date('2020-09-05'),
-//         updated_at: new Date('2023-06-24'),
-//     },
-//     {
-//         id: 6,
-//         name: 'Global Logistics',
-//         website: 'https://globallogistics.com',
-//         linkedin: 'https://linkedin.com/company/globallogistics',
-//         phone: '+1-789-012-3456',
-//         industry_id: 6,
-//         size_id: 2,
-//         street_1: '789 Cargo Lane',
-//         street_2: '',
-//         street_3: '',
-//         country_id: 1,
-//         state_id: 6,
-//         city_id: 6,
-//         postal_code: '67890',
-//         primary_contact: { id: 6, name: 'Alex Doe', email: 'alexdoe@email.com' },
-//         description: 'Worldwide logistics and transportation',
-//         business_relationship: 'Supplier',
-//         created_at: new Date('2017-11-30'),
-//         updated_at: new Date('2023-06-24'),
-//     },
-//     {
-//         id: 7,
-//         name: 'Creative Designs',
-//         website: 'https://creativedesigns.com',
-//         linkedin: 'https://linkedin.com/company/creativedesigns',
-//         phone: '+1-890-123-4567',
-//         industry_id: 7,
-//         size_id: 1,
-//         street_1: '123 Art Street',
-//         street_2: '',
-//         street_3: '',
-//         country_id: 1,
-//         state_id: 7,
-//         city_id: 7,
-//         postal_code: '78901',
-//         primary_contact: { id: 7, name: 'Max Doe', email: 'maxdoe@email.com' },
-//         description: 'Design and branding agency',
-//         business_relationship: 'Partner',
-//         created_at: new Date('2021-01-15'),
-//         updated_at: new Date('2023-06-24'),
-//     },
-//     {
-//         id: 8,
-//         name: 'AutoMasters',
-//         website: 'https://automasters.com',
-//         linkedin: 'https://linkedin.com/company/automasters',
-//         phone: '+1-901-234-5678',
-//         industry_id: 8,
-//         size_id: 3,
-//         street_1: '456 Car Blvd',
-//         street_2: 'Suite 200',
-//         street_3: '',
-//         country_id: 1,
-//         state_id: 8,
-//         city_id: 8,
-//         postal_code: '89012',
-//         primary_contact: { id: 8, name: 'Sam Doe', email: 'samdoe@email.com' },
-//         description: 'Automotive services and solutions',
-//         business_relationship: 'Client',
-//         created_at: new Date('2019-02-25'),
-//         updated_at: new Date('2023-06-24'),
-//     },
-//     {
-//         id: 9,
-//         name: 'Foodie Haven',
-//         website: 'https://foodiehaven.com',
-//         linkedin: 'https://linkedin.com/company/foodiehaven',
-//         phone: '+1-012-345-6789',
-//         industry_id: 9,
-//         size_id: 2,
-//         street_1: '789 Gourmet Lane',
-//         street_2: '',
-//         street_3: '',
-//         country_id: 1,
-//         state_id: 9,
-//         city_id: 9,
-//         postal_code: '90123',
-//         primary_contact: { id: 9, name: 'Sue Doe', email: 'suedoe@email.com' },
-//         description: 'Restaurant and catering services',
-//         business_relationship: 'Supplier',
-//         created_at: new Date('2018-04-10'),
-//         updated_at: new Date('2023-06-24'),
-//     },
-//     {
-//         id: 10,
-//         name: 'Travel Explorers',
-//         website: 'https://travelexplorers.com',
-//         linkedin: 'https://linkedin.com/company/travelexplorers',
-//         phone: '+1-123-456-7890',
-//         industry_id: 10,
-//         size_id: 1,
-//         street_1: '123 Adventure Road',
-//         street_2: '',
-//         street_3: '',
-//         country_id: 1,
-//         state_id: 10,
-//         city_id: 10,
-//         postal_code: '01234',
-//         primary_contact: { id: 10, name: 'Tom Doe', email: 'tomdoe@email.com' },
-//         description: 'Travel and tour services',
-//         business_relationship: 'Partner',
-//         created_at: new Date('2022-06-01'),
-//         updated_at: new Date('2023-06-24'),
-//     },
-// ]);
-const { data: companies, status } = useLazyFetch('/api/companies', {
+const {
+    data: companies,
+    status,
+    refresh: refreshCompanies,
+} = await useLazyFetch('/api/companies', {
     key: 'companies',
     transform: (companies) =>
         companies.map((company) => ({
@@ -257,17 +23,20 @@ const { data: companies, status } = useLazyFetch('/api/companies', {
 });
 const pending = computed(() => status.value === 'pending');
 
-// Selected Rows
-const selectedRows = ref<Pick<Company, 'id'>[]>([]);
-function select(row: Pick<Company, 'id'>) {
-    const index = selectedRows.value.findIndex((item) => item.id === row.id);
-    if (index === -1) {
-        selectedRows.value.push(row);
-    } else {
-        selectedRows.value.splice(index, 1);
-    }
-}
+const supabase = useSupabaseClient<Database>();
+let realtimeChannel: RealtimeChannel;
+onMounted(() => {
+    realtimeChannel = supabase
+        .channel('public:Companies')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'Companies' }, () => refreshCompanies());
 
+    realtimeChannel.subscribe();
+});
+onUnmounted(() => {
+    supabase.removeChannel(realtimeChannel);
+});
+
+const { columns, selectedColumns, columnsTable, selectedRows, select } = useTable();
 const {
     filteredData: filteredCompanies,
     search,
@@ -289,24 +58,62 @@ const filteredCompaniesCustom = computed(() =>
 );
 
 const modal = useModal();
-function openDeleteCompanyModal() {
-    modal.open(LazyModalDeleteCompany, {
-        onClose: () => modal.close(),
-        companies: selectedRows.value,
-    });
-}
-function openAddCompanyModal() {
-    modal.open(LazyModalAddCompany, {
-        onClose: () => modal.close(),
-    });
+
+function useTable() {
+    const initialColumns = [
+        {
+            key: 'name',
+            label: 'Company Name',
+            sortable: true,
+        },
+        {
+            key: 'phone',
+            label: 'Business Phone',
+            sortable: true,
+        },
+        {
+            key: 'primaryContact',
+            label: 'Primary Contact',
+            sortable: true,
+        },
+        {
+            key: 'primaryContactEmail',
+            label: 'Email (Primary Contact)',
+            sortable: true,
+        },
+    ];
+    const columns = [...initialColumns];
+
+    const selectedColumns = ref(initialColumns);
+    const columnsTable = computed(() => columns.filter((column) => selectedColumns.value.includes(column)));
+
+    // Selected Rows
+    const selectedRows = ref<Pick<Company, 'id'>[]>([]);
+    function select(row: Pick<Company, 'id'>) {
+        const index = selectedRows.value.findIndex((item) => item.id === row.id);
+        if (index === -1) {
+            selectedRows.value.push(row);
+        } else {
+            selectedRows.value.splice(index, 1);
+        }
+    }
+
+    return {
+        columns,
+        selectedColumns,
+        columnsTable,
+        selectedRows,
+        select,
+    };
 }
 </script>
 
 <template>
     <!-- Header and Action buttons -->
     <div class="flex items-center justify-between gap-x-3 p-4">
-        <UPopover>
-            <!-- <UButton color="white" label="Open" trailing-icon="i-heroicons-chevron-down-20-solid" /> -->
+        <h1 class="text-2xl font-semibold">My Active Companies</h1>
+
+        <!-- <UPopover>
             <div class="flex items-center gap-4">
                 <h1 class="text-2xl font-semibold">My Active Companies</h1>
                 <UIcon name="i-heroicons-chevron-down" class="h-5 w-5" />
@@ -317,30 +124,22 @@ function openAddCompanyModal() {
                     <div class="group flex items-center justify-between rounded p-2 hover:bg-brand-50">
                         <button class="text-sm">All Companies</button>
                         <button class="hidden text-xs text-brand hover:underline group-hover:block">Set as Default</button>
-                        <!-- <p class="flex items-center gap-2 text-xs text-brand">
+                    <p class="flex items-center gap-2 text-xs text-brand">
                             <span>Default</span>
                             <UIcon name="i-heroicons-check" class="h-4 w-4" />
-                        </p> -->
+                        </p> 
                     </div>
                     <div class="group flex items-center justify-between rounded p-2 hover:bg-brand-50">
                         <button class="text-sm">Inactive Companies</button>
                         <button class="hidden text-xs text-brand hover:underline group-hover:block">Set as Default</button>
-                        <!-- <p class="flex items-center gap-2 text-xs text-brand">
-                            <span>Default</span>
-                            <UIcon name="i-heroicons-check" class="h-4 w-4" />
-                        </p> -->
                     </div>
                     <div class="group flex items-center justify-between rounded p-2 hover:bg-brand-50">
                         <button class="text-sm">My Active Companies</button>
                         <button class="hidden text-xs text-brand hover:underline group-hover:block">Set as Default</button>
-                        <!-- <p class="flex items-center gap-2 text-xs text-brand">
-                            <span>Default</span>
-                            <UIcon name="i-heroicons-check" class="h-4 w-4" />
-                        </p> -->
                     </div>
                 </div>
             </template>
-        </UPopover>
+        </UPopover> -->
 
         <div class="hidden sm:flex sm:items-center sm:gap-1.5">
             <UButton
@@ -349,12 +148,29 @@ function openAddCompanyModal() {
                 color="black"
                 size="xs"
                 variant="ghost"
-                @click="openDeleteCompanyModal"
+                @click="
+                    modal.open(LazyModalDeleteCompany, {
+                        onClose: () => modal.close(),
+                        companies: selectedRows,
+                    })
+                "
             >
                 Delete
             </UButton>
 
-            <UButton icon="i-heroicons-plus" color="black" size="xs" variant="ghost" @click="openAddCompanyModal"> New </UButton>
+            <UButton
+                icon="i-heroicons-plus"
+                color="black"
+                size="xs"
+                variant="ghost"
+                @click="
+                    modal.open(LazyModalAddCompany, {
+                        onClose: () => modal.close(),
+                    })
+                "
+            >
+                New
+            </UButton>
 
             <!-- Columns Selector -->
             <USelectMenu v-model="selectedColumns" :options="columns" multiple :uiMenu="{ width: 'min-w-32' }">

@@ -1,7 +1,7 @@
 <script lang="ts" setup></script>
 
 <template>
-    <div class="m-4">
+    <section class="m-4">
         <TableCompanies />
-    </div>
+    </section>
 </template>
