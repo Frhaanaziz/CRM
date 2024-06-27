@@ -23,9 +23,9 @@ const contactsOption = computed(() => {
 
 type AddCompanyPrimaryContactType = z.infer<typeof addCompanyPrimaryContactSchema>;
 const isSubmitting = ref(false);
-const state = ref<AddCompanyPrimaryContactType>({
+const state = ref({
     id: props.company.id,
-    primary_contact_id: null,
+    primary_contact_id: undefined,
 });
 async function handleSubmit(event: FormSubmitEvent<AddCompanyPrimaryContactType>) {
     try {

@@ -14,11 +14,11 @@ function closeModal() {
 
 type AddContactType = z.infer<typeof addContactSchema>;
 const isSubmitting = ref(false);
-const state = ref<AddContactType>({
+const state = ref({
     first_name: '',
     last_name: '',
     email: '',
-    job_title: null,
+    job_title: undefined,
     company_id: props.company.id,
 });
 async function handleSubmit(event: FormSubmitEvent<AddContactType>) {

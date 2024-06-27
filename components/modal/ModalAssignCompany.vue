@@ -5,7 +5,7 @@ import type { Company, User } from '~/types';
 
 const props = defineProps<{
     company: Pick<Company, 'id'>;
-    userId: User['id'] | null;
+    userId?: User['id'];
 }>();
 const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
@@ -26,7 +26,7 @@ const usersOption = computed(() => {
 
 type UpdateCompanyUserId = z.infer<typeof updateCompanyUserIdSchema>;
 const isSubmitting = ref(false);
-const state = ref<UpdateCompanyUserId>({
+const state = ref({
     id: props.company.id,
     user_id: props.userId,
 });

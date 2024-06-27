@@ -24,7 +24,7 @@ function openAssignCompanyModal() {
     modal.open(LazyModalAssignCompany, {
         onClose: () => modal.close(),
         company: { id: company.value!.id },
-        userId: company.value!.user_id,
+        userId: company.value!.user_id ?? undefined,
     });
 }
 function openAddContact() {
