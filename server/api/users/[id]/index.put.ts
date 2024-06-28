@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 
     const { first_name, last_name, phone, linkedin } = body.data;
 
-    const { error: authUserError } = await supabase.auth.updateUser({
+    const { data: session, error: authUserError } = await supabase.auth.updateUser({
         data: {
             first_name,
             last_name,
@@ -43,5 +43,8 @@ export default defineEventHandler(async (event) => {
         console.error('Error updating user in Users table', publicUserError);
         throw createError({ status: 500, statusMessage: publicUserError.message });
     }
+
     await supabase.auth.refreshSession();
+
+    return { session };
 });
