@@ -1029,7 +1029,11 @@ export type Database = {
     Enums: {
       company_statuses: "new" | "qualified" | "disqualified"
       contact_statuses: "new" | "qualified" | "disqualified"
-      disqualify_reason_name: "lost" | "cannot contact"
+      disqualify_reason_name:
+        | "lost"
+        | "cannot contact"
+        | "no longer interested"
+        | "canceled"
       lead_statuses: "new" | "contacted" | "qualified" | "disqualified"
       method_name: "email" | "note" | "call"
       rating_name: "cool" | "warm" | "hot"
