@@ -4,6 +4,7 @@ import type { FormSubmitEvent } from '#ui/types';
 import type { User } from '~/types';
 import { photoSchema } from '~/utils/validators';
 
+const sessionStore = userSessionStore();
 const user = useSupabaseUser();
 const { data: profile } = await useFetch(`/api/users/${user.value?.id}`, {
     key: 'profile',
@@ -34,13 +35,14 @@ function useUpdateProfile({ user }: { user: User }) {
     async function onSubmit(event: FormSubmitEvent<UpdateUserType>): Promise<void> {
         try {
             isSubmitting.value = true;
-            await $fetch(`/api/users/${userProfile.value?.id}`, {
-                method: 'PATCH',
+            const { session } = await $fetch(`/api/users/${userProfile.value?.id}`, {
+                method: 'PUT',
                 body: JSON.stringify(event.data),
             });
 
             toast.success('Profile updated successfully');
-            reloadNuxtApp({ force: true });
+
+            sessionStore.user = session.user;
         } catch (e) {
             console.error('Error updating profile', e);
             toast.error('Failed to update profile, please try again later');
@@ -130,11 +132,11 @@ function useUpdateProfile({ user }: { user: User }) {
             </label>
 
             <UForm :schema="updateUserSchema" :state="state" class="mt-6 space-y-3" @submit="submit" @error="console.error">
-                <UFormGroup label="Email" name="email">
+                <UFormGroup label="Email" name="email" required>
                     <UInput v-model="state.email" disabled placeholder="Enter your email" autocomplete="email" />
                 </UFormGroup>
 
-                <UFormGroup label="First Name" name="first_name">
+                <UFormGroup label="First Name" name="first_name" required>
                     <UInput
                         v-model="state.first_name"
                         :disabled="isSubmitting"
@@ -144,7 +146,7 @@ function useUpdateProfile({ user }: { user: User }) {
                     />
                 </UFormGroup>
 
-                <UFormGroup label="Last Name" name="last_name">
+                <UFormGroup label="Last Name" name="last_name" required>
                     <UInput
                         v-model="state.last_name"
                         :disabled="isSubmitting"
@@ -154,7 +156,7 @@ function useUpdateProfile({ user }: { user: User }) {
                     />
                 </UFormGroup>
 
-                <UFormGroup label="Phone" name="phone">
+                <UFormGroup label="Phone" name="phone" required>
                     <UInput
                         v-model="state.phone"
                         :disabled="isSubmitting"
