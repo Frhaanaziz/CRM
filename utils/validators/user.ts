@@ -14,7 +14,7 @@ export const userSchema = z.object({
     status: z.enum(userStatuses, {
         message: "Invalid status. Must be 'active' or 'inactive'",
     }),
-    role_id: z.number().int(),
+    role_id: z.coerce.number().int(),
     updated_at: z.coerce.date(),
 });
 

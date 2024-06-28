@@ -4,6 +4,8 @@ export * from './validators/user';
 export * from './validators/organization';
 export * from './validators/company';
 export * from './validators/contact';
+export * from './validators/lead';
+export * from './validators/lead-status';
 export * from './constants';
 
 /**
@@ -53,6 +55,18 @@ export function getErrorMessage(error: unknown): string {
     }
 
     return message;
+}
+
+export function getErrorCode(error: unknown): number {
+    let code: number;
+
+    if (error && typeof error === 'object' && 'statusCode' in error) {
+        code = Number(error.statusCode);
+    } else {
+        code = 500;
+    }
+
+    return code;
 }
 
 /**
