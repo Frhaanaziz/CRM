@@ -151,6 +151,10 @@ function useAddLead() {
 function useConfirmLead() {
     const contactColumns = [
         {
+            key: 'select',
+            label: '✓',
+        },
+        {
             key: 'fullName',
             label: 'Full Name',
         },
@@ -179,11 +183,11 @@ function useConfirmLead() {
         }));
     });
 
-    const selectedContact = ref<Pick<Contact, 'id'>[]>([]);
+    const selectedContact = ref<Contact['id'][]>([]);
     function selectContact(row: Pick<Contact, 'id'>) {
-        const index = selectedContact.value.findIndex((item) => item.id === row.id);
+        const index = selectedContact.value.findIndex((id) => id === row.id);
         if (index === -1) {
-            selectedContact.value.push(row);
+            selectedContact.value.push(row.id);
         } else {
             selectedContact.value.splice(index, 1);
         }
@@ -202,7 +206,7 @@ function useConfirmLead() {
                 method: 'POST',
                 body: JSON.stringify({
                     ...state.value,
-                    contact_id: selectedContact.value.at(0)!.id,
+                    contact_id: selectedContact.value.at(0),
                 }),
             });
 
@@ -354,8 +358,8 @@ function useConfirmLead() {
                 <div class="spacey-y-3 my-3">
                     <p class="font-semibold text-brand">Matched Contacts</p>
 
+                    <!-- v-model="selectedContact" -->
                     <UTable
-                        v-model="selectedContact"
                         by="id"
                         :rows="contactRows"
                         :columns="contactColumns"
@@ -365,7 +369,11 @@ function useConfirmLead() {
                             td: { base: 'max-w-[0] truncate text-default' },
                         }"
                         @select="selectContact"
-                    />
+                    >
+                        <template #select-data="{ row }">
+                            <UCheckbox v-model="selectedContact" :value="row.id" />
+                        </template>
+                    </UTable>
                 </div>
 
                 <div class="mt-3 flex items-center justify-end gap-2">

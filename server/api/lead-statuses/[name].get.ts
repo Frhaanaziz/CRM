@@ -11,15 +11,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
 
-    const { data, error } = await supabase
-        .from('Lead_Statuses')
-        .select(
-            `
-            *
-            `
-        )
-        .eq('name', zodResult.data.name)
-        .single();
+    const { data, error } = await supabase.from('Lead_Statuses').select('*').eq('name', zodResult.data.name).single();
     if (error) {
         console.error('Error getting lead:', error);
         throw createError({ status: 400, statusMessage: error.message });

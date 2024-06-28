@@ -22,3 +22,4 @@ export type Lead = Tables<'Leads'>;
 export type LeadStatus = Tables<'Lead_Statuses'>;
 export type DisqualifyReason = Tables<'Disqualify_Reasons'>;
 export type Rating = Tables<'Ratings'>;
+export type Task = Tables<'Tasks'>;
