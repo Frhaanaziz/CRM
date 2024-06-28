@@ -9,11 +9,7 @@ export default defineEventHandler(async (event) => {
 
     const res = await supabase
         .from('Companies')
-        .select(
-            `
-            *
-            `
-        )
+        .select('*')
         .order('created_at', { ascending: false })
         .eq('organization_id', organizationId);
     if (res.error) {
