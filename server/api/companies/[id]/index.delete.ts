@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
     const { error } = await supabase.from('Companies').delete().eq('id', id);
     if (error) {
-        console.error(`Error deleteing company with id: ${id}:`, error.message);
+        console.error(`Error deleteing company with id: ${id}:`, error);
         throw createError({ status: 400, statusMessage: error.message });
     }
 });

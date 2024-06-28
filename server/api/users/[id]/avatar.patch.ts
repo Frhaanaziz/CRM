@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 
     const { data: user, error: userError } = await supabase.from('Users').select().eq('id', id).single();
     if (userError) {
-        console.error('Error getting user', userError.message);
+        console.error('Error getting user', userError);
         throw createError({ status: 500, statusMessage: userError.message });
     }
 
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
 
     const { data: uploadPath, error: uploadError } = await supabase.storage.from('Avatars').upload(`${photo.name}${id}`, photo);
     if (uploadError) {
-        console.error('Error uploading file to storage', uploadError.message);
+        console.error('Error uploading file to storage', uploadError);
         throw createError({ status: 500, statusMessage: uploadError.message });
     }
 

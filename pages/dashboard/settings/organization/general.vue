@@ -2,7 +2,7 @@
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
 const user = useSupabaseUser();
-if (!user.value) throw new Error('User is not authenticated');
+if (!user.value) throw createError({ status: 401, message: 'User is not authenticated' });
 
 const { data: organization } = await useLazyFetch(`/api/users/${user.value.id}/organization`);
 const [{ data: industries }, { data: sizes }, { data: countries }, { data: provinces }, { data: cities }] = await Promise.all([
@@ -111,7 +111,7 @@ function useOptionsData() {
                 @submit="handleSubmit"
                 @error="console.error"
             >
-                <UFormGroup label="Organization Name" name="name">
+                <UFormGroup label="Organization Name" name="name" required>
                     <UInput
                         v-model="stateRef.name"
                         :disabled="isSubmitting"
@@ -120,7 +120,7 @@ function useOptionsData() {
                     />
                 </UFormGroup>
 
-                <UFormGroup label="Website" name="website">
+                <UFormGroup label="Website" name="website" required>
                     <UInput
                         v-model="stateRef.website"
                         :disabled="isSubmitting"

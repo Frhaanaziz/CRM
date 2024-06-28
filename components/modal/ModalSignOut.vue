@@ -10,7 +10,7 @@ async function handleSignout() {
     closeModal();
     const { error } = await supabase.auth.signOut();
     if (error) {
-        console.error('Sign out error:', error.message);
+        console.error('Sign out error:', error);
         toast.error('Failed to sign out, please try again.');
     }
     await navigateTo('/auth/signin');
