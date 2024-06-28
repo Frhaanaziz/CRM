@@ -1,7 +1,7 @@
 module.exports = {
     apps: [
         {
-            name: 'IDB2B',
+            name: 'app.idb2b',
             port: '3010',
             exec_mode: 'cluster',
             instances: 'max',
