@@ -1,16 +1,12 @@
 <script lang="ts" setup>
 import { useDateFormat } from '@vueuse/core';
-import LazyModalDeleteCompany from '~/components/modal/ModalDeleteCompany.vue';
+import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAddCompany from '~/components/modal/ModalAddCompany.vue';
 import type { Company } from '~/types';
-import type { Database } from '~/types/supabase';
-import type { RealtimeChannel } from '@supabase/supabase-js';
 
-const {
-    data: companies,
-    status,
-    refresh: refreshCompanies,
-} = await useLazyFetch('/api/companies', {
+const modal = useModal();
+
+const { data: companies, status } = await useLazyFetch('/api/companies', {
     key: 'companies',
     transform: (companies) =>
         companies.map((company) => ({
@@ -18,49 +14,45 @@ const {
             name: company.name,
             phone: company.phone,
             primaryContact: company.primaryContact,
+            industry: company?.industry?.name ?? '',
+            size: company.size?.size_range ?? '',
+            location: `${company?.province?.name ?? ''}, ${company?.city?.name ?? ''}`,
+            website: company.website,
+            created_at: company.created_at,
+            linkedin: company.linkedin,
         })),
     default: () => [],
 });
 const pending = computed(() => status.value === 'pending');
 
-const supabase = useSupabaseClient<Database>();
-let realtimeChannel: RealtimeChannel;
-onMounted(() => {
-    realtimeChannel = supabase
-        .channel('public:Companies')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'Companies' }, () => refreshCompanies());
-
-    realtimeChannel.subscribe();
-});
-onUnmounted(() => {
-    supabase.removeChannel(realtimeChannel);
-});
-
-const { columns, selectedColumns, columnsTable, selectedRows, select } = useTable();
 const {
-    filteredData: filteredCompanies,
+    columns,
+    selectedColumns,
+    tableColumns,
+    selectedRows,
+    selectRow,
+    companiesRows,
     search,
     page,
     pageCount,
     sort,
     pageTotal,
     resetFilters,
-} = useFilterAndPaginate(companies);
-const filteredCompaniesCustom = computed(() =>
-    filteredCompanies.value.map((company) => ({
-        ...company,
-        primaryContact: {
-            value: `${company.primaryContact?.first_name ?? ''} ${company.primaryContact?.last_name ?? ''}`,
-            class: 'w-[200px] max-w-[200px]',
-        },
-        primaryContactEmail: { value: company.primaryContact?.email ?? '', class: 'w-[220px] max-w-[220px]' },
-    }))
-);
+} = useTable();
 
-const modal = useModal();
+async function handleDeleteCompanies() {
+    try {
+        await Promise.all(selectedRows.value.map((company) => $fetch(`/api/companies/${company.id}`, { method: 'DELETE' })));
 
+        toast.success('Company has been deleted successfully.');
+        await refreshNuxtData('companies');
+    } catch (e) {
+        console.error('Failed to delete company:', e);
+        toast.error('Failed to delete company, please try again later.');
+    }
+}
 function useTable() {
-    const initialColumns = [
+    const columns = [
         {
             key: 'name',
             label: 'Company Name',
@@ -81,15 +73,46 @@ function useTable() {
             label: 'Email (Primary Contact)',
             sortable: true,
         },
+        {
+            key: 'industry',
+            label: 'Industry',
+            sortable: true,
+        },
+        {
+            key: 'size',
+            label: 'Size',
+            sortable: true,
+        },
+        {
+            key: 'location',
+            label: 'Location',
+            sortable: true,
+        },
+        {
+            key: 'website',
+            label: 'Website',
+            sortable: true,
+        },
+        {
+            key: 'linkedin',
+            label: 'Linkedin',
+            sortable: true,
+        },
+        {
+            key: 'created_at',
+            label: 'Created on',
+            sortable: true,
+        },
     ];
-    const columns = [...initialColumns];
-
-    const selectedColumns = ref(initialColumns);
-    const columnsTable = computed(() => columns.filter((column) => selectedColumns.value.includes(column)));
+    const initialColumnKeys = ['name', 'phone', 'primaryContact', 'primaryContactEmail'];
+    const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
+    const tableColumns = computed(() =>
+        columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
+    );
 
     // Selected Rows
     const selectedRows = ref<Pick<Company, 'id'>[]>([]);
-    function select(row: Pick<Company, 'id'>) {
+    function selectRow(row: Pick<Company, 'id'>) {
         const index = selectedRows.value.findIndex((item) => item.id === row.id);
         if (index === -1) {
             selectedRows.value.push(row);
@@ -98,12 +121,39 @@ function useTable() {
         }
     }
 
+    const {
+        filteredData: filteredCompanies,
+        search,
+        page,
+        pageCount,
+        sort,
+        pageTotal,
+        resetFilters,
+    } = useFilterAndPaginate(companies);
+    const filteredCompaniesCustom = computed(() =>
+        filteredCompanies.value.map((company) => ({
+            ...company,
+            primaryContact: {
+                value: `${company.primaryContact?.first_name ?? ''} ${company.primaryContact?.last_name ?? ''}`,
+                class: 'w-[200px] max-w-[200px]',
+            },
+            primaryContactEmail: { value: company.primaryContact?.email ?? '', class: 'w-[220px] max-w-[220px]' },
+        }))
+    );
+
     return {
         columns,
         selectedColumns,
-        columnsTable,
+        tableColumns,
         selectedRows,
-        select,
+        selectRow,
+        companiesRows: filteredCompaniesCustom,
+        search,
+        page,
+        pageCount,
+        sort,
+        pageTotal,
+        resetFilters,
     };
 }
 </script>
@@ -149,9 +199,12 @@ function useTable() {
                 size="xs"
                 variant="ghost"
                 @click="
-                    modal.open(LazyModalDeleteCompany, {
+                    modal.open(LazyModalDelete, {
                         onClose: () => modal.close(),
-                        companies: selectedRows,
+                        title: 'Company',
+                        description:
+                            'Deleting company will delete all records under the company as well (for example opportunities, tasks, and activities). Are you sure to delete this Company? You can’t undo this action.',
+                        onConfirm: handleDeleteCompanies,
                     })
                 "
             >
@@ -199,15 +252,15 @@ function useTable() {
         v-model:sort="sort"
         by="id"
         :loading="pending"
-        :rows="filteredCompaniesCustom"
-        :columns="columnsTable"
+        :rows="companiesRows"
+        :columns="tableColumns"
         sort-mode="manual"
         class="w-full"
         :ui="{
             tr: { base: '[&>td]:hover:bg-base-200' },
             td: { base: 'max-w-[0] truncate text-default' },
         }"
-        @select="select"
+        @select="selectRow"
     >
         <template #name-data="{ row }">
             <NuxtLink :href="`/dashboard/customer/companies/${row.id}`" class="text-brand hover:underline">
@@ -227,11 +280,20 @@ function useTable() {
             </NuxtLink>
         </template>
 
+        <template #website-data="{ row }">
+            <NuxtLink :href="row.website" class="text-brand hover:underline" external target="_blank">
+                {{ extractDomain(row.website) }}
+            </NuxtLink>
+        </template>
+
+        <template #linkedin-data="{ row }">
+            <NuxtLink :href="row.linkedin" class="text-brand hover:underline" external target="_blank">
+                {{ row.linkedin }}
+            </NuxtLink>
+        </template>
+
         <template #created_at-data="{ row }">
             {{ useDateFormat(row.created_at, 'YYYY-MM-DD HH:mm:ss').value.replace('"', '') }}
-        </template>
-        <template #updated_at-data="{ row }">
-            {{ useDateFormat(row.updated_at, 'YYYY-MM-DD HH:mm:ss').value.replace('"', '') }}
         </template>
 
         <template #empty-state>

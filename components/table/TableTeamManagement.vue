@@ -4,60 +4,10 @@ import type { User } from '~/types';
 import LazyModalInviteUser from '~/components/modal/ModalInviteUser.vue';
 import LazyModalUpdateUserOrganization from '~/components/modal/ModalUpdateUserOrganization.vue';
 
-// Columns
-const initialColumns = [
-    {
-        key: 'user',
-        label: 'User',
-        sortable: true,
-    },
-    {
-        key: 'phone',
-        label: 'Phone',
-        sortable: true,
-    },
-    {
-        key: 'role',
-        label: 'Role',
-        sortable: true,
-    },
-    {
-        key: 'status',
-        label: 'Status',
-        sortable: true,
-    },
-    {
-        key: 'actions',
-        label: 'Actions',
-        sortable: false,
-    },
-];
-const columns = [
-    ...initialColumns,
-    {
-        key: 'linkedin',
-        label: 'LinkedIn',
-        sortable: true,
-    },
-    {
-        key: 'created_at',
-        label: 'Created At',
-        sortable: true,
-    },
-    {
-        key: 'updated_at',
-        label: 'Updated At',
-        sortable: true,
-    },
-];
-
-const selectedColumns = ref(initialColumns);
-const columnsTable = computed(() => columns.filter((column) => selectedColumns.value.includes(column)));
-
 const user = useSupabaseUser();
-if (!user.value) throw new Error('User is not authenticated');
+if (!user.value) throw createError({ status: 401, message: 'You must be logged in to access this page.' });
 
-const { data: users, status } = await useLazyFetch(`/api/organizations/${user.value?.app_metadata?.organization_id}/users`, {
+const { data: users, status } = await useLazyFetch(`/api/organizations/${user.value?.user_metadata?.organization_id}/users`, {
     transform: (users) =>
         users.map((user) => ({
             ...user,
@@ -67,15 +17,7 @@ const { data: users, status } = await useLazyFetch(`/api/organizations/${user.va
 });
 const pending = computed(() => status.value === 'pending');
 
-const { filteredData: filteredUsers, search, page, pageCount, sort, pageTotal } = useFilterAndPaginate(users);
-const filteredUsersCustom = computed(() =>
-    filteredUsers.value.map((user) => ({
-        ...user,
-        role: { value: user.role, id: user.role_id, class: 'w-[120px] max-w-[120px]' },
-        status: { value: user.status, class: 'w-40 max-w-40' },
-        actions: { value: undefined, class: 'w-28 max-w-28' },
-    }))
-);
+const { columns, selectedColumns, tableColumns, usersRows, search, page, pageCount, sort, pageTotal } = useTable();
 
 const modal = useModal();
 function openInviteUserModal() {
@@ -88,6 +30,77 @@ function openUpdateUserModal(user: { id: User['id']; role_id: User['role_id']; s
         onClose: () => modal.close(),
         user,
     });
+}
+function useTable() {
+    const columns = [
+        {
+            key: 'user',
+            label: 'User',
+            sortable: true,
+        },
+        {
+            key: 'phone',
+            label: 'Phone',
+            sortable: true,
+        },
+        {
+            key: 'role',
+            label: 'Role',
+            sortable: true,
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            sortable: true,
+        },
+        {
+            key: 'linkedin',
+            label: 'LinkedIn',
+            sortable: true,
+        },
+        {
+            key: 'created_at',
+            label: 'Created At',
+            sortable: true,
+        },
+        {
+            key: 'updated_at',
+            label: 'Updated At',
+            sortable: true,
+        },
+        {
+            key: 'actions',
+            label: 'Actions',
+            sortable: false,
+        },
+    ];
+    const initialColumnKeys = ['user', 'phone', 'role', 'status', 'actions'];
+    const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
+    const tableColumns = computed(() =>
+        columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
+    );
+
+    const { filteredData: filteredUsers, search, page, pageCount, sort, pageTotal } = useFilterAndPaginate(users);
+    const filteredUsersCustom = computed(() =>
+        filteredUsers.value.map((user) => ({
+            ...user,
+            role: { value: user.role, id: user.role_id, class: 'w-[120px] max-w-[120px]' },
+            status: { value: user.status, class: 'w-40 max-w-40' },
+            actions: { value: undefined, class: 'w-28 max-w-28' },
+        }))
+    );
+
+    return {
+        columns,
+        selectedColumns,
+        tableColumns,
+        usersRows: filteredUsersCustom,
+        search,
+        page,
+        pageCount,
+        sort,
+        pageTotal,
+    };
 }
 </script>
 
@@ -123,8 +136,8 @@ function openUpdateUserModal(user: { id: User['id']; role_id: User['role_id']; s
     <!-- Table -->
     <UTable
         v-model:sort="sort"
-        :rows="filteredUsersCustom"
-        :columns="columnsTable"
+        :rows="usersRows"
+        :columns="tableColumns"
         :loading="pending"
         sort-mode="manual"
         class="w-full"

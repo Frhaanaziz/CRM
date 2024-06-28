@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import LazyModalDeleteCompany from '~/components/modal/ModalDeleteCompany.vue';
+import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAddCompanyContact from '~/components/modal/ModalAddCompanyContact.vue';
 import LazyModalAddCompanyPrimaryContact from '~/components/modal/ModalAddCompanyPrimaryContact.vue';
 import LazyModalEditCompanyPrimaryContact from '~/components/modal/ModalEditCompanyPrimaryContact.vue';
 import LazyModalAssignCompany from '~/components/modal/ModalAssignCompany.vue';
-import type { Contact } from '~/types';
 
+const modal = useModal();
 const id = parseInt(useRoute().params.id as string);
 
 const { data: company } = await useFetch(`/api/companies/${id}`, {
@@ -13,38 +13,17 @@ const { data: company } = await useFetch(`/api/companies/${id}`, {
 });
 if (!company.value) throw createError({ status: 404, message: 'Company not found' });
 
-const modal = useModal();
-function openDeleteCompanyModal() {
-    modal.open(LazyModalDeleteCompany, {
-        onClose: () => modal.close(),
-        companies: [{ id }],
-    });
-}
-function openAssignCompanyModal() {
-    modal.open(LazyModalAssignCompany, {
-        onClose: () => modal.close(),
-        company: { id: company.value!.id },
-        userId: company.value!.user_id ?? undefined,
-    });
-}
-function openAddContact() {
-    modal.open(LazyModalAddCompanyContact, {
-        onClose: () => modal.close(),
-        company: { id: company.value!.id, name: company.value!.name },
-    });
-}
-function openAddPrimaryContact() {
-    modal.open(LazyModalAddCompanyPrimaryContact, {
-        onClose: () => modal.close(),
-        company: { id: company.value!.id },
-    });
-}
-function openEditPrimaryContact(primaryContact: Pick<Contact, 'id'>) {
-    modal.open(LazyModalEditCompanyPrimaryContact, {
-        onClose: () => modal.close(),
-        company: { id: company.value!.id },
-        primaryContact,
-    });
+async function handleDeleteCompanies() {
+    try {
+        await $fetch(`/api/companies/${id}`, { method: 'DELETE' });
+
+        toast.success('Company has been deleted successfully.');
+        await refreshNuxtData('companies');
+        await navigateTo('/dashboard/customer/companies');
+    } catch (e) {
+        console.error('Failed to delete company:', e);
+        toast.error('Failed to delete company, please try again later.');
+    }
 }
 </script>
 
@@ -60,7 +39,13 @@ function openEditPrimaryContact(primaryContact: Pick<Contact, 'id'>) {
                     icon="i-heroicons-user"
                     color="black"
                     class="font-semibold"
-                    @click="openAssignCompanyModal"
+                    @click="
+                        modal.open(LazyModalAssignCompany, {
+                            onClose: () => modal.close(),
+                            company: { id: company!.id },
+                            userId: company!.user_id ?? undefined,
+                        })
+                    "
                 >
                     Assign
                 </UButton>
@@ -69,7 +54,15 @@ function openEditPrimaryContact(primaryContact: Pick<Contact, 'id'>) {
                     icon="i-heroicons-trash"
                     color="black"
                     class="font-semibold"
-                    @click="openDeleteCompanyModal"
+                    @click="
+                        modal.open(LazyModalDelete, {
+                            onClose: () => modal.close(),
+                            title: 'Company',
+                            description:
+                                'Deleting company will delete all records under the company as well (for example opportunities, tasks, and activities). Are you sure to delete this Company? You can’t undo this action.',
+                            onConfirm: handleDeleteCompanies,
+                        })
+                    "
                 >
                     Delete
                 </UButton>
@@ -156,7 +149,13 @@ function openEditPrimaryContact(primaryContact: Pick<Contact, 'id'>) {
                                 variant="ghost"
                                 square
                                 color="black"
-                                @click="openEditPrimaryContact(company.primaryContact)"
+                                @click="
+                                    modal.open(LazyModalEditCompanyPrimaryContact, {
+                                        onClose: () => modal.close(),
+                                        company: { id: company!.id },
+                                        primaryContact: company.primaryContact,
+                                    })
+                                "
                             />
                         </div>
                     </template>
@@ -174,14 +173,34 @@ function openEditPrimaryContact(primaryContact: Pick<Contact, 'id'>) {
                             <UButton color="black" variant="ghost" icon="i-heroicons-phone" square disabled />
                         </div>
                     </div>
-                    <UButton v-else variant="outline" icon="i-heroicons-plus" size="xs" @click="openAddPrimaryContact">
+                    <UButton
+                        v-else
+                        variant="outline"
+                        icon="i-heroicons-plus"
+                        size="xs"
+                        @click="
+                            modal.open(LazyModalAddCompanyPrimaryContact, {
+                                onClose: () => modal.close(),
+                                company: { id: company!.id },
+                            })
+                        "
+                    >
                         Add Primary Contact
                     </UButton>
 
                     <div class="space-y-2">
                         <div class="mt-8 flex items-center justify-between">
                             <h3 class="text-xl font-semibold">Contacts</h3>
-                            <UButton variant="outline" icon="i-heroicons-plus" size="xs" @click="openAddContact"
+                            <UButton
+                                variant="outline"
+                                icon="i-heroicons-plus"
+                                size="xs"
+                                @click="
+                                    modal.open(LazyModalAddCompanyContact, {
+                                        onClose: () => modal.close(),
+                                        company: { id: company!.id, name: company!.name },
+                                    })
+                                "
                                 >Add Contact</UButton
                             >
                         </div>
