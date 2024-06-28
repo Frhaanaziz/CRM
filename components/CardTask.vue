@@ -150,8 +150,7 @@ function useUpdateTask() {
             </UFormGroup>
 
             <UFormGroup label="Date" name="date" required>
-                <!-- <UInput v-model="taskState.date" type="datetime-local" :disabled="isUpdating" :loading="isUpdating" /> -->
-                <input v-model.="taskState.date" type="datetime-local" :disabled="isUpdating" :loading="isUpdating" />
+                <UInput v-model="taskState.date" type="datetime-local" :disabled="isUpdating" :loading="isUpdating" />
             </UFormGroup>
 
             <div class="flex items-center justify-end gap-2">
