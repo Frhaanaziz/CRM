@@ -12,7 +12,7 @@ function closeModal() {
     emit('close');
 }
 
-const { data: roles } = useLazyFetch('/api/roles', { key: 'roles' });
+const { data: roles } = await useLazyFetch('/api/roles', { key: 'roles' });
 const rolesOption = computed(() => roles.value?.map((role) => ({ value: role.id, label: capitalize(role.name) })));
 const statusOption = ['active', 'inactive'].map((status) => ({ value: status, label: capitalize(status) }));
 

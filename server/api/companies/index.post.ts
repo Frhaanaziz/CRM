@@ -11,9 +11,28 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
 
-    const { error: insertError } = await supabase.from('Companies').insert(zodResult.data);
+    const { data: companyStatus, error: companyStatusError } = await supabase
+        .from('Company_Statuses')
+        .select('id')
+        .eq('name', 'new')
+        .single();
+    if (companyStatusError) {
+        console.error('Error fetching company status:', companyStatusError);
+        throw createError({ status: 500, statusMessage: companyStatusError.message });
+    }
+
+    const { data: company, error: insertError } = await supabase
+        .from('Companies')
+        .insert({
+            ...zodResult.data,
+            company_status_id: companyStatus.id,
+        })
+        .select('*')
+        .single();
     if (insertError) {
-        console.error('Error inserting company:', insertError.message);
+        console.error('Error inserting company:', insertError);
         throw createError({ status: 400, statusMessage: insertError.message });
     }
+
+    return company;
 });

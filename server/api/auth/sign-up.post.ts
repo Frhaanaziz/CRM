@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
         },
     });
     if (signUpError) {
-        console.error('Error signing up:', signUpError.message);
+        console.error('Error signing up:', signUpError);
         throw createError({ status: signUpError.status ?? 400, statusMessage: signUpError.message });
     }
 
@@ -68,7 +68,7 @@ export default defineEventHandler(async (event) => {
         organization_id: 2,
     });
     if (insertError) {
-        console.error('Error inserting user:', insertError.message);
+        console.error('Error inserting user:', insertError);
         throw createError({ status: 400, statusMessage: insertError.message });
     }
 });

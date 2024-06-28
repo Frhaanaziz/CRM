@@ -1,76 +1,9 @@
 <script lang="ts" setup>
 import { useDateFormat } from '@vueuse/core';
 
-// Columns
-const initialColumns = [
-    {
-        key: 'name',
-        label: 'Name',
-        sortable: true,
-    },
-    {
-        key: 'industry',
-        label: 'Industry',
-        sortable: true,
-    },
-    {
-        key: 'size',
-        label: 'Size',
-        sortable: true,
-    },
-    {
-        key: 'location',
-        label: 'Location',
-        sortable: true,
-    },
-    {
-        key: 'website',
-        label: 'Website',
-        sortable: true,
-    },
-];
-const columns = [
-    ...initialColumns,
-    {
-        key: 'created_at',
-        label: 'Created At',
-        sortable: true,
-    },
-    {
-        key: 'email',
-        label: 'Email',
-        sortable: true,
-    },
-    {
-        key: 'linkedin',
-        label: 'LinkedIn',
-        sortable: true,
-    },
-    {
-        key: 'phone',
-        label: 'Phone',
-        sortable: true,
-    },
-    {
-        key: 'street',
-        label: 'Street',
-        sortable: true,
-    },
-    {
-        key: 'zip_code',
-        label: 'Zip Code',
-        sortable: true,
-    },
-];
-
-const inputIndustries = ref<string[]>([]);
-const inputSizes = ref<string[]>([]);
-const selectedColumns = ref(initialColumns);
-const columnsTable = computed(() => columns.filter((column) => selectedColumns.value.includes(column)));
-
 // const [{ data: companies, status }, { data: industries }, { data: sizes }, { data: provinces }, { data: cities }] =
 const [{ data: companies, status }, { data: industries }, { data: sizes }] = await Promise.all([
-    useLazyFetch('/api/b2b-companies', {
+    await useLazyFetch('/api/b2b-companies', {
         transform: (companies) =>
             companies.map((company) => ({
                 id: company.id,
@@ -98,23 +31,123 @@ const [{ data: companies, status }, { data: industries }, { data: sizes }] = awa
 const pending = computed(() => status.value === 'pending');
 
 const {
-    filteredData: filteredCompanies,
+    columns,
+    selectedColumns,
+    tableColumns,
+    companiesRows,
     search,
     page,
     pageCount,
     sort,
-    filters,
     pageTotal,
     resetFilters,
-} = useFilterAndPaginate(companies);
+    inputIndustries,
+    inputSizes,
+    filters,
+} = useTable();
 
-// Update filters
-filters.value = {
-    industry: [],
-    size: [],
-    province: [],
-    city: [],
-};
+function useTable() {
+    const columns = [
+        {
+            key: 'name',
+            label: 'Name',
+            sortable: true,
+        },
+        {
+            key: 'industry',
+            label: 'Industry',
+            sortable: true,
+        },
+        {
+            key: 'size',
+            label: 'Size',
+            sortable: true,
+        },
+        {
+            key: 'location',
+            label: 'Location',
+            sortable: true,
+        },
+        {
+            key: 'website',
+            label: 'Website',
+            sortable: true,
+        },
+        {
+            key: 'email',
+            label: 'Email',
+            sortable: true,
+        },
+        {
+            key: 'linkedin',
+            label: 'LinkedIn',
+            sortable: true,
+        },
+        {
+            key: 'phone',
+            label: 'Phone',
+            sortable: true,
+        },
+        {
+            key: 'street',
+            label: 'Street',
+            sortable: true,
+        },
+        {
+            key: 'zip_code',
+            label: 'Zip Code',
+            sortable: true,
+        },
+        {
+            key: 'created_at',
+            label: 'Created on',
+            sortable: true,
+        },
+    ];
+    const initialColumnKeys = ['name', 'industry', 'size', 'location', 'website'];
+    const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
+    const tableColumns = computed(() =>
+        columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
+    );
+
+    const inputIndustries = ref<string[]>([]);
+    const inputSizes = ref<string[]>([]);
+
+    const {
+        filteredData: filteredCompanies,
+        search,
+        page,
+        pageCount,
+        sort,
+        filters,
+        pageTotal,
+        resetFilters,
+    } = useFilterAndPaginate(companies);
+
+    // Update filters
+    filters.value = {
+        industry: [],
+        size: [],
+        province: [],
+        city: [],
+    };
+
+    return {
+        columns,
+        selectedColumns,
+        tableColumns,
+        companiesRows: filteredCompanies,
+        search,
+        page,
+        pageCount,
+        sort,
+        pageTotal,
+        resetFilters,
+        inputIndustries,
+        inputSizes,
+        filters,
+    };
+}
 </script>
 
 <template>
@@ -288,8 +321,8 @@ filters.value = {
     <!-- Table -->
     <UTable
         v-model:sort="sort"
-        :rows="filteredCompanies"
-        :columns="columnsTable"
+        :rows="companiesRows"
+        :columns="tableColumns"
         :loading="pending"
         sort-mode="manual"
         class="w-full"
@@ -324,7 +357,7 @@ filters.value = {
         </template>
 
         <template #location-data="{ row }">
-            {{ `${row.city}, ${row.province}` }}
+            {{ `${row.province}, ${row.city}` }}
         </template>
 
         <template #empty-state>

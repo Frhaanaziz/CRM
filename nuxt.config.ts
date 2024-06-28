@@ -7,7 +7,6 @@ export default defineNuxtConfig({
     },
 
     runtimeConfig: {
-        JWT_SECRET: process.env.NUXT_JWT_SECRET,
         public: {
             BASE_URL: process.env.NUXT_PUBLIC_BASE_URL,
         },
