@@ -9,7 +9,11 @@ export default defineEventHandler(async (event) => {
         .select(
             `
             *,
-            primaryContact: Contacts!Companies_primary_contact_id_fkey(*)
+            primaryContact: Contacts!Companies_primary_contact_id_fkey(*),
+            industry: Industries(name),
+            size: Sizes(size_range),
+            province: Provinces(name),
+            city: Cities(name)
             `
         )
         .order('created_at', { ascending: false });
