@@ -3,6 +3,7 @@ export default defineNuxtConfig({
     devtools: { enabled: true },
     modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image', '@pinia/nuxt'],
     routeRules: {
+        '/': { redirect: '/dashboard' },
         '/auth/**': { prerender: true },
     },
 
