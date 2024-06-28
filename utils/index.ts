@@ -6,6 +6,7 @@ export * from './validators/company';
 export * from './validators/contact';
 export * from './validators/lead';
 export * from './validators/lead-status';
+export * from './validators/task';
 export * from './constants';
 
 /**

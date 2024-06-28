@@ -3,11 +3,17 @@ import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAssignLead from '~/components/modal/ModalAssignLead.vue';
 import LazyModalAddLeadTopic from '~/components/modal/ModalAddLeadTopic.vue';
 import type { DisqualifyReason } from '~/types';
+import type { FormSubmitEvent } from '#ui/types';
+import type { z } from 'zod';
 
 const modal = useModal();
 const id = parseInt(useRoute().params.id as string);
 
+const user = useSupabaseUser();
+if (!user.value) throw createError({ status: 401, message: 'Unauthorized' });
+
 const isUpdatingStatus = ref(false);
+const isCreatingTask = ref(false);
 
 const { data: disqualifyReasons } = await useLazyFetch('/api/disqualify-reasons', {
     key: 'disqualify-reasons',
@@ -16,6 +22,8 @@ const { data: lead, refresh: refreshLead } = await useFetch(`/api/leads/${id}`, 
     key: `lead-${id}`,
 });
 if (!lead.value) throw createError({ status: 404, message: 'Lead not found' });
+
+const { taskState, isSubmittingTask, handleSubmitTask } = useTask();
 
 async function reopenLead() {
     try {
@@ -91,6 +99,43 @@ async function handleDeleteLead() {
         console.error('Failed to delete Lead:', e);
         toast.error('Failed to delete Lead, please try again later.');
     }
+}
+function useTask() {
+    type AddTaskType = z.infer<typeof addTaskSchema>;
+    const isSubmitting = ref(false);
+    const state = ref({
+        description: '',
+        date: new Date().toISOString(),
+        lead_id: id,
+        user_id: user.value!.id,
+    });
+
+    async function createTask(event: FormSubmitEvent<AddTaskType>) {
+        try {
+            isSubmitting.value = true;
+
+            await $fetch('/api/tasks', {
+                method: 'POST',
+                body: JSON.stringify(event.data),
+            });
+
+            toast.success('Task added successfully.');
+            await refreshNuxtData(`lead-${id}`);
+            state.value = { ...state.value, description: '', date: new Date().toISOString() };
+            isCreatingTask.value = false;
+        } catch (e) {
+            console.error('Failed to add task', e);
+            toast.error('Failed to add task, please try again later.');
+        } finally {
+            isSubmitting.value = false;
+        }
+    }
+
+    return {
+        taskState: state,
+        isSubmittingTask: isSubmitting,
+        handleSubmitTask: createTask,
+    };
 }
 </script>
 
@@ -261,7 +306,7 @@ async function handleDeleteLead() {
             </div>
         </header>
 
-        <section class="m-4 grid gap-4 md:grid-cols-12">
+        <section class="grid gap-4 p-4 md:grid-cols-12">
             <div class="flex flex-col gap-4 md:col-span-4">
                 <p v-if="lead?.status?.name === 'disqualified' && lead.disqualify_reason" class="rounded-lg bg-red-100 p-4">
                     This lead is disqualified because
@@ -294,15 +339,74 @@ async function handleDeleteLead() {
                     </UButton>
                 </UCard>
 
-                <UCard>
+                <UCard :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">
                     <template #header>
                         <div class="flex items-center justify-between">
-                            <h2 class="text-xl font-semibold">TASK <span class="text-weak">0</span></h2>
-                            <UButton icon="i-heroicons-plus" variant="ghost" square color="black" />
+                            <h2 class="text-xl font-semibold">
+                                TASK <span class="text-weak">({{ lead?.tasks.length }})</span>
+                            </h2>
+                            <UButton
+                                icon="i-heroicons-plus"
+                                variant="ghost"
+                                square
+                                color="black"
+                                @click="isCreatingTask = !isCreatingTask"
+                            />
                         </div>
                     </template>
 
-                    <UButton variant="ghost" color="black" class="text-weak"> Add New Task </UButton>
+                    <div v-if="isCreatingTask" class="bg-brand-50 p-4">
+                        <UForm
+                            :schema="addTaskSchema"
+                            :state="taskState"
+                            class="space-y-3"
+                            @submit="handleSubmitTask"
+                            @error="console.error"
+                        >
+                            <UFormGroup label="Task Description" name="description" required>
+                                <UInput
+                                    v-model="taskState.description"
+                                    :disabled="isSubmittingTask"
+                                    :loading="isSubmittingTask"
+                                    placeholder="Enter company name"
+                                />
+                            </UFormGroup>
+
+                            <UFormGroup label="Date" name="date" required>
+                                <UInput
+                                    v-model.date="taskState.date"
+                                    type="datetime-local"
+                                    :disabled="isSubmittingTask"
+                                    :loading="isSubmittingTask"
+                                />
+                            </UFormGroup>
+
+                            <div class="flex items-center justify-end gap-2">
+                                <UButton
+                                    type="button"
+                                    variant="outline"
+                                    :disabled="isSubmittingTask"
+                                    @click="isCreatingTask = false"
+                                    >Cancel</UButton
+                                >
+                                <UButton type="submit" :disabled="isSubmittingTask" :loading="isSubmittingTask">Save</UButton>
+                            </div>
+                        </UForm>
+                    </div>
+
+                    <div v-if="!!lead?.tasks?.length" class="divide-y">
+                        <CardTask v-for="task in lead.tasks" :key="task.id" :task="task" />
+                    </div>
+                    <UButton
+                        v-else
+                        variant="ghost"
+                        color="black"
+                        block
+                        class="text-weak mx-2 mb-4 mt-1 justify-start"
+                        @click="isCreatingTask = true"
+                    >
+                        Add New Task
+                    </UButton>
                 </UCard>
 
                 <UCard>
@@ -314,7 +418,7 @@ async function handleDeleteLead() {
                     </template>
 
                     <div v-if="lead?.contact" class="flex gap-6 text-sm sm:text-base">
-                        <div class="text-weak grid shrink-0 grid-rows-11 gap-y-8">
+                        <div class="text-weak grid shrink-0 grid-rows-7 gap-y-8">
                             <p>Email</p>
                             <p>First Name</p>
                             <p>Last Name</p>
@@ -325,7 +429,7 @@ async function handleDeleteLead() {
                             <!-- <p>Preferred Method of Contact</p> -->
                         </div>
 
-                        <div class="grid grow grid-rows-11 gap-y-8 font-semibold">
+                        <div class="grid grow grid-rows-7 gap-y-8 font-semibold">
                             <p class="line-clamp-1">{{ lead.contact.email ?? '---' }}</p>
                             <p class="line-clamp-1">{{ lead.contact.first_name ?? '---' }}</p>
                             <p class="line-clamp-1">{{ lead.contact.last_name ?? '---' }}</p>
@@ -338,6 +442,56 @@ async function handleDeleteLead() {
                                 external
                                 class="line-clamp-1 text-brand"
                                 >{{ lead.contact.linkedin }}</NuxtLink
+                            >
+                        </div>
+                    </div>
+                </UCard>
+
+                <UCard>
+                    <template #header>
+                        <h2 class="text-xl font-semibold">COMPANY</h2>
+                    </template>
+
+                    <div v-if="lead && lead.company" class="flex gap-6 text-sm sm:text-base">
+                        <div class="text-weak grid shrink-0 grid-rows-11 gap-y-8">
+                            <p>Company Name</p>
+                            <p>Business Phone</p>
+                            <p>Industry</p>
+                            <p>Size</p>
+                            <p>Country/Region</p>
+                            <p>State/Province</p>
+                            <p>City</p>
+                            <p>Street 1</p>
+                            <p>Street 2</p>
+                            <p>Street 3</p>
+                            <p>ZIP/Postal Code</p>
+                            <p>Website</p>
+                        </div>
+
+                        <div class="grid grow grid-rows-11 gap-y-8 font-semibold">
+                            <p class="line-clamp-1">{{ lead.company.name }}</p>
+                            <p class="line-clamp-1">{{ lead.company.phone ?? '---' }}</p>
+                            <p class="line-clamp-1">{{ lead.company.industry?.name ?? '---' }}</p>
+                            <p class="line-clamp-1">
+                                {{ lead.company.size?.size_range ?? '---' }}
+                            </p>
+                            <p class="line-clamp-1">
+                                {{ lead.company.country?.name ?? '---' }}
+                            </p>
+                            <p class="line-clamp-1">
+                                {{ lead.company.province?.name ?? '---' }}
+                            </p>
+                            <p class="line-clamp-1">{{ lead.company.city?.name ?? '---' }}</p>
+                            <p class="line-clamp-1">{{ lead.company.street_1 ?? '---' }}</p>
+                            <p class="line-clamp-1">{{ lead.company.street_2 ?? '---' }}</p>
+                            <p class="line-clamp-1">{{ lead.company.street_3 ?? '---' }}</p>
+                            <p class="line-clamp-1">{{ lead.company.postal_code ?? '---' }}</p>
+                            <NuxtLink
+                                :href="lead.company.website ?? '#'"
+                                externa
+                                target="_blank"
+                                class="line-clamp-1 text-brand"
+                                >{{ lead.company.website ?? '---' }}</NuxtLink
                             >
                         </div>
                     </div>
