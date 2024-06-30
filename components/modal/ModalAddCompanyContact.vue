@@ -43,58 +43,47 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
 </script>
 
 <template>
-    <UModal
-        :ui="{
-            width: 'sm:max-w-sm',
-        }"
-    >
-        <div class="flex items-center justify-between p-3">
-            <p class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">Add New Contact</p>
-            <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="closeModal" />
-        </div>
+    <ModalCommon title="Add New Contact" @close="closeModal">
+        <UForm :schema="addContactSchema" :state="state" class="space-y-4" @submit="handleSubmit" @error="console.error">
+            <UFormGroup label="First Name" name="first_name" required>
+                <UInput
+                    v-model="state.first_name"
+                    :disabled="isSubmitting"
+                    :loading="isSubmitting"
+                    placeholder="Enter first name"
+                />
+            </UFormGroup>
 
-        <div class="space-y-3 bg-base-200 p-3">
-            <UForm :schema="addContactSchema" :state="state" class="space-y-3" @submit="handleSubmit" @error="console.error">
-                <UFormGroup label="First Name" name="first_name" required>
-                    <UInput
-                        v-model="state.first_name"
-                        :disabled="isSubmitting"
-                        :loading="isSubmitting"
-                        placeholder="Enter first name"
-                    />
-                </UFormGroup>
+            <UFormGroup label="Last Name" name="last_name" required>
+                <UInput
+                    v-model="state.last_name"
+                    :disabled="isSubmitting"
+                    :loading="isSubmitting"
+                    placeholder="Enter last name"
+                />
+            </UFormGroup>
 
-                <UFormGroup label="Last Name" name="last_name" required>
-                    <UInput
-                        v-model="state.last_name"
-                        :disabled="isSubmitting"
-                        :loading="isSubmitting"
-                        placeholder="Enter last name"
-                    />
-                </UFormGroup>
+            <UFormGroup label="Email" name="email" required>
+                <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter email" />
+            </UFormGroup>
 
-                <UFormGroup label="Email" name="email" required>
-                    <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter email" />
-                </UFormGroup>
+            <UFormGroup label="Job Title" name="job_title">
+                <UInput
+                    v-model="state.job_title"
+                    :disabled="isSubmitting"
+                    :loading="isSubmitting"
+                    placeholder="Enter job title"
+                />
+            </UFormGroup>
 
-                <UFormGroup label="Job Title" name="job_title">
-                    <UInput
-                        v-model="state.job_title"
-                        :disabled="isSubmitting"
-                        :loading="isSubmitting"
-                        placeholder="Enter job title"
-                    />
-                </UFormGroup>
+            <UFormGroup label="Company">
+                <UInput :value="props.company.name" disabled />
+            </UFormGroup>
 
-                <UFormGroup label="Company">
-                    <UInput :value="props.company.name" disabled />
-                </UFormGroup>
-
-                <div class="flex items-center justify-end gap-2">
-                    <UButton type="button" variant="outline" :disabled="isSubmitting" @click="closeModal">Cancel</UButton>
-                    <UButton type="submit" :disabled="isSubmitting" :loading="isSubmitting">Save</UButton>
-                </div>
-            </UForm>
-        </div>
-    </UModal>
+            <div class="flex items-center justify-end gap-2 pt-4">
+                <UButton type="button" variant="outline" :disabled="isSubmitting" @click="closeModal">Cancel</UButton>
+                <UButton type="submit" :disabled="isSubmitting" :loading="isSubmitting">Save</UButton>
+            </div>
+        </UForm>
+    </ModalCommon>
 </template>

@@ -50,23 +50,14 @@ async function handleSubmit(event: FormSubmitEvent<UpdateCompanyUserId>) {
 </script>
 
 <template>
-    <UModal
-        :ui="{
-            width: 'sm:max-w-md',
-        }"
-    >
-        <div class="flex items-center justify-between p-3">
-            <p class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">Assign Company</p>
-            <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="closeModal" />
-        </div>
-
-        <div class="space-y-3 bg-base-200 p-3">
+    <ModalCommon title="Assign Company" @close="closeModal">
+        <div class="space-y-4">
             <p class="text-weak">You will change the ownership of this company to a user.</p>
 
             <UForm
                 :schema="updateCompanyUserIdSchema"
                 :state="state"
-                class="space-y-3"
+                class="space-y-8"
                 @submit="handleSubmit"
                 @error="console.error"
             >
@@ -90,5 +81,5 @@ async function handleSubmit(event: FormSubmitEvent<UpdateCompanyUserId>) {
                 </div>
             </UForm>
         </div>
-    </UModal>
+    </ModalCommon>
 </template>

@@ -40,7 +40,28 @@ async function handleSubmit(event: FormSubmitEvent<AddCompanyType>) {
 </script>
 
 <template>
-    <UModal
+    <ModalCommon title="Add New Company" @close="closeModal">
+        <UForm :schema="addCompanySchema" :state="state" class="space-y-4" @submit="handleSubmit" @error="console.error">
+            <UFormGroup label="Company Name" name="name" required>
+                <UInput v-model="state.name" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter company name" />
+            </UFormGroup>
+
+            <UFormGroup label="Website" name="website" required>
+                <UInput
+                    v-model="state.website"
+                    :disabled="isSubmitting"
+                    :loading="isSubmitting"
+                    placeholder="Enter company website"
+                />
+            </UFormGroup>
+
+            <div class="flex items-center justify-end gap-2 pt-4">
+                <UButton type="button" variant="outline" :disabled="isSubmitting" @click="closeModal">Cancel</UButton>
+                <UButton type="submit" :disabled="isSubmitting" :loading="isSubmitting">Save</UButton>
+            </div>
+        </UForm>
+    </ModalCommon>
+    <!-- <UModal
         :ui="{
             width: 'sm:max-w-sm',
         }"
@@ -78,5 +99,5 @@ async function handleSubmit(event: FormSubmitEvent<AddCompanyType>) {
                 </div>
             </UForm>
         </div>
-    </UModal>
+    </UModal> -->
 </template>

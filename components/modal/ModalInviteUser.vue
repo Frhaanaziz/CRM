@@ -35,20 +35,11 @@ async function handleSubmit(event: FormSubmitEvent<InviteUserType>) {
 </script>
 
 <template>
-    <UModal
-        :ui="{
-            width: 'sm:max-w-sm',
-        }"
-    >
-        <div class="flex items-center justify-between p-3">
-            <p class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">Invite User</p>
-            <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="closeModal" />
-        </div>
-
-        <div class="space-y-3 bg-base-200 p-3">
+    <ModalCommon title="Invite User" @close="closeModal">
+        <div class="space-y-4">
             <p class="text-weak">Invite a user via email to be a member of your organization.</p>
 
-            <UForm :schema="inviteUserSchema" :state="state" class="space-y-3" @submit="handleSubmit" @error="console.error">
+            <UForm :schema="inviteUserSchema" :state="state" class="space-y-4" @submit="handleSubmit" @error="console.error">
                 <UFormGroup label="Email" name="email" required>
                     <UInput
                         v-model="state.email"
@@ -70,11 +61,11 @@ async function handleSubmit(event: FormSubmitEvent<InviteUserType>) {
                     />
                 </UFormGroup>
 
-                <div class="flex items-center justify-end gap-2">
+                <div class="flex items-center justify-end gap-2 pt-4">
                     <UButton type="button" variant="outline" :disabled="isSubmitting" @click="closeModal">Cancel</UButton>
                     <UButton type="submit" :disabled="isSubmitting" :loading="isSubmitting">Invite</UButton>
                 </div>
             </UForm>
         </div>
-    </UModal>
+    </ModalCommon>
 </template>
