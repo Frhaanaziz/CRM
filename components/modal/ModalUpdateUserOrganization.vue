@@ -54,46 +54,36 @@ async function handleSubmit(event: FormSubmitEvent<UpdateUserOrganizationType>) 
 </script>
 
 <template>
-    <UModal
-        :ui="{
-            width: 'sm:max-w-sm',
-        }"
-    >
-        <div class="flex items-center justify-between p-3">
-            <p class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">Edit Member</p>
-            <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="closeModal" />
-        </div>
+    <ModalCommon title="Edit Member" @close="closeModal">
+        <UForm :schema="schema" :state="state" class="space-y-4" @submit="handleSubmit" @error="console.error">
+            <UFormGroup label="Role" name="role" required>
+                <USelectMenu
+                    v-model="state.role_id"
+                    value-attribute="value"
+                    option-attribute="label"
+                    :options="rolesOption"
+                    :loading="isSubmitting"
+                    :disabled="isSubmitting"
+                    placeholder="Select role"
+                />
+            </UFormGroup>
 
-        <div class="space-y-3 bg-base-200 p-3">
-            <UForm :schema="schema" :state="state" class="space-y-3" @submit="handleSubmit" @error="console.error">
-                <UFormGroup label="Role" name="role" required>
-                    <USelectMenu
-                        v-model="state.role_id"
-                        value-attribute="value"
-                        option-attribute="label"
-                        :options="rolesOption"
-                        :loading="isSubmitting"
-                        :disabled="isSubmitting"
-                        placeholder="Select role"
-                    />
-                </UFormGroup>
-                <UFormGroup label="Status" name="status" required>
-                    <USelectMenu
-                        v-model="state.status"
-                        value-attribute="value"
-                        option-attribute="label"
-                        :options="statusOption"
-                        :loading="isSubmitting"
-                        :disabled="isSubmitting"
-                        placeholder="Select status"
-                    />
-                </UFormGroup>
+            <UFormGroup label="Status" name="status" required>
+                <USelectMenu
+                    v-model="state.status"
+                    value-attribute="value"
+                    option-attribute="label"
+                    :options="statusOption"
+                    :loading="isSubmitting"
+                    :disabled="isSubmitting"
+                    placeholder="Select status"
+                />
+            </UFormGroup>
 
-                <div class="flex items-center justify-end gap-2">
-                    <UButton type="button" variant="outline" :disabled="isSubmitting" @click="closeModal">Cancel</UButton>
-                    <UButton type="submit" :disabled="isSubmitting" :loading="isSubmitting">Update</UButton>
-                </div>
-            </UForm>
-        </div>
-    </UModal>
+            <div class="flex items-center justify-end gap-2 pt-4">
+                <UButton type="button" variant="outline" :disabled="isSubmitting" @click="closeModal">Cancel</UButton>
+                <UButton type="submit" :disabled="isSubmitting" :loading="isSubmitting">Update</UButton>
+            </div>
+        </UForm>
+    </ModalCommon>
 </template>

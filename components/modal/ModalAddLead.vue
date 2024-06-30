@@ -261,127 +261,110 @@ function useConfirmLead() {
 </script>
 
 <template>
-    <UModal
+    <ModalCommon
+        :title="contentType === 'add' ? 'Add New Lead' : 'Contact May Already Exist'"
         :ui="{
             width: contentType === 'add' ? 'sm:max-w-sm' : 'sm:max-w-3xl',
         }"
+        @close="closeModal"
     >
         <template v-if="contentType === 'add'">
-            <div class="flex items-center justify-between p-3">
-                <p class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">Add New Lead</p>
-                <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="closeModal" />
-            </div>
+            <UForm
+                :schema="schema"
+                :state="state"
+                class="space-y-4"
+                :validateOn="['submit']"
+                @submit="handleSubmit"
+                @error="console.error"
+            >
+                <UFormGroup label="First Name" name="first_name" required>
+                    <UInput
+                        v-model="state.first_name"
+                        :disabled="isSubmitting"
+                        :loading="isSubmitting"
+                        placeholder="Enter First Name"
+                    />
+                </UFormGroup>
 
-            <div class="space-y-3 bg-base-200 p-3">
-                <UForm
-                    :schema="schema"
-                    :state="state"
-                    class="space-y-3"
-                    :validateOn="['submit']"
-                    @submit="handleSubmit"
-                    @error="console.error"
-                >
-                    <UFormGroup label="First Name" name="first_name" required>
-                        <UInput
-                            v-model="state.first_name"
-                            :disabled="isSubmitting"
-                            :loading="isSubmitting"
-                            placeholder="Enter First Name"
-                        />
-                    </UFormGroup>
+                <UFormGroup label="Last Name" name="last_name" required>
+                    <UInput
+                        v-model="state.last_name"
+                        :disabled="isSubmitting"
+                        :loading="isSubmitting"
+                        placeholder="Enter Last Name"
+                    />
+                </UFormGroup>
 
-                    <UFormGroup label="Last Name" name="last_name" required>
-                        <UInput
-                            v-model="state.last_name"
-                            :disabled="isSubmitting"
-                            :loading="isSubmitting"
-                            placeholder="Enter Last Name"
-                        />
-                    </UFormGroup>
+                <UFormGroup label="Email" name="email" required>
+                    <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter Email" />
+                </UFormGroup>
 
-                    <UFormGroup label="Email" name="email" required>
-                        <UInput
-                            v-model="state.email"
-                            :disabled="isSubmitting"
-                            :loading="isSubmitting"
-                            placeholder="Enter Email"
-                        />
-                    </UFormGroup>
+                <UFormGroup label="Mobile Phone" name="mobile_phone">
+                    <UInput
+                        v-model="state.mobile_phone"
+                        :disabled="isSubmitting"
+                        :loading="isSubmitting"
+                        placeholder="Enter Mobile Phone"
+                    />
+                </UFormGroup>
 
-                    <UFormGroup label="Mobile Phone" name="mobile_phone">
-                        <UInput
-                            v-model="state.mobile_phone"
-                            :disabled="isSubmitting"
-                            :loading="isSubmitting"
-                            placeholder="Enter Mobile Phone"
-                        />
-                    </UFormGroup>
+                <UFormGroup label="Company Name" name="company" required>
+                    <USelectMenu
+                        v-model="company"
+                        by="id"
+                        :options="companiesOptions"
+                        option-attribute="name"
+                        searchable
+                        searchable-placeholder="Search a company..."
+                        creatable
+                        show-create-option-when="always"
+                        multiple
+                        clear-search-on-close
+                        placeholder="Select Company"
+                        :loading="isSubmitting || isCreatingCompany"
+                        :disabled="isSubmitting || isCreatingCompany"
+                    />
+                </UFormGroup>
 
-                    <UFormGroup label="Company Name" name="company" required>
-                        <USelectMenu
-                            v-model="company"
-                            by="id"
-                            :options="companiesOptions"
-                            option-attribute="name"
-                            searchable
-                            searchable-placeholder="Search a company..."
-                            creatable
-                            show-create-option-when="always"
-                            multiple
-                            clear-search-on-close
-                            placeholder="Select Company"
-                            :loading="isSubmitting || isCreatingCompany"
-                            :disabled="isSubmitting || isCreatingCompany"
-                        />
-                    </UFormGroup>
-
-                    <div class="flex items-center justify-end gap-2">
-                        <UButton type="button" variant="outline" :disabled="isSubmitting" @click="closeModal">Cancel</UButton>
-                        <UButton type="submit" :disabled="isSubmitting" :loading="isSubmitting">Save</UButton>
-                    </div>
-                </UForm>
-            </div>
+                <div class="flex items-center justify-end gap-2 pt-4">
+                    <UButton type="button" variant="outline" :disabled="isSubmitting" @click="closeModal">Cancel</UButton>
+                    <UButton type="submit" :disabled="isSubmitting" :loading="isSubmitting">Save</UButton>
+                </div>
+            </UForm>
         </template>
 
         <template v-else>
-            <div class="flex items-center justify-between p-3">
-                <p class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">Contact May Already Exist</p>
-                <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="closeModal" />
+            <p class="text-weak mb-3">
+                Associate the lead to existing records by choosing contact and clicking continue. To proceed by without linking to
+                matched record, click Ignore and Save.
+            </p>
+
+            <div class="spacey-y-3 my-3">
+                <p class="font-semibold text-brand">Matched Contacts</p>
+
+                <!-- v-model="selectedContact" -->
+                <UTable
+                    by="id"
+                    :rows="contactRows"
+                    :columns="contactColumns"
+                    class="w-full"
+                    :ui="{
+                        tr: { base: '[&>td]:hover:bg-base-200' },
+                        td: { base: 'max-w-[0] truncate text-default' },
+                    }"
+                    @select="selectContact"
+                >
+                    <template #select-data="{ row }">
+                        <UCheckbox v-model="selectedContact" :value="row.id" />
+                    </template>
+                </UTable>
             </div>
 
-            <div class="bg-base-200 p-3">
-                <p class="text-weak mb-3">
-                    Associate the lead to existing records by choosing contact and clicking continue. To proceed by without
-                    linking to matched record, click Ignore and Save.
-                </p>
-
-                <div class="spacey-y-3 my-3">
-                    <p class="font-semibold text-brand">Matched Contacts</p>
-
-                    <!-- v-model="selectedContact" -->
-                    <UTable
-                        by="id"
-                        :rows="contactRows"
-                        :columns="contactColumns"
-                        class="w-full"
-                        :ui="{
-                            tr: { base: '[&>td]:hover:bg-base-200' },
-                            td: { base: 'max-w-[0] truncate text-default' },
-                        }"
-                        @select="selectContact"
-                    >
-                        <template #select-data="{ row }">
-                            <UCheckbox v-model="selectedContact" :value="row.id" />
-                        </template>
-                    </UTable>
-                </div>
-
-                <div class="mt-3 flex items-center justify-end gap-2">
-                    <UButton type="button" variant="outline" :disabled="isSubmitting" @click="closeModal">Cancel</UButton>
-                    <UButton :disabled="isSubmitting || !!selectedContact.length" @click="handleIgnore">Ignore and Save</UButton>
-                    <UButton :disabled="isSubmitting || !!!selectedContact.length" @click="handleContinue">Continue</UButton>
-                </div>
+            <div class="mt-3 flex items-center justify-end gap-2">
+                <UButton type="button" variant="outline" :disabled="isSubmitting" @click="closeModal">Cancel</UButton>
+                <UButton :disabled="isSubmitting || !!selectedContact.length" @click="handleIgnore">Ignore and Save</UButton>
+                <UButton :disabled="isSubmitting || !!!selectedContact.length" @click="handleContinue">Continue</UButton>
             </div>
         </template>
-    </UModal>
+    </ModalCommon>
 </template>
