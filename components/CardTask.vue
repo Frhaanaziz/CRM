@@ -96,7 +96,17 @@ function useUpdateTask() {
                 </div>
             </div>
 
-            <div v-if="props.task.is_completed" class="flex items-center justify-center">
+            <div v-if="props.task.is_completed" class="flex items-center justify-center gap-2">
+                <UButton
+                    variant="ghost"
+                    square
+                    icon="i-heroicons-trash"
+                    color="gray"
+                    size="2xs"
+                    class="hidden group-hover:flex"
+                    :disabled="isUpdating"
+                    @click="deleteTask"
+                />
                 <UIcon name="i-heroicons-check-circle" class="h-4 w-4 text-green-700" />
             </div>
             <div v-if="!props.task.is_completed && !isEditingMode" class="flex items-center gap-2">
