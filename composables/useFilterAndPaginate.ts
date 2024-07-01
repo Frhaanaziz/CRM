@@ -20,7 +20,7 @@ export function useFilterAndPaginate<T extends Record<string, any>>(data: Ref<T[
 
     const filteredData = computed(() => {
         const options: FilterOptions<T> = {
-            search: debouncedSearch.value,
+            search: debouncedSearch.value.trim(),
             page: page.value,
             limit: pageCount.value,
             sort: sort.value.column,
