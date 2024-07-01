@@ -140,6 +140,27 @@ export type Database = {
           },
         ]
       }
+      Close_Reasons: {
+        Row: {
+          created_at: string
+          id: number
+          name: Database["public"]["Enums"]["close_reasons"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: Database["public"]["Enums"]["close_reasons"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: Database["public"]["Enums"]["close_reasons"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       Companies: {
         Row: {
           city_id: number | null
@@ -476,23 +497,44 @@ export type Database = {
         }
         Relationships: []
       }
-      Disqualify_Reasons: {
+      Currencies: {
         Row: {
           created_at: string
           id: number
-          name: Database["public"]["Enums"]["disqualify_reason_name"]
+          name: Database["public"]["Enums"]["currencies"]
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: number
-          name: Database["public"]["Enums"]["disqualify_reason_name"]
+          name: Database["public"]["Enums"]["currencies"]
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: number
-          name?: Database["public"]["Enums"]["disqualify_reason_name"]
+          name?: Database["public"]["Enums"]["currencies"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      Disqualify_Reasons: {
+        Row: {
+          created_at: string
+          id: number
+          name: Database["public"]["Enums"]["disqualify_reasons"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: Database["public"]["Enums"]["disqualify_reasons"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: Database["public"]["Enums"]["disqualify_reasons"]
           updated_at?: string
         }
         Relationships: []
@@ -726,6 +768,162 @@ export type Database = {
         }
         Relationships: []
       }
+      Opportunities: {
+        Row: {
+          act_budget: number | null
+          act_close_date: string | null
+          act_revenue: number | null
+          close_reason_id: number | null
+          company_id: number
+          confidence: number | null
+          contact_id: number
+          created_at: string | null
+          currency_id: number | null
+          current_situation: string | null
+          customer_need: string | null
+          description: string | null
+          est_budget: number | null
+          est_revenue: number | null
+          id: number
+          lead_id: number
+          oppotunity_status_id: number
+          payment_plan_id: number | null
+          priority_id: number | null
+          proposed_solution: string | null
+          topic: string | null
+          upadate_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          act_budget?: number | null
+          act_close_date?: string | null
+          act_revenue?: number | null
+          close_reason_id?: number | null
+          company_id: number
+          confidence?: number | null
+          contact_id: number
+          created_at?: string | null
+          currency_id?: number | null
+          current_situation?: string | null
+          customer_need?: string | null
+          description?: string | null
+          est_budget?: number | null
+          est_revenue?: number | null
+          id?: number
+          lead_id: number
+          oppotunity_status_id: number
+          payment_plan_id?: number | null
+          priority_id?: number | null
+          proposed_solution?: string | null
+          topic?: string | null
+          upadate_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          act_budget?: number | null
+          act_close_date?: string | null
+          act_revenue?: number | null
+          close_reason_id?: number | null
+          company_id?: number
+          confidence?: number | null
+          contact_id?: number
+          created_at?: string | null
+          currency_id?: number | null
+          current_situation?: string | null
+          customer_need?: string | null
+          description?: string | null
+          est_budget?: number | null
+          est_revenue?: number | null
+          id?: number
+          lead_id?: number
+          oppotunity_status_id?: number
+          payment_plan_id?: number | null
+          priority_id?: number | null
+          proposed_solution?: string | null
+          topic?: string | null
+          upadate_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Opportunities_close_reason_id_fkey"
+            columns: ["close_reason_id"]
+            isOneToOne: false
+            referencedRelation: "Close_Reasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Opportunities_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "Companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Opportunities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "Contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Opportunities_currency_id_fkey"
+            columns: ["currency_id"]
+            isOneToOne: false
+            referencedRelation: "Currencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Opportunities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "Leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Opportunities_oppotunity_status_id_fkey"
+            columns: ["oppotunity_status_id"]
+            isOneToOne: false
+            referencedRelation: "Opportunity_Statuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Opportunities_payment_plan_id_fkey"
+            columns: ["payment_plan_id"]
+            isOneToOne: false
+            referencedRelation: "Payment_Plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Opportunities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Opportunity_Statuses: {
+        Row: {
+          created_at: string
+          id: number
+          name: Database["public"]["Enums"]["opportunity_statuses"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: Database["public"]["Enums"]["opportunity_statuses"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: Database["public"]["Enums"]["opportunity_statuses"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       Organizations: {
         Row: {
           city_id: number | null
@@ -803,6 +1001,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      Payment_Plans: {
+        Row: {
+          created_at: string
+          id: number
+          name: Database["public"]["Enums"]["payment_plans"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: Database["public"]["Enums"]["payment_plans"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: Database["public"]["Enums"]["payment_plans"]
+          updated_at?: string
+        }
+        Relationships: []
       }
       Photos: {
         Row: {
@@ -1075,15 +1294,19 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      close_reasons: "pricing" | "competition" | "poor follow-up"
       company_statuses: "new" | "qualified" | "disqualified"
       contact_statuses: "new" | "qualified" | "disqualified"
-      disqualify_reason_name:
+      currencies: "idr" | "usd"
+      disqualify_reasons:
         | "lost"
         | "cannot contact"
         | "no longer interested"
         | "canceled"
       lead_statuses: "new" | "contacted" | "qualified" | "disqualified"
       method_name: "email" | "note" | "call"
+      opportunity_statuses: "qualified" | "proposal send" | "contract send"
+      payment_plans: "one-time" | "weekly" | "monthly" | "yearly"
       rating_name: "cool" | "warm" | "hot"
       role_names: "owner" | "admin" | "manager" | "sales"
       source_name: "google" | "linkedin" | "manual"
