@@ -40,6 +40,12 @@ const navigations = computed(() => {
             name: 'Customer',
             links: [
                 {
+                    name: 'Contacts',
+                    href: '/dashboard/customer/contacts',
+                    icon: 'i-heroicons-user-circle',
+                    current: isCurrentNested('/dashboard/customer/contacts'),
+                },
+                {
                     name: 'Companies',
                     href: '/dashboard/customer/companies',
                     icon: 'i-heroicons-user',
