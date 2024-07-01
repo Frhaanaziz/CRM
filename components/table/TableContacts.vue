@@ -219,7 +219,7 @@ function useTable() {
         @select="selectRow"
     >
         <template #fullName-data="{ row }">
-            <NuxtLink :href="`/dashboard/customer/companies/${row.id}`" class="text-brand hover:underline">
+            <NuxtLink :href="`/dashboard/customer/contacts/${row.id}`" class="text-brand hover:underline">
                 {{ row.fullName }}
             </NuxtLink>
         </template>
