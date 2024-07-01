@@ -791,7 +791,7 @@ export type Database = {
           priority_id: number | null
           proposed_solution: string | null
           topic: string | null
-          upadate_at: string | null
+          updated_at: string | null
           user_id: string | null
         }
         Insert: {
@@ -816,7 +816,7 @@ export type Database = {
           priority_id?: number | null
           proposed_solution?: string | null
           topic?: string | null
-          upadate_at?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Update: {
@@ -841,7 +841,7 @@ export type Database = {
           priority_id?: number | null
           proposed_solution?: string | null
           topic?: string | null
-          upadate_at?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
