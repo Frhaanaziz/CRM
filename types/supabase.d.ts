@@ -790,6 +790,7 @@ export type Database = {
           payment_plan_id: number | null
           priority_id: number | null
           proposed_solution: string | null
+          rating_id: number
           topic: string | null
           updated_at: string | null
           user_id: string | null
@@ -815,6 +816,7 @@ export type Database = {
           payment_plan_id?: number | null
           priority_id?: number | null
           proposed_solution?: string | null
+          rating_id: number
           topic?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -840,6 +842,7 @@ export type Database = {
           payment_plan_id?: number | null
           priority_id?: number | null
           proposed_solution?: string | null
+          rating_id?: number
           topic?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -892,6 +895,13 @@ export type Database = {
             columns: ["payment_plan_id"]
             isOneToOne: false
             referencedRelation: "Payment_Plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Opportunities_rating_id_fkey"
+            columns: ["rating_id"]
+            isOneToOne: false
+            referencedRelation: "Ratings"
             referencedColumns: ["id"]
           },
           {
