@@ -42,3 +42,8 @@ export const addContactSchema = contactSchema
         last_name: z.string().min(1, { message: 'Last name is required' }),
         email: z.string().email({ message: 'Invalid email address' }),
     });
+
+export const updateContactUserIdSchema = contactSchema.pick({
+    id: true,
+    user_id: true,
+});
