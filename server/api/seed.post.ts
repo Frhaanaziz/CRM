@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { z } from 'zod';
 import { getZodErrorMessage } from '~/utils';
-import type { B2BCompany, City, Company, CompanyStatus, Contact, LeadStatus, Rating } from '~/types';
+import type { B2BCompany, City, Company, CompanyStatus, Contact, Lead, LeadStatus, Rating } from '~/types';
 import { serverSupabaseClient } from '#supabase/server';
 import type { Database } from '~/types/supabase';
 
@@ -43,13 +43,16 @@ const ORGANIZATION_ID: number = 2;
 const USER_ID: string = 'a11f8160-b300-4e8b-be0d-42089b170423';
 const B2B_COMPANY_AMOUNT = 50;
 const COMPANIES_AMOUNT = 50;
-const CONTACTS_AMOUNT = 50;
+const CONTACTS_AMOUNT = 100;
+const OPPORTUNITIES_AMOUNT = 50;
 const CONTACT_STATUSES = ['new', 'qualified', 'disqualified'] as const;
 const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'disqualified'] as const;
 const COMPANY_STATUSES = ['new', 'qualified', 'disqualified'] as const;
 const RATINGS = ['cool', 'warm', 'hot'] as const;
 const SOURCES = ['manual', 'linkedin', 'google'] as const;
 const DISQUALIFY_REASONS = ['lost', 'cannot contact', 'no longer interested', 'canceled'] as const;
+const CLOSE_REASONS = ['pricing', 'competition', 'long sales cycle', 'communication', 'decision making', 'others'] as const;
+const OPPORTUNITY_STATUSES = ['qualified', 'proposal send', 'contract send', 'won', 'lost'] as const;
 
 export default defineEventHandler(async (event) => {
     const zodResult = schema.safeParse(getQuery(event));
@@ -62,6 +65,8 @@ export default defineEventHandler(async (event) => {
 
         await supabase.from('Photos').delete().neq('id', 0).throwOnError();
         await supabase.from('B2B_Companies').delete().neq('id', 0).throwOnError();
+        await supabase.from('Opportunities').delete().neq('id', 0).throwOnError();
+        await supabase.from('Opportunity_Statuses').delete().neq('id', 0).throwOnError();
         await supabase.from('Companies').delete().neq('id', 0).throwOnError();
         await supabase.from('Company_Statuses').delete().neq('id', 0).throwOnError();
         await supabase.from('Industries').delete().neq('id', 0).throwOnError();
@@ -69,6 +74,8 @@ export default defineEventHandler(async (event) => {
         await supabase.from('Contact_Statuses').delete().neq('id', 0).throwOnError();
         await supabase.from('Leads').delete().neq('id', 0).throwOnError();
         await supabase.from('Lead_Statuses').delete().neq('id', 0).throwOnError();
+        await supabase.from('Sources').delete().neq('id', 0).throwOnError();
+        await supabase.from('Disqualify_Reasons').delete().neq('id', 0).throwOnError();
         await supabase.from('Ratings').delete().neq('id', 0).throwOnError();
         await supabase.from('Sizes').delete().neq('id', 0).throwOnError();
         await supabase.from('Cities').delete().neq('id', 0).throwOnError();
@@ -462,6 +469,7 @@ export default defineEventHandler(async (event) => {
     );
 
     console.info('Creating leads...');
+    const leadsData: Lead[] = [];
     for (let i = 0; i < contactsData.length; i++) {
         const contact_id = contactsData[i].id;
         const company_id = faker.helpers.arrayElement(companiesData).id;
@@ -498,7 +506,108 @@ export default defineEventHandler(async (event) => {
             });
         }
 
+        leadsData.push(leadRes.data);
         console.info(`Created lead ${i + 1}/${contactsData.length}`);
+    }
+
+    console.info('Creating close reasons...');
+    // const closeReasonsData = await Promise.all(
+    //     CLOSE_REASONS.map(async (name) => {
+    //         const res = await supabase.from('Close_Reasons').insert({ name }).select().single();
+    //         if (res.error) {
+    //             console.error('Failed to create close reason', res.error);
+    //             throw createError({
+    //                 status: 500,
+    //                 statusMessage: res.error.message,
+    //             });
+    //         }
+
+    //         return res.data;
+    //     })
+    // );
+    const { data: closeReasonsData, error: closeReasonsError } = await supabase
+        .from('Close_Reasons')
+        .insert(CLOSE_REASONS.map((name) => ({ name })))
+        .select();
+    if (closeReasonsError) {
+        console.error('Failed to create close reason', closeReasonsError);
+        throw createError({
+            status: 500,
+            statusMessage: closeReasonsError.message,
+        });
+    }
+
+    console.info('Creating opportunity statuses...');
+    const { data: opportunityStatusesData, error: opportunityStatusesError } = await supabase
+        .from('Opportunity_Statuses')
+        .insert(OPPORTUNITY_STATUSES.map((name) => ({ name, organization_id: ORGANIZATION_ID })))
+        .select();
+    if (opportunityStatusesError) {
+        console.error('Failed to create opportunity status', opportunityStatusesError);
+        throw createError({
+            status: 500,
+            statusMessage: opportunityStatusesError.message,
+        });
+    }
+
+    function getRandomIds() {
+        const company = faker.helpers.arrayElement(companiesData);
+
+        const contacts = contactsData.filter((contact) => contact.company_id === company.id);
+        if (!contacts.length) return getRandomIds();
+
+        const contact = faker.helpers.arrayElement(contacts);
+
+        const leads = leadsData.filter((lead) => lead.contact_id === contact.id);
+        if (!leads.length) return getRandomIds();
+
+        const lead = faker.helpers.arrayElement(leads);
+
+        return { company_id: company.id, contact_id: contact.id, lead_id: lead.id };
+    }
+
+    console.info('Creating opportunities...');
+    const {
+        // data: opportunitiesData,
+        error: opportunitiesError,
+    } = await supabase
+        .from('Opportunities')
+        .insert(
+            Array.from({ length: OPPORTUNITIES_AMOUNT }, () => {
+                const { company_id, contact_id, lead_id } = getRandomIds();
+                const opportunityStatus = faker.helpers.arrayElement(opportunityStatusesData);
+                const close_reason_id =
+                    opportunityStatus.name === 'lost' ? faker.helpers.arrayElement(closeReasonsData).id : null;
+
+                const est_revenue = faker.number.int({ min: 500_000, max: 100_000_000 });
+                const act_close_date = faker.date.recent().toISOString();
+                const confidence = faker.number.int({ min: 1, max: 100 });
+
+                return {
+                    user_id: USER_ID,
+                    organization_id: ORGANIZATION_ID,
+                    company_id,
+                    contact_id,
+                    lead_id,
+                    opportunity_status_id: opportunityStatus.id,
+                    close_reason_id,
+                    rating_id: faker.helpers.arrayElement(ratingsData).id,
+                    topic: faker.lorem.sentence(),
+                    est_revenue,
+                    act_close_date,
+                    confidence,
+                    created_at: faker.date.past().toISOString(),
+                    updated_at: faker.date.recent().toISOString(),
+                };
+            })
+        )
+        .select();
+    if (opportunitiesError) {
+        console.error('Failed to create opportunities', opportunitiesError);
+        throw createError({
+            status: 500,
+            statusMessage: opportunitiesError.message,
+        });
     }
 
     console.info('Seed successful');
