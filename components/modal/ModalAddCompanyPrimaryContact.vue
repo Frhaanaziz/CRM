@@ -10,7 +10,7 @@ const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
 
 const { data: contacts } = await useLazyFetch(`/api/companies/${props.company.id}/contacts`, {
-    key: `company-${props.company.id}-contacts`,
+    key: `companies-${props.company.id}-contacts`,
 });
 const contactsOption = computed(() => {
     return (

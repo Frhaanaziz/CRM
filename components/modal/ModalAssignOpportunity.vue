@@ -1,44 +1,47 @@
 <script setup lang="ts">
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
-import type { Company, Contact } from '~/types';
+import type { Opportunity, User } from '~/types';
 
-const props = defineProps<{
-    company: Pick<Company, 'id'>;
-    primaryContact: Pick<Contact, 'id'>;
-}>();
 const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
 
-const { data: contacts } = await useLazyFetch(`/api/companies/${props.company.id}/contacts`, {
-    key: `companies-${props.company.id}-contacts`,
-});
-const contactsOption = computed(() => {
+const props = defineProps<{
+    opportunity: Pick<Opportunity, 'id'>;
+    userId?: User['id'];
+}>();
+
+const currentUser = useSupabaseUser();
+if (!currentUser.value || !currentUser.value.user_metadata.organization_id)
+    throw createError({ status: 401, message: 'Unauthorized' });
+
+const { data: users } = await useLazyFetch(`/api/organizations/${currentUser.value.user_metadata.organization_id}/users`);
+const usersOption = computed(() => {
     return (
-        contacts.value?.map((contact) => ({
-            value: contact.id,
-            label: `${contact.first_name} ${contact.last_name}`,
+        users.value?.map((user) => ({
+            value: user.id,
+            label: `${user.first_name} ${user.last_name} ${currentUser.value!.id === user.id ? '(You)' : ''}`,
         })) ?? []
     );
 });
 
-type AddCompanyPrimaryContactType = z.infer<typeof addCompanyPrimaryContactSchema>;
+type UpdateOpportunityUserId = z.infer<typeof updateOpportunityUserIdSchema>;
 const isSubmitting = ref(false);
 const state = ref({
-    id: props.company.id,
-    primary_contact_id: props.primaryContact.id,
+    id: props.opportunity.id,
+    user_id: props.userId,
 });
-async function handleSubmit(event: FormSubmitEvent<AddCompanyPrimaryContactType>) {
+async function handleSubmit(event: FormSubmitEvent<UpdateOpportunityUserId>) {
     try {
         isSubmitting.value = true;
 
-        await $fetch(`/api/companies/${props.company.id}/primary-contact-id`, {
+        await $fetch(`/api/opportunities/${props.opportunity.id}/user-id`, {
             method: 'PATCH',
             body: JSON.stringify(event.data),
         });
 
         closeModal();
-        await refreshNuxtData(`company-${props.company.id}`);
+        await refreshNuxtData(`opportunities-${props.opportunity.id}`);
     } catch (e) {
         console.error(e);
     } finally {
@@ -48,25 +51,25 @@ async function handleSubmit(event: FormSubmitEvent<AddCompanyPrimaryContactType>
 </script>
 
 <template>
-    <ModalCommon title="Edit Primary Contact" @close="closeModal">
+    <ModalCommon title="Assign Opportunity" @close="closeModal">
         <div class="space-y-4">
-            <p class="text-weak">You will change the primary contact of this company.</p>
+            <p class="text-weak">You will change the ownership of this opportunity to a user.</p>
 
             <UForm
-                :schema="addCompanyPrimaryContactSchema"
+                :schema="updateOpportunityUserIdSchema"
                 :state="state"
                 class="space-y-8"
                 @submit="handleSubmit"
                 @error="console.error"
             >
-                <UFormGroup label="Choose Contact" name="primary_contact_id" required>
+                <UFormGroup label="Choose User" name="user_id" required>
                     <USelectMenu
-                        v-model="state.primary_contact_id"
+                        v-model="state.user_id"
                         value-attribute="value"
                         option-attribute="label"
-                        :options="contactsOption"
+                        :options="usersOption"
                         searchable
-                        searchable-placeholder="Search a contacts..."
+                        searchable-placeholder="Search a user..."
                         :loading="isSubmitting"
                         :disabled="isSubmitting"
                         placeholder="Select contact"

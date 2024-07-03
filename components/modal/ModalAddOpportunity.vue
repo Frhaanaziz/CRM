@@ -18,32 +18,33 @@ const { data: companiesOption } = await useLazyFetch(`/api/organizations/${user.
     default: () => [],
 });
 
-type AddContactType = z.infer<typeof addContactSchema>;
+type AddOpportunityType = z.infer<typeof addOpportunitySchema>;
 const isSubmitting = ref(false);
 const state = ref({
+    topic: '',
     first_name: '',
     last_name: '',
     email: '',
-    job_title: '',
+    phone: undefined,
     organization_id: user.value.user_metadata.organization_id,
-    company_id: undefined,
     user_id: user.value.id,
+    company_id: undefined,
 });
-async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
+async function handleSubmit(event: FormSubmitEvent<AddOpportunityType>) {
     try {
         isSubmitting.value = true;
 
-        await $fetch('/api/contacts', {
+        await $fetch('/api/opportunities', {
             method: 'POST',
             body: JSON.stringify(event.data),
         });
 
         closeModal();
-        toast.success('Contact added successfully.');
-        await refreshNuxtData('contacts');
+        toast.success('Opportunity added successfully.');
+        await refreshNuxtData('opportunities');
     } catch (e) {
-        console.error('Failed to add contact', e);
-        toast.error('Failed to add contact, please try again later.');
+        console.error('Failed to add opportunity', e);
+        toast.error('Failed to add opportunity, please try again later.');
     } finally {
         isSubmitting.value = false;
     }
@@ -51,8 +52,8 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
 </script>
 
 <template>
-    <ModalCommon title="Add New Contact" @close="closeModal">
-        <UForm :schema="addContactSchema" :state="state" class="space-y-4" @submit="handleSubmit" @error="console.error">
+    <ModalCommon title="Add New Opportunity" @close="closeModal">
+        <UForm :schema="addOpportunitySchema" :state="state" class="space-y-4" @submit="handleSubmit" @error="console.error">
             <UFormGroup label="First Name" name="first_name" required>
                 <UInput
                     v-model="state.first_name"
@@ -75,16 +76,16 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
                 <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter email" />
             </UFormGroup>
 
-            <UFormGroup label="Job Title" name="job_title">
+            <UFormGroup label="Business Phone" name="phone">
                 <UInput
-                    v-model="state.job_title"
+                    v-model="state.phone"
                     :disabled="isSubmitting"
                     :loading="isSubmitting"
-                    placeholder="Enter job title"
+                    placeholder="Enter business phone"
                 />
             </UFormGroup>
 
-            <UFormGroup label="Company" name="company_id">
+            <UFormGroup label="Company Name" name="company_id" required>
                 <USelectMenu
                     v-model="state.company_id"
                     value-attribute="value"

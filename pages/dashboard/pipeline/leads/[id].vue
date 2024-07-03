@@ -19,7 +19,7 @@ const { data: disqualifyReasons } = await useLazyFetch('/api/disqualify-reasons'
     key: 'disqualify-reasons',
 });
 const { data: lead, refresh: refreshLead } = await useFetch(`/api/leads/${id}`, {
-    key: `lead-${id}`,
+    key: `leads-${id}`,
 });
 if (!lead.value) throw createError({ status: 404, message: 'Lead not found' });
 
@@ -237,7 +237,7 @@ function useTask() {
                     @click="
                         modal.open(LazyModalDelete, {
                             onClose: () => modal.close(),
-                            title: 'Leads',
+                            title: 'Lead',
                             description: 'Are you sure you want to delete this lead? This action cannot be undone.',
                             onConfirm: handleDeleteLead,
                         })
@@ -308,7 +308,10 @@ function useTask() {
 
         <section class="grid gap-4 p-4 md:grid-cols-12">
             <div class="flex flex-col gap-4 md:col-span-4">
-                <p v-if="lead?.status?.name === 'disqualified' && lead.disqualify_reason" class="rounded-lg bg-red-100 p-4">
+                <p
+                    v-if="lead?.status?.name === 'disqualified' && lead.disqualify_reason"
+                    class="text-weak rounded-lg bg-red-100 p-4"
+                >
                     This lead is disqualified because
                     <span class="font-semibold capitalize">{{ lead.disqualify_reason.name }}.</span>
                 </p>

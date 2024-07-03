@@ -8,14 +8,14 @@ export const contactSchema = z.object({
     country_id: z.coerce.number().int().optional().nullable(),
     created_at: z.coerce.date(),
     description: z.string().optional().nullable(),
-    email: z.string().email().optional().nullable(),
+    email: z.string().email({ message: 'Invalid email address' }).optional().nullable(),
     facebook: z.string().optional().nullable(),
     first_name: z.string().optional().nullable(),
     instagram: z.string().optional().nullable(),
     is_valid_email: z.boolean().nullable(),
     job_title: z.string().optional().nullable(),
     last_name: z.string().optional().nullable(),
-    linkedin: z.string().optional().nullable(),
+    linkedin: z.string().url({ message: 'Invalid linkedin url' }).optional().nullable(),
     main_phone: z.string().optional().nullable(),
     mobile_phone: z.string().optional().nullable(),
     postal_code: z.string().optional().nullable(),
@@ -28,6 +28,18 @@ export const contactSchema = z.object({
     organization_id: z.coerce.number().int(),
     website: z.string().url().optional().nullable(),
     whatsapp: z.string().optional().nullable(),
+});
+
+export const updateContactSchema = contactSchema.pick({
+    id: true,
+    email: true,
+    first_name: true,
+    last_name: true,
+    job_title: true,
+    mobile_phone: true,
+    whatsapp: true,
+    linkedin: true,
+    company_id: true,
 });
 
 export const addContactSchema = contactSchema
