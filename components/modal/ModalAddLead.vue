@@ -13,7 +13,9 @@ const contentType = ref<'add' | 'confirm'>('add');
 const matchedContact = ref<(Contact & { company: Company | null })[] | undefined>(undefined);
 const contact_id = ref<Contact['id'] | undefined>(undefined);
 
-const { data: companies } = await useLazyFetch(`/api/organizations/${user.value.user_metadata.organization_id}/companies`);
+const { data: companies } = await useLazyFetch(`/api/organizations/${user.value.user_metadata.organization_id}/companies`, {
+    key: `organizations-${user.value.user_metadata.organization_id}-companies`,
+});
 
 const { schema, state, isSubmitting, isCreatingCompany, company, handleSubmit, companiesOptions } = useAddLead();
 

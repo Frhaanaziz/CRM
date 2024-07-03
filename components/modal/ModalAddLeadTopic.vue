@@ -38,7 +38,9 @@ async function handleSubmit(event: FormSubmitEvent<UpdateLeadTopic>) {
 <template>
     <ModalCommon title="Fill in the Topic" @close="closeModal">
         <div class="space-y-4">
-            <p class="text-weak">The topic of this lead is empty. Please fill in the topic before qualifying the lead.</p>
+            <p v-if="!props.lead.topic" class="text-weak">
+                The topic of this lead is empty. Please fill in the topic before qualifying the lead.
+            </p>
 
             <UForm :schema="updateLeadTopicSchema" :state="state" class="space-y-8" @submit="handleSubmit" @error="console.error">
                 <UFormGroup label="Topic" name="topic">

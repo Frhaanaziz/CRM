@@ -34,6 +34,12 @@ const navigations = computed(() => {
                     icon: 'i-heroicons-users',
                     current: isCurrentNested('/dashboard/pipeline/leads'),
                 },
+                {
+                    name: 'Opportunities',
+                    href: '/dashboard/pipeline/opportunities',
+                    icon: 'i-heroicons-user-plus',
+                    current: isCurrentNested('/dashboard/pipeline/opportunities'),
+                },
             ],
         },
         {

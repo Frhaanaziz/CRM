@@ -7,6 +7,7 @@ export * from './validators/contact';
 export * from './validators/lead';
 export * from './validators/lead-status';
 export * from './validators/task';
+export * from './validators/opportunity';
 export * from './constants';
 
 /**
@@ -115,4 +116,8 @@ export function truncateString(str: string, maxLength: number, suffix?: string):
 
 export function capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+export function formatToRupiah(amount: number) {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(amount);
 }

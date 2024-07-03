@@ -1,17 +1,21 @@
 <script lang="ts" setup>
+import type { z } from 'zod';
+import type { FormSubmitEvent } from '#ui/types';
+import { useRefHistory } from '@vueuse/core';
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAddCompanyContact from '~/components/modal/ModalAddCompanyContact.vue';
 import LazyModalAddCompanyPrimaryContact from '~/components/modal/ModalAddCompanyPrimaryContact.vue';
 import LazyModalEditCompanyPrimaryContact from '~/components/modal/ModalEditCompanyPrimaryContact.vue';
 import LazyModalAssignCompany from '~/components/modal/ModalAssignCompany.vue';
-
 const modal = useModal();
 const id = parseInt(useRoute().params.id as string);
 
-const { data: company } = await useFetch(`/api/companies/${id}`, {
-    key: `company-${id}`,
+const { data: company, refresh: refreshCompany } = await useFetch(`/api/companies/${id}`, {
+    key: `companies-${id}`,
 });
 if (!company.value) throw createError({ status: 404, message: 'Company not found' });
+
+const { updateState, isUpdating, updateCompany, formRef, submitForm, isFormDirty, resetForm } = useUpdateCompany();
 
 async function handleDeleteCompanies() {
     try {
@@ -24,6 +28,72 @@ async function handleDeleteCompanies() {
         console.error('Failed to delete company:', e);
         toast.error('Failed to delete company, please try again later.');
     }
+}
+
+function useUpdateCompany() {
+    type UpdateCompanyType = z.infer<typeof updateCompanySchema>;
+    const formRef = ref();
+    const isUpdating = ref(false);
+
+    const updateState = ref({
+        id,
+        name: company.value!.name,
+        phone: company.value!.phone ?? undefined,
+        industry_id: company.value!.industry_id ?? undefined,
+        size_id: company.value!.size_id ?? undefined,
+        country_id: company.value!.country_id ?? undefined,
+        province_id: company.value!.province_id ?? undefined,
+        city_id: company.value!.city_id ?? undefined,
+        street_1: company.value!.street_1 ?? undefined,
+        street_2: company.value!.street_2 ?? undefined,
+        street_3: company.value!.street_3 ?? undefined,
+        postal_code: company.value!.postal_code ?? undefined,
+    });
+    const { history, undo } = useRefHistory(updateState, { deep: true, capacity: 1 });
+    const isDirty = computed(() => history.value.length > 1);
+    const submit = async () => await formRef.value?.submit();
+
+    const resetForm = () => {
+        undo();
+        formRef.value?.clear();
+        updateState.value = {
+            id,
+            name: company.value!.name,
+            phone: company.value!.phone ?? undefined,
+            industry_id: company.value!.industry_id ?? undefined,
+            size_id: company.value!.size_id ?? undefined,
+            country_id: company.value!.country_id ?? undefined,
+            province_id: company.value!.province_id ?? undefined,
+            city_id: company.value!.city_id ?? undefined,
+            street_1: company.value!.street_1 ?? undefined,
+            street_2: company.value!.street_2 ?? undefined,
+            street_3: company.value!.street_3 ?? undefined,
+            postal_code: company.value!.postal_code ?? undefined,
+        };
+    };
+
+    async function updateCompany(event: FormSubmitEvent<UpdateCompanyType>) {
+        try {
+            isUpdating.value = true;
+
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            // await $fetch('/api/companies', {
+            //     method: 'POST',
+            //     body: JSON.stringify(event.data),
+            // });
+
+            toast.success('Company updated successfully.');
+            undo();
+            await refreshCompany();
+        } catch (e) {
+            console.error('Failed to update company', e);
+            toast.error('Failed to update company, please try again later.');
+        } finally {
+            isUpdating.value = false;
+        }
+    }
+
+    return { updateState, isUpdating, updateCompany, formRef, submitForm: submit, isFormDirty: isDirty, resetForm };
 }
 </script>
 
@@ -66,6 +136,29 @@ async function handleDeleteCompanies() {
                 >
                     Delete
                 </UButton>
+
+                <template v-if="isFormDirty">
+                    <UButton
+                        variant="ghost"
+                        icon="i-heroicons-arrow-path"
+                        color="black"
+                        class="font-semibold"
+                        :disabled="isUpdating"
+                        @click="resetForm"
+                    >
+                        Reset
+                    </UButton>
+                    <UButton
+                        variant="ghost"
+                        icon="i-heroicons-bookmark"
+                        color="black"
+                        class="font-semibold"
+                        :disabled="isUpdating"
+                        @click="submitForm"
+                    >
+                        Save
+                    </UButton>
+                </template>
             </div>
 
             <div v-if="company" class="flex items-center justify-between p-4">
@@ -117,7 +210,52 @@ async function handleDeleteCompanies() {
                             <p>ZIP/Postal Code</p>
                         </div>
 
-                        <div class="grid grow grid-rows-11 gap-y-8 font-semibold">
+                        <UForm
+                            ref="formRef"
+                            :schema="updateCompanySchema"
+                            :state="updateState"
+                            class="grid grow grid-rows-11 gap-y-8 font-semibold"
+                            :disabled="isUpdating"
+                            @submit="updateCompany"
+                            @error="console.error"
+                        >
+                            <UFormGroup name="name">
+                                <UInput v-model="updateState.name" variant="none" :padded="false" />
+                            </UFormGroup>
+
+                            <UFormGroup name="phone">
+                                <UInput v-model="updateState.phone" variant="none" :padded="false" />
+                            </UFormGroup>
+
+                            <p class="line-clamp-1">{{ company.industry?.name ?? '---' }}</p>
+                            <p class="line-clamp-1">
+                                {{ company.size?.size_range ?? '---' }}
+                            </p>
+                            <p class="line-clamp-1">
+                                {{ company.country?.name ?? '---' }}
+                            </p>
+                            <p class="line-clamp-1">
+                                {{ company.province?.name ?? '---' }}
+                            </p>
+                            <p class="line-clamp-1">{{ company.city?.name ?? '---' }}</p>
+
+                            <UFormGroup name="street_1">
+                                <UInput v-model="updateState.street_1" variant="none" :padded="false" />
+                            </UFormGroup>
+
+                            <UFormGroup name="street_2">
+                                <UInput v-model="updateState.street_2" variant="none" :padded="false" />
+                            </UFormGroup>
+
+                            <UFormGroup name="street_3">
+                                <UInput v-model="updateState.street_3" variant="none" :padded="false" />
+                            </UFormGroup>
+
+                            <UFormGroup name="postal_code">
+                                <UInput v-model="updateState.postal_code" variant="none" :padded="false" />
+                            </UFormGroup>
+                        </UForm>
+                        <!-- <div class="grid grow grid-rows-11 gap-y-8 font-semibold">
                             <p class="line-clamp-1">{{ company.name }}</p>
                             <p class="line-clamp-1">{{ company.phone ?? '---' }}</p>
                             <p class="line-clamp-1">{{ company.industry?.name ?? '---' }}</p>
@@ -135,7 +273,7 @@ async function handleDeleteCompanies() {
                             <p class="line-clamp-1">{{ company.street_2 ?? '---' }}</p>
                             <p class="line-clamp-1">{{ company.street_3 ?? '---' }}</p>
                             <p class="line-clamp-1">{{ company.postal_code ?? '---' }}</p>
-                        </div>
+                        </div> -->
                     </div>
                 </UCard>
 

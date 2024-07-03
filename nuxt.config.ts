@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-    devtools: { enabled: true },
+    devtools: { enabled: false },
     modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image', '@pinia/nuxt'],
     routeRules: {
         '/': { redirect: '/dashboard' },
@@ -19,6 +19,10 @@ export default defineNuxtConfig({
                 lang: 'en',
             },
         },
+    },
+
+    tailwindcss: {
+        viewer: false,
     },
 
     ui: {

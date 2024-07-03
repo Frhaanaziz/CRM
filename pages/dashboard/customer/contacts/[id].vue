@@ -1,14 +1,19 @@
 <script lang="ts" setup>
+import type { z } from 'zod';
+import type { FormSubmitEvent } from '#ui/types';
+import { useRefHistory } from '@vueuse/core';
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAssignContact from '~/components/modal/ModalAssignContact.vue';
 
 const modal = useModal();
 const id = parseInt(useRoute().params.id as string);
 
-const { data: contact } = await useFetch(`/api/contacts/${id}`, {
+const { data: contact, refresh: refreshContact } = await useFetch(`/api/contacts/${id}`, {
     key: `contacts-${id}`,
 });
 if (!contact.value) throw createError({ status: 404, message: 'contact not found' });
+
+const { updateState, isUpdating, updateContact, formRef, submitForm, isFormDirty, resetForm } = useUpdateContact();
 
 async function handleDeleteContact() {
     try {
@@ -21,6 +26,65 @@ async function handleDeleteContact() {
         console.error('Failed to delete contact:', e);
         toast.error('Failed to delete contact, please try again later.');
     }
+}
+function useUpdateContact() {
+    type UpdateContactType = z.infer<typeof updateContactSchema>;
+    const formRef = ref();
+    const isUpdating = ref(false);
+
+    const updateState = ref({
+        id,
+        email: contact.value!.email ?? undefined,
+        first_name: contact.value!.first_name ?? undefined,
+        last_name: contact.value!.last_name ?? undefined,
+        job_title: contact.value!.job_title ?? undefined,
+        mobile_phone: contact.value!.mobile_phone ?? undefined,
+        whatsapp: contact.value!.whatsapp ?? undefined,
+        linkedin: contact.value!.linkedin ?? undefined,
+        company_id: contact.value!.company_id,
+    });
+    const { history, undo } = useRefHistory(updateState, { deep: true, capacity: 1 });
+    const isDirty = computed(() => history.value.length > 1);
+    const submit = async () => await formRef.value?.submit();
+
+    const resetForm = () => {
+        undo();
+        formRef.value?.clear();
+        updateState.value = {
+            id,
+            email: contact.value!.email ?? undefined,
+            first_name: contact.value!.first_name ?? undefined,
+            last_name: contact.value!.last_name ?? undefined,
+            job_title: contact.value!.job_title ?? undefined,
+            mobile_phone: contact.value!.mobile_phone ?? undefined,
+            whatsapp: contact.value!.whatsapp ?? undefined,
+            linkedin: contact.value!.linkedin ?? undefined,
+            company_id: contact.value!.company_id,
+        };
+    };
+
+    async function updateContact(event: FormSubmitEvent<UpdateContactType>) {
+        try {
+            isUpdating.value = true;
+
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            // await $fetch('/api/companies', {
+            //     method: 'POST',
+            //     body: JSON.stringify(event.data),
+            // });
+
+            toast.success('Contact updated successfully.');
+            undo();
+            await refreshContact();
+        } catch (e) {
+            console.error('Failed to update contact', e);
+            toast.error('Failed to update contact, please try again later.');
+        } finally {
+            isUpdating.value = false;
+        }
+    }
+
+    return { updateState, isUpdating, updateContact, formRef, submitForm: submit, isFormDirty: isDirty, resetForm };
 }
 </script>
 
@@ -63,6 +127,29 @@ async function handleDeleteContact() {
                 >
                     Delete
                 </UButton>
+
+                <template v-if="isFormDirty">
+                    <UButton
+                        variant="ghost"
+                        icon="i-heroicons-arrow-path"
+                        color="black"
+                        class="font-semibold"
+                        :disabled="isUpdating"
+                        @click="resetForm"
+                    >
+                        Reset
+                    </UButton>
+                    <UButton
+                        variant="ghost"
+                        icon="i-heroicons-bookmark"
+                        color="black"
+                        class="font-semibold"
+                        :disabled="isUpdating"
+                        @click="submitForm"
+                    >
+                        Save
+                    </UButton>
+                </template>
             </div>
 
             <div v-if="contact && contact.company" class="flex items-center justify-between p-4">
@@ -99,7 +186,7 @@ async function handleDeleteContact() {
                     </template>
 
                     <div v-if="contact" class="flex gap-6 text-sm sm:text-base">
-                        <div class="text-weak grid shrink-0 grid-rows-8 gap-y-8">
+                        <div class="text-weak grid shrink-0 grid-rows-7 gap-y-8">
                             <p>Email</p>
                             <p>First Name</p>
                             <p>Last Name</p>
@@ -107,10 +194,47 @@ async function handleDeleteContact() {
                             <p>Mobile Phone</p>
                             <p>Whatsapp</p>
                             <p>LinkedIn URL</p>
-                            <p>Company Name</p>
+                            <!-- <p>Company Name</p> -->
                         </div>
 
-                        <div class="grid grow grid-rows-8 gap-y-8 font-semibold">
+                        <UForm
+                            ref="formRef"
+                            :schema="updateContactSchema"
+                            :state="updateState"
+                            class="grid grow grid-rows-7 gap-y-8 font-semibold"
+                            :disabled="isUpdating"
+                            @submit="updateContact"
+                            @error="console.error"
+                        >
+                            <UFormGroup name="email">
+                                <UInput v-model="updateState.email" variant="none" :padded="false" />
+                            </UFormGroup>
+
+                            <UFormGroup name="first_name">
+                                <UInput v-model="updateState.first_name" variant="none" :padded="false" />
+                            </UFormGroup>
+
+                            <UFormGroup name="last_name">
+                                <UInput v-model="updateState.last_name" variant="none" :padded="false" />
+                            </UFormGroup>
+
+                            <UFormGroup name="job_title">
+                                <UInput v-model="updateState.job_title" variant="none" :padded="false" />
+                            </UFormGroup>
+
+                            <UFormGroup name="mobile_phone">
+                                <UInput v-model="updateState.mobile_phone" variant="none" :padded="false" />
+                            </UFormGroup>
+
+                            <UFormGroup name="whatsapp">
+                                <UInput v-model="updateState.whatsapp" variant="none" :padded="false" />
+                            </UFormGroup>
+
+                            <UFormGroup name="linkedin">
+                                <UInput v-model="updateState.linkedin" variant="none" :padded="false" />
+                            </UFormGroup>
+                        </UForm>
+                        <!-- <div class="grid grow grid-rows-8 gap-y-8 font-semibold">
                             <p class="line-clamp-1">{{ contact.email ?? '---' }}</p>
                             <p class="line-clamp-1">{{ contact.first_name ?? '---' }}</p>
                             <p class="line-clamp-1">{{ contact.last_name ?? '---' }}</p>
@@ -142,7 +266,7 @@ async function handleDeleteContact() {
                                 >{{ contact.company?.name }}</NuxtLink
                             >
                             <p v-else>---</p>
-                        </div>
+                        </div> -->
                     </div>
                 </UCard>
             </div>

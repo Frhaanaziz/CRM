@@ -786,14 +786,15 @@ export type Database = {
           est_revenue: number | null
           id: number
           lead_id: number
-          oppotunity_status_id: number
+          opportunity_status_id: number
+          organization_id: number
           payment_plan_id: number | null
-          priority_id: number | null
+          priority_id: number
           proposed_solution: string | null
           rating_id: number
-          topic: string | null
+          topic: string
           updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           act_budget?: number | null
@@ -812,14 +813,15 @@ export type Database = {
           est_revenue?: number | null
           id?: number
           lead_id: number
-          oppotunity_status_id: number
+          opportunity_status_id: number
+          organization_id: number
           payment_plan_id?: number | null
-          priority_id?: number | null
+          priority_id: number
           proposed_solution?: string | null
           rating_id: number
-          topic?: string | null
+          topic: string
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           act_budget?: number | null
@@ -838,14 +840,15 @@ export type Database = {
           est_revenue?: number | null
           id?: number
           lead_id?: number
-          oppotunity_status_id?: number
+          opportunity_status_id?: number
+          organization_id?: number
           payment_plan_id?: number | null
-          priority_id?: number | null
+          priority_id?: number
           proposed_solution?: string | null
           rating_id?: number
-          topic?: string | null
+          topic?: string
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -885,9 +888,16 @@ export type Database = {
           },
           {
             foreignKeyName: "Opportunities_oppotunity_status_id_fkey"
-            columns: ["oppotunity_status_id"]
+            columns: ["opportunity_status_id"]
             isOneToOne: false
             referencedRelation: "Opportunity_Statuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Opportunities_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "Organizations"
             referencedColumns: ["id"]
           },
           {
@@ -895,6 +905,13 @@ export type Database = {
             columns: ["payment_plan_id"]
             isOneToOne: false
             referencedRelation: "Payment_Plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Opportunities_priority_id_fkey"
+            columns: ["priority_id"]
+            isOneToOne: false
+            referencedRelation: "Priority"
             referencedColumns: ["id"]
           },
           {
@@ -917,22 +934,33 @@ export type Database = {
         Row: {
           created_at: string
           id: number
-          name: Database["public"]["Enums"]["opportunity_statuses"]
+          name: string
+          organization_id: number
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: number
-          name: Database["public"]["Enums"]["opportunity_statuses"]
+          name: string
+          organization_id: number
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: number
-          name?: Database["public"]["Enums"]["opportunity_statuses"]
+          name?: string
+          organization_id?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "Opportunity_Statuses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "Organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       Organizations: {
         Row: {
@@ -1065,6 +1093,27 @@ export type Database = {
           },
         ]
       }
+      Priority: {
+        Row: {
+          created_at: string
+          id: number
+          name: Database["public"]["Enums"]["priority_statuses"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: Database["public"]["Enums"]["priority_statuses"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: Database["public"]["Enums"]["priority_statuses"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       Provinces: {
         Row: {
           country_id: number
@@ -1188,7 +1237,8 @@ export type Database = {
           description: string
           id: number
           is_completed: boolean
-          lead_id: number
+          lead_id: number | null
+          opportunity_id: number | null
           updated_at: string
           user_id: string
         }
@@ -1198,7 +1248,8 @@ export type Database = {
           description: string
           id?: number
           is_completed?: boolean
-          lead_id: number
+          lead_id?: number | null
+          opportunity_id?: number | null
           updated_at?: string
           user_id: string
         }
@@ -1208,7 +1259,8 @@ export type Database = {
           description?: string
           id?: number
           is_completed?: boolean
-          lead_id?: number
+          lead_id?: number | null
+          opportunity_id?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -1218,6 +1270,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "Leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Tasks_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "Opportunities"
             referencedColumns: ["id"]
           },
           {
@@ -1304,7 +1363,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      close_reasons: "pricing" | "competition" | "poor follow-up"
+      close_reasons:
+        | "pricing"
+        | "competition"
+        | "long sales cycle"
+        | "communication"
+        | "decision making"
+        | "others"
       company_statuses: "new" | "qualified" | "disqualified"
       contact_statuses: "new" | "qualified" | "disqualified"
       currencies: "idr" | "usd"
@@ -1315,8 +1380,14 @@ export type Database = {
         | "canceled"
       lead_statuses: "new" | "contacted" | "qualified" | "disqualified"
       method_name: "email" | "note" | "call"
-      opportunity_statuses: "qualified" | "proposal send" | "contract send"
+      opportunity_statuses:
+        | "qualified"
+        | "proposal send"
+        | "contract send"
+        | "won"
+        | "lost"
       payment_plans: "one-time" | "weekly" | "monthly" | "yearly"
+      priority_statuses: "urgent" | "high" | "medium" | "low"
       rating_name: "cool" | "warm" | "hot"
       role_names: "owner" | "admin" | "manager" | "sales"
       source_name: "google" | "linkedin" | "manual"

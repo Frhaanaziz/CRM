@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { z } from 'zod';
 import { getZodErrorMessage } from '~/utils';
-import type { B2BCompany, City, Company, CompanyStatus, Contact, Lead, LeadStatus, Rating } from '~/types';
+import type { City } from '~/types';
 import { serverSupabaseClient } from '#supabase/server';
 import type { Database } from '~/types/supabase';
 
@@ -29,16 +29,7 @@ const industries = [
     'Nonprofit',
     'Others',
 ];
-const SIZE_RANGE = [
-    { size_range: '1-10' },
-    { size_range: '11-50' },
-    { size_range: '51-200' },
-    { size_range: '201-500' },
-    { size_range: '501-1000' },
-    { size_range: '1001-5000' },
-    { size_range: '5001-10000' },
-    { size_range: '10001+' },
-];
+const SIZE_RANGE = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5001-10000', '10001+'];
 const ORGANIZATION_ID: number = 2;
 const USER_ID: string = 'a11f8160-b300-4e8b-be0d-42089b170423';
 const B2B_COMPANY_AMOUNT = 50;
@@ -67,6 +58,7 @@ export default defineEventHandler(async (event) => {
         await supabase.from('B2B_Companies').delete().neq('id', 0).throwOnError();
         await supabase.from('Opportunities').delete().neq('id', 0).throwOnError();
         await supabase.from('Opportunity_Statuses').delete().neq('id', 0).throwOnError();
+        await supabase.from('Close_Reasons').delete().neq('id', 0).throwOnError();
         await supabase.from('Companies').delete().neq('id', 0).throwOnError();
         await supabase.from('Company_Statuses').delete().neq('id', 0).throwOnError();
         await supabase.from('Industries').delete().neq('id', 0).throwOnError();
@@ -101,27 +93,27 @@ export default defineEventHandler(async (event) => {
 
     console.info('Creating Provinces...');
     console.info('Fetching provinces from API...');
-    const provincesRes = await fetch('https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json');
-    const provincesData = (await provincesRes.json()) as {
+    const provincesAPIRes = await fetch('https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json');
+    const provincesAPIData = (await provincesAPIRes.json()) as {
         id: string;
         name: string;
     }[];
 
-    console.info(`Creating ${provincesData.length} provinces...`);
-    const provinceRes = await Promise.all(
-        provincesData.map(({ id, name }) => supabase.from('Provinces').insert({ id: parseInt(id), name, country_id: country.id }))
-    );
-    const provinceErrors = provinceRes.filter((res) => res.error);
-    if (provinceErrors.length) {
-        console.error('Failed to create provinces', provinceErrors);
+    console.info(`Creating ${provincesAPIData.length} provinces...`);
+    const { data: provincesData, error: provincesDataError } = await supabase
+        .from('Provinces')
+        .insert(provincesAPIData.map(({ id, name }) => ({ id: parseInt(id), name, country_id: country.id })))
+        .select('*');
+    if (provincesDataError) {
+        console.error('Failed to create provinces', provincesDataError);
         throw createError({
             status: 500,
-            statusMessage: 'Failed to create provinces',
+            statusMessage: provincesDataError.message,
         });
     }
 
     console.info('Creating Cities...');
-    const citiesData: Pick<City, 'id' | 'name' | 'province_id'>[] = [];
+    const citiesData: City[] = [];
     await Promise.all(
         provincesData.map(async (province) => {
             console.info(`Fetching cities for province ${province.name.toUpperCase()}...`);
@@ -132,81 +124,72 @@ export default defineEventHandler(async (event) => {
             }[];
 
             console.info(`Creating ${cities.length} cities for province ${province.name.toUpperCase()}...`);
-            const cityRes = await Promise.all(
-                cities.map(({ id, name }) =>
-                    supabase.from('Cities').insert({
+            const { data: citiesDBData, error: citiesError } = await supabase
+                .from('Cities')
+                .insert(
+                    cities.map(({ id, name }) => ({
                         id: parseInt(id),
                         country_id: country.id,
-                        province_id: parseInt(province.id),
+                        province_id: province.id,
                         name,
-                    })
+                    }))
                 )
-            );
-            const cityErrors = cityRes.filter((res) => res.error);
-            if (cityErrors.length) {
-                console.error('Failed to create cities', cityErrors);
+                .select('*');
+            if (citiesError) {
+                console.error('Failed to create cities', citiesError);
                 throw createError({
                     status: 500,
-                    statusMessage: 'Failed to create cities',
+                    statusMessage: citiesError.message,
                 });
             }
 
-            citiesData.push(
-                ...cities.map(({ id, name }) => ({
-                    id: parseInt(id),
-                    name,
-                    province_id: parseInt(province.id),
-                }))
-            );
+            citiesData.push(...citiesDBData);
         })
     );
 
-    console.info('Creating Industries...');
     console.info(`Creating ${industries.length} industries...`);
-    const industriesData = await Promise.all(
-        industries.map(async (name) => {
-            const res = await supabase.from('Industries').insert({ name }).select().single();
-            if (res.error) {
-                console.error('Failed to create industry', res.error);
-                throw createError({
-                    status: 500,
-                    statusMessage: res.error.message,
-                });
-            }
-
-            return res.data;
-        })
-    );
-
-    console.info('Creating Sizes...');
-    const sizesData = await Promise.all(
-        SIZE_RANGE.map(async (size) => {
-            const sizeRes = await supabase.from('Sizes').insert(size).select().single();
-            if (!sizeRes.data) throw new Error('Failed to create size');
-
-            return sizeRes.data;
-        })
-    );
-
-    console.info('Creating B2B Companies...');
-    const B2BCompaniesData: B2BCompany[] = [];
-    for (let i = 0; i < B2B_COMPANY_AMOUNT; i++) {
-        const name = faker.company.name();
-        const phone = faker.phone.number();
-        const province = faker.helpers.arrayElement(provincesData);
-        const email = faker.internet.email({
-            firstName: name,
-            lastName: '',
-            allowSpecialCharacters: false,
-            provider: 'gmail.com',
+    const { data: industriesData, error: industriesError } = await supabase
+        .from('Industries')
+        .insert(industries.map((name) => ({ name })))
+        .select('*');
+    if (industriesError) {
+        console.error('Failed to create industries', industriesError);
+        throw createError({
+            status: 500,
+            statusMessage: industriesError.message,
         });
-        const city_id = faker.helpers.arrayElement(citiesData.filter((city) => city.province_id === parseInt(province.id))).id;
-        const size_id = faker.helpers.arrayElement(sizesData).id;
-        const industry_id = faker.helpers.arrayElement(industriesData).id;
+    }
 
-        const companyRes = await supabase
-            .from('B2B_Companies')
-            .insert({
+    console.info(`Creating ${SIZE_RANGE.length} sizes...`);
+    const { data: sizesData, error: sizesError } = await supabase
+        .from('Sizes')
+        .insert(SIZE_RANGE.map((size_range) => ({ size_range })))
+        .select();
+    if (sizesError) {
+        console.error('Failed to create sizes', sizesError);
+        throw createError({
+            status: 500,
+            statusMessage: sizesError.message,
+        });
+    }
+
+    console.info(`Creating ${B2B_COMPANY_AMOUNT} B2B companies...`);
+    const { error: B2BCompaniesError } = await supabase.from('B2B_Companies').insert(
+        Array.from({ length: B2B_COMPANY_AMOUNT }, () => {
+            const name = faker.company.name();
+            const phone = faker.phone.number();
+            const province = faker.helpers.arrayElement(provincesData);
+            const email = faker.internet.email({
+                firstName: name,
+                lastName: '',
+                allowSpecialCharacters: false,
+                provider: 'gmail.com',
+            });
+            const city_id = faker.helpers.arrayElement(citiesData.filter((city) => city.province_id === province.id)).id;
+            const size_id = faker.helpers.arrayElement(sizesData).id;
+            const industry_id = faker.helpers.arrayElement(industriesData).id;
+
+            return {
                 name,
                 email,
                 phone,
@@ -215,7 +198,7 @@ export default defineEventHandler(async (event) => {
                 website: faker.internet.url(),
                 linkedin: `https://linkedin.com/company/${name.toLowerCase().replace(/\s/g, '-')}`,
                 size_id,
-                province_id: parseInt(province.id),
+                province_id: province.id,
                 city_id,
                 industry_id,
                 street: faker.location.streetAddress(),
@@ -223,19 +206,16 @@ export default defineEventHandler(async (event) => {
                 avatar: faker.image.avatarGitHub(),
                 created_at: faker.date.past().toISOString(),
                 updated_at: faker.date.recent().toISOString(),
-            })
-            .select()
-            .single();
-        if (companyRes.error) {
-            console.error('Failed to create B2B company', companyRes.error);
-            throw createError({
-                status: 500,
-                statusMessage: companyRes.error.message,
-            });
-        }
-
-        console.info(`Created B2B company ${i + 1}/${B2B_COMPANY_AMOUNT}`);
-        B2BCompaniesData.push(companyRes.data);
+            };
+        })
+    );
+    // .select('*');
+    if (B2BCompaniesError) {
+        console.error('Failed to create B2B companies', B2BCompaniesError);
+        throw createError({
+            status: 500,
+            statusMessage: B2BCompaniesError.message,
+        });
     }
 
     // console.info('Creating Photos...');
@@ -261,270 +241,226 @@ export default defineEventHandler(async (event) => {
     //     console.info(`Created photo ${i + 1}/${PHOTOS_AMOUNT}`);
     // }
 
-    console.info('Creating Company Statuses...');
-    const companyStatusesData: CompanyStatus[] = [];
-    await Promise.allSettled(
-        COMPANY_STATUSES.map(async (name) => {
-            const res = await supabase.from('Company_Statuses').insert({ name }).select().single();
-            if (res.error) {
-                console.error('Failed to create company status', res.error);
-                throw createError({
-                    status: 500,
-                    statusMessage: res.error.message,
-                });
-            }
-
-            companyStatusesData.push(res.data);
-        })
-    );
-
-    console.info('Creating Companies');
-    const companiesData: Company[] = [];
-    for (let i = 0; i < COMPANIES_AMOUNT; i++) {
-        const name = faker.company.name();
-        const province_id = parseInt(faker.helpers.arrayElement(provincesData).id);
-        const city_id = faker.helpers.arrayElement(citiesData.filter((city) => city.province_id === province_id)).id;
-        const industry_id = faker.helpers.arrayElement(industriesData).id;
-        const company_status_id = faker.helpers.arrayElement(companyStatusesData).id;
-
-        const companyRes = await supabase
-            .from('Companies')
-            .insert({
-                name,
-                phone: faker.phone.number(),
-                website: faker.internet.url(),
-                linkedin: `https://linkedin.com/company/${name.toLowerCase().replace(/\s/g, '-')}`,
-                country_id: country.id,
-                province_id,
-                city_id,
-                industry_id,
-                size_id: faker.helpers.arrayElement(sizesData).id,
-                street_1: faker.location.streetAddress(),
-                postal_code: faker.location.zipCode(),
-                created_at: faker.date.past().toISOString(),
-                updated_at: faker.date.recent().toISOString(),
-                organization_id: ORGANIZATION_ID,
-                company_status_id,
-                user_id: USER_ID,
-            })
-            .select()
-            .single();
-        if (companyRes.error) {
-            console.error('Failed to create company', companyRes.error);
-            throw createError({
-                status: 500,
-                statusMessage: companyRes.error.message,
-            });
-        }
-
-        companiesData.push(companyRes.data);
-        console.info(`Created company ${i + 1}/${COMPANIES_AMOUNT}`);
-    }
-
-    console.info('Creating Contact Statuses...');
-    const contactStatusesData = await Promise.all(
-        CONTACT_STATUSES.map(async (name) => {
-            const { data, error } = await supabase.from('Contact_Statuses').insert({ name }).select().single();
-            if (error) {
-                console.error('Failed to create contact status', error);
-                throw createError({
-                    status: 500,
-                    statusMessage: error.message,
-                });
-            }
-
-            return data;
-        })
-    );
-
-    console.info('Creating Contacts...');
-    const contactsData: Contact[] = [];
-    for (let i = 0; i < CONTACTS_AMOUNT; i++) {
-        const company_id = faker.helpers.arrayElement(companiesData).id;
-        const province_id = parseInt(faker.helpers.arrayElement(provincesData).id);
-        const city_id = faker.helpers.arrayElement(citiesData.filter((city) => city.province_id === province_id)).id;
-        const contact_status_id = faker.helpers.arrayElement(contactStatusesData).id;
-        const sex = faker.person.sexType();
-        const first_name = faker.person.firstName(sex);
-        const last_name = faker.person.lastName(sex);
-        const userName = faker.internet.userName({
-            firstName: first_name,
-            lastName: last_name,
+    console.info(`Creating ${COMPANY_STATUSES.length} company statuses...`);
+    const { data: companyStatusesData, error: companyStatusesError } = await supabase
+        .from('Company_Statuses')
+        .insert(COMPANY_STATUSES.map((name) => ({ name })))
+        .select();
+    if (companyStatusesError) {
+        console.error('Failed to create company status', companyStatusesError);
+        throw createError({
+            status: 500,
+            statusMessage: companyStatusesError.message,
         });
-        const email = faker.internet.email({
-            firstName: first_name,
-            lastName: last_name,
-            allowSpecialCharacters: false,
-            provider: 'gmail.com',
+    }
+
+    console.info(`Creating ${COMPANIES_AMOUNT} companies...`);
+    const { data: companiesData, error: companiesError } = await supabase
+        .from('Companies')
+        .insert(
+            Array.from({ length: COMPANIES_AMOUNT }, () => {
+                const name = faker.company.name();
+                const province_id = faker.helpers.arrayElement(provincesData).id;
+                const city_id = faker.helpers.arrayElement(citiesData.filter((city) => city.province_id === province_id)).id;
+                const industry_id = faker.helpers.arrayElement(industriesData).id;
+                const company_status_id = faker.helpers.arrayElement(companyStatusesData).id;
+
+                return {
+                    name,
+                    phone: faker.phone.number(),
+                    website: faker.internet.url(),
+                    linkedin: `https://linkedin.com/company/${name.toLowerCase().replace(/\s/g, '-')}`,
+                    country_id: country.id,
+                    province_id,
+                    city_id,
+                    industry_id,
+                    size_id: faker.helpers.arrayElement(sizesData).id,
+                    street_1: faker.location.streetAddress(),
+                    postal_code: faker.location.zipCode(),
+                    created_at: faker.date.past().toISOString(),
+                    updated_at: faker.date.recent().toISOString(),
+                    organization_id: ORGANIZATION_ID,
+                    company_status_id,
+                    user_id: USER_ID,
+                };
+            })
+        )
+        .select('*');
+    if (companiesError) {
+        console.error('Failed to create companies', companiesError);
+        throw createError({
+            status: 500,
+            statusMessage: companiesError.message,
         });
-
-        const contactRes = await supabase
-            .from('Contacts')
-            .insert({
-                company_id,
-                city_id,
-                province_id,
-                country_id: country.id,
-                organization_id: ORGANIZATION_ID,
-                user_id: USER_ID,
-                first_name,
-                last_name,
-                email,
-                main_phone: faker.phone.number(),
-                // mobile_phone: faker.phone.number(),
-                job_title: faker.person.jobTitle(),
-                street_1: faker.location.streetAddress(),
-                // street_2: faker.location.streetAddress(),
-                // street_3: faker.location.streetAddress(),
-                postal_code: faker.location.zipCode(),
-                website: faker.internet.url({ protocol: 'https' }),
-                linkedin: `https://linkedin.com/in/${userName}`,
-                facebook: `https://facebook.com/${userName}`,
-                instagram: `https://instagram.com/${userName}`,
-                // description: faker.lorem.paragraph(),
-                contact_status_id,
-                is_valid_email: faker.datatype.boolean(),
-                // user_id: ,
-                created_at: faker.date.past().toISOString(),
-                updated_at: faker.date.recent().toISOString(),
-            })
-            .select()
-            .single();
-        if (contactRes.error) {
-            console.error('Failed to create contact', contactRes.error);
-            throw createError({
-                status: 500,
-                statusMessage: contactRes.error.message,
-            });
-        }
-
-        contactsData.push(contactRes.data);
-        console.info(`Created contact ${i + 1}/${CONTACTS_AMOUNT}`);
     }
 
-    console.info('Creating Ratings...');
-    const ratingsData: Rating[] = [];
-    await Promise.allSettled(
-        RATINGS.map(async (name) => {
-            const res = await supabase.from('Ratings').insert({ name }).select().single();
-            if (res.error) {
-                console.error('Failed to create rating', res.error);
-                throw createError({
-                    status: 500,
-                    statusMessage: res.error.message,
-                });
-            }
-
-            ratingsData.push(res.data);
-        })
-    );
-
-    console.info('Creating Lead Statuses...');
-    const leadStatusesData: LeadStatus[] = [];
-    await Promise.allSettled(
-        LEAD_STATUSES.map(async (name) => {
-            const res = await supabase.from('Lead_Statuses').insert({ name }).select().single();
-            if (res.error) {
-                console.error('Failed to create lead status', res.error);
-                throw createError({
-                    status: 500,
-                    statusMessage: res.error.message,
-                });
-            }
-
-            leadStatusesData.push(res.data);
-        })
-    );
-
-    console.info('Creating Sources...');
-    const sourcesData = await Promise.all(
-        SOURCES.map(async (name) => {
-            const res = await supabase.from('Sources').insert({ name }).select().single();
-            if (res.error) {
-                console.error('Failed to create source', res.error);
-                throw createError({
-                    status: 500,
-                    statusMessage: res.error.message,
-                });
-            }
-
-            return res.data;
-        })
-    );
-
-    console.info('Creating Disqualify Reasons...');
-    const disqualifyReasonsData = await Promise.all(
-        DISQUALIFY_REASONS.map(async (name) => {
-            const res = await supabase.from('Disqualify_Reasons').insert({ name }).select().single();
-            if (res.error) {
-                console.error('Failed to create disqualify reason', res.error);
-                throw createError({
-                    status: 500,
-                    statusMessage: res.error.message,
-                });
-            }
-
-            return res.data;
-        })
-    );
-
-    console.info('Creating leads...');
-    const leadsData: Lead[] = [];
-    for (let i = 0; i < contactsData.length; i++) {
-        const contact_id = contactsData[i].id;
-        const company_id = faker.helpers.arrayElement(companiesData).id;
-        const rating_id = faker.helpers.arrayElement(ratingsData).id;
-        const source_id = faker.helpers.arrayElement(sourcesData).id;
-        const lead_status = faker.helpers.arrayElement(leadStatusesData);
-        const disqualify_reason_id =
-            lead_status.name === 'disqualified' ? faker.helpers.arrayElement(disqualifyReasonsData).id : null;
-
-        const leadRes = await supabase
-            .from('Leads')
-            .insert({
-                company_id,
-                contact_id,
-                lead_status_id: lead_status.id,
-                rating_id,
-                source_id,
-                organization_id: ORGANIZATION_ID,
-                user_id: USER_ID,
-                disqualify_reason_id,
-                topic: faker.lorem.sentence(),
-                // message: faker.lorem.paragraph(),
-                score: faker.number.int({ min: 1, max: 100 }),
-                created_at: faker.date.past().toISOString(),
-                updated_at: faker.date.recent().toISOString(),
-            })
-            .select()
-            .single();
-        if (leadRes.error) {
-            console.error('Failed to create lead', leadRes.error);
-            throw createError({
-                status: 500,
-                statusMessage: leadRes.error.message,
-            });
-        }
-
-        leadsData.push(leadRes.data);
-        console.info(`Created lead ${i + 1}/${contactsData.length}`);
+    console.info(`Creating ${CONTACT_STATUSES.length} contact statuses...`);
+    const { data: contactStatusesData, error: contactStatusesError } = await supabase
+        .from('Contact_Statuses')
+        .insert(CONTACT_STATUSES.map((name) => ({ name })))
+        .select();
+    if (contactStatusesError) {
+        console.error('Failed to create contact status', contactStatusesError);
+        throw createError({
+            status: 500,
+            statusMessage: contactStatusesError.message,
+        });
     }
 
-    console.info('Creating close reasons...');
-    // const closeReasonsData = await Promise.all(
-    //     CLOSE_REASONS.map(async (name) => {
-    //         const res = await supabase.from('Close_Reasons').insert({ name }).select().single();
-    //         if (res.error) {
-    //             console.error('Failed to create close reason', res.error);
-    //             throw createError({
-    //                 status: 500,
-    //                 statusMessage: res.error.message,
-    //             });
-    //         }
+    console.info(`Creating ${CONTACTS_AMOUNT} contacts...`);
+    const { data: contactsData, error: contactsError } = await supabase
+        .from('Contacts')
+        .insert(
+            Array.from({ length: CONTACTS_AMOUNT }, () => {
+                const company_id = faker.helpers.arrayElement(companiesData).id;
+                const province_id = faker.helpers.arrayElement(provincesData).id;
+                const city_id = faker.helpers.arrayElement(citiesData.filter((city) => city.province_id === province_id)).id;
+                const contact_status_id = faker.helpers.arrayElement(contactStatusesData).id;
+                const sex = faker.person.sexType();
+                const first_name = faker.person.firstName(sex);
+                const last_name = faker.person.lastName(sex);
+                const userName = faker.internet.userName({
+                    firstName: first_name,
+                    lastName: last_name,
+                });
+                const email = faker.internet.email({
+                    firstName: first_name,
+                    lastName: last_name,
+                    allowSpecialCharacters: false,
+                    provider: 'gmail.com',
+                });
 
-    //         return res.data;
-    //     })
-    // );
+                return {
+                    company_id,
+                    city_id,
+                    province_id,
+                    country_id: country.id,
+                    organization_id: ORGANIZATION_ID,
+                    user_id: USER_ID,
+                    first_name,
+                    last_name,
+                    email,
+                    main_phone: faker.phone.number(),
+                    // mobile_phone: faker.phone.number(),
+                    job_title: faker.person.jobTitle(),
+                    street_1: faker.location.streetAddress(),
+                    // street_2: faker.location.streetAddress(),
+                    // street_3: faker.location.streetAddress(),
+                    postal_code: faker.location.zipCode(),
+                    website: faker.internet.url({ protocol: 'https' }),
+                    linkedin: `https://linkedin.com/in/${userName}`,
+                    facebook: `https://facebook.com/${userName}`,
+                    instagram: `https://instagram.com/${userName}`,
+                    // description: faker.lorem.paragraph(),
+                    contact_status_id,
+                    is_valid_email: faker.datatype.boolean(),
+                    // user_id: ,
+                    created_at: faker.date.past().toISOString(),
+                    updated_at: faker.date.recent().toISOString(),
+                };
+            })
+        )
+        .select('*');
+    if (contactsError) {
+        console.error('Failed to create contacts', contactsError);
+        throw createError({
+            status: 500,
+            statusMessage: contactsError.message,
+        });
+    }
+
+    console.info(`Creating ${RATINGS.length} ratings...`);
+    const { data: ratingsData, error: ratingsError } = await supabase
+        .from('Ratings')
+        .insert(RATINGS.map((name) => ({ name })))
+        .select();
+    if (ratingsError) {
+        console.error('Failed to create rating', ratingsError);
+        throw createError({
+            status: 500,
+            statusMessage: ratingsError.message,
+        });
+    }
+
+    console.info(`Creating ${LEAD_STATUSES.length} lead statuses...`);
+    const { data: leadStatusesData, error: leadStatusesError } = await supabase
+        .from('Lead_Statuses')
+        .insert(LEAD_STATUSES.map((name) => ({ name })))
+        .select();
+    if (leadStatusesError) {
+        console.error('Failed to create lead status', leadStatusesError);
+        throw createError({
+            status: 500,
+            statusMessage: leadStatusesError.message,
+        });
+    }
+
+    console.info(`Creating ${SOURCES.length} sources...`);
+    const { data: sourcesData, error: sourcesError } = await supabase
+        .from('Sources')
+        .insert(SOURCES.map((name) => ({ name })))
+        .select();
+    if (sourcesError) {
+        console.error('Failed to create source', sourcesError);
+        throw createError({
+            status: 500,
+            statusMessage: sourcesError.message,
+        });
+    }
+
+    console.info(`Creating ${DISQUALIFY_REASONS.length} disqualify reasons...`);
+    const { data: disqualifyReasonsData, error: disqualifyReasonsError } = await supabase
+        .from('Disqualify_Reasons')
+        .insert(DISQUALIFY_REASONS.map((name) => ({ name })))
+        .select('*');
+    if (disqualifyReasonsError) {
+        console.error('Failed to create disqualify reason', disqualifyReasonsError);
+        throw createError({
+            status: 500,
+            statusMessage: disqualifyReasonsError.message,
+        });
+    }
+
+    console.info(`Creating ${LEAD_STATUSES.length} leads...`);
+    const { data: leadsData, error: leadsError } = await supabase
+        .from('Leads')
+        .insert(
+            contactsData.map((contact) => {
+                const contact_id = contact.id;
+                const company_id = faker.helpers.arrayElement(companiesData).id;
+                const rating_id = faker.helpers.arrayElement(ratingsData).id;
+                const source_id = faker.helpers.arrayElement(sourcesData).id;
+                const lead_status = faker.helpers.arrayElement(leadStatusesData);
+                const disqualify_reason_id =
+                    lead_status.name === 'disqualified' ? faker.helpers.arrayElement(disqualifyReasonsData).id : null;
+
+                return {
+                    company_id,
+                    contact_id,
+                    lead_status_id: lead_status.id,
+                    rating_id,
+                    source_id,
+                    organization_id: ORGANIZATION_ID,
+                    user_id: USER_ID,
+                    disqualify_reason_id,
+                    topic: faker.lorem.sentence(),
+                    // message: faker.lorem.paragraph(),
+                    score: faker.number.int({ min: 1, max: 100 }),
+                    created_at: faker.date.past().toISOString(),
+                    updated_at: faker.date.recent().toISOString(),
+                };
+            })
+        )
+        .select('*');
+    if (leadsError) {
+        console.error('Failed to create leads', leadsError);
+        throw createError({
+            status: 500,
+            statusMessage: leadsError.message,
+        });
+    }
+
+    console.info(`Creating ${CLOSE_REASONS.length} close reasons...`);
     const { data: closeReasonsData, error: closeReasonsError } = await supabase
         .from('Close_Reasons')
         .insert(CLOSE_REASONS.map((name) => ({ name })))
@@ -537,7 +473,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    console.info('Creating opportunity statuses...');
+    console.info(`Creating ${OPPORTUNITY_STATUSES.length} opportunity statuses...`);
     const { data: opportunityStatusesData, error: opportunityStatusesError } = await supabase
         .from('Opportunity_Statuses')
         .insert(OPPORTUNITY_STATUSES.map((name) => ({ name, organization_id: ORGANIZATION_ID })))
@@ -551,64 +487,64 @@ export default defineEventHandler(async (event) => {
     }
 
     function getRandomIds() {
-        const company = faker.helpers.arrayElement(companiesData);
+        const company = faker.helpers.arrayElement(companiesData!);
 
-        const contacts = contactsData.filter((contact) => contact.company_id === company.id);
-        if (!contacts.length) return getRandomIds();
+        const contacts = contactsData?.filter((contact) => contact.company_id === company.id);
+        if (!contacts || !contacts.length) return getRandomIds();
 
         const contact = faker.helpers.arrayElement(contacts);
 
-        const leads = leadsData.filter((lead) => lead.contact_id === contact.id);
-        if (!leads.length) return getRandomIds();
+        const leads = leadsData?.filter((lead) => lead.contact_id === contact.id);
+        if (!leads || !leads.length) return getRandomIds();
 
         const lead = faker.helpers.arrayElement(leads);
 
         return { company_id: company.id, contact_id: contact.id, lead_id: lead.id };
     }
 
-    console.info('Creating opportunities...');
-    const {
-        // data: opportunitiesData,
-        error: opportunitiesError,
-    } = await supabase
-        .from('Opportunities')
-        .insert(
-            Array.from({ length: OPPORTUNITIES_AMOUNT }, () => {
-                const { company_id, contact_id, lead_id } = getRandomIds();
-                const opportunityStatus = faker.helpers.arrayElement(opportunityStatusesData);
-                const close_reason_id =
-                    opportunityStatus.name === 'lost' ? faker.helpers.arrayElement(closeReasonsData).id : null;
+    // console.info(`Creating ${OPPORTUNITIES_AMOUNT} opportunities...`);
+    // const {
+    //     // data: opportunitiesData,
+    //     error: opportunitiesError,
+    // } = await supabase
+    //     .from('Opportunities')
+    //     .insert(
+    //         Array.from({ length: OPPORTUNITIES_AMOUNT }, () => {
+    //             const { company_id, contact_id, lead_id } = getRandomIds();
+    //             const opportunityStatus = faker.helpers.arrayElement(opportunityStatusesData);
+    //             const close_reason_id =
+    //                 opportunityStatus.name === 'lost' ? faker.helpers.arrayElement(closeReasonsData).id : null;
 
-                const est_revenue = faker.number.int({ min: 500_000, max: 100_000_000 });
-                const act_close_date = faker.date.recent().toISOString();
-                const confidence = faker.number.int({ min: 1, max: 100 });
+    //             const est_revenue = faker.number.int({ min: 500_000, max: 100_000_000 });
+    //             const act_close_date = faker.date.recent().toISOString();
+    //             const confidence = faker.number.int({ min: 1, max: 100 });
 
-                return {
-                    user_id: USER_ID,
-                    organization_id: ORGANIZATION_ID,
-                    company_id,
-                    contact_id,
-                    lead_id,
-                    opportunity_status_id: opportunityStatus.id,
-                    close_reason_id,
-                    rating_id: faker.helpers.arrayElement(ratingsData).id,
-                    topic: faker.lorem.sentence(),
-                    est_revenue,
-                    act_close_date,
-                    confidence,
-                    created_at: faker.date.past().toISOString(),
-                    updated_at: faker.date.recent().toISOString(),
-                };
-            })
-        )
-        .select();
-    if (opportunitiesError) {
-        console.error('Failed to create opportunities', opportunitiesError);
-        throw createError({
-            status: 500,
-            statusMessage: opportunitiesError.message,
-        });
-    }
+    //             return {
+    //                 user_id: USER_ID,
+    //                 organization_id: ORGANIZATION_ID,
+    //                 company_id,
+    //                 contact_id,
+    //                 lead_id,
+    //                 opportunity_status_id: opportunityStatus.id,
+    //                 close_reason_id,
+    //                 rating_id: faker.helpers.arrayElement(ratingsData).id,
+    //                 topic: faker.lorem.sentence(),
+    //                 est_revenue,
+    //                 act_close_date,
+    //                 confidence,
+    //                 created_at: faker.date.past().toISOString(),
+    //                 updated_at: faker.date.recent().toISOString(),
+    //             };
+    //         })
+    //     )
+    //     .select();
+    // if (opportunitiesError) {
+    //     console.error('Failed to create opportunities', opportunitiesError);
+    //     throw createError({
+    //         status: 500,
+    //         statusMessage: opportunitiesError.message,
+    //     });
+    // }
 
     console.info('Seed successful');
     return { success: true };
