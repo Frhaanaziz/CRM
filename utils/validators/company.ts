@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { opportunitySchema } from './opportunity';
 
 export const companiesSchema = z.object({
     id: z.coerce.number().int(),
@@ -55,3 +56,18 @@ export const updateCompanyUserIdSchema = companiesSchema.pick({
     id: true,
     user_id: true,
 });
+
+export const addCompanyOpportunitySchema = opportunitySchema
+    .pick({
+        organization_id: true,
+        company_id: true,
+        topic: true,
+        opportunity_status_id: true,
+        user_id: true,
+        confidence: true,
+        est_revenue: true,
+        contact_id: true,
+    })
+    .extend({
+        payment_plan_id: z.coerce.number({ message: 'Payment plan is required' }).int(),
+    });

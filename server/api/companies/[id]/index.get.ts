@@ -6,10 +6,11 @@ export default defineEventHandler(async (event) => {
 
     const id = event.context.params!.id;
 
-    const res = await supabase
-        .from('Companies')
-        .select(
-            `
+    const [companyRes, opportunitiesRes] = await Promise.all([
+        supabase
+            .from('Companies')
+            .select(
+                `
             *,
             industry: Industries(*),
             size: Sizes(*),
@@ -20,16 +21,33 @@ export default defineEventHandler(async (event) => {
             primaryContact: Contacts!Companies_primary_contact_id_fkey(*),
             contacts: Contacts!Contacts_company_id_fkey(*)
             `
-        )
-        .eq('id', id)
-        .single();
-    if (res.error) {
-        console.error('Error fetching company', res.error);
-        throw createError({
-            status: 500,
-            statusMessage: res.error.message,
-        });
+            )
+            .eq('id', id)
+            .single(),
+        supabase
+            .from('Opportunities')
+            .select(
+                `
+                *,
+                status: Opportunity_Statuses(*)
+                `
+            )
+            .eq('company_id', id)
+            .order('created_at', { ascending: false }),
+    ]);
+
+    if (companyRes.error) {
+        console.error('Error getting company:', companyRes.error);
+        throw createError({ status: 400, statusMessage: companyRes.error.message });
     }
 
-    return res.data;
+    if (opportunitiesRes.error) {
+        console.error('Error getting opportunities:', opportunitiesRes.error);
+        throw createError({ status: 400, statusMessage: opportunitiesRes.error.message });
+    }
+
+    const { data: companyData } = companyRes;
+    const { data: opportunitiesData } = opportunitiesRes;
+
+    return { ...companyData, opportunities: opportunitiesData };
 });

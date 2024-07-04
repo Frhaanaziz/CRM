@@ -44,6 +44,7 @@ const SOURCES = ['manual', 'linkedin', 'google'] as const;
 const DISQUALIFY_REASONS = ['lost', 'cannot contact', 'no longer interested', 'canceled'] as const;
 const CLOSE_REASONS = ['pricing', 'competition', 'long sales cycle', 'communication', 'decision making', 'others'] as const;
 const OPPORTUNITY_STATUSES = ['qualified', 'proposal send', 'contract send', 'won', 'lost'] as const;
+const PAYMENT_PLANS = ['one-time', 'weekly', 'monthly', 'yearly'] as const;
 
 export default defineEventHandler(async (event) => {
     const zodResult = schema.safeParse(getQuery(event));
@@ -59,6 +60,7 @@ export default defineEventHandler(async (event) => {
         await supabase.from('Opportunities').delete().neq('id', 0).throwOnError();
         await supabase.from('Opportunity_Statuses').delete().neq('id', 0).throwOnError();
         await supabase.from('Close_Reasons').delete().neq('id', 0).throwOnError();
+        await supabase.from('Payment_Plans').delete().neq('id', 0).throwOnError();
         await supabase.from('Companies').delete().neq('id', 0).throwOnError();
         await supabase.from('Company_Statuses').delete().neq('id', 0).throwOnError();
         await supabase.from('Industries').delete().neq('id', 0).throwOnError();
@@ -470,6 +472,19 @@ export default defineEventHandler(async (event) => {
         throw createError({
             status: 500,
             statusMessage: closeReasonsError.message,
+        });
+    }
+
+    console.info(`Creating ${PAYMENT_PLANS.length} payment plans...`);
+    const { error: paymentPlansError } = await supabase
+        .from('Payment_Plans')
+        .insert(PAYMENT_PLANS.map((name) => ({ name })))
+        .select();
+    if (paymentPlansError) {
+        console.error('Failed to create payment plans', paymentPlansError);
+        throw createError({
+            status: 500,
+            statusMessage: paymentPlansError.message,
         });
     }
 

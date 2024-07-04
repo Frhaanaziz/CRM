@@ -12,62 +12,81 @@ export type Database = {
       B2B_Companies: {
         Row: {
           avatar: string | null
-          city_id: number
+          city_id: number | null
+          company_id: number | null
+          country_id: number | null
           created_at: string
-          description: string
-          email: string
+          description: string | null
+          email: string | null
+          founded: string | null
           id: number
-          industry_id: number
+          industry_id: number | null
           linkedin: string | null
+          location: string | null
           name: string
-          phone: string
-          province_id: number
-          services: string
-          size_id: number
-          street: string | null
+          phone: string | null
+          province_id: number | null
+          size_id: number | null
+          specialities: string | null
+          tagline: string | null
           updated_at: string
           website: string | null
           zip_code: string | null
         }
         Insert: {
           avatar?: string | null
-          city_id: number
+          city_id?: number | null
+          company_id?: number | null
+          country_id?: number | null
           created_at?: string
-          description: string
-          email: string
+          description?: string | null
+          email?: string | null
+          founded?: string | null
           id?: number
-          industry_id: number
+          industry_id?: number | null
           linkedin?: string | null
+          location?: string | null
           name: string
-          phone: string
-          province_id: number
-          services: string
-          size_id: number
-          street?: string | null
+          phone?: string | null
+          province_id?: number | null
+          size_id?: number | null
+          specialities?: string | null
+          tagline?: string | null
           updated_at?: string
           website?: string | null
           zip_code?: string | null
         }
         Update: {
           avatar?: string | null
-          city_id?: number
+          city_id?: number | null
+          company_id?: number | null
+          country_id?: number | null
           created_at?: string
-          description?: string
-          email?: string
+          description?: string | null
+          email?: string | null
+          founded?: string | null
           id?: number
-          industry_id?: number
+          industry_id?: number | null
           linkedin?: string | null
+          location?: string | null
           name?: string
-          phone?: string
-          province_id?: number
-          services?: string
-          size_id?: number
-          street?: string | null
+          phone?: string | null
+          province_id?: number | null
+          size_id?: number | null
+          specialities?: string | null
+          tagline?: string | null
           updated_at?: string
           website?: string | null
           zip_code?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "B2B_Companies_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "Countries"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "companies_city_id_fkey"
             columns: ["city_id"]
@@ -94,6 +113,113 @@ export type Database = {
             columns: ["size_id"]
             isOneToOne: false
             referencedRelation: "Sizes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      B2B_Contacts: {
+        Row: {
+          city_id: number | null
+          company_id: number
+          country_id: number | null
+          created_at: string
+          description: string | null
+          email: string
+          facebook: string | null
+          first_name: string | null
+          id: number
+          instagram: string | null
+          job_title: string | null
+          last_name: string | null
+          linkedin: string | null
+          main_phone: string | null
+          mobile_phone: string | null
+          postal_code: string | null
+          province_id: number | null
+          street_1: string | null
+          street_2: string | null
+          street_3: string | null
+          updated_at: string
+          website: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          city_id?: number | null
+          company_id: number
+          country_id?: number | null
+          created_at?: string
+          description?: string | null
+          email: string
+          facebook?: string | null
+          first_name?: string | null
+          id?: number
+          instagram?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          linkedin?: string | null
+          main_phone?: string | null
+          mobile_phone?: string | null
+          postal_code?: string | null
+          province_id?: number | null
+          street_1?: string | null
+          street_2?: string | null
+          street_3?: string | null
+          updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          city_id?: number | null
+          company_id?: number
+          country_id?: number | null
+          created_at?: string
+          description?: string | null
+          email?: string
+          facebook?: string | null
+          first_name?: string | null
+          id?: number
+          instagram?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          linkedin?: string | null
+          main_phone?: string | null
+          mobile_phone?: string | null
+          postal_code?: string | null
+          province_id?: number | null
+          street_1?: string | null
+          street_2?: string | null
+          street_3?: string | null
+          updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "b2b_contacts_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "Cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "b2b_contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "B2B_Companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "b2b_contacts_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "Countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "b2b_contacts_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "Provinces"
             referencedColumns: ["id"]
           },
         ]
@@ -789,7 +915,7 @@ export type Database = {
           opportunity_status_id: number
           organization_id: number
           payment_plan_id: number | null
-          priority_id: number
+          priority: Database["public"]["Enums"]["priority_statuses"] | null
           proposed_solution: string | null
           rating_id: number
           topic: string
@@ -816,7 +942,7 @@ export type Database = {
           opportunity_status_id: number
           organization_id: number
           payment_plan_id?: number | null
-          priority_id: number
+          priority?: Database["public"]["Enums"]["priority_statuses"] | null
           proposed_solution?: string | null
           rating_id: number
           topic: string
@@ -843,7 +969,7 @@ export type Database = {
           opportunity_status_id?: number
           organization_id?: number
           payment_plan_id?: number | null
-          priority_id?: number
+          priority?: Database["public"]["Enums"]["priority_statuses"] | null
           proposed_solution?: string | null
           rating_id?: number
           topic?: string
@@ -894,24 +1020,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Opportunities_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "Organizations"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "Opportunities_payment_plan_id_fkey"
             columns: ["payment_plan_id"]
             isOneToOne: false
             referencedRelation: "Payment_Plans"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Opportunities_priority_id_fkey"
-            columns: ["priority_id"]
-            isOneToOne: false
-            referencedRelation: "Priority"
             referencedColumns: ["id"]
           },
           {
