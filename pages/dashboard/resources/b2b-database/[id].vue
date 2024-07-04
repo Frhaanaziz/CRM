@@ -64,9 +64,9 @@ function openAddToCRMModal() {
                     {{ company?.description }}
                 </p>
 
-                <h3 class="mt-5 font-semibold">Services</h3>
+                <h3 class="mt-5 font-semibold">Specialities</h3>
                 <p class="mt-1 text-sm">
-                    {{ company?.services }}
+                    {{ company?.specialities }}
                 </p>
 
                 <h3 class="mt-5 font-semibold">Gallery</h3>
@@ -81,7 +81,7 @@ function openAddToCRMModal() {
                 </template>
 
                 <div class="flex gap-6 text-sm sm:text-base">
-                    <div class="text-weak grid shrink-0 grid-rows-11 gap-y-8">
+                    <div class="text-weak grid shrink-0 grid-rows-10 gap-y-8">
                         <p>Company Name</p>
                         <p>Website</p>
                         <p>LinkedIn URL</p>
@@ -91,11 +91,11 @@ function openAddToCRMModal() {
                         <p>Size</p>
                         <p>Province</p>
                         <p>City</p>
-                        <p>Street</p>
+                        <p>Location</p>
                         <p>ZIP/Postal Code</p>
                     </div>
 
-                    <div class="grid grow grid-rows-11 gap-y-8 font-semibold">
+                    <div class="grid grow grid-rows-10 gap-y-8 font-semibold">
                         <p class="line-clamp-1">{{ company?.name }}</p>
                         <NuxtLink
                             :href="company?.website ?? '#'"
@@ -136,7 +136,7 @@ function openAddToCRMModal() {
                             {{ company?.province?.name }}
                         </p>
                         <p class="line-clamp-1">{{ company?.city?.name }}</p>
-                        <p class="line-clamp-1">{{ company?.street }}</p>
+                        <p class="line-clamp-1">{{ company?.location }}</p>
                         <p class="line-clamp-1">{{ company?.zip_code }}</p>
                     </div>
                 </div>

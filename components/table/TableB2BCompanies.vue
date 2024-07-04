@@ -18,7 +18,6 @@ const [{ data: companies, status }, { data: industries }, { data: sizes }] = awa
                 email: company.email,
                 linkedin: company.linkedin,
                 phone: company.phone,
-                street: company.street,
                 zip_code: company.zip_code,
             })),
         default: () => [],
@@ -86,11 +85,6 @@ function useTable() {
         {
             key: 'phone',
             label: 'Phone',
-            sortable: true,
-        },
-        {
-            key: 'street',
-            label: 'Street',
             sortable: true,
         },
         {
