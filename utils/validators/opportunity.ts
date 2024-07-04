@@ -7,18 +7,32 @@ export const opportunitySchema = z.object({
     act_revenue: z.coerce.number().optional().nullable(),
     close_reason_id: z.coerce.number().int().optional().nullable(),
     company_id: z.coerce.number({ message: 'Please select a company' }).int(),
-    confidence: z.coerce.number().optional().nullable(),
-    contact_id: z.coerce.number().int(),
+    confidence: z.coerce
+        .number()
+        .int()
+        .min(0, { message: 'Confidence must be greater than 0' })
+        .max(100, { message: 'Confidence must be less than 100' })
+        .optional()
+        .nullable(),
+    contact_id: z.coerce
+        .number({
+            message: 'Please select a contact',
+        })
+        .int(),
     created_at: z.coerce.date().optional().nullable(),
     currency_id: z.coerce.number().int().optional().nullable(),
     current_situation: z.string().optional().nullable(),
     customer_need: z.string().optional().nullable(),
     description: z.string().optional().nullable(),
     est_budget: z.coerce.number().optional().nullable(),
-    est_revenue: z.coerce.number().optional().nullable(),
+    est_revenue: z.coerce.number().int().min(0, { message: 'Revenue must be greater than 0' }).optional().nullable(),
     id: z.coerce.number().int(),
     lead_id: z.coerce.number().int(),
-    opportunity_status_id: z.coerce.number().int(),
+    opportunity_status_id: z.coerce
+        .number({
+            message: 'Please select an opportunity status',
+        })
+        .int(),
     payment_plan_id: z.coerce.number().int().optional().nullable(),
     proposed_solution: z.string().optional().nullable(),
     topic: z.string().min(1, { message: 'Topic is required' }),

@@ -915,7 +915,7 @@ export type Database = {
           opportunity_status_id: number
           organization_id: number
           payment_plan_id: number | null
-          priority_id: number
+          priority: Database["public"]["Enums"]["priority_statuses"] | null
           proposed_solution: string | null
           rating_id: number
           topic: string
@@ -942,7 +942,7 @@ export type Database = {
           opportunity_status_id: number
           organization_id: number
           payment_plan_id?: number | null
-          priority_id: number
+          priority?: Database["public"]["Enums"]["priority_statuses"] | null
           proposed_solution?: string | null
           rating_id: number
           topic: string
@@ -969,7 +969,7 @@ export type Database = {
           opportunity_status_id?: number
           organization_id?: number
           payment_plan_id?: number | null
-          priority_id?: number
+          priority?: Database["public"]["Enums"]["priority_statuses"] | null
           proposed_solution?: string | null
           rating_id?: number
           topic?: string
@@ -1020,24 +1020,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Opportunities_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "Organizations"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "Opportunities_payment_plan_id_fkey"
             columns: ["payment_plan_id"]
             isOneToOne: false
             referencedRelation: "Payment_Plans"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Opportunities_priority_id_fkey"
-            columns: ["priority_id"]
-            isOneToOne: false
-            referencedRelation: "Priority"
             referencedColumns: ["id"]
           },
           {
