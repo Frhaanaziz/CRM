@@ -8,6 +8,7 @@ export const taskSchema = z.object({
     date: z.coerce.date(),
     is_completed: z.boolean(),
     user_id: z.string(),
+    organization_id: z.coerce.number().int(),
     created_at: z.coerce.date(),
     updated_at: z.coerce.date(),
 });
@@ -18,6 +19,7 @@ export const addTaskSchema = taskSchema.pick({
     lead_id: true,
     user_id: true,
     opportunity_id: true,
+    organization_id: true,
 });
 
 export const updateTaskSchema = taskSchema.pick({ id: true, description: true, date: true });

@@ -1,8 +1,35 @@
 <script setup lang="ts">
-const emit = defineEmits(['close']);
+import type { B2BCompany, B2BContact } from '~/types';
 
-function closeModal() {
-    emit('close');
+const props = defineProps<{
+    contact: B2BContact;
+    company: B2BCompany;
+}>();
+
+const emit = defineEmits(['close']);
+const closeModal = () => emit('close');
+
+const isLoading = ref(false);
+
+async function addToCRM() {
+    try {
+        isLoading.value = true;
+
+        console.log(props);
+        await $fetch('/api/crm/add-to-lead', {
+            method: 'POST',
+            body: JSON.stringify(props),
+        });
+
+        toast.success('Company added to CRM successfully.');
+        closeModal();
+        await refreshNuxtData();
+    } catch (e) {
+        console.error('Failed to add company to CRM', e);
+        toast.error('Failed to add company to CRM, please try again later.');
+    } finally {
+        isLoading.value = false;
+    }
 }
 </script>
 
@@ -12,8 +39,8 @@ function closeModal() {
             <p class="text-weak">You will be redirected to out CRM web app.</p>
 
             <div class="flex items-center justify-end gap-2">
-                <UButton variant="outline" @click="closeModal">Cancel</UButton>
-                <UButton>Add to CRM</UButton>
+                <UButton variant="outline" :disabled="isLoading" @click="closeModal">Cancel</UButton>
+                <UButton :loading="isLoading" :disabled="isLoading" @click="addToCRM">Add to CRM</UButton>
             </div>
         </div>
     </ModalCommon>

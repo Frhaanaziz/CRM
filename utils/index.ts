@@ -8,6 +8,8 @@ export * from './validators/lead';
 export * from './validators/lead-status';
 export * from './validators/task';
 export * from './validators/opportunity';
+export * from './validators/b2b-contact';
+export * from './validators/b2b-company';
 export * from './constants';
 
 /**

@@ -15,6 +15,11 @@ if (!contact.value) throw createError({ status: 404, message: 'contact not found
 
 const { updateState, isUpdating, updateContact, formRef, submitForm, isFormDirty, resetForm } = useUpdateContact();
 
+// onBeforeRouteLeave(() => {
+//     const answer = window.confirm('Are you sure you want to leave?');
+//     if (!answer) return false;
+// });
+
 async function handleDeleteContact() {
     try {
         await $fetch(`/api/contacts/${id}`, { method: 'DELETE' });
@@ -32,7 +37,7 @@ function useUpdateContact() {
     const formRef = ref();
     const isUpdating = ref(false);
 
-    const updateState = ref({
+    const initialState = {
         id,
         email: contact.value!.email ?? undefined,
         first_name: contact.value!.first_name ?? undefined,
@@ -42,39 +47,30 @@ function useUpdateContact() {
         whatsapp: contact.value!.whatsapp ?? undefined,
         linkedin: contact.value!.linkedin ?? undefined,
         company_id: contact.value!.company_id,
-    });
-    const { history, undo } = useRefHistory(updateState, { deep: true, capacity: 1 });
+    };
+    const updateState = ref({ ...initialState });
+    const { history, clear } = useRefHistory(updateState, { deep: true });
     const isDirty = computed(() => history.value.length > 1);
     const submit = async () => await formRef.value?.submit();
 
-    const resetForm = () => {
-        undo();
+    const resetForm = async () => {
         formRef.value?.clear();
-        updateState.value = {
-            id,
-            email: contact.value!.email ?? undefined,
-            first_name: contact.value!.first_name ?? undefined,
-            last_name: contact.value!.last_name ?? undefined,
-            job_title: contact.value!.job_title ?? undefined,
-            mobile_phone: contact.value!.mobile_phone ?? undefined,
-            whatsapp: contact.value!.whatsapp ?? undefined,
-            linkedin: contact.value!.linkedin ?? undefined,
-            company_id: contact.value!.company_id,
-        };
+        updateState.value = initialState;
+        await nextTick();
+        clear();
     };
 
     async function updateContact(event: FormSubmitEvent<UpdateContactType>) {
         try {
             isUpdating.value = true;
 
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            // await $fetch('/api/companies', {
-            //     method: 'POST',
-            //     body: JSON.stringify(event.data),
-            // });
+            await $fetch(`/api/contacts/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(event.data),
+            });
 
             toast.success('Contact updated successfully.');
-            undo();
+            clear();
             await refreshContact();
         } catch (e) {
             console.error('Failed to update contact', e);
@@ -92,7 +88,7 @@ function useUpdateContact() {
     <div class="min-h-screen bg-base-200">
         <header class="bg-base-100">
             <div class="flex items-center border-b">
-                <NuxtLink href="/dashboard/customer/companies" class="flex h-10 w-10 items-center justify-center border">
+                <NuxtLink href="/dashboard/customer/contacts" class="flex h-10 w-10 items-center justify-center border">
                     <UIcon name="i-heroicons-arrow-left-20-solid" class="h-[18px] w-[18px]" />
                 </NuxtLink>
                 <UButton

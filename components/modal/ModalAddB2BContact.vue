@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
+import type { B2BContact } from '~/types';
+
+const props = defineProps<{ company_id: B2BContact['company_id'] }>();
 
 const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
@@ -8,43 +11,34 @@ const closeModal = () => emit('close');
 const user = useSupabaseUser();
 if (!user.value || !user.value.user_metadata.organization_id) throw createError({ status: 401, message: 'Unauthorized' });
 
-const { data: companiesOption } = await useLazyFetch(`/api/organizations/${user.value.user_metadata.organization_id}/companies`, {
-    key: `organizations-${user.value.user_metadata.organization_id}-companies`,
-    transform: (companies) =>
-        companies.map((company) => ({
-            value: company.id,
-            label: company.name,
-        })),
-    default: () => [],
-});
-
-type AddOpportunityType = z.infer<typeof addOpportunitySchema>;
+type AddB2BContactType = z.infer<typeof addB2BContactSchema>;
 const isSubmitting = ref(false);
 const state = ref({
-    topic: '',
+    organization_id: user.value.user_metadata.organization_id,
+    user_id: user.value.id,
+    company_id: props.company_id,
     first_name: '',
     last_name: '',
     email: '',
-    phone: undefined,
-    organization_id: user.value.user_metadata.organization_id,
-    user_id: user.value.id,
-    company_id: undefined,
+    job_title: '',
+    mobile_phone: '',
 });
-async function handleSubmit(event: FormSubmitEvent<AddOpportunityType>) {
+
+async function handleSubmit(event: FormSubmitEvent<AddB2BContactType>) {
     try {
         isSubmitting.value = true;
 
-        await $fetch('/api/opportunities', {
+        await $fetch('/api/b2b-contacts', {
             method: 'POST',
             body: JSON.stringify(event.data),
         });
 
         closeModal();
-        toast.success('Opportunity added successfully.');
-        await refreshNuxtData('opportunities');
+        toast.success('Contact added successfully.');
+        await refreshNuxtData(`b2b-companies-${props.company_id}`);
     } catch (e) {
-        console.error('Failed to add opportunity', e);
-        toast.error('Failed to add opportunity, please try again later.');
+        console.error('Failed to add contact', e);
+        toast.error('Failed to add contact, please try again later.');
     } finally {
         isSubmitting.value = false;
     }
@@ -52,12 +46,8 @@ async function handleSubmit(event: FormSubmitEvent<AddOpportunityType>) {
 </script>
 
 <template>
-    <ModalCommon title="Add New Opportunity" @close="closeModal">
-        <UForm :schema="addOpportunitySchema" :state="state" class="space-y-4" @submit="handleSubmit" @error="console.error">
-            <UFormGroup label="Topic" name="topic" required>
-                <UInput v-model="state.topic" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter topic" />
-            </UFormGroup>
-
+    <ModalCommon title="Add New Contact" @close="closeModal">
+        <UForm :schema="addB2BContactSchema" :state="state" class="space-y-4" @submit="handleSubmit" @error="console.error">
             <UFormGroup label="First Name" name="first_name" required>
                 <UInput
                     v-model="state.first_name"
@@ -80,26 +70,21 @@ async function handleSubmit(event: FormSubmitEvent<AddOpportunityType>) {
                 <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter email" />
             </UFormGroup>
 
-            <UFormGroup label="Business Phone" name="phone">
+            <UFormGroup label="Job Title" name="job_title" required>
                 <UInput
-                    v-model="state.phone"
+                    v-model="state.job_title"
                     :disabled="isSubmitting"
                     :loading="isSubmitting"
-                    placeholder="Enter business phone"
+                    placeholder="Enter job title"
                 />
             </UFormGroup>
 
-            <UFormGroup label="Company Name" name="company_id" required>
-                <USelectMenu
-                    v-model="state.company_id"
-                    value-attribute="value"
-                    option-attribute="label"
-                    :options="companiesOption"
-                    searchable
-                    searchable-placeholder="Search a companies..."
-                    :loading="isSubmitting"
+            <UFormGroup label="Mobile Phone" name="mobile_phone">
+                <UInput
+                    v-model="state.mobile_phone"
                     :disabled="isSubmitting"
-                    placeholder="Select company"
+                    :loading="isSubmitting"
+                    placeholder="Enter mobile phone number"
                 />
             </UFormGroup>
 

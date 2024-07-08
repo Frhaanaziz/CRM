@@ -57,7 +57,7 @@ function useUpdateCompany() {
     const formRef = ref();
     const isUpdating = ref(false);
 
-    const updateState = ref({
+    const initialState = {
         id,
         name: company.value!.name,
         phone: company.value!.phone ?? undefined,
@@ -70,28 +70,17 @@ function useUpdateCompany() {
         street_2: company.value!.street_2 ?? undefined,
         street_3: company.value!.street_3 ?? undefined,
         postal_code: company.value!.postal_code ?? undefined,
-    });
-    const { history, undo } = useRefHistory(updateState, { deep: true, capacity: 1 });
+    };
+    const updateState = ref({ ...initialState });
+    const { history, clear } = useRefHistory(updateState, { deep: true, capacity: 1 });
     const isDirty = computed(() => history.value.length > 1);
     const submit = async () => await formRef.value?.submit();
 
-    const resetForm = () => {
-        undo();
+    const resetForm = async () => {
         formRef.value?.clear();
-        updateState.value = {
-            id,
-            name: company.value!.name,
-            phone: company.value!.phone ?? undefined,
-            industry_id: company.value!.industry_id ?? undefined,
-            size_id: company.value!.size_id ?? undefined,
-            country_id: company.value!.country_id ?? undefined,
-            province_id: company.value!.province_id ?? undefined,
-            city_id: company.value!.city_id ?? undefined,
-            street_1: company.value!.street_1 ?? undefined,
-            street_2: company.value!.street_2 ?? undefined,
-            street_3: company.value!.street_3 ?? undefined,
-            postal_code: company.value!.postal_code ?? undefined,
-        };
+        updateState.value = initialState;
+        await nextTick();
+        clear();
     };
 
     async function updateCompany(event: FormSubmitEvent<UpdateCompanyType>) {
@@ -105,7 +94,7 @@ function useUpdateCompany() {
             // });
 
             toast.success('Company updated successfully.');
-            undo();
+            clear();
             await refreshCompany();
         } catch (e) {
             console.error('Failed to update company', e);

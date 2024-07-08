@@ -93,6 +93,7 @@ function useTask() {
         date: new Date().toISOString(),
         opportunity_id: id,
         user_id: user.value!.id,
+        organization_id,
     });
 
     async function createTask(event: FormSubmitEvent<AddTaskType>) {
@@ -127,7 +128,7 @@ function useUpdateOpportunity() {
     const formRef = ref();
     const isUpdating = ref(false);
 
-    const updateState = ref({
+    const initialState = {
         id,
         act_close_date: opportunity.value!.act_close_date ?? undefined,
         currency_id: opportunity.value!.currency_id,
@@ -135,23 +136,17 @@ function useUpdateOpportunity() {
         est_revenue: opportunity.value!.est_revenue ?? undefined,
         payment_plan_id: opportunity.value!.payment_plan_id,
         confidence: opportunity.value!.confidence ?? undefined,
-    });
-    const { history, undo } = useRefHistory(updateState, { deep: true, capacity: 1 });
+    };
+    const updateState = ref({ ...initialState });
+    const { history, clear } = useRefHistory(updateState, { deep: true, capacity: 1 });
     const isDirty = computed(() => history.value.length > 1);
     const submit = async () => await formRef.value?.submit();
 
-    const resetForm = () => {
-        undo();
+    const resetForm = async () => {
         formRef.value?.clear();
-        updateState.value = {
-            id,
-            act_close_date: opportunity.value!.act_close_date ?? undefined,
-            currency_id: opportunity.value!.currency_id,
-            act_budget: opportunity.value!.act_budget ?? undefined,
-            est_revenue: opportunity.value!.est_revenue ?? undefined,
-            payment_plan_id: opportunity.value!.payment_plan_id,
-            confidence: opportunity.value!.confidence ?? undefined,
-        };
+        updateState.value = initialState;
+        await nextTick();
+        clear();
     };
 
     async function updateOpportunity(event: FormSubmitEvent<UpdateOpportunityType>) {
@@ -165,7 +160,7 @@ function useUpdateOpportunity() {
             // });
 
             toast.success('Opportunity updated successfully.');
-            undo();
+            clear();
             await refreshOpportunity();
         } catch (e) {
             console.error('Failed to update opportunity', e);
