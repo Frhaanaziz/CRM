@@ -54,6 +54,10 @@ async function handleSubmit(event: FormSubmitEvent<AddOpportunityType>) {
 <template>
     <ModalCommon title="Add New Opportunity" @close="closeModal">
         <UForm :schema="addOpportunitySchema" :state="state" class="space-y-4" @submit="handleSubmit" @error="console.error">
+            <UFormGroup label="Topic" name="topic" required>
+                <UInput v-model="state.topic" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter topic" />
+            </UFormGroup>
+
             <UFormGroup label="First Name" name="first_name" required>
                 <UInput
                     v-model="state.first_name"

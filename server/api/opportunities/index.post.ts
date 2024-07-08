@@ -10,4 +10,87 @@ export default defineEventHandler(async (event) => {
         console.error('Error validating body:', zodResult.error);
         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
+
+    const { company_id, email, first_name, last_name, organization_id, topic, user_id, phone } = zodResult.data;
+
+    const [contactStatusRes, ratingRes, sourceRes, leadStatusRes, opportunityStatusRes] = await Promise.all([
+        supabase.from('Contact_Statuses').select('id').eq('name', 'new').single(),
+        supabase.from('Ratings').select('id').eq('name', 'cool').single(),
+        supabase.from('Sources').select('id').eq('name', 'manual').single(),
+        supabase.from('Lead_Statuses').select('id').eq('name', 'new').single(),
+        supabase.from('Opportunity_Statuses').select('id').eq('name', 'qualified').single(),
+    ]);
+    if (contactStatusRes.error) {
+        console.error('Error fetching contact status:', contactStatusRes.error);
+        throw createError({ status: 500, statusMessage: contactStatusRes.error.message });
+    }
+    if (leadStatusRes.error) {
+        console.error('Error fetching lead status:', leadStatusRes.error);
+        throw createError({ status: 500, statusMessage: leadStatusRes.error.message });
+    }
+    if (ratingRes.error) {
+        console.error('Error fetching rating:', ratingRes.error);
+        throw createError({ status: 500, statusMessage: ratingRes.error.message });
+    }
+    if (sourceRes.error) {
+        console.error('Error fetching source:', sourceRes.error);
+        throw createError({ status: 500, statusMessage: sourceRes.error.message });
+    }
+    if (opportunityStatusRes.error) {
+        console.error('Error fetching opportunity status:', opportunityStatusRes.error);
+        throw createError({ status: 500, statusMessage: opportunityStatusRes.error.message });
+    }
+
+    const contactRes = await supabase
+        .from('Contacts')
+        .insert({
+            company_id,
+            contact_status_id: contactStatusRes.data.id,
+            organization_id,
+            user_id,
+            first_name,
+            last_name,
+            email,
+            mobile_phone: phone,
+        })
+        .select('id')
+        .single();
+    if (contactRes.error) {
+        console.error('Error creating contact:', contactRes.error);
+        throw createError({ status: 500, statusMessage: contactRes.error.message });
+    }
+
+    const leadRes = await supabase
+        .from('Leads')
+        .insert({
+            company_id,
+            contact_id: contactRes.data.id,
+            lead_status_id: leadStatusRes.data.id,
+            organization_id,
+            rating_id: ratingRes.data.id,
+            source_id: sourceRes.data.id,
+            user_id,
+            topic,
+        })
+        .select()
+        .single();
+    if (leadRes.error) {
+        console.error('Error creating lead:', leadRes.error);
+        throw createError({ status: 500, statusMessage: leadRes.error.message });
+    }
+
+    const opportunityRes = await supabase.from('Opportunities').insert({
+        company_id,
+        contact_id: contactRes.data.id,
+        lead_id: leadRes.data.id,
+        opportunity_status_id: opportunityStatusRes.data.id,
+        organization_id,
+        rating_id: ratingRes.data.id,
+        user_id,
+        topic,
+    });
+    if (opportunityRes.error) {
+        console.error('Error creating opportunity:', opportunityRes.error);
+        throw createError({ status: 500, statusMessage: opportunityRes.error.message });
+    }
 });
