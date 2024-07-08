@@ -16,6 +16,7 @@ export default withNuxt([
             'vue/html-self-closing': 'off',
             'vue/attribute-hyphenation': 'off',
             'prefer-const': 'warn',
+            'vue/prop-name-casing': 'off',
         },
     },
 ]);

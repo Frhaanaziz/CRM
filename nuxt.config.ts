@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     },
 
     runtimeConfig: {
+        BACKEND_URL: process.env.NUXT_BACKEND_URL,
         public: {
             BASE_URL: process.env.NUXT_PUBLIC_BASE_URL,
         },
