@@ -25,3 +25,4 @@ export type Rating = Tables<'Ratings'>;
 export type Task = Tables<'Tasks'>;
 export type Opportunity = Tables<'Opportunities'>;
 export type OpportunityStatus = Tables<'Opportunity_Statuses'>;
+export type B2BContact = Tables<'B2B_Contacts'>;

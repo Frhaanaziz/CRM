@@ -9,6 +9,94 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      Activities: {
+        Row: {
+          company_id: number
+          contact_id: number
+          created_at: string
+          description: string
+          id: number
+          lead_id: number | null
+          method_id: number
+          opportunity_id: number | null
+          reminder_id: number | null
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: number
+          contact_id: number
+          created_at?: string
+          description: string
+          id?: number
+          lead_id?: number | null
+          method_id: number
+          opportunity_id?: number | null
+          reminder_id?: number | null
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: number
+          contact_id?: number
+          created_at?: string
+          description?: string
+          id?: number
+          lead_id?: number | null
+          method_id?: number
+          opportunity_id?: number | null
+          reminder_id?: number | null
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Activities_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "Companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Activities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "Contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "Leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Activities_method_id_fkey"
+            columns: ["method_id"]
+            isOneToOne: false
+            referencedRelation: "Methods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Activities_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "Opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Activities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       B2B_Companies: {
         Row: {
           avatar: string | null
@@ -1351,6 +1439,7 @@ export type Database = {
           is_completed: boolean
           lead_id: number | null
           opportunity_id: number | null
+          organization_id: number
           updated_at: string
           user_id: string
         }
@@ -1362,6 +1451,7 @@ export type Database = {
           is_completed?: boolean
           lead_id?: number | null
           opportunity_id?: number | null
+          organization_id: number
           updated_at?: string
           user_id: string
         }
@@ -1373,6 +1463,7 @@ export type Database = {
           is_completed?: boolean
           lead_id?: number | null
           opportunity_id?: number | null
+          organization_id?: number
           updated_at?: string
           user_id?: string
         }
@@ -1389,6 +1480,13 @@ export type Database = {
             columns: ["opportunity_id"]
             isOneToOne: false
             referencedRelation: "Opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Tasks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "Organizations"
             referencedColumns: ["id"]
           },
           {
