@@ -336,7 +336,7 @@ function useTable() {
 
         <template #website-data="{ row }">
             <NuxtLink :href="row.website" class="text-brand hover:underline" external target="_blank">
-                {{ extractDomain(row.website) }}
+                {{ extractDomain(row.website ?? '') }}
             </NuxtLink>
         </template>
 

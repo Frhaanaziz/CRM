@@ -517,49 +517,49 @@ export default defineEventHandler(async (event) => {
         return { company_id: company.id, contact_id: contact.id, lead_id: lead.id };
     }
 
-    // console.info(`Creating ${OPPORTUNITIES_AMOUNT} opportunities...`);
-    // const {
-    //     // data: opportunitiesData,
-    //     error: opportunitiesError,
-    // } = await supabase
-    //     .from('Opportunities')
-    //     .insert(
-    //         Array.from({ length: OPPORTUNITIES_AMOUNT }, () => {
-    //             const { company_id, contact_id, lead_id } = getRandomIds();
-    //             const opportunityStatus = faker.helpers.arrayElement(opportunityStatusesData);
-    //             const close_reason_id =
-    //                 opportunityStatus.name === 'lost' ? faker.helpers.arrayElement(closeReasonsData).id : null;
+    console.info(`Creating ${OPPORTUNITIES_AMOUNT} opportunities...`);
+    const {
+        // data: opportunitiesData,
+        error: opportunitiesError,
+    } = await supabase
+        .from('Opportunities')
+        .insert(
+            Array.from({ length: OPPORTUNITIES_AMOUNT }, () => {
+                const { company_id, contact_id, lead_id } = getRandomIds();
+                const opportunityStatus = faker.helpers.arrayElement(opportunityStatusesData);
+                const close_reason_id =
+                    opportunityStatus.name === 'lost' ? faker.helpers.arrayElement(closeReasonsData).id : null;
 
-    //             const est_revenue = faker.number.int({ min: 500_000, max: 100_000_000 });
-    //             const act_close_date = faker.date.recent().toISOString();
-    //             const confidence = faker.number.int({ min: 1, max: 100 });
+                const est_revenue = faker.number.int({ min: 500_000, max: 100_000_000 });
+                const act_close_date = faker.date.recent().toISOString();
+                const confidence = faker.number.int({ min: 1, max: 100 });
 
-    //             return {
-    //                 user_id: USER_ID,
-    //                 organization_id: ORGANIZATION_ID,
-    //                 company_id,
-    //                 contact_id,
-    //                 lead_id,
-    //                 opportunity_status_id: opportunityStatus.id,
-    //                 close_reason_id,
-    //                 rating_id: faker.helpers.arrayElement(ratingsData).id,
-    //                 topic: faker.lorem.sentence(),
-    //                 est_revenue,
-    //                 act_close_date,
-    //                 confidence,
-    //                 created_at: faker.date.past().toISOString(),
-    //                 updated_at: faker.date.recent().toISOString(),
-    //             };
-    //         })
-    //     )
-    //     .select();
-    // if (opportunitiesError) {
-    //     console.error('Failed to create opportunities', opportunitiesError);
-    //     throw createError({
-    //         status: 500,
-    //         statusMessage: opportunitiesError.message,
-    //     });
-    // }
+                return {
+                    user_id: USER_ID,
+                    organization_id: ORGANIZATION_ID,
+                    company_id,
+                    contact_id,
+                    lead_id,
+                    opportunity_status_id: opportunityStatus.id,
+                    close_reason_id,
+                    rating_id: faker.helpers.arrayElement(ratingsData).id,
+                    topic: faker.lorem.sentence(),
+                    est_revenue,
+                    act_close_date,
+                    confidence,
+                    created_at: faker.date.past().toISOString(),
+                    updated_at: faker.date.recent().toISOString(),
+                };
+            })
+        )
+        .select();
+    if (opportunitiesError) {
+        console.error('Failed to create opportunities', opportunitiesError);
+        throw createError({
+            status: 500,
+            statusMessage: opportunitiesError.message,
+        });
+    }
 
     console.info('Seed successful');
     return { success: true };
