@@ -10,7 +10,8 @@ const modal = useModal();
 const id = parseInt(useRoute().params.id as string);
 
 const user = useSupabaseUser();
-if (!user.value) throw createError({ status: 401, message: 'Unauthorized' });
+const organization_id = user.value?.user_metadata?.organization_id;
+if (!user.value || !organization_id) throw createError({ status: 401, message: 'Unauthorized' });
 
 const isUpdatingStatus = ref(false);
 const isCreatingTask = ref(false);
@@ -108,6 +109,7 @@ function useTask() {
         date: new Date().toISOString(),
         lead_id: id,
         user_id: user.value!.id,
+        organization_id,
     });
 
     async function createTask(event: FormSubmitEvent<AddTaskType>) {
@@ -259,7 +261,7 @@ function useTask() {
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <div class="flex flex-col">
+                    <div v-if="lead.score" class="flex flex-col">
                         <p class="font-semibold text-green-600">{{ lead.score }}</p>
                         <p class="text-weak text-xs">Lead Score</p>
                     </div>
@@ -499,6 +501,10 @@ function useTask() {
                         </div>
                     </div>
                 </UCard>
+            </div>
+
+            <div class="md:col-span-8">
+                <CardTimeline />
             </div>
         </section>
     </div>
