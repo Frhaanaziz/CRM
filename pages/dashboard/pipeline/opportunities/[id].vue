@@ -526,6 +526,10 @@ function useUpdateOpportunity() {
                     </div>
                 </UCard>
             </div>
+
+            <div class="md:col-span-8">
+                <CardTimeline />
+            </div>
         </section>
     </div>
 </template>

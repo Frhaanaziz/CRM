@@ -175,50 +175,50 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    console.info(`Creating ${B2B_COMPANY_AMOUNT} B2B companies...`);
-    const { error: B2BCompaniesError } = await supabase.from('B2B_Companies').insert(
-        Array.from({ length: B2B_COMPANY_AMOUNT }, () => {
-            const name = faker.company.name();
-            const phone = faker.phone.number();
-            const province = faker.helpers.arrayElement(provincesData);
-            const email = faker.internet.email({
-                firstName: name,
-                lastName: '',
-                allowSpecialCharacters: false,
-                provider: 'gmail.com',
-            });
-            const city_id = faker.helpers.arrayElement(citiesData.filter((city) => city.province_id === province.id)).id;
-            const size_id = faker.helpers.arrayElement(sizesData).id;
-            const industry_id = faker.helpers.arrayElement(industriesData).id;
+    // console.info(`Creating ${B2B_COMPANY_AMOUNT} B2B companies...`);
+    // const { error: B2BCompaniesError } = await supabase.from('B2B_Companies').insert(
+    //     Array.from({ length: B2B_COMPANY_AMOUNT }, () => {
+    //         const name = faker.company.name();
+    //         const phone = faker.phone.number();
+    //         const province = faker.helpers.arrayElement(provincesData);
+    //         const email = faker.internet.email({
+    //             firstName: name,
+    //             lastName: '',
+    //             allowSpecialCharacters: false,
+    //             provider: 'gmail.com',
+    //         });
+    //         const city_id = faker.helpers.arrayElement(citiesData.filter((city) => city.province_id === province.id)).id;
+    //         const size_id = faker.helpers.arrayElement(sizesData).id;
+    //         const industry_id = faker.helpers.arrayElement(industriesData).id;
 
-            return {
-                name,
-                email,
-                phone,
-                description: faker.lorem.paragraphs(),
-                services: faker.lorem.paragraphs(2),
-                website: faker.internet.url(),
-                linkedin: `https://linkedin.com/company/${name.toLowerCase().replace(/\s/g, '-')}`,
-                size_id,
-                province_id: province.id,
-                city_id,
-                industry_id,
-                street: faker.location.streetAddress(),
-                zip_code: faker.location.zipCode(),
-                avatar: faker.image.avatarGitHub(),
-                created_at: faker.date.past().toISOString(),
-                updated_at: faker.date.recent().toISOString(),
-            };
-        })
-    );
-    // .select('*');
-    if (B2BCompaniesError) {
-        console.error('Failed to create B2B companies', B2BCompaniesError);
-        throw createError({
-            status: 500,
-            statusMessage: B2BCompaniesError.message,
-        });
-    }
+    //         return {
+    //             name,
+    //             email,
+    //             phone,
+    //             description: faker.lorem.paragraphs(),
+    //             services: faker.lorem.paragraphs(2),
+    //             website: faker.internet.url(),
+    //             linkedin: `https://linkedin.com/company/${name.toLowerCase().replace(/\s/g, '-')}`,
+    //             size_id,
+    //             province_id: province.id,
+    //             city_id,
+    //             industry_id,
+    //             street: faker.location.streetAddress(),
+    //             zip_code: faker.location.zipCode(),
+    //             avatar: faker.image.avatarGitHub(),
+    //             created_at: faker.date.past().toISOString(),
+    //             updated_at: faker.date.recent().toISOString(),
+    //         };
+    //     })
+    // );
+    // // .select('*');
+    // if (B2BCompaniesError) {
+    //     console.error('Failed to create B2B companies', B2BCompaniesError);
+    //     throw createError({
+    //         status: 500,
+    //         statusMessage: B2BCompaniesError.message,
+    //     });
+    // }
 
     // console.info('Creating Photos...');
     // const PHOTOS_AMOUNT = 3_000;

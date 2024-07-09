@@ -10,10 +10,6 @@ export default defineAppConfig({
 
         formGroup: { label: { base: 'font-semibold' } },
 
-        input: {
-            base: 'disabled:bg-base-300',
-        },
-
         card: {
             body: {
                 padding: 'px-4 py-2 sm:px-4 sm:py-2 ',

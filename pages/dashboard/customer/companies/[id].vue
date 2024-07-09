@@ -37,7 +37,13 @@ const contactsOption = computed(() =>
 
 const isOpportunityEditMode = ref(false);
 
-const { updateState, isUpdating, updateCompany, formRef, submitForm, isFormDirty, resetForm } = useUpdateCompany();
+const companyForm = ref<null | {
+    submitForm: () => Promise<any>;
+    resetForm: () => Promise<any>;
+    isFormDirty: boolean;
+    isUpdating: boolean;
+}>(null);
+
 const { opportunityState, isCreatingOpportunity, handleSubmitOpportunity } = useOpportunity();
 
 async function handleDeleteCompanies() {
@@ -51,60 +57,6 @@ async function handleDeleteCompanies() {
         console.error('Failed to delete company:', e);
         toast.error('Failed to delete company, please try again later.');
     }
-}
-function useUpdateCompany() {
-    type UpdateCompanyType = z.infer<typeof updateCompanySchema>;
-    const formRef = ref();
-    const isUpdating = ref(false);
-
-    const initialState = {
-        id,
-        name: company.value!.name,
-        phone: company.value!.phone ?? undefined,
-        industry_id: company.value!.industry_id ?? undefined,
-        size_id: company.value!.size_id ?? undefined,
-        country_id: company.value!.country_id ?? undefined,
-        province_id: company.value!.province_id ?? undefined,
-        city_id: company.value!.city_id ?? undefined,
-        street_1: company.value!.street_1 ?? undefined,
-        street_2: company.value!.street_2 ?? undefined,
-        street_3: company.value!.street_3 ?? undefined,
-        postal_code: company.value!.postal_code ?? undefined,
-    };
-    const updateState = ref({ ...initialState });
-    const { history, clear } = useRefHistory(updateState, { deep: true, capacity: 1 });
-    const isDirty = computed(() => history.value.length > 1);
-    const submit = async () => await formRef.value?.submit();
-
-    const resetForm = async () => {
-        formRef.value?.clear();
-        updateState.value = initialState;
-        await nextTick();
-        clear();
-    };
-
-    async function updateCompany(event: FormSubmitEvent<UpdateCompanyType>) {
-        try {
-            isUpdating.value = true;
-
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            // await $fetch('/api/companies', {
-            //     method: 'POST',
-            //     body: JSON.stringify(event.data),
-            // });
-
-            toast.success('Company updated successfully.');
-            clear();
-            await refreshCompany();
-        } catch (e) {
-            console.error('Failed to update company', e);
-            toast.error('Failed to update company, please try again later.');
-        } finally {
-            isUpdating.value = false;
-        }
-    }
-
-    return { updateState, isUpdating, updateCompany, formRef, submitForm: submit, isFormDirty: isDirty, resetForm };
 }
 function useOpportunity() {
     type AddOpportunityType = z.infer<typeof addCompanyOpportunitySchema>;
@@ -192,14 +144,14 @@ function useOpportunity() {
                     Delete
                 </UButton>
 
-                <template v-if="isFormDirty">
+                <template v-if="companyForm?.isFormDirty">
                     <UButton
                         variant="ghost"
                         icon="i-heroicons-arrow-path"
                         color="black"
                         class="font-semibold"
-                        :disabled="isUpdating"
-                        @click="resetForm"
+                        :disabled="companyForm?.isUpdating"
+                        @click="companyForm?.resetForm"
                     >
                         Reset
                     </UButton>
@@ -208,8 +160,8 @@ function useOpportunity() {
                         icon="i-heroicons-bookmark"
                         color="black"
                         class="font-semibold"
-                        :disabled="isUpdating"
-                        @click="submitForm"
+                        :disabled="companyForm?.isUpdating"
+                        @click="companyForm?.submitForm"
                     >
                         Save
                     </UButton>
@@ -245,92 +197,7 @@ function useOpportunity() {
 
         <section class="m-4 grid gap-4 md:grid-cols-12">
             <div class="flex flex-col gap-4 md:col-span-4">
-                <UCard>
-                    <template #header>
-                        <h2 class="text-xl font-semibold">COMPANY</h2>
-                    </template>
-
-                    <div v-if="company" class="flex gap-6 text-sm sm:text-base">
-                        <div class="text-weak grid shrink-0 grid-rows-11 gap-y-8">
-                            <p>Company Name</p>
-                            <p>Business Phone</p>
-                            <p>Industry</p>
-                            <p>Size</p>
-                            <p>Country/Region</p>
-                            <p>State/Province</p>
-                            <p>City</p>
-                            <p>Street 1</p>
-                            <p>Street 2</p>
-                            <p>Street 3</p>
-                            <p>ZIP/Postal Code</p>
-                        </div>
-
-                        <UForm
-                            ref="formRef"
-                            :schema="updateCompanySchema"
-                            :state="updateState"
-                            class="grid grow grid-rows-11 gap-y-8 font-semibold"
-                            :disabled="isUpdating"
-                            @submit="updateCompany"
-                            @error="console.error"
-                        >
-                            <UFormGroup name="name">
-                                <UInput v-model="updateState.name" variant="none" :padded="false" />
-                            </UFormGroup>
-
-                            <UFormGroup name="phone">
-                                <UInput v-model="updateState.phone" variant="none" :padded="false" />
-                            </UFormGroup>
-
-                            <p class="line-clamp-1">{{ company.industry?.name ?? '---' }}</p>
-                            <p class="line-clamp-1">
-                                {{ company.size?.size_range ?? '---' }}
-                            </p>
-                            <p class="line-clamp-1">
-                                {{ company.country?.name ?? '---' }}
-                            </p>
-                            <p class="line-clamp-1">
-                                {{ company.province?.name ?? '---' }}
-                            </p>
-                            <p class="line-clamp-1">{{ company.city?.name ?? '---' }}</p>
-
-                            <UFormGroup name="street_1">
-                                <UInput v-model="updateState.street_1" variant="none" :padded="false" />
-                            </UFormGroup>
-
-                            <UFormGroup name="street_2">
-                                <UInput v-model="updateState.street_2" variant="none" :padded="false" />
-                            </UFormGroup>
-
-                            <UFormGroup name="street_3">
-                                <UInput v-model="updateState.street_3" variant="none" :padded="false" />
-                            </UFormGroup>
-
-                            <UFormGroup name="postal_code">
-                                <UInput v-model="updateState.postal_code" variant="none" :padded="false" />
-                            </UFormGroup>
-                        </UForm>
-                        <!-- <div class="grid grow grid-rows-11 gap-y-8 font-semibold">
-                            <p class="line-clamp-1">{{ company.name }}</p>
-                            <p class="line-clamp-1">{{ company.phone ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ company.industry?.name ?? '---' }}</p>
-                            <p class="line-clamp-1">
-                                {{ company.size?.size_range ?? '---' }}
-                            </p>
-                            <p class="line-clamp-1">
-                                {{ company.country?.name ?? '---' }}
-                            </p>
-                            <p class="line-clamp-1">
-                                {{ company.province?.name ?? '---' }}
-                            </p>
-                            <p class="line-clamp-1">{{ company.city?.name ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ company.street_1 ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ company.street_2 ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ company.street_3 ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ company.postal_code ?? '---' }}</p>
-                        </div> -->
-                    </div>
-                </UCard>
+                <CardCompanyDetails ref="companyForm" :company="company" />
 
                 <UCard v-if="company.opportunities" :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">
                     <template #header>
@@ -546,6 +413,10 @@ function useOpportunity() {
                         </ul>
                     </div>
                 </UCard>
+            </div>
+
+            <div class="md:col-span-8">
+                <CardTimeline />
             </div>
         </section>
     </div>

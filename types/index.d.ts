@@ -5,6 +5,7 @@ export type UserStatuses = Enums<'user_statuses'>;
 export type LeadStatuses = Enums<'lead_statuses'>;
 
 export type User = Tables<'Users'>;
+export type Country = Tables<'Countries'>;
 export type Province = Tables<'Provinces'>;
 export type City = Tables<'Cities'>;
 export type Industry = Tables<'Industries'>;

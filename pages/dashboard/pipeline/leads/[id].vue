@@ -13,9 +13,6 @@ const user = useSupabaseUser();
 const organization_id = user.value?.user_metadata?.organization_id;
 if (!user.value || !organization_id) throw createError({ status: 401, message: 'Unauthorized' });
 
-const isUpdatingStatus = ref(false);
-const isCreatingTask = ref(false);
-
 const { data: disqualifyReasons } = await useLazyFetch('/api/disqualify-reasons', {
     key: 'disqualify-reasons',
 });
@@ -23,6 +20,31 @@ const { data: lead, refresh: refreshLead } = await useFetch(`/api/leads/${id}`, 
     key: `leads-${id}`,
 });
 if (!lead.value) throw createError({ status: 404, message: 'Lead not found' });
+
+const isUpdatingStatus = ref(false);
+const isCreatingTask = ref(false);
+
+const contactForm = ref<null | {
+    submitForm: () => Promise<any>;
+    resetForm: () => Promise<any>;
+    isFormDirty: boolean;
+    isUpdating: boolean;
+}>(null);
+const submitContactForm = () => contactForm.value?.submitForm();
+const resetContactForm = () => contactForm.value?.resetForm();
+const isContactFormDirty = computed(() => contactForm.value?.isFormDirty);
+const isUpdatingContact = computed(() => contactForm.value?.isUpdating);
+
+const companyForm = ref<null | {
+    submitForm: () => Promise<any>;
+    resetForm: () => Promise<any>;
+    isFormDirty: boolean;
+    isUpdating: boolean;
+}>(null);
+const submitCompanyForm = () => companyForm.value?.submitForm();
+const resetCompanyForm = () => companyForm.value?.resetForm();
+const isCompanyFormDirty = computed(() => companyForm.value?.isFormDirty);
+const isUpdatingCompany = computed(() => companyForm.value?.isUpdating);
 
 const { taskState, isSubmittingTask, handleSubmitTask } = useTask();
 
@@ -142,14 +164,14 @@ function useTask() {
 </script>
 
 <template>
-    <div class="min-h-screen bg-base-200">
+    <div v-if="lead" class="min-h-screen bg-base-200">
         <header class="bg-base-100">
             <div class="flex items-center border-b">
                 <NuxtLink href="/dashboard/pipeline/leads" class="flex h-10 w-10 items-center justify-center border">
                     <UIcon name="i-heroicons-arrow-left-20-solid" class="h-[18px] w-[18px]" />
                 </NuxtLink>
 
-                <template v-if="lead?.status?.name === 'new'">
+                <template v-if="lead.status?.name === 'new'">
                     <!-- Qualify Button -->
                     <UButton
                         variant="ghost"
@@ -240,12 +262,51 @@ function useTask() {
                         modal.open(LazyModalDelete, {
                             onClose: () => modal.close(),
                             title: 'Lead',
-                            description: 'Are you sure you want to delete this lead? This action cannot be undone.',
+                            description: 'Are you sure you want to delete this lead This action cannot be undone.',
                             onConfirm: handleDeleteLead,
                         })
                     "
                 >
                     Delete
+                </UButton>
+
+                <UButton
+                    v-if="isContactFormDirty || isCompanyFormDirty"
+                    variant="ghost"
+                    icon="i-heroicons-arrow-path"
+                    color="black"
+                    class="font-semibold"
+                    :disabled="isUpdatingContact || isUpdatingCompany"
+                    @click="
+                        () => {
+                            resetContactForm();
+                            resetCompanyForm();
+                        }
+                    "
+                >
+                    Reset
+                </UButton>
+                <UButton
+                    v-if="isContactFormDirty"
+                    variant="ghost"
+                    icon="i-heroicons-bookmark"
+                    color="black"
+                    class="font-semibold"
+                    :disabled="isUpdatingContact"
+                    @click="submitContactForm"
+                >
+                    Save Contact
+                </UButton>
+                <UButton
+                    v-if="isCompanyFormDirty"
+                    variant="ghost"
+                    icon="i-heroicons-bookmark"
+                    color="black"
+                    class="font-semibold"
+                    :disabled="isUpdatingCompany"
+                    @click="submitCompanyForm"
+                >
+                    Save Company
                 </UButton>
             </div>
 
@@ -311,7 +372,7 @@ function useTask() {
         <section class="grid gap-4 p-4 md:grid-cols-12">
             <div class="flex flex-col gap-4 md:col-span-4">
                 <p
-                    v-if="lead?.status?.name === 'disqualified' && lead.disqualify_reason"
+                    v-if="lead.status?.name === 'disqualified' && lead.disqualify_reason"
                     class="text-weak rounded-lg bg-red-100 p-4"
                 >
                     This lead is disqualified because
@@ -334,7 +395,7 @@ function useTask() {
                             })
                         "
                     >
-                        <template v-if="lead?.topic">
+                        <template v-if="lead.topic">
                             {{ lead.topic }}
                         </template>
                         <template v-else>
@@ -348,7 +409,7 @@ function useTask() {
                     <template #header>
                         <div class="flex items-center justify-between">
                             <h2 class="text-xl font-semibold">
-                                TASK <span class="text-weak">({{ lead?.tasks.length }})</span>
+                                TASK <span class="text-weak">({{ lead.tasks.length }})</span>
                             </h2>
                             <UButton
                                 icon="i-heroicons-plus"
@@ -399,7 +460,7 @@ function useTask() {
                         </UForm>
                     </div>
 
-                    <div v-if="!!lead?.tasks?.length" class="divide-y">
+                    <div v-if="!!lead.tasks?.length" class="divide-y">
                         <CardTask v-for="task in lead.tasks" :key="task.id" :task="task" />
                     </div>
                     <UButton
@@ -414,93 +475,9 @@ function useTask() {
                     </UButton>
                 </UCard>
 
-                <UCard>
-                    <template #header>
-                        <div class="flex items-center justify-between">
-                            <h2 class="text-xl font-semibold">CONTACT</h2>
-                            <UButton v-if="!lead?.contact?.is_valid_email" variant="outline">Verify Email</UButton>
-                        </div>
-                    </template>
+                <CardContactDetails v-if="lead && lead.contact" ref="contactForm" :contact="lead.contact" />
 
-                    <div v-if="lead?.contact" class="flex gap-6 text-sm sm:text-base">
-                        <div class="text-weak grid shrink-0 grid-rows-7 gap-y-8">
-                            <p>Email</p>
-                            <p>First Name</p>
-                            <p>Last Name</p>
-                            <p>Job Title</p>
-                            <p>Mobile Phone</p>
-                            <p>Whatsapp</p>
-                            <p>LinkedIn URL</p>
-                            <!-- <p>Preferred Method of Contact</p> -->
-                        </div>
-
-                        <div class="grid grow grid-rows-7 gap-y-8 font-semibold">
-                            <p class="line-clamp-1">{{ lead.contact.email ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ lead.contact.first_name ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ lead.contact.last_name ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ lead.contact.job_title ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ lead.contact.mobile_phone ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ lead.contact.whatsapp ?? '---' }}</p>
-                            <NuxtLink
-                                v-if="lead.contact.linkedin"
-                                :href="lead.contact.linkedin"
-                                external
-                                class="line-clamp-1 text-brand"
-                                >{{ lead.contact.linkedin }}</NuxtLink
-                            >
-                        </div>
-                    </div>
-                </UCard>
-
-                <UCard>
-                    <template #header>
-                        <h2 class="text-xl font-semibold">COMPANY</h2>
-                    </template>
-
-                    <div v-if="lead && lead.company" class="flex gap-6 text-sm sm:text-base">
-                        <div class="text-weak grid shrink-0 grid-rows-11 gap-y-8">
-                            <p>Company Name</p>
-                            <p>Business Phone</p>
-                            <p>Industry</p>
-                            <p>Size</p>
-                            <p>Country/Region</p>
-                            <p>State/Province</p>
-                            <p>City</p>
-                            <p>Street 1</p>
-                            <p>Street 2</p>
-                            <p>Street 3</p>
-                            <p>ZIP/Postal Code</p>
-                            <p>Website</p>
-                        </div>
-
-                        <div class="grid grow grid-rows-11 gap-y-8 font-semibold">
-                            <p class="line-clamp-1">{{ lead.company.name }}</p>
-                            <p class="line-clamp-1">{{ lead.company.phone ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ lead.company.industry?.name ?? '---' }}</p>
-                            <p class="line-clamp-1">
-                                {{ lead.company.size?.size_range ?? '---' }}
-                            </p>
-                            <p class="line-clamp-1">
-                                {{ lead.company.country?.name ?? '---' }}
-                            </p>
-                            <p class="line-clamp-1">
-                                {{ lead.company.province?.name ?? '---' }}
-                            </p>
-                            <p class="line-clamp-1">{{ lead.company.city?.name ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ lead.company.street_1 ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ lead.company.street_2 ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ lead.company.street_3 ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ lead.company.postal_code ?? '---' }}</p>
-                            <NuxtLink
-                                :href="lead.company.website ?? '#'"
-                                externa
-                                target="_blank"
-                                class="line-clamp-1 text-brand"
-                                >{{ lead.company.website ?? '---' }}</NuxtLink
-                            >
-                        </div>
-                    </div>
-                </UCard>
+                <CardCompanyDetails v-if="lead && lead.company" ref="companyForm" :company="lead.company" />
             </div>
 
             <div class="md:col-span-8">
