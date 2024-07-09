@@ -43,8 +43,6 @@ export const updateCompanySchema = companiesSchema.pick({
 export const addCompanySchema = companiesSchema.pick({
     name: true,
     website: true,
-    user_id: true,
-    organization_id: true,
 });
 
 export const addCompanyPrimaryContactSchema = companiesSchema.pick({

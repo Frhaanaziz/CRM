@@ -7,16 +7,11 @@ function closeModal() {
     emit('close');
 }
 
-const user = useSupabaseUser();
-if (!user.value || !user.value.user_metadata.organization_id) throw createError({ status: 401, message: 'Unauthorized' });
-
 type AddCompanyType = z.infer<typeof addCompanySchema>;
 const isSubmitting = ref(false);
 const state = ref({
     name: '',
     website: undefined,
-    user_id: user.value.id,
-    organization_id: user.value.user_metadata.organization_id,
 });
 async function handleSubmit(event: FormSubmitEvent<AddCompanyType>) {
     try {
