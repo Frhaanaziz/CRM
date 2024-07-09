@@ -230,7 +230,7 @@ function useUpdateB2BCompany() {
                                     :ui="{
                                         color: {
                                             white: {
-                                                outline: 'ring-0 shadow-none',
+                                                outline: 'ring-0 shadow-none hover:ring-1 ',
                                             },
                                         },
                                     }"
@@ -246,7 +246,7 @@ function useUpdateB2BCompany() {
                                         :ui="{
                                             color: {
                                                 white: {
-                                                    outline: 'ring-0 shadow-none text-brand',
+                                                    outline: 'ring-0 shadow-none hover:ring-1  text-brand',
                                                 },
                                             },
                                         }"
@@ -272,7 +272,7 @@ function useUpdateB2BCompany() {
                                         :ui="{
                                             color: {
                                                 white: {
-                                                    outline: 'ring-0 shadow-none text-brand',
+                                                    outline: 'ring-0 shadow-none hover:ring-1  text-brand',
                                                 },
                                             },
                                         }"
@@ -296,7 +296,7 @@ function useUpdateB2BCompany() {
                                     :ui="{
                                         color: {
                                             white: {
-                                                outline: 'ring-0 shadow-none',
+                                                outline: 'ring-0 shadow-none hover:ring-1 ',
                                             },
                                         },
                                     }"
@@ -310,7 +310,7 @@ function useUpdateB2BCompany() {
                                     :ui="{
                                         color: {
                                             white: {
-                                                outline: 'ring-0 shadow-none',
+                                                outline: 'ring-0 shadow-none hover:ring-1 ',
                                             },
                                         },
                                     }"
@@ -327,7 +327,7 @@ function useUpdateB2BCompany() {
                                     :ui="{
                                         color: {
                                             white: {
-                                                outline: 'ring-0 shadow-none',
+                                                outline: 'ring-0 shadow-none hover:ring-1 ',
                                             },
                                         },
                                     }"
@@ -344,7 +344,7 @@ function useUpdateB2BCompany() {
                                     :ui="{
                                         color: {
                                             white: {
-                                                outline: 'ring-0 shadow-none',
+                                                outline: 'ring-0 shadow-none hover:ring-1 ',
                                             },
                                         },
                                     }"
@@ -361,7 +361,7 @@ function useUpdateB2BCompany() {
                                     :ui="{
                                         color: {
                                             white: {
-                                                outline: 'ring-0 shadow-none',
+                                                outline: 'ring-0 shadow-none hover:ring-1 ',
                                             },
                                         },
                                     }"
@@ -378,7 +378,7 @@ function useUpdateB2BCompany() {
                                     :ui="{
                                         color: {
                                             white: {
-                                                outline: 'ring-0 shadow-none',
+                                                outline: 'ring-0 shadow-none hover:ring-1 ',
                                             },
                                         },
                                     }"
@@ -392,7 +392,7 @@ function useUpdateB2BCompany() {
                                     :ui="{
                                         color: {
                                             white: {
-                                                outline: 'ring-0 shadow-none',
+                                                outline: 'ring-0 shadow-none hover:ring-1 ',
                                             },
                                         },
                                     }"
@@ -406,7 +406,7 @@ function useUpdateB2BCompany() {
                                     :ui="{
                                         color: {
                                             white: {
-                                                outline: 'ring-0 shadow-none',
+                                                outline: 'ring-0 shadow-none hover:ring-1 ',
                                             },
                                         },
                                     }"

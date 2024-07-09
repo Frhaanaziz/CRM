@@ -15,11 +15,11 @@ export default defineEventHandler(async (event) => {
                 contact: Contacts(*),
                 company: Companies(
                                     *,
-                                    industry: Industries(name),
-                                    size: Sizes(size_range),
-                                    country: Countries(name),
-                                    province: Provinces(name),
-                                    city: Cities(name)
+                                    industry: Industries(id, name),
+                                    size: Sizes(id, size_range),
+                                    country: Countries(id, name),
+                                    province: Provinces(id, name),
+                                    city: Cities(id, name)
                                 ),
                 source: Sources(*),
                 rating: Ratings(*),

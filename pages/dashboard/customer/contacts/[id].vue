@@ -1,24 +1,21 @@
 <script lang="ts" setup>
-import type { z } from 'zod';
-import type { FormSubmitEvent } from '#ui/types';
-import { useRefHistory } from '@vueuse/core';
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAssignContact from '~/components/modal/ModalAssignContact.vue';
 
 const modal = useModal();
 const id = parseInt(useRoute().params.id as string);
 
-const { data: contact, refresh: refreshContact } = await useFetch(`/api/contacts/${id}`, {
+const { data: contact } = await useFetch(`/api/contacts/${id}`, {
     key: `contacts-${id}`,
 });
 if (!contact.value) throw createError({ status: 404, message: 'contact not found' });
 
-const { updateState, isUpdating, updateContact, formRef, submitForm, isFormDirty, resetForm } = useUpdateContact();
-
-// onBeforeRouteLeave(() => {
-//     const answer = window.confirm('Are you sure you want to leave?');
-//     if (!answer) return false;
-// });
+const contactForm = ref<null | {
+    submitForm: () => Promise<any>;
+    resetForm: () => Promise<any>;
+    isFormDirty: boolean;
+    isUpdating: boolean;
+}>(null);
 
 async function handleDeleteContact() {
     try {
@@ -32,60 +29,10 @@ async function handleDeleteContact() {
         toast.error('Failed to delete contact, please try again later.');
     }
 }
-function useUpdateContact() {
-    type UpdateContactType = z.infer<typeof updateContactSchema>;
-    const formRef = ref();
-    const isUpdating = ref(false);
-
-    const initialState = {
-        id,
-        email: contact.value!.email ?? undefined,
-        first_name: contact.value!.first_name ?? undefined,
-        last_name: contact.value!.last_name ?? undefined,
-        job_title: contact.value!.job_title ?? undefined,
-        mobile_phone: contact.value!.mobile_phone ?? undefined,
-        whatsapp: contact.value!.whatsapp ?? undefined,
-        linkedin: contact.value!.linkedin ?? undefined,
-        company_id: contact.value!.company_id,
-    };
-    const updateState = ref({ ...initialState });
-    const { history, clear } = useRefHistory(updateState, { deep: true });
-    const isDirty = computed(() => history.value.length > 1);
-    const submit = async () => await formRef.value?.submit();
-
-    const resetForm = async () => {
-        formRef.value?.clear();
-        updateState.value = initialState;
-        await nextTick();
-        clear();
-    };
-
-    async function updateContact(event: FormSubmitEvent<UpdateContactType>) {
-        try {
-            isUpdating.value = true;
-
-            await $fetch(`/api/contacts/${id}`, {
-                method: 'PUT',
-                body: JSON.stringify(event.data),
-            });
-
-            toast.success('Contact updated successfully.');
-            clear();
-            await refreshContact();
-        } catch (e) {
-            console.error('Failed to update contact', e);
-            toast.error('Failed to update contact, please try again later.');
-        } finally {
-            isUpdating.value = false;
-        }
-    }
-
-    return { updateState, isUpdating, updateContact, formRef, submitForm: submit, isFormDirty: isDirty, resetForm };
-}
 </script>
 
 <template>
-    <div class="min-h-screen bg-base-200">
+    <div v-if="contact" class="min-h-screen bg-base-200">
         <header class="bg-base-100">
             <div class="flex items-center border-b">
                 <NuxtLink href="/dashboard/customer/contacts" class="flex h-10 w-10 items-center justify-center border">
@@ -124,14 +71,14 @@ function useUpdateContact() {
                     Delete
                 </UButton>
 
-                <template v-if="isFormDirty">
+                <template v-if="contactForm?.isFormDirty">
                     <UButton
                         variant="ghost"
                         icon="i-heroicons-arrow-path"
                         color="black"
                         class="font-semibold"
-                        :disabled="isUpdating"
-                        @click="resetForm"
+                        :disabled="contactForm?.isUpdating"
+                        @click="contactForm?.resetForm"
                     >
                         Reset
                     </UButton>
@@ -140,8 +87,8 @@ function useUpdateContact() {
                         icon="i-heroicons-bookmark"
                         color="black"
                         class="font-semibold"
-                        :disabled="isUpdating"
-                        @click="submitForm"
+                        :disabled="contactForm?.isUpdating"
+                        @click="contactForm?.submitForm"
                     >
                         Save
                     </UButton>
@@ -173,98 +120,11 @@ function useUpdateContact() {
 
         <section class="m-4 grid gap-4 md:grid-cols-12">
             <div class="flex flex-col gap-4 md:col-span-4">
-                <UCard>
-                    <template #header>
-                        <div class="flex items-center justify-between">
-                            <h2 class="text-xl font-semibold">Contact</h2>
-                            <UButton variant="outline" disabled>Verify Email</UButton>
-                        </div>
-                    </template>
+                <CardContactDetails ref="contactForm" :contact />
+            </div>
 
-                    <div v-if="contact" class="flex gap-6 text-sm sm:text-base">
-                        <div class="text-weak grid shrink-0 grid-rows-7 gap-y-8">
-                            <p>Email</p>
-                            <p>First Name</p>
-                            <p>Last Name</p>
-                            <p>Job Title</p>
-                            <p>Mobile Phone</p>
-                            <p>Whatsapp</p>
-                            <p>LinkedIn URL</p>
-                            <!-- <p>Company Name</p> -->
-                        </div>
-
-                        <UForm
-                            ref="formRef"
-                            :schema="updateContactSchema"
-                            :state="updateState"
-                            class="grid grow grid-rows-7 gap-y-8 font-semibold"
-                            :disabled="isUpdating"
-                            @submit="updateContact"
-                            @error="console.error"
-                        >
-                            <UFormGroup name="email">
-                                <UInput v-model="updateState.email" variant="none" :padded="false" />
-                            </UFormGroup>
-
-                            <UFormGroup name="first_name">
-                                <UInput v-model="updateState.first_name" variant="none" :padded="false" />
-                            </UFormGroup>
-
-                            <UFormGroup name="last_name">
-                                <UInput v-model="updateState.last_name" variant="none" :padded="false" />
-                            </UFormGroup>
-
-                            <UFormGroup name="job_title">
-                                <UInput v-model="updateState.job_title" variant="none" :padded="false" />
-                            </UFormGroup>
-
-                            <UFormGroup name="mobile_phone">
-                                <UInput v-model="updateState.mobile_phone" variant="none" :padded="false" />
-                            </UFormGroup>
-
-                            <UFormGroup name="whatsapp">
-                                <UInput v-model="updateState.whatsapp" variant="none" :padded="false" />
-                            </UFormGroup>
-
-                            <UFormGroup name="linkedin">
-                                <UInput v-model="updateState.linkedin" variant="none" :padded="false" />
-                            </UFormGroup>
-                        </UForm>
-                        <!-- <div class="grid grow grid-rows-8 gap-y-8 font-semibold">
-                            <p class="line-clamp-1">{{ contact.email ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ contact.first_name ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ contact.last_name ?? '---' }}</p>
-                            <p class="line-clamp-1">
-                                {{ contact.job_title ?? '---' }}
-                            </p>
-                            <p class="line-clamp-1">
-                                {{ contact.mobile_phone ?? '---' }}
-                            </p>
-                            <p class="line-clamp-1">
-                                {{ contact.whatsapp ?? '---' }}
-                            </p>
-
-                            <NuxtLink
-                                v-if="contact.linkedin"
-                                :href="contact.linkedin"
-                                external
-                                target="_blank"
-                                class="line-clamp-1 text-brand"
-                            >
-                                {{ contact.linkedin }}
-                            </NuxtLink>
-                            <p v-else>---</p>
-
-                            <NuxtLink
-                                v-if="contact.company"
-                                :href="`/dashboard/customer/companies/${contact.company.id}`"
-                                class="line-clamp-1 text-brand"
-                                >{{ contact.company?.name }}</NuxtLink
-                            >
-                            <p v-else>---</p>
-                        </div> -->
-                    </div>
-                </UCard>
+            <div class="md:col-span-8">
+                <CardTimeline />
             </div>
         </section>
     </div>
