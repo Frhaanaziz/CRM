@@ -10,8 +10,14 @@ const props = defineProps<{
 const { contact } = toRefs(props);
 
 const { updateState, isUpdating, updateContact, formRef, submitForm, isFormDirty, resetForm } = useUpdateContact();
-
 defineExpose({ submitForm, resetForm, isFormDirty, isUpdating });
+
+onBeforeRouteLeave(() => {
+    if (isFormDirty.value) {
+        return window.confirm('Are you sure you want to leave?, you have unsaved changes.');
+    }
+});
+
 function useUpdateContact() {
     type UpdateContactType = z.infer<typeof updateContactSchema>;
     const formRef = ref();
@@ -62,11 +68,6 @@ function useUpdateContact() {
 
     return { updateState, isUpdating, updateContact, formRef, submitForm: submit, isFormDirty: isDirty, resetForm };
 }
-
-// onBeforeRouteLeave(() => {
-//     const answer = window.confirm('Are you sure you want to leave?');
-//     if (!answer) return false;
-// });
 </script>
 
 <template>
