@@ -18,6 +18,12 @@ const { company } = toRefs(props);
 const { updateState, isUpdating, updateCompany, formRef, submitForm, isFormDirty, resetForm } = useUpdateB2BCompany();
 defineExpose({ submitForm, resetForm, isFormDirty, isUpdating });
 
+onBeforeRouteLeave(() => {
+    if (isFormDirty.value) {
+        return window.confirm('Are you sure you want to leave?, you have unsaved changes.');
+    }
+});
+
 const [
     { data: industriesOption },
     { data: sizesOption },
