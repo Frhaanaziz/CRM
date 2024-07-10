@@ -227,6 +227,7 @@ function useUpdateB2BCompany() {
                                 <UInput
                                     v-model="updateState.name"
                                     placeholder="---"
+                                    disabled
                                     :ui="{
                                         color: {
                                             white: {
@@ -243,6 +244,7 @@ function useUpdateB2BCompany() {
                                         v-model="updateState.website"
                                         class="flex-1"
                                         placeholder="---"
+                                        disabled
                                         :ui="{
                                             color: {
                                                 white: {
@@ -269,6 +271,7 @@ function useUpdateB2BCompany() {
                                         v-model="updateState.linkedin"
                                         class="flex-1"
                                         placeholder="---"
+                                        disabled
                                         :ui="{
                                             color: {
                                                 white: {
@@ -293,6 +296,7 @@ function useUpdateB2BCompany() {
                                 <UInput
                                     v-model="updateState.phone"
                                     placeholder="---"
+                                    disabled
                                     :ui="{
                                         color: {
                                             white: {
@@ -307,6 +311,7 @@ function useUpdateB2BCompany() {
                                 <UInput
                                     v-model="updateState.email"
                                     placeholder="---"
+                                    disabled
                                     :ui="{
                                         color: {
                                             white: {
@@ -324,6 +329,7 @@ function useUpdateB2BCompany() {
                                     option-attribute="label"
                                     :options="industriesOption ?? []"
                                     placeholder="---"
+                                    disabled
                                     :ui="{
                                         color: {
                                             white: {
@@ -341,6 +347,7 @@ function useUpdateB2BCompany() {
                                     option-attribute="label"
                                     :options="sizesOption ?? []"
                                     placeholder="---"
+                                    disabled
                                     :ui="{
                                         color: {
                                             white: {
@@ -358,6 +365,7 @@ function useUpdateB2BCompany() {
                                     option-attribute="label"
                                     :options="provincesOption ?? []"
                                     placeholder="---"
+                                    disabled
                                     :ui="{
                                         color: {
                                             white: {
@@ -375,6 +383,7 @@ function useUpdateB2BCompany() {
                                     option-attribute="label"
                                     :options="citiesOption ?? []"
                                     placeholder="---"
+                                    disabled
                                     :ui="{
                                         color: {
                                             white: {
@@ -389,6 +398,7 @@ function useUpdateB2BCompany() {
                                 <UInput
                                     v-model="updateState.location"
                                     placeholder="---"
+                                    disabled
                                     :ui="{
                                         color: {
                                             white: {
@@ -403,6 +413,7 @@ function useUpdateB2BCompany() {
                                 <UInput
                                     v-model="updateState.zip_code"
                                     placeholder="---"
+                                    disabled
                                     :ui="{
                                         color: {
                                             white: {
