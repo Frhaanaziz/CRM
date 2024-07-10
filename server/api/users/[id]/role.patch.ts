@@ -25,4 +25,6 @@ export default defineEventHandler(async (event) => {
         console.error('Error updating user role in auth', errorAuthUser);
         throw createError({ status: 500, statusMessage: 'Error updating user role in auth' });
     }
+
+    await supabase.auth.refreshSession();
 });

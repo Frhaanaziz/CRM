@@ -11,7 +11,22 @@ export const organizationSchema = z.object({
     province_id: z.coerce.number().int().optional().nullable(),
     size_id: z.coerce.number().int().optional().nullable(),
     updated_at: z.coerce.date(),
-    website: z.string().url({ message: 'Invalid URL' }),
+    website: z.string().url({ message: 'Please enter a valid URL, including the protocol (http:// or https://)' }),
+});
+
+export const createOrganizationSchema = organizationSchema
+    .pick({
+        name: true,
+        website: true,
+        size_id: true,
+        industry_id: true,
+    })
+    .extend({
+        user_id: z.string().min(1),
+    });
+
+export const joinOrganizationSchema = z.object({
+    code: z.string().min(1, { message: 'Code is required' }),
 });
 
 export const updateOrganizationSchema = organizationSchema.omit({

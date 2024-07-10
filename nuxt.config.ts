@@ -4,7 +4,6 @@ export default defineNuxtConfig({
     modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image', '@pinia/nuxt'],
     routeRules: {
         '/': { redirect: '/dashboard' },
-        '/auth/**': { prerender: true },
     },
 
     runtimeConfig: {
@@ -42,11 +41,6 @@ export default defineNuxtConfig({
 
     // Supabase module options
     supabase: {
-        redirectOptions: {
-            login: '/auth/signin',
-            callback: '/auth/confirm',
-            exclude: ['/auth(/*)?'],
-            cookieRedirect: true,
-        },
+        redirect: false,
     },
 });

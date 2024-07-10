@@ -25,4 +25,6 @@ export default defineEventHandler(async (event) => {
         console.error('Error updating user status in auth', errorAuthUser);
         throw createError({ status: 500, statusMessage: 'Error updating user status in auth' });
     }
+
+    await supabase.auth.refreshSession();
 });
