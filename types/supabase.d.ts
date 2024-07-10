@@ -111,6 +111,7 @@ export type Database = {
           industry_id: number | null
           linkedin: string | null
           location: string | null
+          metadata: Json | null
           name: string
           phone: string | null
           province_id: number | null
@@ -134,6 +135,7 @@ export type Database = {
           industry_id?: number | null
           linkedin?: string | null
           location?: string | null
+          metadata?: Json | null
           name: string
           phone?: string | null
           province_id?: number | null
@@ -157,6 +159,7 @@ export type Database = {
           industry_id?: number | null
           linkedin?: string | null
           location?: string | null
+          metadata?: Json | null
           name?: string
           phone?: string | null
           province_id?: number | null
