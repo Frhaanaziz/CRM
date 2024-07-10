@@ -8,7 +8,7 @@ const props = defineProps<{ company_id: B2BContact['company_id'] }>();
 const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
 
-const user = useSupabaseUser();
+const { user } = storeToRefs(userSessionStore());
 if (!user.value || !user.value.user_metadata.organization_id) throw createError({ status: 401, message: 'Unauthorized' });
 
 type AddB2BContactType = z.infer<typeof addB2BContactSchema>;

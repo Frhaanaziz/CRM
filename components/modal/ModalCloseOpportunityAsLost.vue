@@ -11,7 +11,7 @@ const props = defineProps<{
 const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
 
-const user = useSupabaseUser();
+const { user } = storeToRefs(userSessionStore());
 if (!user.value) throw createError({ status: 401, message: 'Unauthorized' });
 
 const { data: closeReasonsOption } = await useLazyFetch('/api/close-reasons', {

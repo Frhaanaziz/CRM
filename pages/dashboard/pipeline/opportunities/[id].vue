@@ -12,7 +12,7 @@ import LazyModalAddOpportunityTopic from '~/components/modal/ModalAddOpportunity
 const modal = useModal();
 const id = useRoute().params.id as string;
 
-const user = useSupabaseUser();
+const { user } = storeToRefs(userSessionStore());
 const organization_id = user.value?.user_metadata.organization_id;
 if (!user.value || !organization_id) throw createError({ status: 401, message: 'Unauthorized' });
 

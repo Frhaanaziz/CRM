@@ -4,7 +4,7 @@ import type { User } from '~/types';
 import LazyModalInviteUser from '~/components/modal/ModalInviteUser.vue';
 import LazyModalUpdateUserOrganization from '~/components/modal/ModalUpdateUserOrganization.vue';
 
-const user = useSupabaseUser();
+const { user } = storeToRefs(userSessionStore());
 if (!user.value) throw createError({ status: 401, message: 'You must be logged in to access this page.' });
 
 const { data: users, status } = await useLazyFetch(`/api/organizations/${user.value?.user_metadata?.organization_id}/users`, {

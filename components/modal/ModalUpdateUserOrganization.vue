@@ -22,7 +22,7 @@ type UpdateUserOrganizationType = z.infer<typeof schema>;
 const isSubmitting = ref(false);
 const state = ref({
     id: props.user.id,
-    role_id: props.user.role_id,
+    role_id: props.user.role_id || undefined,
     status: props.user.status,
 });
 async function handleSubmit(event: FormSubmitEvent<UpdateUserOrganizationType>) {

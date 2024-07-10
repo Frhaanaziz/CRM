@@ -111,6 +111,7 @@ export type Database = {
           industry_id: number | null
           linkedin: string | null
           location: string | null
+          metadata: Json | null
           name: string
           phone: string | null
           province_id: number | null
@@ -134,6 +135,7 @@ export type Database = {
           industry_id?: number | null
           linkedin?: string | null
           location?: string | null
+          metadata?: Json | null
           name: string
           phone?: string | null
           province_id?: number | null
@@ -157,6 +159,7 @@ export type Database = {
           industry_id?: number | null
           linkedin?: string | null
           location?: string | null
+          metadata?: Json | null
           name?: string
           phone?: string | null
           province_id?: number | null
@@ -1507,9 +1510,9 @@ export type Database = {
           last_name: string
           linkedin: string | null
           organization_id: number | null
-          phone: string
+          phone: string | null
           photo: string | null
-          role_id: number
+          role_id: number | null
           status: Database["public"]["Enums"]["user_statuses"]
           updated_at: string
         }
@@ -1521,9 +1524,9 @@ export type Database = {
           last_name: string
           linkedin?: string | null
           organization_id?: number | null
-          phone: string
+          phone?: string | null
           photo?: string | null
-          role_id: number
+          role_id?: number | null
           status?: Database["public"]["Enums"]["user_statuses"]
           updated_at?: string
         }
@@ -1535,9 +1538,9 @@ export type Database = {
           last_name?: string
           linkedin?: string | null
           organization_id?: number | null
-          phone?: string
+          phone?: string | null
           photo?: string | null
-          role_id?: number
+          role_id?: number | null
           status?: Database["public"]["Enums"]["user_statuses"]
           updated_at?: string
         }

@@ -5,7 +5,7 @@ import type { User } from '~/types';
 import { photoSchema } from '~/utils/validators';
 
 const sessionStore = userSessionStore();
-const user = useSupabaseUser();
+const { user } = storeToRefs(userSessionStore());
 const { data: profile } = await useFetch(`/api/users/${user.value?.id}`, {
     key: 'profile',
 });
@@ -24,7 +24,8 @@ function useUpdateProfile({ user }: { user: User }) {
     const isSubmitting = ref(false);
     const state = ref({
         ...userProfile.value,
-        linkedin: userProfile.value.linkedin ?? '',
+        phone: userProfile.value.phone || undefined,
+        linkedin: userProfile.value.linkedin || undefined,
     });
 
     /**
