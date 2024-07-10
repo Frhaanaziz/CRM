@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
-const user = useSupabaseUser();
+const { user } = storeToRefs(userSessionStore());
 if (!user.value) throw createError({ status: 401, message: 'User is not authenticated' });
 
 const { data: organization } = await useLazyFetch(`/api/users/${user.value.id}/organization`);

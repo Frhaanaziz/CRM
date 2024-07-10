@@ -7,7 +7,7 @@ definePageMeta({
     layout: 'auth',
 });
 
-const user = useSupabaseUser();
+const { user } = storeToRefs(userSessionStore());
 const runtimeConfig = useRuntimeConfig();
 const { query } = useRoute();
 
@@ -57,11 +57,15 @@ function useSignIn() {
                 throw new Error('Your account has been disabled. Please contact your administrator.');
             }
 
-            const { error } = await supabase.auth.signInWithPassword(event.data);
+            const { data, error } = await supabase.auth.signInWithPassword(event.data);
             if (error) {
                 console.error('Error signing in:', error);
                 throw new Error(error.message);
             }
+
+            const sessionStore = userSessionStore();
+            sessionStore.session = data.session;
+            sessionStore.user = data.user;
 
             toast.success('You have successfully signed in.');
         } catch (e) {
@@ -81,31 +85,64 @@ function useSignIn() {
 </script>
 
 <template>
-    <section class="p-32">
-        <h1 class="text-3xl font-semibold">Log in</h1>
+    <section class="relative grid items-center p-32">
+        <NuxtImg src="/images/pipeline-logo.png" alt="pipeline" height="32" class="absolute right-0 top-0 p-10" />
 
-        <UForm :schema="signInSchema" :state="state" class="mt-6 space-y-4" @submit="submit">
-            <UFormGroup label="Email" name="email">
-                <UInput v-model="state.email" :disabled="isSubmitting" placeholder="Enter your email address" />
-            </UFormGroup>
+        <UCard
+            class="mx-auto w-[400px]"
+            :ui="{
+                body: {
+                    base: 'space-y-5',
+                    padding: 'px-10 py-10 sm:px-10 sm:py-10 ',
+                },
+            }"
+        >
+            <UButton color="black" block size="md" disabled>
+                <NuxtImg src="/icons/google.svg" />
+                Sign In with Google
+            </UButton>
 
-            <UFormGroup label="Password" name="password">
-                <UInput v-model="state.password" type="password" :disabled="isSubmitting" placeholder="Enter your password" />
-            </UFormGroup>
+            <UDivider
+                label="Or Sign In with Email"
+                orientation="horizontal"
+                :ui="{
+                    container: {
+                        base: 'text-gray-500',
+                    },
+                    label: 'text-xs',
+                }"
+            />
 
-            <div class="flex items-center justify-between">
-                <div>
-                    <UCheckbox name="remember_me" label="Remember Me" />
-                </div>
-                <NuxtLink to="/auth/forgot-password" class="font-medium text-brand">Forgot Password?</NuxtLink>
-            </div>
+            <UForm :schema="signInSchema" :state="state" class="mt-6 space-y-4" @submit="submit">
+                <UFormGroup label="Email Address" name="email" required>
+                    <UInput
+                        v-model="state.email"
+                        type="email"
+                        :disabled="isSubmitting"
+                        placeholder="you@example.com"
+                        icon="i-heroicons-envelope"
+                    />
+                </UFormGroup>
 
-            <UButton type="submit" block size="md" :disabled="isSubmitting" :loading="isSubmitting"> Log In </UButton>
-        </UForm>
+                <UFormGroup label="Password" name="password" required>
+                    <UInput v-model="state.password" type="password" :disabled="isSubmitting" placeholder="***********" />
+                </UFormGroup>
 
-        <p class="mt-4 text-center">
-            Don't have an account?
-            <NuxtLink to="/auth/signup" class="font-medium text-brand"> Sign Up </NuxtLink>
-        </p>
+                <UButton type="submit" block size="md" :disabled="isSubmitting" :loading="isSubmitting"> Log In </UButton>
+            </UForm>
+
+            <NuxtLink to="/auth/forgot-password" class="block text-brand">Forgot Password?</NuxtLink>
+
+            <p class="text-slate-700">
+                Don't have an account?
+                <NuxtLink to="/auth/signup" class="text-brand"> Sign Up </NuxtLink>
+            </p>
+
+            <p class="text-xs text-slate-500">
+                This page is protected by reCAPTCHA and the
+                <NuxtLink class="underline" href="#">Google Privacy Policy</NuxtLink> and
+                <NuxtLink class="underline" href="#">Terms of Service apply</NuxtLink>.
+            </p>
+        </UCard>
     </section>
 </template>

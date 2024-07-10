@@ -9,7 +9,7 @@ import type { z } from 'zod';
 const modal = useModal();
 const id = parseInt(useRoute().params.id as string);
 
-const user = useSupabaseUser();
+const { user } = storeToRefs(userSessionStore());
 const organization_id = user.value?.user_metadata?.organization_id;
 if (!user.value || !organization_id) throw createError({ status: 401, message: 'Unauthorized' });
 

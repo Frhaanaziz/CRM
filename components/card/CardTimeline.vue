@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const createMode = ref<'call' | 'note' | 'email' | undefined>();
-const user = useSupabaseUser();
+const { user } = storeToRefs(userSessionStore());
 </script>
 
 <template>

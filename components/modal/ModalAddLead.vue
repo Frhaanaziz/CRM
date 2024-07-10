@@ -6,7 +6,7 @@ import type { Company, Contact } from '~/types';
 const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
 
-const user = useSupabaseUser();
+const { user } = storeToRefs(userSessionStore());
 if (!user.value || !user.value.user_metadata.organization_id) throw createError({ status: 401, message: 'Unauthorized' });
 
 const contentType = ref<'add' | 'confirm'>('add');
