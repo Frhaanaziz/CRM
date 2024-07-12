@@ -15,7 +15,6 @@ async function addToCRM() {
     try {
         isLoading.value = true;
 
-        console.log(props);
         await $fetch('/api/crm/add-to-lead', {
             method: 'POST',
             body: JSON.stringify(props),

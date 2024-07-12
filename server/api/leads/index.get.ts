@@ -1,31 +1,18 @@
-import type { Database } from '~/types/supabase';
-import { serverSupabaseClient } from '#supabase/server';
+import type { Company, Contact, DisqualifyReason, Lead, LeadStatus, User, Source, Rating } from '~/types';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
-
-    const res = await supabase
-        .from('Leads')
-        .select(
-            `
-            *,
-            contact: Contacts(first_name, last_name),
-            company: Companies(id, name),
-            rating: Ratings(name),
-            status: Lead_Statuses(name),
-            disqualify_reason: Disqualify_Reasons(name),
-            source: Sources(name),
-            user: Users(first_name, last_name)
-            `
-        )
-        .order('created_at', { ascending: false });
-    if (res.error) {
-        console.error('Error fetching leads', res.error);
-        throw createError({
-            status: 500,
-            statusMessage: res.error.message,
-        });
+    interface ILead extends Lead {
+        contact: Pick<Contact, 'first_name' | 'last_name'> | null;
+        company: Pick<Company, 'name'> | null;
+        rating: Pick<Rating, 'name'> | null;
+        status: Pick<LeadStatus, 'name'> | null;
+        disqualify_reason: Pick<DisqualifyReason, 'name'> | null;
+        source: Pick<Source, 'name'> | null;
+        user: Pick<User, 'first_name' | 'last_name'> | null;
     }
 
-    return res.data;
+    const fetchApi = await backendApi(event);
+    const { data } = await fetchApi<{ data: ILead[] }>('/leads');
+
+    return data;
 });

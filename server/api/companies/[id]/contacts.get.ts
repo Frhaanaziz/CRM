@@ -1,19 +1,10 @@
-import type { Database } from '~/types/supabase';
-import { serverSupabaseClient } from '#supabase/server';
+import type { Contact } from '~/types';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
-
     const id = event.context.params!.id;
 
-    const res = await supabase.from('Contacts').select('*').eq('company_id', id);
-    if (res.error) {
-        console.error('Error fetching company contacts', res.error);
-        throw createError({
-            status: 500,
-            statusMessage: res.error.message,
-        });
-    }
+    const fetchApi = await backendApi(event);
+    const { data } = await fetchApi<{ data: Contact[] }>(`/companies/${id}/contacts`);
 
-    return res.data;
+    return data;
 });

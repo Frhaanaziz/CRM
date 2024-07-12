@@ -9,10 +9,10 @@ export default defineEventHandler(async (event) => {
         .select(
             `
             *,
-            industry: Industries(name),
-            size: Sizes(size_range),
-            province: Provinces(name),
-            city: Cities(name)
+            industry: Industries(*),
+            size: Sizes(*),
+            province: Provinces(*),
+            city: Cities(*)
             `
         )
         .order('created_at', { ascending: false });
