@@ -1,6 +1,6 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '~/types/supabase';
-import { getZodErrorMessage, updateLeadUserIdSchema } from '~/utils';
+import { getZodErrorMessage, updateLeadStatus } from '~/utils';
 
 export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient<Database>(event);
@@ -11,17 +11,17 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 401, statusMessage: 'Unauthorized' });
     }
 
-    const body = await readValidatedBody(event, updateLeadUserIdSchema.safeParse);
-    if (!body.success) {
-        console.error('Error validating request body', body.error);
-        throw createError({ status: 400, statusMessage: getZodErrorMessage(body) });
+    const zodResult = updateLeadStatus.safeParse(JSON.parse(await readBody(event)));
+    if (!zodResult.success) {
+        console.error('Error validating request body', zodResult.error);
+        throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
 
-    const { id, user_id } = body.data;
+    const { id, status } = zodResult.data;
 
-    const { error } = await supabase.from('Leads').update({ user_id }).eq('id', id);
+    const { error } = await supabase.from('Leads').update({ status }).eq('id', id);
     if (error) {
-        console.error('Error updating lead user_id', error);
+        console.error('Error updating lead status', error);
         throw createError({ status: 500, statusMessage: error.message });
     }
 
@@ -29,8 +29,8 @@ export default defineEventHandler(async (event) => {
         .from('Activities')
         .insert({
             lead_id: id,
-            type: 'assigned',
-            subject: '{{author}} Assigned this lead to {{assignee}}',
+            type: 'reopened',
+            subject: 'Reopened by {{author}}',
             user_id: user.id,
             organization_id: user.user_metadata.organization_id,
         })
@@ -41,8 +41,5 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 500, statusMessage: activityRes.error.message });
     }
 
-    await supabase.from('Activity_Participants').insert([
-        { activity_id: activityRes.data.id, role: 'author', user_id: user.id },
-        { activity_id: activityRes.data.id, role: 'assignee', user_id },
-    ]);
+    await supabase.from('Activity_Participants').insert({ activity_id: activityRes.data.id, role: 'author', user_id: user.id });
 });

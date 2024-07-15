@@ -9,6 +9,8 @@ const props = defineProps<{
 }>();
 const { contact } = toRefs(props);
 
+const isVerifyingEmail = ref(false);
+
 const { updateState, isUpdating, updateContact, formRef, submitForm, isFormDirty, resetForm } = useUpdateContact();
 defineExpose({ submitForm, resetForm, isFormDirty, isUpdating });
 
@@ -68,18 +70,48 @@ function useUpdateContact() {
 
     return { updateState, isUpdating, updateContact, formRef, submitForm: submit, isFormDirty: isDirty, resetForm };
 }
+async function verifyEmail() {
+    try {
+        isVerifyingEmail.value = true;
+
+        await $fetch(`/api/emails/verify`, {
+            method: 'POST',
+            body: JSON.stringify({ email: contact.value.email }),
+        });
+
+        await $fetch(`/api/contacts/${contact.value.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ id: contact.value.id, is_valid_email: true }),
+        });
+
+        await refreshNuxtData();
+        toast.success('Email verified successfully.');
+    } catch (e) {
+        console.error('Failed to verify email', e);
+        toast.error('Email verification failed');
+    } finally {
+        isVerifyingEmail.value = false;
+    }
+}
 </script>
 
 <template>
-    <UCard>
+    <UCard v-if="contact">
         <template #header>
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-semibold">CONTACT</h2>
-                <UButton v-if="!contact?.is_valid_email" variant="outline" disabled>Verify Email</UButton>
+                <UButton
+                    v-if="!contact.is_valid_email || contact.email"
+                    variant="outline"
+                    :disabled="isVerifyingEmail"
+                    @click="verifyEmail"
+                >
+                    Verify Email
+                </UButton>
             </div>
         </template>
 
-        <div v-if="contact" class="flex gap-6 text-sm sm:text-base">
+        <div class="flex gap-6 text-sm sm:text-base">
             <div class="text-weak grid shrink-0 grid-rows-7 gap-y-8">
                 <p>Email</p>
                 <p>First Name</p>
@@ -101,17 +133,29 @@ function useUpdateContact() {
                 @error="console.error"
             >
                 <UFormGroup name="email">
-                    <UInput
-                        v-model="updateState.email"
-                        placeholder="---"
-                        :ui="{
-                            color: {
-                                white: {
-                                    outline: 'ring-0 shadow-none hover:ring-1 ',
+                    <div class="flex items-center gap-2">
+                        <UInput
+                            v-model="updateState.email"
+                            placeholder="---"
+                            class="flex-1"
+                            :ui="{
+                                color: {
+                                    white: {
+                                        outline: 'ring-0 shadow-none hover:ring-1 ',
+                                    },
                                 },
-                            },
-                        }"
-                    />
+                            }"
+                        >
+                            <template v-if="contact.email" #leading>
+                                <UIcon
+                                    v-if="contact.is_valid_email"
+                                    name="i-heroicons-shield-check"
+                                    class="h-5 w-5 text-green-700"
+                                />
+                                <UIcon v-else name="i-heroicons-shield-exclamation" class="h-5 w-5 text-red-700" />
+                            </template>
+                        </UInput>
+                    </div>
                 </UFormGroup>
 
                 <UFormGroup name="first_name">

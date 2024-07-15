@@ -3,6 +3,8 @@ import type { Enums, Tables } from './supabase';
 export type RoleNames = Enums<'role_names'>;
 export type UserStatuses = Enums<'user_statuses'>;
 export type LeadStatus = Enums<'lead_statuses'>;
+export type ActivityType = Enums<'activity_types'>;
+export type ActivityParticipantRoles = Enums<'activity_roles'>;
 
 export type User = Tables<'Users'>;
 export type Country = Tables<'Countries'>;
@@ -29,3 +31,5 @@ export type B2BContact = Tables<'B2B_Contacts'>;
 export type Source = Tables<'Sources'>;
 export type Currency = Tables<'Currencies'>;
 export type PaymentPlan = Tables<'Payment_Plans'>;
+export type Activity = Tables<'Activities'>;
+export type ActivityParticipant = Tables<'Activity_Participants'>;

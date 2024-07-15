@@ -14,7 +14,7 @@ export type Database = {
           company_id: number | null
           contact_id: number | null
           created_at: string
-          description: string
+          description: string | null
           id: number
           lead_id: number | null
           opportunity_id: number | null
@@ -28,7 +28,7 @@ export type Database = {
           company_id?: number | null
           contact_id?: number | null
           created_at?: string
-          description: string
+          description?: string | null
           id?: number
           lead_id?: number | null
           opportunity_id?: number | null
@@ -42,7 +42,7 @@ export type Database = {
           company_id?: number | null
           contact_id?: number | null
           created_at?: string
-          description?: string
+          description?: string | null
           id?: number
           lead_id?: number | null
           opportunity_id?: number | null

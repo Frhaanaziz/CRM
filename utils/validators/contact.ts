@@ -30,17 +30,22 @@ export const contactSchema = z.object({
     whatsapp: z.string().optional().nullable(),
 });
 
-export const updateContactSchema = contactSchema.pick({
-    id: true,
-    email: true,
-    first_name: true,
-    last_name: true,
-    job_title: true,
-    mobile_phone: true,
-    whatsapp: true,
-    linkedin: true,
-    company_id: true,
-});
+export const updateContactSchema = contactSchema
+    .pick({
+        email: true,
+        first_name: true,
+        last_name: true,
+        job_title: true,
+        mobile_phone: true,
+        whatsapp: true,
+        linkedin: true,
+        company_id: true,
+        is_valid_email: true,
+    })
+    .partial()
+    .extend({
+        id: z.number().int(),
+    });
 
 export const addContactSchema = contactSchema
     .pick({

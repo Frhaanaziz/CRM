@@ -124,7 +124,7 @@ async function handleDeleteContact() {
             </div>
 
             <div class="md:col-span-8">
-                <CardTimeline />
+                <CardTimeline :contact_id="id" />
             </div>
         </section>
     </div>

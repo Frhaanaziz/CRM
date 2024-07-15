@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
-import { useRefHistory } from '@vueuse/core';
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAddCompanyContact from '~/components/modal/ModalAddCompanyContact.vue';
 import LazyModalAddCompanyPrimaryContact from '~/components/modal/ModalAddCompanyPrimaryContact.vue';
@@ -418,7 +417,7 @@ function useOpportunity() {
             </div>
 
             <div class="md:col-span-8">
-                <CardTimeline />
+                <CardTimeline :company_id="id" />
             </div>
         </section>
     </div>

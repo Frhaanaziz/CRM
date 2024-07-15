@@ -10,7 +10,7 @@ import LazyModalCloseOpportunityAsLost from '~/components/modal/ModalCloseOpport
 import LazyModalAddOpportunityTopic from '~/components/modal/ModalAddOpportunityTopic.vue';
 
 const modal = useModal();
-const id = useRoute().params.id as string;
+const id = parseInt(useRoute().params.id as string);
 
 const { user } = storeToRefs(userSessionStore());
 const organization_id = user.value?.user_metadata.organization_id;
@@ -430,7 +430,7 @@ function useTask() {
             </div>
 
             <div class="md:col-span-8">
-                <CardTimeline />
+                <CardTimeline :opportunity_id="id" />
             </div>
         </section>
     </div>

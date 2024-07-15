@@ -10,6 +10,7 @@ export * from './validators/task';
 export * from './validators/opportunity';
 export * from './validators/b2b-contact';
 export * from './validators/b2b-company';
+export * from './validators/activity';
 export * from './constants';
 
 /**
@@ -152,4 +153,9 @@ export function getUserFallbackAvatarUrl(user?: Pick<User, 'first_name' | 'last_
     });
 
     return baseUrl + '?' + params.toString();
+}
+
+export function getUserFullName(user?: Pick<User, 'first_name' | 'last_name'> | null): string {
+    if (!user || !user.first_name || !user.last_name) return '---';
+    return user.first_name + ' ' + user.last_name;
 }
