@@ -148,7 +148,7 @@ function useTable() {
     >
         <template #user-data="{ row }">
             <div class="flex items-center gap-4">
-                <UAvatar :src="row?.photo ?? '/images/avatar-fallback.jpg'" size="lg" />
+                <UAvatar :src="row?.photo ?? getUserFallbackAvatarUrl(row)" size="lg" />
                 <div class="flex flex-col justify-center">
                     <p class="font-semibold">{{ `${row?.first_name} ${row?.last_name}` }}</p>
                     <p class="text-xs">{{ row?.email }}</p>

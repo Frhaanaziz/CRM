@@ -97,7 +97,7 @@ async function handleDeleteContact() {
 
             <div v-if="contact && contact.company" class="flex items-center justify-between p-4">
                 <div class="flex items-center gap-2">
-                    <UAvatar :src="'/images/avatar-fallback.jpg'" size="md" />
+                    <UAvatar :src="getUserFallbackAvatarUrl(contact)" size="md" />
 
                     <div class="flex flex-col gap-1">
                         <h1 class="text-xl font-semibold">{{ `${contact.first_name ?? ''} ${contact.last_name ?? ''}` }}</h1>
@@ -109,7 +109,7 @@ async function handleDeleteContact() {
                 </div>
 
                 <div v-if="contact.user" class="flex items-center gap-2">
-                    <UAvatar :src="contact.user.photo ?? '/images/avatar-fallback.jpg'" />
+                    <UAvatar :src="contact.user.photo ?? getUserFallbackAvatarUrl(contact.user)" />
                     <div>
                         <p class="font-semibold">{{ `${contact.user.first_name} ${contact.user.last_name}` }}</p>
                         <p class="text-xs">Owner</p>

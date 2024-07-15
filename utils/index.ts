@@ -1,4 +1,6 @@
 import type { z } from 'zod';
+import type { User } from '~/types';
+import type { UserMetadata } from '~/types/supabase-auth';
 export * from './validators/auth';
 export * from './validators/user';
 export * from './validators/organization';
@@ -122,4 +124,34 @@ export function capitalize(str: string): string {
 
 export function formatToRupiah(amount: number) {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(amount);
+}
+
+export function getFallbackAvatarUrl(name: string) {
+    if (!name) return 'https://ui-avatars.com/api/?name=FA&background=3892F3&color=fff&bold=true';
+
+    const baseUrl = 'https://ui-avatars.com/api/';
+    const params = new URLSearchParams({
+        name: name,
+        background: '3892F3',
+        color: 'fff',
+        bold: 'true',
+    });
+
+    return baseUrl + '?' + params.toString();
+}
+
+export function getUserFallbackAvatarUrl(user?: Pick<User, 'first_name' | 'last_name'> | { [key: string]: any } | null): string {
+    if (!user || !user.first_name || !user.last_name)
+        return 'https://ui-avatars.com/api/?name=FA&background=3892F3&color=fff&bold=true';
+
+    const name = user.first_name + ' ' + user.last_name;
+    const baseUrl = 'https://ui-avatars.com/api/';
+    const params = new URLSearchParams({
+        name: name,
+        background: '3892F3',
+        color: 'fff',
+        bold: 'true',
+    });
+
+    return baseUrl + '?' + params.toString();
 }
