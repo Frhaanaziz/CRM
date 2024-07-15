@@ -42,7 +42,7 @@ async function handleSubmit(event: FormSubmitEvent<UpdateCompanyUserId>) {
         });
 
         closeModal();
-        await refreshNuxtData(`company-${props.company.id}`);
+        await refreshNuxtData();
     } catch (e) {
         console.error(e);
     } finally {

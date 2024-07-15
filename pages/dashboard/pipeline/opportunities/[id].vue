@@ -22,7 +22,7 @@ const isCreatingTask = ref(false);
 const { data: opportunityStatuses } = await useLazyFetch(`/api/organizations/${organization_id}/opportunity-statuses`, {
     key: `organizations-${organization_id}-opportunity-statuses`,
 });
-const { data: opportunity, refresh: refreshOpportunity } = await useFetch(`/api/opportunities/${id}`, {
+const { data: opportunity } = await useFetch(`/api/opportunities/${id}`, {
     key: `opportunities-${id}`,
 });
 if (!opportunity.value) throw createError({ status: 404, message: 'Opportunity not found' });
@@ -50,28 +50,14 @@ async function reopenOpportunity(statusName: OpportunityStatus['name']) {
     try {
         isUpdatingStatus.value = true;
 
-        await Promise.all([
-            $fetch(`/api/opportunities/${id}/opportunity-status-id`, {
-                method: 'PATCH',
-                body: JSON.stringify({ id, opportunity_status_id: status.id }),
-            }),
-            $fetch(`/api/opportunities/${id}/close-reason-id`, {
-                method: 'PATCH',
-                body: JSON.stringify({ id, close_reason_id: null }),
-            }),
-            $fetch(`/api/opportunities/${id}/act-revenue`, {
-                method: 'PATCH',
-                body: JSON.stringify({ id, act_revenue: null }),
-            }),
-            $fetch(`/api/opportunities/${id}/act-close-date`, {
-                method: 'PATCH',
-                body: JSON.stringify({ id, act_close_date: null }),
-            }),
-        ]);
+        await $fetch(`/api/opportunities/${id}/reopen`, {
+            method: 'POST',
+            body: JSON.stringify({ id, opportunity_status_id: status.id }),
+        });
 
         modal.close();
         toast.success('Opportunity reopened successfully.');
-        await refreshOpportunity();
+        await refreshNuxtData();
     } catch (error) {
         console.error('Failed to reopen opportunity:', error);
         toast.error('Failed to reopen opportunity, please try again later.');

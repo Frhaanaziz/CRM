@@ -42,7 +42,7 @@ async function handleSubmit(event: FormSubmitEvent<UpdateContactUserId>) {
         });
 
         closeModal();
-        await refreshNuxtData(`contacts-${props.contact.id}`);
+        await refreshNuxtData();
     } catch (e) {
         console.error('Failed to update contact user id:', e);
     } finally {
