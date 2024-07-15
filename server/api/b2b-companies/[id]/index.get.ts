@@ -12,22 +12,20 @@ export default defineEventHandler(async (event) => {
             .select(
                 `
             *,
-            industry: Industries(id, name),
-            size: Sizes(id, size_range),
-            province: Provinces(id, name),
-            city: Cities(id, name)
+            industry: Industries(*),
+            size: Sizes(*),
+            province: Provinces(*),
+            city: Cities(*)
             `
             )
             .eq('id', id)
             .single(),
         supabase.from('B2B_Contacts').select('*').eq('company_id', id).order('created_at', { ascending: false }),
     ]);
-
     if (companyRes.error) {
         console.error('Error getting lead:', companyRes.error);
         throw createError({ status: 400, statusMessage: companyRes.error.message });
     }
-
     if (contactsRes.error) {
         console.error('Error getting tasks:', contactsRes.error);
         throw createError({ status: 400, statusMessage: contactsRes.error.message });

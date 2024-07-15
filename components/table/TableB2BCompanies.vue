@@ -327,7 +327,7 @@ function useTable() {
     >
         <template #name-data="{ row }">
             <div class="flex items-center gap-2">
-                <UAvatar :src="row?.avatar ?? '/images/avatar-fallback.jpg'" size="xs" />
+                <UAvatar :src="row?.avatar ?? getFallbackAvatarUrl(row?.name)" size="xs" />
                 <NuxtLink :href="`/dashboard/resources/b2b-database/${row.id}`" class="text-brand hover:underline">
                     {{ row.name }}
                 </NuxtLink>

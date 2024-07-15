@@ -46,7 +46,9 @@ async function resendEmail() {
         </section>
         <div class="mx-auto mt-auto flex w-[800px] items-center gap-5 border-t pb-[60px] pt-10">
             <UButton to="/auth/signin" color="gray" size="2xs" class="px-8">Sign In</UButton>
-            <p class="text-sm text-slate-700">Need help or have a question?</p>
+            <NuxtLink :href="`mailto:${supportEmail}`" external class="text-sm text-slate-700">
+                Need help or have a question?
+            </NuxtLink>
         </div>
     </main>
 </template>

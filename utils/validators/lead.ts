@@ -47,3 +47,8 @@ export const updateLeadStatusId = leadSchema.pick({
     lead_status_id: true,
     disqualify_reason_id: true,
 });
+
+export const qualifyLeadSchema = leadSchema.pick({
+    id: true,
+    lead_status_id: true,
+});

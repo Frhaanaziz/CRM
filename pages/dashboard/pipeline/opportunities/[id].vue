@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { z } from 'zod';
 import type { OpportunityStatus } from '~/types';
-import { useRefHistory, useDateFormat } from '@vueuse/core';
+import { useDateFormat } from '@vueuse/core';
 import type { FormSubmitEvent } from '#ui/types';
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAssignOpportunity from '~/components/modal/ModalAssignOpportunity.vue';
@@ -31,7 +31,13 @@ const wonStatus = computed(() => opportunityStatuses.value?.find((s) => s.name.t
 const lostStatus = computed(() => opportunityStatuses.value?.find((s) => s.name.toLowerCase() === 'lost'));
 
 const { taskState, isSubmittingTask, handleSubmitTask } = useTask();
-const { updateState, isUpdating, updateOpportunity, formRef, submitForm, isFormDirty, resetForm } = useUpdateOpportunity();
+
+const opportunityForm = ref<null | {
+    submitForm: () => Promise<any>;
+    resetForm: () => Promise<any>;
+    isFormDirty: boolean;
+    isUpdating: boolean;
+}>(null);
 
 async function reopenOpportunity(statusName: OpportunityStatus['name']) {
     const status = opportunityStatuses.value?.find((s) => s.name.toLowerCase() === statusName);
@@ -122,55 +128,6 @@ function useTask() {
         isSubmittingTask: isSubmitting,
         handleSubmitTask: createTask,
     };
-}
-function useUpdateOpportunity() {
-    type UpdateOpportunityType = z.infer<typeof updateOpportunitySchema>;
-    const formRef = ref();
-    const isUpdating = ref(false);
-
-    const initialState = {
-        id,
-        act_close_date: opportunity.value!.act_close_date ?? undefined,
-        currency_id: opportunity.value!.currency_id,
-        act_budget: opportunity.value!.act_budget ?? undefined,
-        est_revenue: opportunity.value!.est_revenue ?? undefined,
-        payment_plan_id: opportunity.value!.payment_plan_id,
-        confidence: opportunity.value!.confidence ?? undefined,
-    };
-    const updateState = ref({ ...initialState });
-    const { history, clear } = useRefHistory(updateState, { deep: true, capacity: 1 });
-    const isDirty = computed(() => history.value.length > 1);
-    const submit = async () => await formRef.value?.submit();
-
-    const resetForm = async () => {
-        formRef.value?.clear();
-        updateState.value = initialState;
-        await nextTick();
-        clear();
-    };
-
-    async function updateOpportunity(event: FormSubmitEvent<UpdateOpportunityType>) {
-        try {
-            isUpdating.value = true;
-
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            // await $fetch('/api/companies', {
-            //     method: 'POST',
-            //     body: JSON.stringify(event.data),
-            // });
-
-            toast.success('Opportunity updated successfully.');
-            clear();
-            await refreshOpportunity();
-        } catch (e) {
-            console.error('Failed to update opportunity', e);
-            toast.error('Failed to update opportunity, please try again later.');
-        } finally {
-            isUpdating.value = false;
-        }
-    }
-
-    return { updateState, isUpdating, updateOpportunity, formRef, submitForm: submit, isFormDirty: isDirty, resetForm };
 }
 </script>
 
@@ -296,14 +253,14 @@ function useUpdateOpportunity() {
                     Delete
                 </UButton>
 
-                <template v-if="isFormDirty">
+                <template v-if="opportunityForm?.isFormDirty">
                     <UButton
                         variant="ghost"
                         icon="i-heroicons-arrow-path"
                         color="black"
                         class="font-semibold"
-                        :disabled="isUpdating"
-                        @click="resetForm"
+                        :disabled="opportunityForm?.isUpdating"
+                        @click="opportunityForm?.resetForm"
                     >
                         Reset
                     </UButton>
@@ -312,8 +269,8 @@ function useUpdateOpportunity() {
                         icon="i-heroicons-bookmark"
                         color="black"
                         class="font-semibold"
-                        :disabled="isUpdating"
-                        @click="submitForm"
+                        :disabled="opportunityForm?.isUpdating"
+                        @click="opportunityForm?.submitForm"
                     >
                         Save
                     </UButton>
@@ -358,7 +315,7 @@ function useUpdateOpportunity() {
                         <div class="h-10 border-r border-base-300" />
 
                         <div class="flex items-center gap-2">
-                            <UAvatar :src="opportunity.user.photo ?? '/images/avatar-fallback.jpg'" />
+                            <UAvatar :src="opportunity.user.photo ?? getUserFallbackAvatarUrl(opportunity.user)" />
                             <div>
                                 <p class="font-semibold">{{ `${opportunity.user.first_name} ${opportunity.user.last_name}` }}</p>
                                 <p class="text-xs">Owner</p>
@@ -469,62 +426,7 @@ function useUpdateOpportunity() {
                     </UButton>
                 </UCard>
 
-                <UCard>
-                    <template #header>
-                        <h2 class="text-xl font-semibold">KEY DETAILS</h2>
-                    </template>
-
-                    <div v-if="opportunity" class="flex gap-6 text-sm sm:text-base">
-                        <div class="text-weak grid shrink-0 grid-rows-8 gap-y-8">
-                            <p>Company</p>
-                            <p>Contact</p>
-                            <p>Est. Close Date</p>
-                            <p>Currency</p>
-                            <p>Budget Amount</p>
-                            <p>Est. Revenue</p>
-                            <p>Payment Plans</p>
-                            <p>Confidence</p>
-                        </div>
-
-                        <UForm
-                            ref="formRef"
-                            :schema="updateOpportunitySchema"
-                            :state="updateState"
-                            class="grid grow grid-rows-8 gap-y-8 font-semibold"
-                            :disabled="isUpdating"
-                            @submit="updateOpportunity"
-                            @error="console.error"
-                        >
-                            <p class="line-clamp-1">{{ opportunity.company?.name ?? '---' }}</p>
-                            <p class="line-clamp-1">
-                                {{
-                                    `${opportunity.contact?.first_name ?? ''} ${opportunity.contact?.last_name ?? ''}`.trim() ||
-                                    '---'
-                                }}
-                            </p>
-                            <p class="line-clamp-1">
-                                {{
-                                    opportunity.act_close_date
-                                        ? useDateFormat(opportunity.act_close_date, 'DD/MM/YYYY').value.replace('"', '')
-                                        : '---'
-                                }}
-                            </p>
-                            <p class="line-clamp-1">{{ opportunity.currency?.name ?? '---' }}</p>
-                            <p class="line-clamp-1">
-                                {{ opportunity.act_budget ? formatToRupiah(opportunity.act_budget) : '---' }}
-                            </p>
-                            <p class="line-clamp-1">
-                                {{ opportunity.est_revenue ? formatToRupiah(opportunity.est_revenue) : '---' }}
-                            </p>
-                            <p class="line-clamp-1">{{ opportunity.payment_plan?.name ?? '---' }}</p>
-                            <p class="line-clamp-1">{{ opportunity.confidence ? `${opportunity.confidence}%` : '---' }}</p>
-                            <!-- 
-                            <UFormGroup name="email">
-                                <UInput v-model="updateState.email" variant="none" :padded="false" />
-                            </UFormGroup>-->
-                        </UForm>
-                    </div>
-                </UCard>
+                <CardOpportunityDetails ref="opportunityForm" :opportunity />
             </div>
 
             <div class="md:col-span-8">

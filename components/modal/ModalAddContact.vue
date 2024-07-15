@@ -25,9 +25,7 @@ const state = ref({
     last_name: '',
     email: '',
     job_title: '',
-    organization_id: user.value.user_metadata.organization_id,
     company_id: undefined,
-    user_id: user.value.id,
 });
 async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
     try {

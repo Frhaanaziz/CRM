@@ -3,7 +3,7 @@ import { useStepper } from '@vueuse/core';
 
 const supabase = useSupabaseClient();
 const sessionStore = userSessionStore();
-const user = ref(sessionStore.user);
+const { user } = storeToRefs(sessionStore);
 if (!user.value) await navigateTo('/auth/signin');
 
 const [{ data: industriesOption }, { data: sizesOption }] = await Promise.all([
@@ -56,7 +56,7 @@ async function submitForm() {
             await navigateTo('/dashboard');
         }
     } catch (error) {
-        // console.log('error', error);
+        // console.error('error', error);
     }
 }
 function useProfileSetup() {
@@ -151,6 +151,10 @@ async function handleSignout() {
         console.error('Sign out error:', error);
         toast.error('Failed to sign out, please try again.');
     }
+
+    sessionStore.session = null;
+    sessionStore.user = null;
+
     await navigateTo('/auth/signin');
 }
 </script>
@@ -326,7 +330,9 @@ async function handleSignout() {
             <section class="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t pb-[60px] pt-10">
                 <div class="flex items-center gap-5">
                     <UButton color="gray" size="2xs" class="px-8" @click="handleSignout">Log Out</UButton>
-                    <p class="text-sm text-slate-700">Need help or have a question?</p>
+                    <NuxtLink :href="`mailto:${supportEmail}`" external class="text-sm text-slate-700">
+                        Need help or have a question?
+                    </NuxtLink>
                 </div>
 
                 <UButton v-if="stepper.isCurrent('profile-setup')" size="2xs" class="px-8" @click="nextStep">Next</UButton>

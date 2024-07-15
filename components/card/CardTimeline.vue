@@ -24,7 +24,6 @@ const { user } = storeToRefs(userSessionStore());
                 class="font-semibold ring-gray-400"
                 size="xs"
                 :ui="{ rounded: 'rounded-xl' }"
-                disabled
                 @click="createMode = 'note'"
             >
                 Note
@@ -55,9 +54,40 @@ const { user } = storeToRefs(userSessionStore());
         </div>
 
         <div class="space-y-4">
+            <!-- Note Create Mode -->
+            <div v-if="createMode === 'note'" class="flex items-start gap-2">
+                <UAvatar :src="getUserFallbackAvatarUrl()" size="md" />
+                <div class="w-full divide-y rounded border">
+                    <p class="m-2 flex items-center gap-2 font-semibold">
+                        <UIcon name="i-heroicons-clipboard" class="h-5 w-5 text-black" />
+                        <span>New Note</span>
+                    </p>
+                    <UInput variant="none" placeholder="Subject" />
+                    <UTextarea variant="none" placeholder="Description" autoresize :maxrows="10" />
+                    <div class="flex items-center gap-4 p-2">
+                        <UButton
+                            icon="i-heroicons-clipboard"
+                            trailing
+                            class="font-semibold"
+                            disabled
+                            :ui="{
+                                icon: {
+                                    size: {
+                                        sm: 'h-4 w-4',
+                                    },
+                                },
+                            }"
+                        >
+                            Save
+                        </UButton>
+                        <UButton variant="ghost" color="black" @click="createMode = undefined">Cancel</UButton>
+                    </div>
+                </div>
+            </div>
+
             <!-- Call Create Mode -->
             <div v-if="createMode === 'call'" class="flex items-start gap-2">
-                <UAvatar :src="'/images/avatar-fallback.jpg'" size="md" />
+                <UAvatar :src="getUserFallbackAvatarUrl()" size="md" />
                 <div class="w-full divide-y rounded border">
                     <p class="m-2 flex items-center gap-2 font-semibold">
                         <UIcon name="i-heroicons-phone" class="h-5 w-5 text-black" />
@@ -95,9 +125,91 @@ const { user } = storeToRefs(userSessionStore());
                 </div>
             </div>
 
+            <!-- Closed As Won -->
+            <div class="flex items-start gap-2">
+                <UAvatar :src="getUserFallbackAvatarUrl({ first_name: 'Farhan', last_name: 'Aziz' })" size="md" />
+                <div class="w-full rounded border p-2">
+                    <p class="mb-1 flex items-center gap-2 font-semibold">
+                        <UIcon name="i-heroicons-check-circle" class="h-5 w-5 text-black" />
+                        <span>Closed as Won by Andy Brune</span>
+                    </p>
+                    <div class="text-weak flex items-center gap-1 text-xs">
+                        <p>Andy Brune</p>
+                        &middot;
+                        <p>2/12/2024 3:33 AM</p>
+                    </div>
+                    <p class="text-weak mt-2">Rp225.000.000 - One-time</p>
+                </div>
+            </div>
+
+            <!-- Closed As Lost -->
+            <div class="flex items-start gap-2">
+                <UAvatar :src="getUserFallbackAvatarUrl({ first_name: 'Farhan', last_name: 'Aziz' })" size="md" />
+                <div class="w-full rounded border p-2">
+                    <p class="mb-1 flex items-center gap-2 font-semibold">
+                        <UIcon name="i-heroicons-x-circle" class="h-5 w-5 text-black" />
+                        <span>Closed as Lost by Andy Brune</span>
+                    </p>
+                    <div class="text-weak flex items-center gap-1 text-xs">
+                        <p>Andy Brune</p>
+                        &middot;
+                        <p>2/12/2024 3:33 AM</p>
+                    </div>
+                    <p class="text-weak mt-2">Reason: Pricing</p>
+                </div>
+            </div>
+
+            <!-- Reopened -->
+            <div class="flex items-start gap-2">
+                <UAvatar :src="getUserFallbackAvatarUrl({ first_name: 'Farhan', last_name: 'Aziz' })" size="md" />
+                <div class="w-full rounded border p-2">
+                    <p class="mb-1 flex items-center gap-2 font-semibold">
+                        <UIcon name="i-heroicons-arrow-top-right-on-square" class="h-5 w-5 -scale-x-[1] text-black" />
+                        <span>Reopened by Andy Brune</span>
+                    </p>
+                    <div class="text-weak flex items-center gap-1 text-xs">
+                        <p>Andy Brune</p>
+                        &middot;
+                        <p>2/12/2024 3:33 AM</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Qualified -->
+            <div class="flex items-start gap-2">
+                <UAvatar :src="getUserFallbackAvatarUrl({ first_name: 'Farhan', last_name: 'Aziz' })" size="md" />
+                <div class="w-full rounded border p-2">
+                    <p class="mb-1 flex items-center gap-2 font-semibold">
+                        <UIcon name="i-heroicons-check" class="h-5 w-5 text-black" />
+                        <span>Qualified by Andy Brune</span>
+                    </p>
+                    <div class="text-weak flex items-center gap-1 text-xs">
+                        <p>Andy Brune</p>
+                        &middot;
+                        <p>2/12/2024 3:33 AM</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disqualified -->
+            <div class="flex items-start gap-2">
+                <UAvatar :src="getUserFallbackAvatarUrl({ first_name: 'Farhan', last_name: 'Aziz' })" size="md" />
+                <div class="w-full rounded border p-2">
+                    <p class="mb-1 flex items-center gap-2 font-semibold">
+                        <UIcon name="i-heroicons-x-mark" class="h-5 w-5 text-black" />
+                        <span>Disqualified by Andy Brune</span>
+                    </p>
+                    <div class="text-weak flex items-center gap-1 text-xs">
+                        <p>Andy Brune</p>
+                        &middot;
+                        <p>2/12/2024 3:33 AM</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Note Activity -->
             <div class="flex items-start gap-2">
-                <UAvatar :src="'/images/avatar-fallback.jpg'" size="md" />
+                <UAvatar :src="getUserFallbackAvatarUrl({ first_name: 'Farhan', last_name: 'Aziz' })" size="md" />
                 <div class="w-full rounded border p-2">
                     <p class="mb-1 flex items-center gap-2 font-semibold">
                         <UIcon name="i-heroicons-clipboard" class="h-5 w-5 text-black" />
@@ -114,7 +226,7 @@ const { user } = storeToRefs(userSessionStore());
 
             <!-- Call Activity -->
             <div class="flex items-start gap-2">
-                <UAvatar :src="'/images/avatar-fallback.jpg'" size="md" />
+                <UAvatar :src="getUserFallbackAvatarUrl()" size="md" />
                 <div class="w-full rounded border p-2">
                     <p class="mb-1 flex items-center gap-2 font-semibold">
                         <UIcon name="i-heroicons-phone" class="h-5 w-5 text-black" />
@@ -131,7 +243,7 @@ const { user } = storeToRefs(userSessionStore());
 
             <!-- Mail Activity -->
             <div class="flex items-start gap-2">
-                <UAvatar :src="'/images/avatar-fallback.jpg'" size="md" />
+                <UAvatar :src="getUserFallbackAvatarUrl()" size="md" />
                 <div class="w-full rounded border p-2">
                     <p class="mb-1 flex items-center gap-2 font-semibold">
                         <UIcon name="i-heroicons-envelope" class="h-5 w-5 text-black" />
@@ -151,7 +263,7 @@ const { user } = storeToRefs(userSessionStore());
 
             <!-- Mail Activity -->
             <div class="flex items-start gap-2">
-                <UAvatar :src="'/images/avatar-fallback.jpg'" size="md" />
+                <UAvatar :src="getUserFallbackAvatarUrl()" size="md" />
                 <div class="w-full rounded border p-2">
                     <p class="mb-1 flex items-center gap-2 font-semibold">
                         <UIcon name="i-heroicons-user" class="h-5 w-5 text-black" />
@@ -165,12 +277,12 @@ const { user } = storeToRefs(userSessionStore());
                 </div>
             </div>
 
-            <!-- Mail Activity -->
+            <!-- Lead Source -->
             <div class="flex items-start gap-2">
-                <UAvatar :src="'/images/avatar-fallback.jpg'" size="md" />
+                <UAvatar :src="'/icons/pipeline-rounded-blue-logo.svg'" size="md" :ui="{ rounded: 'rounded-none' }" />
                 <div class="">
                     <div class="text-weak flex w-full items-center gap-1 rounded border p-2">
-                        <p class="text-sm">Lead Source - <span class="font-semibold">Hubspot</span></p>
+                        <p class="text-sm">Lead Source - <span class="font-semibold">Manual Input</span></p>
                         &middot;
                         <p class="text-xs">2/12/2024 3:33 AM</p>
                     </div>

@@ -153,7 +153,7 @@ function useUpdateB2BCompany() {
 
             <div class="flex items-center justify-between p-4">
                 <div class="flex items-center gap-2">
-                    <UAvatar :src="company.avatar ?? '/images/avatar-fallback.jpg'" size="lg" />
+                    <UAvatar :src="company.avatar ?? getFallbackAvatarUrl(company.name)" size="lg" />
                     <div>
                         <h1 class="text-lg font-bold">{{ company.name }}</h1>
                         <p class="text-sm">
@@ -448,7 +448,7 @@ function useUpdateB2BCompany() {
                         <template #default="{ item, open }">
                             <UButton color="gray" variant="ghost" class="border p-4">
                                 <div class="flex gap-4">
-                                    <UAvatar :src="'/images/avatar-fallback.jpg'" size="md" />
+                                    <UAvatar :src="getUserFallbackAvatarUrl(getB2BContact(parseInt(item.content)))" size="md" />
                                     <div>
                                         <p class="font-semibold">
                                             {{

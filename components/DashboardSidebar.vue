@@ -59,7 +59,7 @@ watchEffect(() => (pathname.value = route.path));
                 </NuxtLink>
                 <div v-if="user" class="flex items-center gap-x-3 px-6 py-3 text-xs font-semibold leading-6">
                     <UAvatar
-                        :src="user.user_metadata?.photo ?? '/images/avatar-fallback.jpg'"
+                        :src="user.user_metadata?.photo ?? getUserFallbackAvatarUrl(user.user_metadata)"
                         icon="i-heroicons-photo"
                         :alt="`${user.user_metadata.first_name} Avatar`"
                     />
@@ -87,7 +87,7 @@ watchEffect(() => (pathname.value = route.path));
                 </button>
                 <div v-if="user" class="flex items-center gap-x-3 px-6 py-3 text-xs font-semibold leading-6">
                     <UAvatar
-                        :src="user.user_metadata?.photo ?? '/images/avatar-fallback.jpg'"
+                        :src="user.user_metadata?.photo ?? 'getUserFallbackAvatarUrl(user.user_metadata)"
                         icon="i-heroicons-photo"
                         :alt="`${user.user_metadata.first_name} Avatar`"
                     />

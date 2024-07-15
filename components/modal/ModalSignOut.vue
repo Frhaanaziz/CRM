@@ -13,6 +13,11 @@ async function handleSignout() {
         console.error('Sign out error:', error);
         toast.error('Failed to sign out, please try again.');
     }
+
+    const sessionStore = userSessionStore();
+    sessionStore.session = null;
+    sessionStore.user = null;
+
     await navigateTo('/auth/signin');
 }
 </script>

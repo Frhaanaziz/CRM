@@ -46,8 +46,6 @@ export const addContactSchema = contactSchema
     .pick({
         job_title: true,
         company_id: true,
-        user_id: true,
-        organization_id: true,
     })
     .extend({
         first_name: z.string().min(1, { message: 'First name is required' }),

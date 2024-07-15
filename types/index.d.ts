@@ -27,3 +27,6 @@ export type Task = Tables<'Tasks'>;
 export type Opportunity = Tables<'Opportunities'>;
 export type OpportunityStatus = Tables<'Opportunity_Statuses'>;
 export type B2BContact = Tables<'B2B_Contacts'>;
+export type Source = Tables<'Sources'>;
+export type Currency = Tables<'Currencies'>;
+export type PaymentPlan = Tables<'Payment_Plans'>;

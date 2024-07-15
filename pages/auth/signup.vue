@@ -17,7 +17,7 @@ async function nextStep() {
         await formRef.value?.validate(['first_name', 'last_name', 'email']);
         stepper.goToNext();
     } catch (error) {
-        // console.log('error', error);
+        // console.error('error', error);
     }
 }
 function useSignUp() {

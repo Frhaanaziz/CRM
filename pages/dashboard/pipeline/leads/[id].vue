@@ -312,7 +312,7 @@ function useTask() {
 
             <div v-if="lead" class="flex items-center justify-between p-4">
                 <div class="flex items-center gap-2">
-                    <UAvatar :src="'/images/avatar-fallback.jpg'" size="md" />
+                    <UAvatar :src="getUserFallbackAvatarUrl(lead.contact)" size="md" />
                     <div v-if="lead.contact && lead.company" class="flex flex-col gap-1">
                         <h1 class="text-xl font-semibold">
                             {{ `${lead.contact.first_name ?? ''} ${lead.contact.last_name ?? ''}` }}
@@ -358,7 +358,7 @@ function useTask() {
                         <div class="h-10 border-r border-base-300" />
 
                         <div class="flex items-center gap-2">
-                            <UAvatar :src="lead.user.photo ?? '/images/avatar-fallback.jpg'" />
+                            <UAvatar :src="lead.user.photo ?? getUserFallbackAvatarUrl(lead.user)" />
                             <div>
                                 <p class="font-semibold">{{ `${lead.user.first_name} ${lead.user.last_name}` }}</p>
                                 <p class="text-xs">Owner</p>
