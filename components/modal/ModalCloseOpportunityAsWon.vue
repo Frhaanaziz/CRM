@@ -25,24 +25,17 @@ async function handleSubmit(event: FormSubmitEvent<CloseOpportunityAsWonType>) {
     try {
         isSubmitting.value = true;
 
-        await Promise.all([
-            $fetch(`/api/opportunities/${props.opportunity.id}/opportunity-status-id`, {
-                method: 'PATCH',
-                body: JSON.stringify({ id: props.opportunity.id, opportunity_status_id: props.wonStatus.id }),
+        await $fetch(`/api/opportunities/${props.opportunity.id}/close-as-won`, {
+            method: 'POST',
+            body: JSON.stringify({
+                ...event.data,
+                opportunity_status_id: props.wonStatus.id,
             }),
-            $fetch(`/api/opportunities/${props.opportunity.id}/act-revenue`, {
-                method: 'PATCH',
-                body: JSON.stringify(event.data),
-            }),
-            $fetch(`/api/opportunities/${props.opportunity.id}/act-close-date`, {
-                method: 'PATCH',
-                body: JSON.stringify(event.data),
-            }),
-        ]);
+        });
 
         closeModal();
-        await refreshNuxtData(`opportunities-${props.opportunity.id}`);
         toast.success('Opportunity closed as won successfully.');
+        await refreshNuxtData();
     } catch (e) {
         console.error('Failed to close opportunity as won', e);
         toast.error('Failed to close opportunity as won, please try again later.');

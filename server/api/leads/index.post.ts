@@ -15,27 +15,6 @@ export default defineEventHandler(async (event) => {
     }
 
     // eslint-disable-next-line prefer-const
-    let { data: leadStatus, error: leadStatusError } = await supabase
-        .from('Lead_Statuses')
-        .select('id')
-        .eq('name', 'new')
-        .single();
-    if (leadStatusError) {
-        console.error('Error fetching lead status:', leadStatusError);
-        throw createError({ status: 500, statusMessage: leadStatusError.message });
-    }
-
-    if (!leadStatus) {
-        const { data: newStatus, error } = await supabase.from('Lead_Statuses').insert({ name: 'new' }).select('id').single();
-        if (error) {
-            console.error('Error inserting new lead status:', error);
-            throw createError({ status: 500, statusMessage: error.message });
-        }
-
-        leadStatus = newStatus;
-    }
-
-    // eslint-disable-next-line prefer-const
     let { data: source, error: sourceError } = await supabase.from('Sources').select('id').eq('name', 'manual').single();
     if (sourceError) {
         console.error('Error fetching source:', sourceError);
@@ -71,7 +50,7 @@ export default defineEventHandler(async (event) => {
 
     const { error: insertError } = await supabase.from('Leads').insert({
         ...zodResult.data,
-        lead_status_id: leadStatus.id,
+        status: 'new',
         source_id: source.id,
         rating_id: rating.id,
     });

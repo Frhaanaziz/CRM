@@ -26,32 +26,19 @@ const state = ref({
     close_reason_id: undefined,
     act_revenue: props.opportunity.act_revenue ?? 0,
     act_close_date: props.opportunity.act_close_date ?? undefined,
+    opportunity_status_id: props.lostStatus.id,
 });
 async function handleSubmit(event: FormSubmitEvent<CloseOpportunityAsLostType>) {
     try {
         isSubmitting.value = true;
 
-        await Promise.all([
-            $fetch(`/api/opportunities/${props.opportunity.id}/opportunity-status-id`, {
-                method: 'PATCH',
-                body: JSON.stringify({ id: props.opportunity.id, opportunity_status_id: props.lostStatus.id }),
-            }),
-            $fetch(`/api/opportunities/${props.opportunity.id}/close-reason-id`, {
-                method: 'PATCH',
-                body: JSON.stringify(event.data),
-            }),
-            $fetch(`/api/opportunities/${props.opportunity.id}/act-revenue`, {
-                method: 'PATCH',
-                body: JSON.stringify(event.data),
-            }),
-            $fetch(`/api/opportunities/${props.opportunity.id}/act-close-date`, {
-                method: 'PATCH',
-                body: JSON.stringify(event.data),
-            }),
-        ]);
+        await $fetch(`/api/opportunities/${props.opportunity.id}/close-as-lost`, {
+            method: 'POST',
+            body: JSON.stringify(event.data),
+        });
 
         closeModal();
-        await refreshNuxtData(`opportunities-${props.opportunity.id}`);
+        await refreshNuxtData();
         toast.success('Opportunity closed as lost successfully.');
     } catch (e) {
         console.error('Failed to close opportunity as lost', e);

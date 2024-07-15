@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { phone } from '.';
+import { leadStatuses } from '../constants';
 
 export const leadSchema = z.object({
     company_id: z.coerce.number().int(),
@@ -7,7 +8,7 @@ export const leadSchema = z.object({
     created_at: z.string().optional().nullable(),
     disqualify_reason_id: z.coerce.number().int().optional().nullable(),
     id: z.coerce.number().int(),
-    lead_status_id: z.coerce.number().int(),
+    status: z.enum(leadStatuses),
     message: z.string().optional().nullable(),
     rating_id: z.coerce.number().int(),
     score: z.coerce.number().int().optional().nullable(),
@@ -42,13 +43,7 @@ export const updateLeadTopicSchema = leadSchema.pick({
     id: true,
 });
 
-export const updateLeadStatusId = leadSchema.pick({
+export const updateLeadStatus = leadSchema.pick({
     id: true,
-    lead_status_id: true,
-    disqualify_reason_id: true,
-});
-
-export const qualifyLeadSchema = leadSchema.pick({
-    id: true,
-    lead_status_id: true,
+    status: true,
 });

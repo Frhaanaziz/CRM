@@ -17,10 +17,12 @@ if (!currentUser.value.user_metadata.organization_id) throw createError({ status
 const { data: users } = await useLazyFetch(`/api/organizations/${currentUser.value.user_metadata.organization_id}/users`);
 const usersOption = computed(() => {
     return (
-        users.value?.map((user) => ({
-            value: user.id,
-            label: `${user.first_name} ${user.last_name} ${currentUser.value!.id === user.id ? '(You)' : ''}`,
-        })) ?? []
+        users.value
+            ?.map((user) => ({
+                value: user.id,
+                label: `${user.first_name} ${user.last_name} ${currentUser.value!.id === user.id ? '(You)' : ''}`,
+            })) // Remove current assigned user from the list
+            .filter((user) => user.value !== props.userId) ?? []
     );
 });
 
@@ -40,7 +42,7 @@ async function handleSubmit(event: FormSubmitEvent<UpdateCompanyUserId>) {
         });
 
         closeModal();
-        await refreshNuxtData(`company-${props.company.id}`);
+        await refreshNuxtData();
     } catch (e) {
         console.error(e);
     } finally {

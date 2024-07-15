@@ -67,7 +67,6 @@ export default defineEventHandler(async (event) => {
         await supabase.from('Contacts').delete().neq('id', 0).throwOnError();
         await supabase.from('Contact_Statuses').delete().neq('id', 0).throwOnError();
         await supabase.from('Leads').delete().neq('id', 0).throwOnError();
-        await supabase.from('Lead_Statuses').delete().neq('id', 0).throwOnError();
         await supabase.from('Sources').delete().neq('id', 0).throwOnError();
         await supabase.from('Disqualify_Reasons').delete().neq('id', 0).throwOnError();
         await supabase.from('Ratings').delete().neq('id', 0).throwOnError();
@@ -384,19 +383,6 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    console.info(`Creating ${LEAD_STATUSES.length} lead statuses...`);
-    const { data: leadStatusesData, error: leadStatusesError } = await supabase
-        .from('Lead_Statuses')
-        .insert(LEAD_STATUSES.map((name) => ({ name })))
-        .select();
-    if (leadStatusesError) {
-        console.error('Failed to create lead status', leadStatusesError);
-        throw createError({
-            status: 500,
-            statusMessage: leadStatusesError.message,
-        });
-    }
-
     console.info(`Creating ${SOURCES.length} sources...`);
     const { data: sourcesData, error: sourcesError } = await supabase
         .from('Sources')
@@ -432,14 +418,14 @@ export default defineEventHandler(async (event) => {
                 const company_id = faker.helpers.arrayElement(companiesData).id;
                 const rating_id = faker.helpers.arrayElement(ratingsData).id;
                 const source_id = faker.helpers.arrayElement(sourcesData).id;
-                const lead_status = faker.helpers.arrayElement(leadStatusesData);
+                const lead_status = faker.helpers.arrayElement(LEAD_STATUSES);
                 const disqualify_reason_id =
-                    lead_status.name === 'disqualified' ? faker.helpers.arrayElement(disqualifyReasonsData).id : null;
+                    lead_status === 'disqualified' ? faker.helpers.arrayElement(disqualifyReasonsData).id : null;
 
                 return {
                     company_id,
                     contact_id,
-                    lead_status_id: lead_status.id,
+                    status: lead_status,
                     rating_id,
                     source_id,
                     organization_id: ORGANIZATION_ID,

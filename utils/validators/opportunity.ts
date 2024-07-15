@@ -108,6 +108,7 @@ export const updateOpportunityAsWonSchema = opportunitySchema
 export const updateOpportunityAsLostSchema = opportunitySchema
     .pick({
         id: true,
+        opportunity_status_id: true,
     })
     .extend({
         close_reason_id: z.coerce.number({ message: 'Close reason is required' }).int(),

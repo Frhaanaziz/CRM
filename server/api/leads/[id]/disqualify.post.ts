@@ -1,6 +1,6 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '~/types/supabase';
-import { getZodErrorMessage, updateContactUserIdSchema } from '~/utils';
+import { getZodErrorMessage, leadSchema } from '~/utils';
 
 export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient<Database>(event);
@@ -11,38 +11,35 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 401, statusMessage: 'Unauthorized' });
     }
 
-    const body = await readValidatedBody(event, updateContactUserIdSchema.safeParse);
-    if (!body.success) {
-        console.error('Error validating request body', body.error);
-        throw createError({ status: 400, statusMessage: getZodErrorMessage(body) });
+    const zodResult = leadSchema.pick({ id: true, disqualify_reason_id: true }).safeParse(JSON.parse(await readBody(event)));
+    if (!zodResult.success) {
+        console.error('Error validating request body', zodResult.error);
+        throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
 
-    const { id, user_id } = body.data;
+    const { id, disqualify_reason_id } = zodResult.data;
 
-    const { error } = await supabase.from('Contacts').update({ user_id }).eq('id', id);
+    const { error } = await supabase.from('Leads').update({ status: 'disqualified', disqualify_reason_id }).eq('id', id);
     if (error) {
-        console.error('Error updating contact user_id', error);
+        console.error('Error disqualifying lead (SERVER)', error);
         throw createError({ status: 500, statusMessage: error.message });
     }
 
     const activityRes = await supabase
         .from('Activities')
         .insert({
-            contact_id: id,
-            type: 'assigned',
-            subject: '{{author}} Assigned this contact to {{assignee}}',
+            lead_id: id,
+            type: 'disqualified',
+            subject: 'Disqualified by {{author}}',
             user_id: user.id,
             organization_id: user.user_metadata.organization_id,
         })
         .select('id')
         .single();
     if (activityRes.error) {
-        console.error('Error creating activity', activityRes.error);
+        console.error('Error creating activity (SERVER)', activityRes.error);
         throw createError({ status: 500, statusMessage: activityRes.error.message });
     }
 
-    await supabase.from('Activity_Participants').insert([
-        { activity_id: activityRes.data.id, role: 'author', user_id: user.id },
-        { activity_id: activityRes.data.id, role: 'assignee', user_id },
-    ]);
+    await supabase.from('Activity_Participants').insert({ activity_id: activityRes.data.id, role: 'author', user_id: user.id });
 });

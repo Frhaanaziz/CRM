@@ -23,16 +23,11 @@ export default defineEventHandler(async (event) => {
         est_revenue,
     } = zodResult.data;
 
-    const [leadStatusRes, ratingHotRes, ratingCoolRes, sourceRes] = await Promise.all([
-        supabase.from('Lead_Statuses').select('id').eq('name', 'qualified').single(),
+    const [ratingHotRes, ratingCoolRes, sourceRes] = await Promise.all([
         supabase.from('Ratings').select('id').eq('name', 'hot').single(),
         supabase.from('Ratings').select('id').eq('name', 'cool').single(),
         supabase.from('Sources').select('id').eq('name', 'manual').single(),
     ]);
-    if (leadStatusRes.error) {
-        console.error('Error fetching lead status:', leadStatusRes.error);
-        throw createError({ status: 500, statusMessage: leadStatusRes.error.message });
-    }
     if (ratingHotRes.error) {
         console.error('Error fetching hot rating:', ratingHotRes.error);
         throw createError({ status: 500, statusMessage: ratingHotRes.error.message });
@@ -51,7 +46,7 @@ export default defineEventHandler(async (event) => {
         .insert({
             company_id,
             contact_id,
-            lead_status_id: leadStatusRes.data.id,
+            status: 'qualified',
             organization_id,
             rating_id: ratingHotRes.data.id,
             source_id: sourceRes.data.id,

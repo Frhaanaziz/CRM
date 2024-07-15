@@ -18,10 +18,13 @@ if (!currentUser.value || !currentUser.value.user_metadata.organization_id)
 const { data: users } = await useLazyFetch(`/api/organizations/${currentUser.value.user_metadata.organization_id}/users`);
 const usersOption = computed(() => {
     return (
-        users.value?.map((user) => ({
-            value: user.id,
-            label: `${user.first_name} ${user.last_name} ${currentUser.value!.id === user.id ? '(You)' : ''}`,
-        })) ?? []
+        users.value
+            ?.map((user) => ({
+                value: user.id,
+                label: `${user.first_name} ${user.last_name} ${currentUser.value!.id === user.id ? '(You)' : ''}`,
+            }))
+            // Remove current assigned user from the list
+            .filter((user) => user.value !== props.userId) ?? []
     );
 });
 
@@ -41,9 +44,11 @@ async function handleSubmit(event: FormSubmitEvent<UpdateLeadUserId>) {
         });
 
         closeModal();
-        await refreshNuxtData(`lead-${props.lead.id}`);
+        await refreshNuxtData();
+        toast.success('Lead assigned successfully');
     } catch (e) {
         console.error(e);
+        toast.error('Failed to assign lead, please try again later.');
     } finally {
         isSubmitting.value = false;
     }

@@ -2,7 +2,7 @@
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAssignLead from '~/components/modal/ModalAssignLead.vue';
 import LazyModalAddLeadTopic from '~/components/modal/ModalAddLeadTopic.vue';
-import type { DisqualifyReason } from '~/types';
+import type { DisqualifyReason, LeadStatus } from '~/types';
 import type { FormSubmitEvent } from '#ui/types';
 import type { z } from 'zod';
 
@@ -16,7 +16,7 @@ if (!user.value || !organization_id) throw createError({ status: 401, message: '
 const { data: disqualifyReasons } = await useLazyFetch('/api/disqualify-reasons', {
     key: 'disqualify-reasons',
 });
-const { data: lead, refresh: refreshLead } = await useFetch(`/api/leads/${id}`, {
+const { data: lead } = await useFetch(`/api/leads/${id}`, {
     key: `leads-${id}`,
 });
 if (!lead.value) throw createError({ status: 404, message: 'Lead not found' });
@@ -48,20 +48,18 @@ const isUpdatingCompany = computed(() => companyForm.value?.isUpdating);
 
 const { taskState, isSubmittingTask, handleSubmitTask } = useTask();
 
-async function reopenLead() {
+async function reopenLead(status: LeadStatus) {
     try {
         isUpdatingStatus.value = true;
 
-        const leadStatus = await $fetch('/api/lead-statuses/new');
-
-        await fetch(`/api/leads/${id}/lead-status-id`, {
-            method: 'PATCH',
-            body: JSON.stringify({ id, lead_status_id: leadStatus.id, disqualify_reason_id: null }),
+        await fetch(`/api/leads/${id}/reopen`, {
+            method: 'POST',
+            body: JSON.stringify({ id, status }),
         });
 
         modal.close();
         toast.success('Lead reopened successfully');
-        await refreshLead();
+        await refreshNuxtData();
     } catch (error) {
         console.error('Error reopening lead', error);
         toast.error('Failed reopening lead, please try again later');
@@ -73,16 +71,14 @@ async function qualifyLead() {
     try {
         isUpdatingStatus.value = true;
 
-        const leadStatus = await $fetch('/api/lead-statuses/qualified');
-
-        await fetch(`/api/leads/${id}/lead-status-id`, {
-            method: 'PATCH',
-            body: JSON.stringify({ id, lead_status_id: leadStatus.id }),
+        await fetch(`/api/leads/${id}/qualify`, {
+            method: 'POST',
+            body: JSON.stringify({ id }),
         });
 
         modal.close();
         toast.success('Lead qualified successfully');
-        await refreshLead();
+        await refreshNuxtData();
     } catch (error) {
         console.error('Error qualifying lead', error);
         toast.error('Failed qualifying lead, please try again later');
@@ -94,16 +90,14 @@ async function disqualifyLead(disqulifyReason: DisqualifyReason) {
     try {
         isUpdatingStatus.value = true;
 
-        const leadStatus = await $fetch('/api/lead-statuses/disqualified');
-
-        await fetch(`/api/leads/${id}/lead-status-id`, {
-            method: 'PATCH',
-            body: JSON.stringify({ id, lead_status_id: leadStatus.id, disqualify_reason_id: disqulifyReason.id }),
+        await fetch(`/api/leads/${id}/disqualify`, {
+            method: 'POST',
+            body: JSON.stringify({ id, disqualify_reason_id: disqulifyReason.id }),
         });
 
         modal.close();
         toast.success('Lead disqualified successfully');
-        await refreshLead();
+        await refreshNuxtData();
     } catch (error) {
         console.error('Error disqualifying lead', error);
         toast.error('Failed disqualifying lead, please try again later');
@@ -171,7 +165,7 @@ function useTask() {
                     <UIcon name="i-heroicons-arrow-left-20-solid" class="h-[18px] w-[18px]" />
                 </NuxtLink>
 
-                <template v-if="lead.status?.name === 'new'">
+                <template v-if="!(lead.status === 'qualified' || lead.status === 'disqualified')">
                     <!-- Qualify Button -->
                     <UButton
                         variant="ghost"
@@ -222,21 +216,41 @@ function useTask() {
                         </template>
                     </UPopover>
                 </template>
-                <template v-else>
+                <UPopover v-else>
                     <UButton
+                        label="Reopen Lead"
                         variant="ghost"
                         color="black"
                         class="font-semibold"
-                        label="Reopen Lead"
                         :loading="isUpdatingStatus"
                         :disabled="isUpdatingStatus"
-                        @click="reopenLead"
                     >
                         <template #leading>
                             <UIcon name="i-heroicons-arrow-top-right-on-square" class="h-5 w-5" />
                         </template>
                     </UButton>
-                </template>
+
+                    <template #panel="{ close }">
+                        <div class="flex w-56 flex-col p-1">
+                            <button
+                                v-for="status in leadStatuses.filter(
+                                    (status) => !(status === 'disqualified' || status === 'qualified')
+                                )"
+                                :key="status"
+                                class="rounded p-2 text-start text-sm capitalize hover:bg-brand-50"
+                                :disabled="isUpdatingStatus"
+                                @click="
+                                    () => {
+                                        close();
+                                        reopenLead(status);
+                                    }
+                                "
+                            >
+                                {{ status }}
+                            </button>
+                        </div>
+                    </template>
+                </UPopover>
 
                 <UButton
                     variant="ghost"
@@ -349,7 +363,7 @@ function useTask() {
                         <div class="h-10 border-r border-base-300" />
 
                         <div class="flex flex-col">
-                            <p class="text-weak font-semibold capitalize">{{ lead.status.name }}</p>
+                            <p class="text-weak font-semibold capitalize">{{ lead.status }}</p>
                             <p class="text-weak text-xs">Status</p>
                         </div>
                     </template>
@@ -371,10 +385,7 @@ function useTask() {
 
         <section class="grid gap-4 p-4 md:grid-cols-12">
             <div class="flex flex-col gap-4 md:col-span-4">
-                <p
-                    v-if="lead.status?.name === 'disqualified' && lead.disqualify_reason"
-                    class="text-weak rounded-lg bg-red-100 p-4"
-                >
+                <p v-if="lead.status === 'disqualified' && lead.disqualify_reason" class="text-weak rounded-lg bg-red-100 p-4">
                     This lead is disqualified because
                     <span class="font-semibold capitalize">{{ lead.disqualify_reason.name }}.</span>
                 </p>
@@ -481,7 +492,7 @@ function useTask() {
             </div>
 
             <div class="md:col-span-8">
-                <CardTimeline />
+                <CardTimeline :lead_id="id" />
             </div>
         </section>
     </div>

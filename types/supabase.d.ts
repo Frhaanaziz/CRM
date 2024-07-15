@@ -11,44 +11,44 @@ export type Database = {
     Tables: {
       Activities: {
         Row: {
-          company_id: number
-          contact_id: number
+          company_id: number | null
+          contact_id: number | null
           created_at: string
-          description: string
+          description: string | null
           id: number
           lead_id: number | null
-          method_id: number
           opportunity_id: number | null
-          reminder_id: number | null
+          organization_id: number
           subject: string
+          type: Database["public"]["Enums"]["activity_types"]
           updated_at: string
           user_id: string
         }
         Insert: {
-          company_id: number
-          contact_id: number
+          company_id?: number | null
+          contact_id?: number | null
           created_at?: string
-          description: string
+          description?: string | null
           id?: number
           lead_id?: number | null
-          method_id: number
           opportunity_id?: number | null
-          reminder_id?: number | null
+          organization_id: number
           subject: string
+          type: Database["public"]["Enums"]["activity_types"]
           updated_at?: string
           user_id: string
         }
         Update: {
-          company_id?: number
-          contact_id?: number
+          company_id?: number | null
+          contact_id?: number | null
           created_at?: string
-          description?: string
+          description?: string | null
           id?: number
           lead_id?: number | null
-          method_id?: number
           opportunity_id?: number | null
-          reminder_id?: number | null
+          organization_id?: number
           subject?: string
+          type?: Database["public"]["Enums"]["activity_types"]
           updated_at?: string
           user_id?: string
         }
@@ -75,13 +75,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Activities_method_id_fkey"
-            columns: ["method_id"]
-            isOneToOne: false
-            referencedRelation: "Methods"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "Activities_opportunity_id_fkey"
             columns: ["opportunity_id"]
             isOneToOne: false
@@ -89,7 +82,53 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "Activities_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "Organizations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "Activities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Activity_Participants: {
+        Row: {
+          activity_id: number
+          created_at: string
+          id: number
+          role: Database["public"]["Enums"]["activity_roles"]
+          user_id: string
+        }
+        Insert: {
+          activity_id: number
+          created_at?: string
+          id?: number
+          role: Database["public"]["Enums"]["activity_roles"]
+          user_id: string
+        }
+        Update: {
+          activity_id?: number
+          created_at?: string
+          id?: number
+          role?: Database["public"]["Enums"]["activity_roles"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Activity_Participants_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "Activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Activity_Participants_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "Users"
@@ -863,12 +902,12 @@ export type Database = {
           created_at: string | null
           disqualify_reason_id: number | null
           id: number
-          lead_status_id: number
           message: string | null
           organization_id: number
           rating_id: number
           score: number | null
           source_id: number
+          status: Database["public"]["Enums"]["lead_statuses"] | null
           topic: string | null
           updated_at: string | null
           user_id: string
@@ -879,12 +918,12 @@ export type Database = {
           created_at?: string | null
           disqualify_reason_id?: number | null
           id?: number
-          lead_status_id: number
           message?: string | null
           organization_id: number
           rating_id: number
           score?: number | null
           source_id: number
+          status?: Database["public"]["Enums"]["lead_statuses"] | null
           topic?: string | null
           updated_at?: string | null
           user_id: string
@@ -895,12 +934,12 @@ export type Database = {
           created_at?: string | null
           disqualify_reason_id?: number | null
           id?: number
-          lead_status_id?: number
           message?: string | null
           organization_id?: number
           rating_id?: number
           score?: number | null
           source_id?: number
+          status?: Database["public"]["Enums"]["lead_statuses"] | null
           topic?: string | null
           updated_at?: string | null
           user_id?: string
@@ -925,13 +964,6 @@ export type Database = {
             columns: ["disqualify_reason_id"]
             isOneToOne: false
             referencedRelation: "Disqualify_Reasons"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Leads_lead_status_id_fkey"
-            columns: ["lead_status_id"]
-            isOneToOne: false
-            referencedRelation: "Lead_Statuses"
             referencedColumns: ["id"]
           },
           {
@@ -1576,6 +1608,17 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      activity_roles: "author" | "assignee"
+      activity_types:
+        | "closed as won"
+        | "closed as lost"
+        | "reopened"
+        | "qualified"
+        | "disqualified"
+        | "note"
+        | "calling"
+        | "email"
+        | "assigned"
       close_reasons:
         | "pricing"
         | "competition"
