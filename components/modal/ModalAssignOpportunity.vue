@@ -18,10 +18,12 @@ if (!currentUser.value || !currentUser.value.user_metadata.organization_id)
 const { data: users } = await useLazyFetch(`/api/organizations/${currentUser.value.user_metadata.organization_id}/users`);
 const usersOption = computed(() => {
     return (
-        users.value?.map((user) => ({
-            value: user.id,
-            label: `${user.first_name} ${user.last_name} ${currentUser.value!.id === user.id ? '(You)' : ''}`,
-        })) ?? []
+        users.value
+            ?.map((user) => ({
+                value: user.id,
+                label: `${user.first_name} ${user.last_name} ${currentUser.value!.id === user.id ? '(You)' : ''}`,
+            })) // Remove current assigned user from the list
+            .filter((user) => user.value !== props.userId) ?? []
     );
 });
 
@@ -41,7 +43,7 @@ async function handleSubmit(event: FormSubmitEvent<UpdateOpportunityUserId>) {
         });
 
         closeModal();
-        await refreshNuxtData(`opportunities-${props.opportunity.id}`);
+        await refreshNuxtData();
     } catch (e) {
         console.error(e);
     } finally {
