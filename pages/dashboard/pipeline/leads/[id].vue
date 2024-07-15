@@ -52,11 +52,9 @@ async function reopenLead() {
     try {
         isUpdatingStatus.value = true;
 
-        const leadStatus = await $fetch('/api/lead-statuses/new');
-
-        await fetch(`/api/leads/${id}/lead-status-id`, {
+        await fetch(`/api/leads/${id}/status`, {
             method: 'PATCH',
-            body: JSON.stringify({ id, lead_status_id: leadStatus.id, disqualify_reason_id: null }),
+            body: JSON.stringify({ id, status: 'new', disqualify_reason_id: null }),
         });
 
         modal.close();
@@ -73,11 +71,9 @@ async function qualifyLead() {
     try {
         isUpdatingStatus.value = true;
 
-        const leadStatus = await $fetch('/api/lead-statuses/qualified');
-
-        await fetch(`/api/leads/${id}/lead-status-id`, {
+        await fetch(`/api/leads/${id}/status`, {
             method: 'PATCH',
-            body: JSON.stringify({ id, lead_status_id: leadStatus.id }),
+            body: JSON.stringify({ id, status: 'qualified' }),
         });
 
         modal.close();
@@ -94,11 +90,9 @@ async function disqualifyLead(disqulifyReason: DisqualifyReason) {
     try {
         isUpdatingStatus.value = true;
 
-        const leadStatus = await $fetch('/api/lead-statuses/disqualified');
-
-        await fetch(`/api/leads/${id}/lead-status-id`, {
+        await fetch(`/api/leads/${id}/status`, {
             method: 'PATCH',
-            body: JSON.stringify({ id, lead_status_id: leadStatus.id, disqualify_reason_id: disqulifyReason.id }),
+            body: JSON.stringify({ id, status: 'disqualified', disqualify_reason_id: disqulifyReason.id }),
         });
 
         modal.close();
@@ -171,7 +165,7 @@ function useTask() {
                     <UIcon name="i-heroicons-arrow-left-20-solid" class="h-[18px] w-[18px]" />
                 </NuxtLink>
 
-                <template v-if="lead.status?.name === 'new'">
+                <template v-if="lead.status === 'new'">
                     <!-- Qualify Button -->
                     <UButton
                         variant="ghost"
@@ -349,7 +343,7 @@ function useTask() {
                         <div class="h-10 border-r border-base-300" />
 
                         <div class="flex flex-col">
-                            <p class="text-weak font-semibold capitalize">{{ lead.status.name }}</p>
+                            <p class="text-weak font-semibold capitalize">{{ lead.status }}</p>
                             <p class="text-weak text-xs">Status</p>
                         </div>
                     </template>
@@ -371,10 +365,7 @@ function useTask() {
 
         <section class="grid gap-4 p-4 md:grid-cols-12">
             <div class="flex flex-col gap-4 md:col-span-4">
-                <p
-                    v-if="lead.status?.name === 'disqualified' && lead.disqualify_reason"
-                    class="text-weak rounded-lg bg-red-100 p-4"
-                >
+                <p v-if="lead.status === 'disqualified' && lead.disqualify_reason" class="text-weak rounded-lg bg-red-100 p-4">
                     This lead is disqualified because
                     <span class="font-semibold capitalize">{{ lead.disqualify_reason.name }}.</span>
                 </p>

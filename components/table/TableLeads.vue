@@ -15,7 +15,7 @@ const { data: leads, status } = await useLazyFetch('/api/leads', {
             company: lead.company,
             score: lead.score,
             userName: `${lead.user?.first_name ?? ''} ${lead.user?.last_name ?? ''}`,
-            status: lead.status?.name,
+            status: lead.status,
             disqualify_reason: lead.disqualify_reason?.name,
             rating: lead.rating?.name,
             source: lead.source?.name,

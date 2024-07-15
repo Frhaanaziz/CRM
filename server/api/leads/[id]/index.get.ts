@@ -23,7 +23,6 @@ export default defineEventHandler(async (event) => {
                                 ),
                 source: Sources(*),
                 rating: Ratings(*),
-                status: Lead_Statuses(*),
                 user: Users(*),
                 disqualify_reason: Disqualify_Reasons(*)
                 `

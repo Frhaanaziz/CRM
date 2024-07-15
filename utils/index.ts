@@ -1,13 +1,11 @@
 import type { z } from 'zod';
 import type { User } from '~/types';
-import type { UserMetadata } from '~/types/supabase-auth';
 export * from './validators/auth';
 export * from './validators/user';
 export * from './validators/organization';
 export * from './validators/company';
 export * from './validators/contact';
 export * from './validators/lead';
-export * from './validators/lead-status';
 export * from './validators/task';
 export * from './validators/opportunity';
 export * from './validators/b2b-contact';

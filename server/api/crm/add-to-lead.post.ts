@@ -16,10 +16,9 @@ export default defineEventHandler(async (event) => {
 
     const reqData = zodResult.data;
 
-    const [companyStatusRes, contactStatusRes, leadStatusRes, ratingRes, sourceRes] = await Promise.all([
+    const [companyStatusRes, contactStatusRes, ratingRes, sourceRes] = await Promise.all([
         supabase.from('Company_Statuses').select('id').eq('name', 'new').single(),
         supabase.from('Contact_Statuses').select('id').eq('name', 'new').single(),
-        supabase.from('Lead_Statuses').select('id').eq('name', 'qualified').single(),
         supabase.from('Ratings').select('id').eq('name', 'hot').single(),
         supabase.from('Ratings').select('id').eq('name', 'cool').single(),
         supabase.from('Sources').select('id').eq('name', 'manual').single(),
@@ -31,10 +30,6 @@ export default defineEventHandler(async (event) => {
     if (contactStatusRes.error) {
         console.error('Error fetching contact status:', contactStatusRes.error);
         throw createError({ status: 500, statusMessage: contactStatusRes.error.message });
-    }
-    if (leadStatusRes.error) {
-        console.error('Error fetching lead status:', leadStatusRes.error);
-        throw createError({ status: 500, statusMessage: leadStatusRes.error.message });
     }
     if (ratingRes.error) {
         console.error('Error fetching rating:', ratingRes.error);
@@ -81,7 +76,7 @@ export default defineEventHandler(async (event) => {
         .insert({
             company_id: company.id,
             contact_id: contact.id,
-            lead_status_id: leadStatusRes.data.id,
+            status: 'qualified',
             organization_id: user.user_metadata.organization_id,
             rating_id: ratingRes.data.id,
             source_id: sourceRes.data.id,
