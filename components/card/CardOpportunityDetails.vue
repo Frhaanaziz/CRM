@@ -229,7 +229,6 @@ function useUpdateOpportunity() {
                     <UInput
                         v-model.number="updateState.confidence"
                         type="number"
-                        inputmode="numeric"
                         min="0"
                         max="100"
                         :disabled="isUpdating"

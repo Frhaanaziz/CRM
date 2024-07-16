@@ -11,13 +11,13 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
 
-    const { id, ...restData } = zodResult.data;
+    const { id, act_close_date, ...restData } = zodResult.data;
 
     const { error } = await supabase
         .from('Opportunities')
         .update({
             ...restData,
-            act_close_date: restData.act_close_date ? restData.act_close_date.toISOString() : null,
+            act_close_date: act_close_date && act_close_date.toISOString(),
         })
         .eq('id', id);
     if (error) {

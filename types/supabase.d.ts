@@ -1038,7 +1038,7 @@ export type Database = {
           opportunity_status_id: number
           organization_id: number
           payment_plan_id: number | null
-          priority: Database["public"]["Enums"]["priority_statuses"] | null
+          priority: Database["public"]["Enums"]["priority_statuses"]
           proposed_solution: string | null
           rating_id: number
           topic: string
@@ -1065,7 +1065,7 @@ export type Database = {
           opportunity_status_id: number
           organization_id: number
           payment_plan_id?: number | null
-          priority?: Database["public"]["Enums"]["priority_statuses"] | null
+          priority?: Database["public"]["Enums"]["priority_statuses"]
           proposed_solution?: string | null
           rating_id: number
           topic: string
@@ -1092,7 +1092,7 @@ export type Database = {
           opportunity_status_id?: number
           organization_id?: number
           payment_plan_id?: number | null
-          priority?: Database["public"]["Enums"]["priority_statuses"] | null
+          priority?: Database["public"]["Enums"]["priority_statuses"]
           proposed_solution?: string | null
           rating_id?: number
           topic?: string
@@ -1205,8 +1205,10 @@ export type Database = {
           description: string | null
           id: number
           industry_id: number | null
+          lead_source: string | null
           name: string
           province_id: number | null
+          sales_size: string | null
           size_id: number | null
           updated_at: string
           website: string
@@ -1218,8 +1220,10 @@ export type Database = {
           description?: string | null
           id?: number
           industry_id?: number | null
+          lead_source?: string | null
           name: string
           province_id?: number | null
+          sales_size?: string | null
           size_id?: number | null
           updated_at?: string
           website: string
@@ -1231,8 +1235,10 @@ export type Database = {
           description?: string | null
           id?: number
           industry_id?: number | null
+          lead_source?: string | null
           name?: string
           province_id?: number | null
+          sales_size?: string | null
           size_id?: number | null
           updated_at?: string
           website?: string
@@ -1537,6 +1543,7 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          expectation: string[] | null
           first_name: string
           id: string
           last_name: string
@@ -1551,6 +1558,7 @@ export type Database = {
         Insert: {
           created_at?: string
           email: string
+          expectation?: string[] | null
           first_name: string
           id: string
           last_name: string
@@ -1565,6 +1573,7 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string
+          expectation?: string[] | null
           first_name?: string
           id?: string
           last_name?: string

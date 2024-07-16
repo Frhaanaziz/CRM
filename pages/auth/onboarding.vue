@@ -16,6 +16,41 @@ const [{ data: industriesOption }, { data: sizesOption }] = await Promise.all([
         transform: (sizes) => sizes.map(({ id, size_range }) => ({ value: id, label: size_range })),
     }),
 ]);
+const salesSizesOption = ['Just me', '2-10', '11-25', '26-50', '51-200', '201+'];
+const leadSourcesOption = [
+    "i don't have any leads yet",
+    'My email inbox',
+    'CSV/Spreadsheet',
+    'Act!',
+    'ActiveCampaign',
+    'Agile CRM',
+    'Attio',
+    'Capsule CRN',
+    'Copper',
+    'Firmao',
+    'FowCRM',
+    'GoHighLevel',
+    'Google Sheets',
+    'Highrise',
+    'HubSpot',
+    'Insightly',
+    'Keap',
+    'Less Annoying CRM',
+    'MS Dynamics',
+    'Nimble',
+    'Nutshell',
+    'OnePage CRM',
+    'Pipedrive',
+    'PipelineDeals',
+    'Redtail CRM',
+    'Salesforce',
+    'Streak',
+    'SugarCRM',
+    'SuiteCRM',
+    'Wealthbox',
+    'Zoho CRM',
+    'Other',
+];
 
 const stepper = useStepper(['profile-setup', 'create-organization', 'join-organization']);
 
@@ -63,16 +98,16 @@ function useProfileSetup() {
     const profileForm = ref();
     const state = ref({
         phone: user.value!.user_metadata?.phone ?? '',
-        hope: [],
+        expectation: [],
     });
 
     async function onSubmit() {
         try {
             isSubmitting.value = true;
 
-            await $fetch(`/api/users/${user.value!.id}/phone`, {
-                method: 'PATCH',
-                body: JSON.stringify({ ...state.value, id: user.value!.id }),
+            await $fetch(`/api/users/${user.value!.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(state.value),
             });
         } catch (e) {
             console.error('Error setup profile:', e);
@@ -96,6 +131,8 @@ function useCreateOrganization() {
         website: '',
         industry_id: undefined,
         size_id: undefined,
+        sales_size: '',
+        lead_source: '',
     });
 
     async function onSubmit() {
@@ -215,7 +252,7 @@ async function handleSignout() {
                                 <div class="flex items-center gap-4 rounded-lg border p-4">
                                     <UCheckbox
                                         id="Improve my sales inbound process"
-                                        v-model="profileState.hope"
+                                        v-model="profileState.expectation"
                                         label="Improve my sales inbound process"
                                         value="Improve my sales inbound process"
                                     />
@@ -223,7 +260,7 @@ async function handleSignout() {
                                 <div class="flex items-center gap-4 rounded-lg border p-4">
                                     <UCheckbox
                                         id="Keep track of Leads and contacts"
-                                        v-model="profileState.hope"
+                                        v-model="profileState.expectation"
                                         label="Keep track of Leads and contacts"
                                         value="Keep track of Leads and contacts"
                                     />
@@ -231,7 +268,7 @@ async function handleSignout() {
                                 <div class="flex items-center gap-4 rounded-lg border p-4">
                                     <UCheckbox
                                         id="Get clear reporting of sales performance"
-                                        v-model="profileState.hope"
+                                        v-model="profileState.expectation"
                                         label="Get clear reporting of sales performance"
                                         value="Get clear reporting of sales performance"
                                     />
@@ -239,13 +276,13 @@ async function handleSignout() {
                                 <div class="flex items-center gap-4 rounded-lg border p-4">
                                     <UCheckbox
                                         id="Increase outbound call and email volume"
-                                        v-model="profileState.hope"
+                                        v-model="profileState.expectation"
                                         label="Increase outbound call and email volume"
                                         value="Increase outbound call and email volume"
                                     />
                                 </div>
                                 <div class="flex items-center gap-4 rounded-lg border p-4">
-                                    <UCheckbox id="Other" v-model="profileState.hope" label="Other" value="Other" />
+                                    <UCheckbox id="Other" v-model="profileState.expectation" label="Other" value="Other" />
                                 </div>
                             </div>
                         </UFormGroup>
@@ -289,6 +326,16 @@ async function handleSignout() {
                                 />
                             </UFormGroup>
 
+                            <UFormGroup label="How big is your sales team?" name="sales_size">
+                                <USelectMenu
+                                    v-model="organizationState.sales_size"
+                                    :options="salesSizesOption"
+                                    placeholder="Select your team size"
+                                    :loading="isSubmitting"
+                                    :disabled="isSubmitting"
+                                />
+                            </UFormGroup>
+
                             <UFormGroup label="Industry" name="industry_id">
                                 <USelectMenu
                                     v-model="organizationState.industry_id"
@@ -298,6 +345,16 @@ async function handleSignout() {
                                     searchable
                                     searchable-placeholder="Search a industries..."
                                     placeholder="Select your industry"
+                                    :loading="isSubmitting"
+                                    :disabled="isSubmitting"
+                                />
+                            </UFormGroup>
+
+                            <UFormGroup label="Where are your Leads today?" name="lead_source">
+                                <USelectMenu
+                                    v-model="organizationState.lead_source"
+                                    :options="leadSourcesOption"
+                                    placeholder="Select a Lead Source"
                                     :loading="isSubmitting"
                                     :disabled="isSubmitting"
                                 />

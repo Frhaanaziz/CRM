@@ -2,9 +2,10 @@ import type { Enums, Tables } from './supabase';
 
 export type RoleNames = Enums<'role_names'>;
 export type UserStatuses = Enums<'user_statuses'>;
-export type LeadStatus = Enums<'lead_statuses'>;
-export type ActivityType = Enums<'activity_types'>;
+export type LeadStatuses = Enums<'lead_statuses'>;
+export type ActivityTypes = Enums<'activity_types'>;
 export type ActivityParticipantRoles = Enums<'activity_roles'>;
+export type PriorityStatuses = Enums<'priority_statuses'>;
 
 export type User = Tables<'Users'>;
 export type Country = Tables<'Countries'>;
