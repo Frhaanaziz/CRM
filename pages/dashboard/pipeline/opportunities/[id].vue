@@ -132,9 +132,9 @@ function useUpdateMoreInfo() {
 
     const initialState = {
         id: opportunity.value?.id,
-        current_situation: '',
-        customer_need: '',
-        proposed_solution: '',
+        current_situation: opportunity.value?.current_situation ?? '',
+        customer_need: opportunity.value?.customer_need ?? '',
+        proposed_solution: opportunity.value?.proposed_solution ?? '',
     };
     const updateState = ref({ ...initialState });
     const { history, clear } = useRefHistory(updateState, { deep: true });
