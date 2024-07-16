@@ -2,7 +2,7 @@
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAssignLead from '~/components/modal/ModalAssignLead.vue';
 import LazyModalAddLeadTopic from '~/components/modal/ModalAddLeadTopic.vue';
-import type { DisqualifyReason, LeadStatus } from '~/types';
+import type { DisqualifyReason, LeadStatuses } from '~/types';
 import type { FormSubmitEvent } from '#ui/types';
 import type { z } from 'zod';
 
@@ -48,7 +48,7 @@ const isUpdatingCompany = computed(() => companyForm.value?.isUpdating);
 
 const { taskState, isSubmittingTask, handleSubmitTask } = useTask();
 
-async function reopenLead(status: LeadStatus) {
+async function reopenLead(status: LeadStatuses) {
     try {
         isUpdatingStatus.value = true;
 

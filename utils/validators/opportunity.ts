@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { phone } from '.';
+import { priorityStatuses } from '../constants';
 
 export const opportunitySchema = z.object({
     act_budget: z.coerce.number().optional().nullable(),
@@ -36,20 +37,28 @@ export const opportunitySchema = z.object({
     payment_plan_id: z.coerce.number().int().optional().nullable(),
     proposed_solution: z.string().optional().nullable(),
     topic: z.string().min(1, { message: 'Topic is required' }),
-    upadate_at: z.coerce.date().optional().nullable(),
+    updated_at: z.coerce.date().optional().nullable(),
     user_id: z.string(),
     organization_id: z.coerce.number().int(),
+    priority: z.enum(priorityStatuses),
 });
 
-export const updateOpportunitySchema = opportunitySchema.pick({
-    id: true,
-    act_close_date: true,
-    currency_id: true,
-    act_budget: true,
-    est_revenue: true,
-    payment_plan_id: true,
-    confidence: true,
-});
+export const updateOpportunitySchema = opportunitySchema
+    .pick({
+        act_close_date: true,
+        currency_id: true,
+        act_budget: true,
+        est_revenue: true,
+        payment_plan_id: true,
+        confidence: true,
+        priority: true,
+        opportunity_status_id: true,
+        current_situation: true,
+        customer_need: true,
+        proposed_solution: true,
+    })
+    .partial()
+    .extend({ id: z.coerce.number().int() });
 
 export const addOpportunitySchema = opportunitySchema
     .pick({
