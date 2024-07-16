@@ -49,5 +49,5 @@ export const updateUserOrganizationIdSchema = z.object({
 
 export const profileSetupSchema = z.object({
     phone: z.string().min(1, { message: 'Phone number is required' }),
-    hope: z.array(z.string()).min(1, { message: 'Please select an option' }),
+    expectation: z.array(z.string()).min(1, { message: 'Please select an option' }),
 });

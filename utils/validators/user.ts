@@ -16,8 +16,11 @@ export const userSchema = z.object({
     }),
     role_id: z.coerce.number().int(),
     updated_at: z.coerce.date(),
+    expectation: z.array(z.string()).min(1, { message: 'Please select an option' }).optional().nullable(),
 });
 
-export const updateUserSchema = userSchema.pick({ first_name: true, last_name: true, phone: true, linkedin: true }).partial();
+export const updateUserSchema = userSchema
+    .pick({ first_name: true, last_name: true, phone: true, linkedin: true, expectation: true })
+    .partial();
 export const updateUserRoleSchema = userSchema.pick({ id: true, role_id: true });
 export const updateUserStatusSchema = userSchema.pick({ id: true, status: true });

@@ -15,30 +15,15 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 400, statusMessage: getZodErrorMessage(body) });
     }
 
-    const { first_name, last_name, phone, linkedin } = body.data;
-
     const { data: session, error: authUserError } = await supabase.auth.updateUser({
-        data: {
-            first_name,
-            last_name,
-            phone,
-            linkedin,
-        },
+        data: body.data,
     });
     if (authUserError) {
         console.error('Error updating user in auth', authUserError);
         throw createError({ status: 500, statusMessage: authUserError.message });
     }
 
-    const { error: publicUserError } = await supabase
-        .from('Users')
-        .update({
-            first_name,
-            last_name,
-            phone,
-            linkedin,
-        })
-        .eq('id', id);
+    const { error: publicUserError } = await supabase.from('Users').update(body.data).eq('id', id);
     if (publicUserError) {
         console.error('Error updating user in Users table', publicUserError);
         throw createError({ status: 500, statusMessage: publicUserError.message });

@@ -12,6 +12,8 @@ export const organizationSchema = z.object({
     size_id: z.coerce.number().int().optional().nullable(),
     updated_at: z.coerce.date(),
     website: z.string().url({ message: 'Please enter a valid URL, including the protocol (http:// or https://)' }),
+    sales_size: z.string().optional().nullable(),
+    lead_source: z.string().optional().nullable(),
 });
 
 export const createOrganizationSchema = organizationSchema
@@ -20,6 +22,8 @@ export const createOrganizationSchema = organizationSchema
         website: true,
         size_id: true,
         industry_id: true,
+        sales_size: true,
+        lead_source: true,
     })
     .extend({
         user_id: z.string().min(1),
