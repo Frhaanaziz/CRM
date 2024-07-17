@@ -186,7 +186,7 @@ function useCreateNote() {
                     </p>
                     <p class="flex items-center gap-2 bg-base-300 p-2">
                         <span class="font-semibold">From</span>
-                        <span>{{ `${user?.user_metadata?.first_name ?? ''} ${user?.user_metadata?.last_name ?? ''}` }}</span>
+                        <span>{{ getUserFullName(user?.user_metadata) }}</span>
                         <span>{{ user?.user_metadata?.phone ?? '---' }}</span>
                     </p>
                     <div class="flex items-center justify-between divide-x">

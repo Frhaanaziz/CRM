@@ -16,7 +16,7 @@ const { data: contactsOption } = await useLazyFetch(`/api/companies/${props.comp
     transform: (contacts) =>
         contacts.map((contact) => ({
             value: contact.id,
-            label: `${contact.first_name} ${contact.last_name}`,
+            label: getUserFullName(contact),
         })),
     default: () => [],
 });

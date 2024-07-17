@@ -131,7 +131,7 @@ function useUpdateOpportunity() {
                     :href="`/dashboard/customer/contacts/${opportunity.contact.id}`"
                     class="ml-4 line-clamp-1 text-brand"
                 >
-                    {{ `${opportunity.contact?.first_name ?? ''} ${opportunity.contact?.last_name ?? ''}` }}
+                    {{ getUserFullName(opportunity.contact) }}
                 </NuxtLink>
                 <p v-else class="ml-4">---</p>
 

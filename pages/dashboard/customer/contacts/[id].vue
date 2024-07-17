@@ -100,7 +100,7 @@ async function handleDeleteContact() {
                     <UAvatar :src="getUserFallbackAvatarUrl(contact)" size="md" />
 
                     <div class="flex flex-col gap-1">
-                        <h1 class="text-xl font-semibold">{{ `${contact.first_name ?? ''} ${contact.last_name ?? ''}` }}</h1>
+                        <h1 class="text-xl font-semibold">{{ getUserFullName(contact) }}</h1>
                         <p v-if="contact.job_title" class="text-sm">
                             {{ contact.job_title }} &middot; {{ contact.company.name }}
                         </p>
@@ -111,7 +111,7 @@ async function handleDeleteContact() {
                 <div v-if="contact.user" class="flex items-center gap-2">
                     <UAvatar :src="contact.user.photo ?? getUserFallbackAvatarUrl(contact.user)" />
                     <div>
-                        <p class="font-semibold">{{ `${contact.user.first_name} ${contact.user.last_name}` }}</p>
+                        <p class="font-semibold">{{ getUserFullName(contact.user) }}</p>
                         <p class="text-xs">Owner</p>
                     </div>
                 </div>

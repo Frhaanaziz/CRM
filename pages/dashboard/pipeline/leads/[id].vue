@@ -329,7 +329,7 @@ function useTask() {
                     <UAvatar :src="getUserFallbackAvatarUrl(lead.contact)" size="md" />
                     <div v-if="lead.contact && lead.company" class="flex flex-col gap-1">
                         <h1 class="text-xl font-semibold">
-                            {{ `${lead.contact.first_name ?? ''} ${lead.contact.last_name ?? ''}` }}
+                            {{ getUserFullName(lead.contact) }}
                         </h1>
                         <p class="text-sm">{{ lead.contact.job_title }} &#128900; {{ lead.company.name }}</p>
                     </div>
@@ -374,7 +374,7 @@ function useTask() {
                         <div class="flex items-center gap-2">
                             <UAvatar :src="lead.user.photo ?? getUserFallbackAvatarUrl(lead.user)" />
                             <div>
-                                <p class="font-semibold">{{ `${lead.user.first_name} ${lead.user.last_name}` }}</p>
+                                <p class="font-semibold">{{ getUserFullName(lead.user) }}</p>
                                 <p class="text-xs">Owner</p>
                             </div>
                         </div>

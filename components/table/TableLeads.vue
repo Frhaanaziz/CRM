@@ -11,10 +11,10 @@ const { data: leads, status } = await useLazyFetch('/api/leads', {
     transform: (leads) =>
         leads.map((lead) => ({
             id: lead.id,
-            name: `${lead.contact?.first_name ?? ''} ${lead.contact?.last_name ?? ''}`,
+            name: getUserFullName(lead.contact),
             company: lead.company,
             score: lead.score,
-            userName: `${lead.user?.first_name ?? ''} ${lead.user?.last_name ?? ''}`,
+            userName: getUserFullName(lead.user),
             status: lead.status,
             disqualify_reason: lead.disqualify_reason?.name,
             rating: lead.rating?.name,

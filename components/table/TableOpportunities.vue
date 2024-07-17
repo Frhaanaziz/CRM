@@ -264,7 +264,7 @@ function useTable() {
                 :href="`/dashboard/customer/contacts/${row.contact.id}`"
                 class="text-brand hover:underline"
             >
-                {{ `${row.contact?.first_name ?? ''} ${row?.contact?.last_name ?? ''}` }}
+                {{ getUserFullName(row.contact) }}
             </NuxtLink>
         </template>
 

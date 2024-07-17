@@ -21,7 +21,7 @@ const usersOption = computed(() => {
         users.value
             ?.map((user) => ({
                 value: user.id,
-                label: `${user.first_name} ${user.last_name} ${currentUser.value!.id === user.id ? '(You)' : ''}`,
+                label: `${getUserFullName(user)} ${currentUser.value!.id === user.id ? '(You)' : ''}`,
             })) // Remove current assigned user from the list
             .filter((user) => user.value !== props.userId) ?? []
     );

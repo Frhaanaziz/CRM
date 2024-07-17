@@ -451,9 +451,7 @@ function useUpdateB2BCompany() {
                                     <UAvatar :src="getUserFallbackAvatarUrl(getB2BContact(parseInt(item.content)))" size="md" />
                                     <div>
                                         <p class="font-semibold">
-                                            {{
-                                                `${getB2BContact(parseInt(item.content))?.first_name ?? ''} ${getB2BContact(parseInt(item.content))?.last_name ?? ''}`
-                                            }}
+                                            {{ getUserFullName(getB2BContact(parseInt(item.content))) }}
                                         </p>
                                         <p class="text-start text-xs">
                                             {{ getB2BContact(parseInt(item.content))?.job_title ?? '---' }}

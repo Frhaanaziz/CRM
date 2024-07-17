@@ -493,7 +493,7 @@ function useTask() {
                         <div class="flex items-center gap-2">
                             <UAvatar :src="opportunity.user.photo ?? getUserFallbackAvatarUrl(opportunity.user)" />
                             <div>
-                                <p class="font-semibold">{{ `${opportunity.user.first_name} ${opportunity.user.last_name}` }}</p>
+                                <p class="font-semibold">{{ getUserFullName(opportunity.user) }}</p>
                                 <p class="text-xs">Owner</p>
                             </div>
                         </div>
