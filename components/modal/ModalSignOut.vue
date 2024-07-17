@@ -1,10 +1,8 @@
 <script setup lang="ts">
-const supabase = useSupabaseClient();
 const emit = defineEmits(['close']);
+const closeModal = () => emit('close');
 
-function closeModal() {
-    emit('close');
-}
+const supabase = useSupabaseClient();
 
 async function handleSignout() {
     closeModal();
@@ -12,6 +10,7 @@ async function handleSignout() {
     if (error) {
         console.error('Sign out error:', error);
         toast.error('Failed to sign out, please try again.');
+        return;
     }
 
     const sessionStore = userSessionStore();

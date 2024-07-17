@@ -15,16 +15,15 @@ const currentUser = useSupabaseUser();
 if (!currentUser.value || !currentUser.value.user_metadata.organization_id)
     throw createError({ status: 401, message: 'Unauthorized' });
 
-const { data: users } = await useLazyFetch(`/api/organizations/${currentUser.value.user_metadata.organization_id}/users`);
-const usersOption = computed(() => {
-    return (
-        users.value
-            ?.map((user) => ({
+const { data: usersOption } = await useLazyFetch(`/api/organizations/${currentUser.value.user_metadata.organization_id}/users`, {
+    transform: (users) =>
+        users
+            .map((user) => ({
                 value: user.id,
                 label: `${user.first_name} ${user.last_name} ${currentUser.value!.id === user.id ? '(You)' : ''}`,
             })) // Remove current assigned user from the list
-            .filter((user) => user.value !== props.userId) ?? []
-    );
+            .filter((user) => user.value !== props.userId),
+    default: () => [],
 });
 
 type UpdateOpportunityUserId = z.infer<typeof updateOpportunityUserIdSchema>;

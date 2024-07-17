@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
-const emit = defineEmits(['close']);
 
-function closeModal() {
-    emit('close');
-}
+const emit = defineEmits(['close']);
+const closeModal = () => emit('close');
 
 type AddCompanyType = z.infer<typeof addCompanySchema>;
 const isSubmitting = ref(false);

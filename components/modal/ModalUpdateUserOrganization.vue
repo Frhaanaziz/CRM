@@ -3,22 +3,22 @@ import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
 import type { User } from '~/types';
 
+const emit = defineEmits(['close']);
+const closeModal = () => emit('close');
+
 const props = defineProps<{
     user: { id: User['id']; role_id: User['role_id']; status: User['status'] };
 }>();
-const emit = defineEmits(['close']);
 
-function closeModal() {
-    emit('close');
-}
-
-const { data: roles } = await useLazyFetch('/api/roles', { key: 'roles' });
-const rolesOption = computed(() => roles.value?.map((role) => ({ value: role.id, label: capitalize(role.name) })));
+const { data: rolesOption } = await useLazyFetch('/api/roles', {
+    key: 'roles',
+    transform: (roles) => roles.map((role) => ({ value: role.id, label: capitalize(role.name) })),
+    default: () => [],
+});
 const statusOption = ['active', 'inactive'].map((status) => ({ value: status, label: capitalize(status) }));
 
 const schema = userSchema.pick({ id: true, role_id: true, status: true });
 type UpdateUserOrganizationType = z.infer<typeof schema>;
-
 const isSubmitting = ref(false);
 const state = ref({
     id: props.user.id,

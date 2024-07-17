@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
+
 const emit = defineEmits(['close']);
+const closeModal = () => emit('close');
 
-function closeModal() {
-    emit('close');
-}
-
-const { data: roles } = await useLazyFetch('/api/roles', { key: 'roles' });
-const rolesOption = computed(() => roles.value?.map((role) => ({ value: role.name, label: capitalize(role.name) })));
+const { data: rolesOption } = await useLazyFetch('/api/roles', {
+    key: 'roles',
+    transform: (roles) => roles.map((role) => ({ value: role.name, label: capitalize(role.name) })),
+    default: () => [],
+});
 
 type InviteUserType = z.infer<typeof inviteUserSchema>;
-
 const isSubmitting = ref(false);
 const state = ref<InviteUserType>({
     email: '',

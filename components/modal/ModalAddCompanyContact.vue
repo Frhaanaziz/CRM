@@ -6,11 +6,9 @@ import type { Company } from '~/types';
 const props = defineProps<{
     company: Pick<Company, 'id' | 'name'>;
 }>();
-const emit = defineEmits(['close']);
 
-function closeModal() {
-    emit('close');
-}
+const emit = defineEmits(['close']);
+const closeModal = () => emit('close');
 
 type AddContactType = z.infer<typeof addContactSchema>;
 const isSubmitting = ref(false);

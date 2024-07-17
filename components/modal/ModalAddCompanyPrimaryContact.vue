@@ -6,19 +6,18 @@ import type { Company } from '~/types';
 const props = defineProps<{
     company: Pick<Company, 'id'>;
 }>();
+
 const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
 
-const { data: contacts } = await useLazyFetch(`/api/companies/${props.company.id}/contacts`, {
+const { data: contactsOption } = await useLazyFetch(`/api/companies/${props.company.id}/contacts`, {
     key: `companies-${props.company.id}-contacts`,
-});
-const contactsOption = computed(() => {
-    return (
-        contacts.value?.map((contact) => ({
+    transform: (contacts) =>
+        contacts.map((contact) => ({
             value: contact.id,
             label: `${contact.first_name} ${contact.last_name}`,
-        })) ?? []
-    );
+        })),
+    default: () => [],
 });
 
 type AddCompanyPrimaryContactType = z.infer<typeof addCompanyPrimaryContactSchema>;

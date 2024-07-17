@@ -3,12 +3,13 @@ import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
 import type { Company, User } from '~/types';
 
+const emit = defineEmits(['close']);
+const closeModal = () => emit('close');
+
 const props = defineProps<{
     company: Pick<Company, 'id'>;
     userId?: User['id'];
 }>();
-const emit = defineEmits(['close']);
-const closeModal = () => emit('close');
 
 const currentUser = useSupabaseUser();
 if (!currentUser.value) throw createError({ status: 401, message: 'Unauthorized' });
