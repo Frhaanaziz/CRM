@@ -13,6 +13,14 @@ const { data: opportunityStatuses } = await useLazyFetch('/api/opportunity-statu
 const { createState, isCreating, addOpportunityStatus } = useAddOpportunityStatus();
 
 const isReordering = ref(false);
+const drag = ref(false);
+
+const dragOptions = computed(() => ({
+    animation: 200,
+    disabled: isReordering.value,
+    ghostClass: 'opacity-50',
+}));
+
 async function onUpdate({ newIndex }: { newIndex: number; oldIndex: number }) {
     if (!opportunityStatuses.value) return;
     try {
@@ -37,7 +45,6 @@ async function onUpdate({ newIndex }: { newIndex: number; oldIndex: number }) {
         isReordering.value = false;
     }
 }
-
 function useAddOpportunityStatus() {
     type AddOpportunityStatusType = z.infer<typeof createOpportunityStatusSchema>;
     const isCreating = ref(false);
@@ -106,11 +113,16 @@ function useAddOpportunityStatus() {
         <Draggable
             v-if="opportunityStatuses"
             :list="opportunityStatuses"
-            tag="ul"
+            :component-data="{
+                tag: 'ul',
+                type: 'transition-group',
+                name: !drag ? 'flip-list' : null,
+            }"
             handle=".handle"
             item-key="id"
-            ghostClass="opacity-50"
-            :disabled="isReordering"
+            v-bind="dragOptions"
+            @start="drag = true"
+            @end="drag = false"
             @update="onUpdate"
         >
             <template #item="{ element, index }">
