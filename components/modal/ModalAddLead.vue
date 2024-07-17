@@ -178,7 +178,7 @@ function useConfirmLead() {
 
         return matchedContact.value.map((contact) => ({
             id: contact.id,
-            fullName: `${contact.first_name} ${contact.last_name}`,
+            fullName: getUserFullName(contact),
             email: contact.email,
             companyName: contact.company?.name,
             phone: contact.main_phone,

@@ -3,13 +3,13 @@ import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
 import type { Opportunity, OpportunityStatus } from '~/types';
 
+const emit = defineEmits(['close']);
+const closeModal = () => emit('close');
+
 const props = defineProps<{
     opportunity: Pick<Opportunity, 'id' | 'act_close_date' | 'act_revenue'>;
     wonStatus: OpportunityStatus;
 }>();
-
-const emit = defineEmits(['close']);
-const closeModal = () => emit('close');
 
 const { user } = storeToRefs(userSessionStore());
 if (!user.value) throw createError({ status: 401, message: 'Unauthorized' });

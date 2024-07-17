@@ -3,23 +3,22 @@ import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
 import type { Company, Contact } from '~/types';
 
+const emit = defineEmits(['close']);
+const closeModal = () => emit('close');
+
 const props = defineProps<{
     company: Pick<Company, 'id'>;
     primaryContact: Pick<Contact, 'id'>;
 }>();
-const emit = defineEmits(['close']);
-const closeModal = () => emit('close');
 
-const { data: contacts } = await useLazyFetch(`/api/companies/${props.company.id}/contacts`, {
+const { data: contactsOption } = await useLazyFetch(`/api/companies/${props.company.id}/contacts`, {
     key: `companies-${props.company.id}-contacts`,
-});
-const contactsOption = computed(() => {
-    return (
-        contacts.value?.map((contact) => ({
+    transform: (contacts) =>
+        contacts.map((contact) => ({
             value: contact.id,
-            label: `${contact.first_name} ${contact.last_name}`,
-        })) ?? []
-    );
+            label: getUserFullName(contact),
+        })),
+    default: () => [],
 });
 
 type AddCompanyPrimaryContactType = z.infer<typeof addCompanyPrimaryContactSchema>;

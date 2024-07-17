@@ -65,7 +65,7 @@ watchEffect(() => (pathname.value = route.path));
                     />
 
                     <div>
-                        <p>{{ truncateString(`${user.user_metadata?.first_name} ${user.user_metadata.last_name}`, 20) }}</p>
+                        <p>{{ truncateString(getUserFullName(user.user_metadata), 20) }}</p>
                         <p class="text-weak text-xs font-normal">
                             {{ truncateString(user?.email ?? '', 20) }}
                         </p>

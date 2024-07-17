@@ -1,7 +1,12 @@
 import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server';
+import { z } from 'zod';
 import type { Database } from '~/types/supabase';
-import { getZodErrorMessage, updateUserPhoneSchema } from '~/utils';
+import { getZodErrorMessage } from '~/utils';
 
+const updateUserPhoneSchema = z.object({
+    id: z.string(),
+    phone: z.string().min(1, { message: 'Phone number is required' }),
+});
 export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient<Database>(event);
     const supabaseAdmin = serverSupabaseServiceRole<Database>(event);

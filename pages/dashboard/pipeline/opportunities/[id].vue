@@ -20,8 +20,8 @@ const isUpdatingStatus = ref(false);
 const isUpdatingPriority = ref(false);
 const isCreatingTask = ref(false);
 
-const { data: opportunityStatuses } = await useLazyFetch(`/api/organizations/${organization_id}/opportunity-statuses`, {
-    key: `organizations-${organization_id}-opportunity-statuses`,
+const { data: opportunityStatuses } = await useLazyFetch(`/api/opportunity-statuses`, {
+    key: `opportunity-statuses`,
 });
 const { data: opportunity, refresh: refreshOpportunity } = await useFetch(`/api/opportunities/${id}`, {
     key: `opportunities-${id}`,
@@ -493,7 +493,7 @@ function useTask() {
                         <div class="flex items-center gap-2">
                             <UAvatar :src="opportunity.user.photo ?? getUserFallbackAvatarUrl(opportunity.user)" />
                             <div>
-                                <p class="font-semibold">{{ `${opportunity.user.first_name} ${opportunity.user.last_name}` }}</p>
+                                <p class="font-semibold">{{ getUserFullName(opportunity.user) }}</p>
                                 <p class="text-xs">Owner</p>
                             </div>
                         </div>

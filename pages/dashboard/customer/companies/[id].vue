@@ -20,8 +20,8 @@ const { data: company, refresh: refreshCompany } = await useFetch(`/api/companie
 if (!company.value) throw createError({ status: 404, message: 'Company not found' });
 
 const [{ data: opportunityStatusesOption }, { data: paymentPlansOption }] = await Promise.all([
-    useLazyFetch(`/api/organizations/${organization_id}/opportunity-statuses`, {
-        key: `organizations-${organization_id}-opportunity-statuses`,
+    useLazyFetch(`/api/opportunity-statuses`, {
+        key: `opportunity-statuses`,
         transform: (data) => data.map((status) => ({ label: capitalize(status.name), value: status.id })),
     }),
     useLazyFetch('/api/payment-plans', {
@@ -32,7 +32,7 @@ const [{ data: opportunityStatusesOption }, { data: paymentPlansOption }] = awai
 const contactsOption = computed(() =>
     company.value!.contacts.map((contact) => ({
         value: contact.id,
-        label: `${contact.first_name ?? ''} ${contact.last_name ?? ''}`,
+        label: getUserFullName(contact),
     }))
 );
 
@@ -187,7 +187,7 @@ function useOpportunity() {
                         <div class="flex items-center gap-2">
                             <UAvatar :src="company.user.photo ?? getUserFallbackAvatarUrl(company.user)" />
                             <div>
-                                <p class="font-semibold">{{ `${company.user.first_name} ${company.user.last_name}` }}</p>
+                                <p class="font-semibold">{{ getUserFullName(company.user) }}</p>
                                 <p class="text-xs">Owner</p>
                             </div>
                         </div>
@@ -363,7 +363,7 @@ function useOpportunity() {
                             <UAvatar :src="getUserFallbackAvatarUrl(company.primaryContact)" size="md" />
                             <div class="flex-1">
                                 <p class="font-semibold text-brand">
-                                    {{ `${company.primaryContact.first_name} ${company.primaryContact.last_name}` }}
+                                    {{ getUserFullName(company.primaryContact) }}
                                 </p>
                                 <p class="text-xs">{{ company.primaryContact.job_title }}</p>
                             </div>
@@ -407,7 +407,7 @@ function useOpportunity() {
                             <li v-for="contact in company.contacts" :key="contact.id" class="flex items-center gap-4">
                                 <UAvatar :src="getUserFallbackAvatarUrl(contact)" size="md" />
                                 <div>
-                                    <p class="font-semibold">{{ `${contact.first_name} ${contact.last_name}` }}</p>
+                                    <p class="font-semibold">{{ getUserFullName(contact) }}</p>
                                     <p class="text-xs">{{ contact.job_title }}</p>
                                 </div>
                             </li>

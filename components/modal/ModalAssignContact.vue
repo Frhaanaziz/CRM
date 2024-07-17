@@ -3,12 +3,13 @@ import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
 import type { Contact, User } from '~/types';
 
+const emit = defineEmits(['close']);
+const closeModal = () => emit('close');
+
 const props = defineProps<{
     contact: Pick<Contact, 'id'>;
     userId?: User['id'];
 }>();
-const emit = defineEmits(['close']);
-const closeModal = () => emit('close');
 
 const currentUser = useSupabaseUser();
 if (!currentUser.value) throw createError({ status: 401, message: 'Unauthorized' });
@@ -20,7 +21,7 @@ const usersOption = computed(() => {
         users.value
             ?.map((user) => ({
                 value: user.id,
-                label: `${user.first_name} ${user.last_name} ${currentUser.value!.id === user.id ? '(You)' : ''}`,
+                label: `${getUserFullName(user)} ${currentUser.value!.id === user.id ? '(You)' : ''}`,
             })) // Remove current assigned user from the list
             .filter((user) => user.value !== props.userId) ?? []
     );

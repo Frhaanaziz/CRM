@@ -37,16 +37,6 @@ export const connectEmailSchema = z.object({
     imap_secure: z.boolean(),
 });
 
-export const updateUserPhoneSchema = z.object({
-    id: z.string(),
-    phone: z.string().min(1, { message: 'Phone number is required' }),
-});
-
-export const updateUserOrganizationIdSchema = z.object({
-    id: z.string(),
-    organization_id: z.coerce.number().int(),
-});
-
 export const profileSetupSchema = z.object({
     phone: z.string().min(1, { message: 'Phone number is required' }),
     expectation: z.array(z.string()).min(1, { message: 'Please select an option' }),

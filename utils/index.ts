@@ -8,6 +8,7 @@ export * from './validators/contact';
 export * from './validators/lead';
 export * from './validators/task';
 export * from './validators/opportunity';
+export * from './validators/opportunity-status';
 export * from './validators/b2b-contact';
 export * from './validators/b2b-company';
 export * from './validators/activity';
@@ -143,10 +144,9 @@ export function getUserFallbackAvatarUrl(user?: Pick<User, 'first_name' | 'last_
     if (!user || !user.first_name || !user.last_name)
         return 'https://ui-avatars.com/api/?name=FA&background=3892F3&color=fff&bold=true';
 
-    const name = user.first_name + ' ' + user.last_name;
     const baseUrl = 'https://ui-avatars.com/api/';
     const params = new URLSearchParams({
-        name: name,
+        name: getUserFullName(user),
         background: '3892F3',
         color: 'fff',
         bold: 'true',
@@ -155,7 +155,7 @@ export function getUserFallbackAvatarUrl(user?: Pick<User, 'first_name' | 'last_
     return baseUrl + '?' + params.toString();
 }
 
-export function getUserFullName(user?: Pick<User, 'first_name' | 'last_name'> | null): string {
-    if (!user || !user.first_name || !user.last_name) return '---';
+export function getUserFullName(user?: Pick<User, 'first_name' | 'last_name'> | { [key: string]: any } | null): string {
+    if (!user || !user.first_name || !user.last_name) return '';
     return user.first_name + ' ' + user.last_name;
 }

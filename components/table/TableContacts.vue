@@ -10,9 +10,8 @@ const { data: contacts, status } = await useLazyFetch('/api/contacts', {
     key: 'contacts',
     transform: (contacts) =>
         contacts.map((contact) => ({
-            //   contact_status_id: number
             id: contact.id,
-            fullName: `${contact.first_name ?? ''} ${contact.last_name ?? ''}`,
+            fullName: getUserFullName(contact),
             email: contact.email,
             mainPhone: contact.main_phone,
             mobilePhone: contact.mobile_phone,
@@ -118,7 +117,7 @@ function useTable() {
         filteredContacts.value.map((company) => ({
             ...company,
             // primaryContact: {
-            //     value: `${company.primaryContact?.first_name ?? ''} ${company.primaryContact?.last_name ?? ''}`,
+            //     value: getUserFullName(company.primaryContact),
             //     class: 'w-[200px] max-w-[200px]',
             // },
             // primaryContactEmail: { value: company.primaryContact?.email ?? '', class: 'w-[220px] max-w-[220px]' },
