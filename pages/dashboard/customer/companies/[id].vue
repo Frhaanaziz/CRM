@@ -20,8 +20,8 @@ const { data: company, refresh: refreshCompany } = await useFetch(`/api/companie
 if (!company.value) throw createError({ status: 404, message: 'Company not found' });
 
 const [{ data: opportunityStatusesOption }, { data: paymentPlansOption }] = await Promise.all([
-    useLazyFetch(`/api/organizations/${organization_id}/opportunity-statuses`, {
-        key: `organizations-${organization_id}-opportunity-statuses`,
+    useLazyFetch(`/api/opportunity-statuses`, {
+        key: `opportunity-statuses`,
         transform: (data) => data.map((status) => ({ label: capitalize(status.name), value: status.id })),
     }),
     useLazyFetch('/api/payment-plans', {

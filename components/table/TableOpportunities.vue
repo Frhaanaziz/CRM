@@ -3,6 +3,7 @@ import { useDateFormat } from '@vueuse/core';
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import type { Opportunity } from '~/types';
 import LazyModalAddOpportunity from '~/components/modal/ModalAddOpportunity.vue';
+import LazyModalOpportunityPipelines from '~/components/modal/ModalOpportunityPipelines.vue';
 
 const modal = useModal();
 
@@ -183,6 +184,21 @@ function useTable() {
                 "
             >
                 New
+            </UButton>
+
+            <!-- Edit Column Button -->
+            <UButton
+                icon="i-heroicons-adjustments-vertical"
+                color="black"
+                size="xs"
+                variant="ghost"
+                @click="
+                    modal.open(LazyModalOpportunityPipelines, {
+                        onClose: () => modal.close(),
+                    })
+                "
+            >
+                Edit Columns
             </UButton>
 
             <!-- Columns Selector -->

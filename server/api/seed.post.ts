@@ -477,7 +477,7 @@ export default defineEventHandler(async (event) => {
     console.info(`Creating ${OPPORTUNITY_STATUSES.length} opportunity statuses...`);
     const { data: opportunityStatusesData, error: opportunityStatusesError } = await supabase
         .from('Opportunity_Statuses')
-        .insert(OPPORTUNITY_STATUSES.map((name) => ({ name, organization_id: ORGANIZATION_ID })))
+        .insert(OPPORTUNITY_STATUSES.map((name, i) => ({ name, organization_id: ORGANIZATION_ID, index_number: i + 1 })))
         .select();
     if (opportunityStatusesError) {
         console.error('Failed to create opportunity status', opportunityStatusesError);
