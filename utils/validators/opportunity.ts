@@ -80,11 +80,6 @@ export const updateOpportunityUserIdSchema = opportunitySchema.pick({
     id: true,
 });
 
-export const updateOpportunityCloseReasonIdSchema = opportunitySchema.pick({
-    close_reason_id: true,
-    id: true,
-});
-
 export const updateOpportunityTopicSchema = opportunitySchema.pick({
     topic: true,
     id: true,
@@ -93,16 +88,6 @@ export const updateOpportunityTopicSchema = opportunitySchema.pick({
 export const updateOpportunityStatusId = opportunitySchema.pick({
     id: true,
     opportunity_status_id: true,
-});
-
-export const updateOpportunityActRevenue = opportunitySchema.pick({
-    id: true,
-    act_revenue: true,
-});
-
-export const updateOpportunityActCloseDate = opportunitySchema.pick({
-    id: true,
-    act_close_date: true,
 });
 
 export const updateOpportunityAsWonSchema = opportunitySchema
