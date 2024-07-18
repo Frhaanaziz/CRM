@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     const currElIndexNumber = calculateCurrElIndexNumber(prevElIndexNumber, nextElIndexNumber);
 
     // Update currElIndexNumber as the index_number of the new task
-    const { error } = await supabase.from('Opportunity_Statuses').update({ index_number: currElIndexNumber }).eq('id', id);
+    const { error } = await supabase.from('Opportunities').update({ index_number: currElIndexNumber }).eq('id', id);
     if (error) {
         console.error('Error updating index_number:', error);
         throw createError({ status: 500, statusMessage: error.message });

@@ -1034,6 +1034,7 @@ export type Database = {
           est_budget: number | null
           est_revenue: number | null
           id: number
+          index_number: number
           lead_id: number
           opportunity_status_id: number
           organization_id: number
@@ -1061,6 +1062,7 @@ export type Database = {
           est_budget?: number | null
           est_revenue?: number | null
           id?: number
+          index_number: number
           lead_id: number
           opportunity_status_id: number
           organization_id: number
@@ -1088,6 +1090,7 @@ export type Database = {
           est_budget?: number | null
           est_revenue?: number | null
           id?: number
+          index_number?: number
           lead_id?: number
           opportunity_status_id?: number
           organization_id?: number

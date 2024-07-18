@@ -59,6 +59,24 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 500, statusMessage: leadError.message });
     }
 
+    const { data: maxIndexOpportunity, error } = await supabase
+        .from('Opportunities')
+        .select('index_number')
+        .match({
+            organization_id,
+            opportunity_status_id,
+        })
+        .order('index_number', { ascending: false })
+        .limit(1)
+        .single();
+    if (error) {
+        console.error('Error fetching max index opportunity statuses (SERVER)', error);
+        throw createError({
+            status: 500,
+            statusMessage: error.message,
+        });
+    }
+
     const res = await supabase.from('Opportunities').insert({
         company_id,
         contact_id,
@@ -71,6 +89,7 @@ export default defineEventHandler(async (event) => {
         est_revenue,
         lead_id: lead.id,
         rating_id: ratingCoolRes.data.id,
+        index_number: maxIndexOpportunity ? maxIndexOpportunity.index_number + 1 : 1,
     });
     if (res.error) {
         console.error('Error inserting opportunity:', res.error);
