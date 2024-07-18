@@ -79,8 +79,8 @@ async function updateStatus(opportunity_status_id: OpportunityStatus['id']) {
     try {
         isUpdatingStatus.value = true;
 
-        await $fetch(`/api/opportunities/${id}`, {
-            method: 'PUT',
+        await $fetch(`/api/opportunities/${id}/opportunity-status-id`, {
+            method: 'PATCH',
             body: JSON.stringify({ id, opportunity_status_id }),
         });
 

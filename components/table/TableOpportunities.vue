@@ -1,227 +1,23 @@
 <script lang="ts" setup>
 import { useDateFormat } from '@vueuse/core';
-import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import type { Opportunity } from '~/types';
-import LazyModalAddOpportunity from '~/components/modal/ModalAddOpportunity.vue';
-import LazyModalOpportunityPipelines from '~/components/modal/ModalOpportunityPipelines.vue';
 
-const modal = useModal();
+const emit = defineEmits(['select']);
 
-const { data: opportunities, status } = await useLazyFetch('/api/opportunities', {
-    key: 'opportunities',
-    default: () => [],
-});
-const pending = computed(() => status.value === 'pending');
+defineProps<{
+    opportunitiesRows: any[];
+    pending: boolean;
+    columns: any[];
+    pageTotal: number;
+}>();
 
-const {
-    columns,
-    selectedColumns,
-    tableColumns,
-    selectedRows,
-    select,
-    opportunitiesRows,
-    search,
-    page,
-    pageCount,
-    sort,
-    pageTotal,
-    resetFilters,
-} = useTable();
-
-async function handleDeleteOpportunities() {
-    try {
-        await Promise.all(
-            selectedRows.value.map((opportunity) => $fetch(`/api/opportunities/${opportunity.id}`, { method: 'DELETE' }))
-        );
-
-        toast.success('Opportunity has been deleted successfully.');
-        await refreshNuxtData('opportunities');
-    } catch (e) {
-        console.error('Failed to delete Opportunity:', e);
-        toast.error('Failed to delete Opportunity, please try again later.');
-    }
-}
-function useTable() {
-    const columns = [
-        {
-            key: 'topic',
-            label: 'Topic',
-            sortable: true,
-        },
-        {
-            key: 'companyName',
-            label: 'Potential Cust.',
-            sortable: true,
-        },
-        {
-            key: 'estBudget',
-            label: 'Est. Budget',
-            sortable: true,
-        },
-        {
-            key: 'estRevenue',
-            label: 'Est. Revenue',
-            sortable: true,
-        },
-        {
-            key: 'actBudget',
-            label: 'Act. Budget',
-            sortable: true,
-        },
-        {
-            key: 'actRevenue',
-            label: 'Act. Revenue',
-            sortable: true,
-        },
-        {
-            key: 'actCloseDate',
-            label: 'Act. Close Date',
-            sortable: true,
-        },
-        {
-            key: 'contactName',
-            label: 'Contact',
-            sortable: true,
-        },
-        {
-            key: 'confidence',
-            label: 'Probability',
-            sortable: true,
-        },
-        {
-            key: 'rating',
-            label: 'Rating',
-            sortable: true,
-        },
-        {
-            key: 'status',
-            label: 'Status',
-            sortable: true,
-        },
-        {
-            key: 'created_at',
-            label: 'Created on',
-            sortable: true,
-        },
-    ];
-    const initialColumnKeys = ['topic', 'companyName', 'estRevenue', 'actCloseDate', 'contactName', 'confidence', 'rating'];
-    const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
-    const tableColumns = computed(() =>
-        columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
-    );
-
-    // Selected Rows
-    const selectedRows = ref<Pick<Opportunity, 'id'>[]>([]);
-    function select(row: Pick<Opportunity, 'id'>) {
-        const index = selectedRows.value.findIndex((item) => item.id === row.id);
-        if (index === -1) {
-            selectedRows.value.push(row);
-        } else {
-            selectedRows.value.splice(index, 1);
-        }
-    }
-
-    const {
-        filteredData: filteredOpportunities,
-        search,
-        page,
-        pageCount,
-        sort,
-        pageTotal,
-        resetFilters,
-    } = useFilterAndPaginate(opportunities);
-
-    return {
-        columns,
-        selectedColumns,
-        tableColumns,
-        selectedRows,
-        select,
-        opportunitiesRows: filteredOpportunities,
-        search,
-        page,
-        pageCount,
-        sort,
-        pageTotal,
-        resetFilters,
-    };
-}
+const selectedRows = defineModel('selectedRows', { type: Array, required: true });
+const sort = defineModel('sort', { type: Object, required: true });
+const page = defineModel('page', { type: Number, required: true });
+const pageCount = defineModel('pageCount', { type: Number, required: true });
 </script>
 
 <template>
-    <!-- Header and Action buttons -->
-    <div class="flex items-center justify-between gap-x-3 p-4">
-        <h1 class="text-2xl font-semibold">All Opportunities</h1>
-
-        <div class="hidden sm:flex sm:items-center sm:gap-1.5">
-            <UButton
-                v-if="!!selectedRows.length"
-                icon="i-heroicons-trash"
-                color="black"
-                size="xs"
-                variant="ghost"
-                @click="
-                    modal.open(LazyModalDelete, {
-                        onClose: () => modal.close(),
-                        title: 'Opportunities',
-                        description: 'Are you sure you want to delete this opportunity? This action cannot be undone.',
-                        onConfirm: handleDeleteOpportunities,
-                    })
-                "
-            >
-                Delete
-            </UButton>
-
-            <UButton
-                icon="i-heroicons-plus"
-                color="black"
-                size="xs"
-                variant="ghost"
-                @click="
-                    modal.open(LazyModalAddOpportunity, {
-                        onClose: () => modal.close(),
-                    })
-                "
-            >
-                New
-            </UButton>
-
-            <!-- Edit Column Button -->
-            <UButton
-                icon="i-heroicons-adjustments-vertical"
-                color="black"
-                size="xs"
-                variant="ghost"
-                @click="
-                    modal.open(LazyModalOpportunityPipelines, {
-                        onClose: () => modal.close(),
-                    })
-                "
-            >
-                Edit Columns
-            </UButton>
-
-            <!-- Columns Selector -->
-            <USelectMenu v-model="selectedColumns" :options="columns" multiple :uiMenu="{ width: 'min-w-32' }">
-                <UButton icon="i-heroicons-view-columns" color="black" size="xs" variant="ghost"> Columns </UButton>
-            </USelectMenu>
-
-            <!-- Reset Filters Button -->
-            <UButton
-                icon="i-heroicons-funnel"
-                color="black"
-                size="xs"
-                :disabled="!!!search.length"
-                variant="ghost"
-                @click="resetFilters"
-            >
-                Reset
-            </UButton>
-
-            <UInput v-model="search" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search..." />
-        </div>
-    </div>
-
     <!-- Table -->
     <UTable
         v-model="selectedRows"
@@ -229,14 +25,14 @@ function useTable() {
         by="id"
         :loading="pending"
         :rows="opportunitiesRows"
-        :columns="tableColumns"
+        :columns
         sort-mode="manual"
         class="w-full"
         :ui="{
             tr: { base: '[&>td]:hover:bg-base-200' },
             td: { base: 'max-w-[0] truncate text-default' },
         }"
-        @select="select"
+        @select="(v: Pick<Opportunity, 'id'>) => emit('select', v)"
     >
         <template #topic-data="{ row }">
             <NuxtLink :href="`/dashboard/pipeline/opportunities/${row.id}`" class="text-brand hover:underline">

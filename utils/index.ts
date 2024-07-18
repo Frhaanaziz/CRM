@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 import type { User } from '~/types';
+export * from './validators';
 export * from './validators/auth';
 export * from './validators/user';
 export * from './validators/organization';

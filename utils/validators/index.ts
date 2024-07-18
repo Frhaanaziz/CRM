@@ -19,3 +19,8 @@ const phoneRegex = new RegExp(/^\+[1-9]\d{1,14}$/);
 export function phone(schema: z.ZodString) {
     return schema.regex(phoneRegex, 'Please specify a valid phone number (include the international prefix e.g. +62)');
 }
+
+export const reorderSchema = z.object({
+    prevElIndexNumber: z.number().optional(),
+    nextElIndexNumber: z.number().optional(),
+});

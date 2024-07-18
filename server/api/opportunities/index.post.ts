@@ -1,9 +1,12 @@
-import { serverSupabaseClient } from '#supabase/server';
+import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import { addOpportunitySchema, getZodErrorMessage } from '~/utils';
 import type { Database } from '~/types/supabase';
 
 export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient<Database>(event);
+
+    const user = await serverSupabaseUser(event);
+    if (!user || !user.user_metadata.organization_id) throw createError({ status: 401, statusMessage: 'Unauthorized' });
 
     const zodResult = await readValidatedBody(event, addOpportunitySchema.safeParse);
     if (!zodResult.success) {
@@ -17,7 +20,7 @@ export default defineEventHandler(async (event) => {
         supabase.from('Contact_Statuses').select('id').eq('name', 'new').single(),
         supabase.from('Ratings').select('id').eq('name', 'cool').single(),
         supabase.from('Sources').select('id').eq('name', 'manual').single(),
-        supabase.from('Opportunity_Statuses').select('id').eq('name', 'qualified').single(),
+        supabase.from('Opportunity_Statuses').select('id').order('index_number', { ascending: false }).limit(1).single(),
     ]);
     if (contactStatusRes.error) {
         console.error('Error fetching contact status:', contactStatusRes.error);
@@ -74,6 +77,24 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 500, statusMessage: leadRes.error.message });
     }
 
+    const { data: maxIndexOpportunity, error } = await supabase
+        .from('Opportunities')
+        .select('index_number')
+        .match({
+            organization_id,
+            opportunity_status_id: opportunityStatusRes.data.id,
+        })
+        .order('index_number', { ascending: false })
+        .limit(1)
+        .single();
+    if (error) {
+        console.error('Error fetching max index opportunity (SERVER)', error);
+        throw createError({
+            status: 500,
+            statusMessage: error.message,
+        });
+    }
+
     const opportunityRes = await supabase.from('Opportunities').insert({
         company_id,
         contact_id: contactRes.data.id,
@@ -83,6 +104,7 @@ export default defineEventHandler(async (event) => {
         rating_id: ratingRes.data.id,
         user_id,
         topic,
+        index_number: maxIndexOpportunity ? maxIndexOpportunity.index_number + 1 : 1,
     });
     if (opportunityRes.error) {
         console.error('Error creating opportunity:', opportunityRes.error);

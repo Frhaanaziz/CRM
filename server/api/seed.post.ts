@@ -510,7 +510,7 @@ export default defineEventHandler(async (event) => {
     } = await supabase
         .from('Opportunities')
         .insert(
-            Array.from({ length: OPPORTUNITIES_AMOUNT }, () => {
+            Array.from({ length: OPPORTUNITIES_AMOUNT }, (_, i) => {
                 const { company_id, contact_id, lead_id } = getRandomIds();
                 const opportunityStatus = faker.helpers.arrayElement(opportunityStatusesData);
                 const close_reason_id =
@@ -521,6 +521,7 @@ export default defineEventHandler(async (event) => {
                 const confidence = faker.number.int({ min: 1, max: 100 });
 
                 return {
+                    index_number: i + 1,
                     user_id: USER_ID,
                     organization_id: ORGANIZATION_ID,
                     company_id,

@@ -25,8 +25,3 @@ export const editOpportunityStatusSchema = opportunityStatusSchema
     .extend({
         id: z.number().int(),
     });
-
-export const reorderOpportunityStatusSchema = z.object({
-    prevElIndexNumber: z.number().optional(),
-    nextElIndexNumber: z.number().optional(),
-});
