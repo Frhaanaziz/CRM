@@ -20,7 +20,9 @@ const {
     default: () => [],
 });
 
-const viewMode = ref<'table' | 'kanban'>('kanban');
+const viewMode = useCookie<'table' | 'kanban'>('opportunities-view-mode', {
+    default: () => 'kanban',
+});
 
 const isReordering = ref(false);
 const drag = ref(false);
@@ -259,7 +261,7 @@ function useTable() {
             <h1 class="text-2xl font-semibold">All Opportunities</h1>
 
             <div class="hidden sm:flex sm:items-center sm:gap-1.5">
-                <UButton
+                <LazyUButton
                     v-if="!!selectedRows.length"
                     icon="i-heroicons-trash"
                     color="black"
@@ -275,7 +277,7 @@ function useTable() {
                     "
                 >
                     Delete
-                </UButton>
+                </LazyUButton>
 
                 <UButton
                     icon="i-heroicons-plus"
@@ -291,7 +293,7 @@ function useTable() {
                     New
                 </UButton>
 
-                <UButton
+                <LazyUButton
                     v-if="viewMode === 'table'"
                     icon="i-heroicons-chart-bar-square"
                     color="black"
@@ -300,7 +302,7 @@ function useTable() {
                     @click="viewMode = 'kanban'"
                 >
                     See Sales Pipelines
-                </UButton>
+                </LazyUButton>
                 <UButton
                     v-else
                     icon="i-heroicons-list-bullet"
@@ -329,7 +331,7 @@ function useTable() {
                 </UButton>
 
                 <!-- Columns Selector -->
-                <USelectMenu
+                <LazyUSelectMenu
                     v-if="viewMode === 'table'"
                     v-model="selectedColumns"
                     :options="columns"
@@ -337,10 +339,10 @@ function useTable() {
                     :uiMenu="{ width: 'min-w-32' }"
                 >
                     <UButton icon="i-heroicons-view-columns" color="black" size="xs" variant="ghost"> Columns </UButton>
-                </USelectMenu>
+                </LazyUSelectMenu>
 
                 <!-- Reset Filters Button -->
-                <UButton
+                <LazyUButton
                     v-if="viewMode === 'table'"
                     icon="i-heroicons-funnel"
                     color="black"
@@ -350,9 +352,9 @@ function useTable() {
                     @click="resetFilters"
                 >
                     Reset
-                </UButton>
+                </LazyUButton>
 
-                <UInput
+                <LazyUInput
                     v-if="viewMode === 'table'"
                     v-model="search"
                     icon="i-heroicons-magnifying-glass-20-solid"
@@ -362,7 +364,7 @@ function useTable() {
         </header>
 
         <section v-if="viewMode === 'table'" class="m-4">
-            <TableOpportunities
+            <LazyTableOpportunities
                 v-model:page="page"
                 v-model:pageCount="pageCount"
                 v-model:sort="sort"
