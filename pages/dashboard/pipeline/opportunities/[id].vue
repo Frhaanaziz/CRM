@@ -340,7 +340,7 @@ function useTask() {
                     Delete
                 </UButton>
 
-                <UButton
+                <LazyUButton
                     v-if="opportunityForm?.isFormDirty || isMoreInfoFormDirty"
                     variant="ghost"
                     icon="i-heroicons-arrow-path"
@@ -355,9 +355,9 @@ function useTask() {
                     "
                 >
                     Reset
-                </UButton>
+                </LazyUButton>
 
-                <UButton
+                <LazyUButton
                     v-if="opportunityForm?.isFormDirty"
                     variant="ghost"
                     icon="i-heroicons-bookmark"
@@ -367,9 +367,9 @@ function useTask() {
                     @click="opportunityForm?.submitForm"
                 >
                     Save
-                </UButton>
+                </LazyUButton>
 
-                <UButton
+                <LazyUButton
                     v-if="isMoreInfoFormDirty"
                     variant="ghost"
                     icon="i-heroicons-bookmark"
@@ -379,7 +379,7 @@ function useTask() {
                     @click="submitMoreInfo"
                 >
                     Save More Info
-                </UButton>
+                </LazyUButton>
             </div>
 
             <div class="flex items-center justify-between p-4">
@@ -410,7 +410,7 @@ function useTask() {
                     <template v-if="opportunity.status">
                         <div class="h-10 border-r border-base-300" />
 
-                        <UPopover>
+                        <LazyUPopover>
                             <button
                                 class="flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
                                 :disabled="isUpdatingStatus"
@@ -444,13 +444,13 @@ function useTask() {
                                     </button>
                                 </div>
                             </template>
-                        </UPopover>
+                        </LazyUPopover>
                     </template>
 
                     <template v-if="opportunity.priority">
                         <div class="h-10 border-r border-base-300" />
 
-                        <UPopover>
+                        <LazyUPopover>
                             <button
                                 class="flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
                                 :disabled="isUpdatingPriority"
@@ -484,7 +484,7 @@ function useTask() {
                                     </button>
                                 </div>
                             </template>
-                        </UPopover>
+                        </LazyUPopover>
                     </template>
 
                     <template v-if="opportunity.user">
@@ -549,7 +549,7 @@ function useTask() {
                     </template>
 
                     <div v-if="isCreatingTask" class="bg-brand-50 p-4">
-                        <UForm
+                        <LazyUForm
                             :schema="addTaskSchema"
                             :state="taskState"
                             class="space-y-3"
@@ -584,11 +584,11 @@ function useTask() {
                                 >
                                 <UButton type="submit" :disabled="isSubmittingTask" :loading="isSubmittingTask">Save</UButton>
                             </div>
-                        </UForm>
+                        </LazyUForm>
                     </div>
 
                     <div v-if="!!opportunity.tasks?.length" class="divide-y">
-                        <CardTask v-for="task in opportunity.tasks" :key="task.id" :task="task" />
+                        <LazyCardTask v-for="task in opportunity.tasks" :key="task.id" :task="task" />
                     </div>
                     <UButton
                         v-else

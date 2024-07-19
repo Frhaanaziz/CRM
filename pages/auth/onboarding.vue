@@ -289,7 +289,7 @@ async function handleSignout() {
                     </UForm>
 
                     <template v-if="stepper.isCurrent('create-organization')">
-                        <UForm
+                        <LazyUForm
                             ref="createOrganizationForm"
                             :schema="createOrganizationSchema"
                             :state="organizationState"
@@ -359,12 +359,12 @@ async function handleSignout() {
                                     :disabled="isSubmitting"
                                 />
                             </UFormGroup>
-                        </UForm>
+                        </LazyUForm>
 
                         <button class="mt-20 text-sm text-brand" @click="stepper.goToNext">Or Join an Organization</button>
                     </template>
 
-                    <UForm
+                    <LazyUForm
                         v-if="stepper.isCurrent('join-organization')"
                         ref="joinOrganizationForm"
                         :schema="joinOrganizationSchema"
@@ -380,7 +380,7 @@ async function handleSignout() {
                                 class="max-w-[392px]"
                             />
                         </UFormGroup>
-                    </UForm>
+                    </LazyUForm>
                 </div>
             </section>
 

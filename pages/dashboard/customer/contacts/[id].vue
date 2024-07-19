@@ -72,7 +72,7 @@ async function handleDeleteContact() {
                 </UButton>
 
                 <template v-if="contactForm?.isFormDirty">
-                    <UButton
+                    <LazyUButton
                         variant="ghost"
                         icon="i-heroicons-arrow-path"
                         color="black"
@@ -81,8 +81,8 @@ async function handleDeleteContact() {
                         @click="contactForm?.resetForm"
                     >
                         Reset
-                    </UButton>
-                    <UButton
+                    </LazyUButton>
+                    <LazyUButton
                         variant="ghost"
                         icon="i-heroicons-bookmark"
                         color="black"
@@ -91,7 +91,7 @@ async function handleDeleteContact() {
                         @click="contactForm?.submitForm"
                     >
                         Save
-                    </UButton>
+                    </LazyUButton>
                 </template>
             </div>
 

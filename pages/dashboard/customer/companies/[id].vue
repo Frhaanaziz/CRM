@@ -146,7 +146,7 @@ function useOpportunity() {
                 </UButton>
 
                 <template v-if="companyForm?.isFormDirty">
-                    <UButton
+                    <LazyUButton
                         variant="ghost"
                         icon="i-heroicons-arrow-path"
                         color="black"
@@ -155,8 +155,8 @@ function useOpportunity() {
                         @click="companyForm?.resetForm"
                     >
                         Reset
-                    </UButton>
-                    <UButton
+                    </LazyUButton>
+                    <LazyUButton
                         variant="ghost"
                         icon="i-heroicons-bookmark"
                         color="black"
@@ -165,7 +165,7 @@ function useOpportunity() {
                         @click="companyForm?.submitForm"
                     >
                         Save
-                    </UButton>
+                    </LazyUButton>
                 </template>
             </div>
 
@@ -217,7 +217,7 @@ function useOpportunity() {
                     </template>
 
                     <div v-if="isOpportunityEditMode" class="bg-brand-50 p-4">
-                        <UForm
+                        <LazyUForm
                             :schema="addCompanyOpportunitySchema"
                             :state="opportunityState"
                             class="space-y-3"
@@ -315,11 +315,11 @@ function useOpportunity() {
                                     Save
                                 </UButton>
                             </div>
-                        </UForm>
+                        </LazyUForm>
                     </div>
 
                     <div v-if="!!company.opportunities?.length" class="divide-y">
-                        <CardOpportunity
+                        <LazyCardOpportunity
                             v-for="opportunity in company.opportunities"
                             :key="opportunity.id"
                             :opportunity="opportunity"
