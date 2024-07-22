@@ -142,7 +142,7 @@ function useUpdateTask() {
             </div>
         </div>
 
-        <UForm
+        <LazyUForm
             v-if="isEditingMode"
             :schema="updateTaskSchema"
             :state="taskState"
@@ -167,6 +167,6 @@ function useUpdateTask() {
                 <UButton type="button" variant="outline" :disabled="isUpdating" @click="isEditingMode = false">Cancel</UButton>
                 <UButton type="submit" :disabled="isUpdating" :loading="isUpdating">Save</UButton>
             </div>
-        </UForm>
+        </LazyUForm>
     </div>
 </template>

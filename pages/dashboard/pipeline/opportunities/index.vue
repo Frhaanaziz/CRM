@@ -19,30 +19,35 @@ const {
     key: 'opportunities',
     default: () => [],
 });
-// const sortedOpportunitiesByStatus = computed(() => {
-//     const groupedOpportunities = opportunities.value.reduce(
-//       (acc, opportunity) => {
-//         const statusId = opportunity.status?.id;
-//         if (statusId) {
-//           if (!acc[statusId]) {
-//             acc[statusId] = [];
-//           }
-//           acc[statusId].push(opportunity);
-//         }
-//         return acc;
-//       },
-//       {} as Record<string, Opportunity[]>
-//     );
 
-//     const sortedOpportunities: Record<string, Opportunity[]> = {};
+const viewMode = useCookie<'table' | 'kanban'>('opportunities-view-mode', {
+    default: () => 'kanban',
+});
 
-//     Object.keys(opportunityStatuses.value!).forEach((statusId) => {
-//       sortedOpportunities[statusId] = (groupedOpportunities[statusId] || [])
-//         .sort((a, b) => b.index_number - a.index_number);
-//     });
+const isReordering = ref(false);
+const drag = ref(false);
 
-//     return sortedOpportunities;
-//   });
+const dragOptions = computed(() => ({
+    animation: 200,
+    disabled: isReordering.value,
+    ghostClass: 'opacity-50',
+}));
+
+const {
+    columns,
+    selectedColumns,
+    tableColumns,
+    selectedRows,
+    select,
+    opportunitiesRows,
+    search,
+    page,
+    pageCount,
+    sort,
+    pageTotal,
+    resetFilters,
+} = useTable();
+
 const sortedOpportunitiesByStatus = computed(() => {
     const groupedOpportunities = opportunities.value.reduce(
         (acc, opportunity) => {
@@ -72,31 +77,6 @@ const sortedOpportunitiesByStatus = computed(() => {
 
     return sortedOpportunities;
 });
-const viewMode = ref<'table' | 'kanban'>('kanban');
-
-const isReordering = ref(false);
-const drag = ref(false);
-
-const dragOptions = computed(() => ({
-    animation: 200,
-    disabled: isReordering.value,
-    ghostClass: 'opacity-50',
-}));
-
-const {
-    columns,
-    selectedColumns,
-    tableColumns,
-    selectedRows,
-    select,
-    opportunitiesRows,
-    search,
-    page,
-    pageCount,
-    sort,
-    pageTotal,
-    resetFilters,
-} = useTable();
 
 async function onAdd({ newIndex, to }: { newIndex: number; to: { id: string } }) {
     try {
@@ -281,7 +261,7 @@ function useTable() {
             <h1 class="text-2xl font-semibold">All Opportunities</h1>
 
             <div class="hidden sm:flex sm:items-center sm:gap-1.5">
-                <UButton
+                <LazyUButton
                     v-if="!!selectedRows.length"
                     icon="i-heroicons-trash"
                     color="black"
@@ -297,7 +277,7 @@ function useTable() {
                     "
                 >
                     Delete
-                </UButton>
+                </LazyUButton>
 
                 <UButton
                     icon="i-heroicons-plus"
@@ -313,7 +293,7 @@ function useTable() {
                     New
                 </UButton>
 
-                <UButton
+                <LazyUButton
                     v-if="viewMode === 'table'"
                     icon="i-heroicons-chart-bar-square"
                     color="black"
@@ -322,7 +302,7 @@ function useTable() {
                     @click="viewMode = 'kanban'"
                 >
                     See Sales Pipelines
-                </UButton>
+                </LazyUButton>
                 <UButton
                     v-else
                     icon="i-heroicons-list-bullet"
@@ -336,6 +316,7 @@ function useTable() {
 
                 <!-- Edit Column Button -->
                 <UButton
+                    v-if="viewMode === 'kanban'"
                     icon="i-heroicons-adjustments-vertical"
                     color="black"
                     size="xs"
@@ -350,7 +331,7 @@ function useTable() {
                 </UButton>
 
                 <!-- Columns Selector -->
-                <USelectMenu
+                <LazyUSelectMenu
                     v-if="viewMode === 'table'"
                     v-model="selectedColumns"
                     :options="columns"
@@ -358,10 +339,11 @@ function useTable() {
                     :uiMenu="{ width: 'min-w-32' }"
                 >
                     <UButton icon="i-heroicons-view-columns" color="black" size="xs" variant="ghost"> Columns </UButton>
-                </USelectMenu>
+                </LazyUSelectMenu>
 
                 <!-- Reset Filters Button -->
-                <UButton
+                <LazyUButton
+                    v-if="viewMode === 'table'"
                     icon="i-heroicons-funnel"
                     color="black"
                     size="xs"
@@ -370,14 +352,19 @@ function useTable() {
                     @click="resetFilters"
                 >
                     Reset
-                </UButton>
+                </LazyUButton>
 
-                <UInput v-model="search" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search..." />
+                <LazyUInput
+                    v-if="viewMode === 'table'"
+                    v-model="search"
+                    icon="i-heroicons-magnifying-glass-20-solid"
+                    placeholder="Search..."
+                />
             </div>
         </header>
 
         <section v-if="viewMode === 'table'" class="m-4">
-            <TableOpportunities
+            <LazyTableOpportunities
                 v-model:page="page"
                 v-model:pageCount="pageCount"
                 v-model:sort="sort"
@@ -403,7 +390,6 @@ function useTable() {
                     </div>
                     <div class="flex items-center justify-between bg-brand-600 p-4 text-sm font-semibold text-white">
                         <p>Est. Annualized Value</p>
-                        <!-- <p>Rp. 200.000.000</p> -->
                         <p>
                             {{
                                 formatToRupiah(

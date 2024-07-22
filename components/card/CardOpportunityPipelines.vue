@@ -72,7 +72,7 @@ function useEditOpportunityStatus() {
     <li class="flex items-center gap-4 p-4 [&:not(:last-child)]:border-b" :class="{ 'bg-brand-50': isEditMode }">
         <UButton variant="ghost" square color="black" icon="i-heroicons-bars-3" size="xs" class="handle cursor-move" />
         <span>{{ no }}</span>
-        <UForm
+        <LazyUForm
             v-if="isEditMode"
             :state="editState"
             :schema="editOpportunityStatusSchema"
@@ -85,7 +85,7 @@ function useEditOpportunityStatus() {
             </UFormGroup>
 
             <UButton type="submit" variant="ghost" size="xs" :disabled="isEditing" :loading="isEditing"> Save </UButton>
-        </UForm>
+        </LazyUForm>
         <template v-else>
             <p class="flex-1 capitalize">
                 {{ opportunityStatus.name }}

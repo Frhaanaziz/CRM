@@ -167,7 +167,7 @@ function useTask() {
 
                 <template v-if="!(lead.status === 'qualified' || lead.status === 'disqualified')">
                     <!-- Qualify Button -->
-                    <UButton
+                    <LazyUButton
                         variant="ghost"
                         color="black"
                         class="font-semibold"
@@ -179,10 +179,10 @@ function useTask() {
                         <template #leading>
                             <UIcon name="i-heroicons-check" class="h-5 w-5 text-green-700" />
                         </template>
-                    </UButton>
+                    </LazyUButton>
 
                     <!-- Disqualify pop over -->
-                    <UPopover>
+                    <LazyUPopover>
                         <UButton
                             variant="ghost"
                             color="black"
@@ -214,7 +214,7 @@ function useTask() {
                                 </button>
                             </div>
                         </template>
-                    </UPopover>
+                    </LazyUPopover>
                 </template>
                 <UPopover v-else>
                     <UButton
@@ -284,7 +284,7 @@ function useTask() {
                     Delete
                 </UButton>
 
-                <UButton
+                <LazyUButton
                     v-if="isContactFormDirty || isCompanyFormDirty"
                     variant="ghost"
                     icon="i-heroicons-arrow-path"
@@ -299,8 +299,8 @@ function useTask() {
                     "
                 >
                     Reset
-                </UButton>
-                <UButton
+                </LazyUButton>
+                <LazyUButton
                     v-if="isContactFormDirty"
                     variant="ghost"
                     icon="i-heroicons-bookmark"
@@ -310,8 +310,8 @@ function useTask() {
                     @click="submitContactForm"
                 >
                     Save Contact
-                </UButton>
-                <UButton
+                </LazyUButton>
+                <LazyUButton
                     v-if="isCompanyFormDirty"
                     variant="ghost"
                     icon="i-heroicons-bookmark"
@@ -321,7 +321,7 @@ function useTask() {
                     @click="submitCompanyForm"
                 >
                     Save Company
-                </UButton>
+                </LazyUButton>
             </div>
 
             <div v-if="lead" class="flex items-center justify-between p-4">
@@ -433,7 +433,7 @@ function useTask() {
                     </template>
 
                     <div v-if="isCreatingTask" class="bg-brand-50 p-4">
-                        <UForm
+                        <LazyUForm
                             :schema="addTaskSchema"
                             :state="taskState"
                             class="space-y-3"
@@ -468,11 +468,11 @@ function useTask() {
                                 >
                                 <UButton type="submit" :disabled="isSubmittingTask" :loading="isSubmittingTask">Save</UButton>
                             </div>
-                        </UForm>
+                        </LazyUForm>
                     </div>
 
                     <div v-if="!!lead.tasks?.length" class="divide-y">
-                        <CardTask v-for="task in lead.tasks" :key="task.id" :task="task" />
+                        <LazyCardTask v-for="task in lead.tasks" :key="task.id" :task="task" />
                     </div>
                     <UButton
                         v-else

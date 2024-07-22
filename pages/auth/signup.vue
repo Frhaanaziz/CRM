@@ -127,7 +127,7 @@ function useSignUp() {
             </p>
         </UCard>
 
-        <UCard
+        <LazyUCard
             v-if="stepper.isCurrent('set-password')"
             class="mx-auto w-[400px]"
             :ui="{
@@ -156,6 +156,6 @@ function useSignUp() {
 
                 <UButton type="submit" block size="md" :disabled="isSubmitting" :loading="isSubmitting">Create Account</UButton>
             </UForm>
-        </UCard>
+        </LazyUCard>
     </section>
 </template>

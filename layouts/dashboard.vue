@@ -26,6 +26,17 @@ const navigations = computed(() => {
             ],
         },
         {
+            name: 'Activity',
+            links: [
+                {
+                    name: 'Reports',
+                    href: '/dashboard/activity/reports',
+                    icon: 'i-heroicons-document-chart-bar',
+                    current: isCurrentNested('/dashboard/activity/reports'),
+                },
+            ],
+        },
+        {
             name: 'Pipeline',
             links: [
                 {
