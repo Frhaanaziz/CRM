@@ -220,7 +220,7 @@ function useTask() {
 
 <template>
     <div v-if="opportunity" class="min-h-screen bg-base-200">
-        <header class="bg-base-100">
+        <header class="sticky top-0 z-10 bg-base-100 shadow">
             <div class="flex items-center border-b">
                 <NuxtLink href="/dashboard/pipeline/opportunities" class="flex h-10 w-10 items-center justify-center border">
                     <UIcon name="i-heroicons-arrow-left-20-solid" class="h-[18px] w-[18px]" />

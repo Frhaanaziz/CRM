@@ -112,7 +112,7 @@ function useOpportunity() {
 
 <template>
     <div v-if="company" class="min-h-screen bg-base-200">
-        <header class="bg-base-100">
+        <header class="sticky top-0 z-10 bg-base-100 shadow">
             <div class="flex items-center border-b">
                 <NuxtLink href="/dashboard/customer/companies" class="flex h-10 w-10 items-center justify-center border">
                     <UIcon name="i-heroicons-arrow-left-20-solid" class="h-[18px] w-[18px]" />
@@ -205,7 +205,7 @@ function useOpportunity() {
             <div class="flex flex-col gap-4 md:col-span-4">
                 <CardCompanyDetails ref="companyForm" :company="company" />
 
-                <UCard v-if="company.opportunities" :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">
+                <UCard v-if="company.opportunities" class="overflow-hidden" :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">
                     <template #header>
                         <div class="flex items-center justify-between">
                             <h2 class="text-xl font-semibold">
