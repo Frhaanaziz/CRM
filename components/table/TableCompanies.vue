@@ -25,7 +25,7 @@ const { data: companies, status } = await useLazyFetch('/api/companies', {
 });
 const pending = computed(() => status.value === 'pending');
 
-const companyFilterTypes = [
+const filterTypes = [
     {
         type: 'all',
         label: 'All Companies',
@@ -45,10 +45,17 @@ const companyFilterTypes = [
         ['tw-button']: 'group-hover/my-active:opacity-100',
     },
 ] as const;
-const selectedCompanyFilterType = useCookie<'all' | 'inactive' | 'active'>('companies-filter-type', {
+const defaultFilterType = useCookie<'all' | 'inactive' | 'active'>('companies-filter-type', {
     default: () => 'all',
 });
-const selectedFilter = computed(() => companyFilterTypes.find((type) => type.type === selectedCompanyFilterType.value));
+
+const selectedFilterType = ref(defaultFilterType.value);
+const selectedFilter = computed({
+    get: () => filterTypes.find((type) => type.type === selectedFilterType.value),
+    set: (value) => {
+        selectedFilterType.value = value?.type ?? 'all';
+    },
+});
 
 const {
     columns,
@@ -195,15 +202,15 @@ function useTable() {
             <template #panel>
                 <ul class="w-72 p-1">
                     <li
-                        v-for="filter in companyFilterTypes"
+                        v-for="filter in filterTypes"
                         :key="filter.type"
                         :class="['flex items-center justify-between rounded p-2 hover:bg-brand-50', filter['tw-group']]"
                     >
-                        <button class="text-sm">{{ filter.label }}</button>
+                        <button class="text-sm" @click="selectedFilter = filter">{{ filter.label }}</button>
                         <button
-                            v-if="filter.type !== selectedCompanyFilterType"
+                            v-if="filter.type !== defaultFilterType"
                             :class="['text-xs text-brand opacity-0 hover:underline', filter['tw-button']]"
-                            @click="selectedCompanyFilterType = filter.type"
+                            @click="defaultFilterType = filter.type"
                         >
                             Set as Default
                         </button>

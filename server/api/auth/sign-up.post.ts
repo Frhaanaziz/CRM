@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 
     const { email, first_name, last_name, password } = body.data;
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
+    const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -30,22 +30,5 @@ export default defineEventHandler(async (event) => {
     if (signUpError) {
         console.error('Error signing up:', signUpError);
         throw createError({ status: signUpError.status ?? 400, statusMessage: signUpError.message });
-    }
-
-    const user = data.user;
-    if (!user) {
-        console.error('Error signing up: no user returned');
-        throw createError({ status: 400, statusMessage: 'Error signing up: no user returned' });
-    }
-
-    const { error: insertError } = await supabase.from('Users').insert({
-        id: user.id,
-        email,
-        first_name,
-        last_name,
-    });
-    if (insertError) {
-        console.error('Error inserting user:', insertError);
-        throw createError({ status: 400, statusMessage: insertError.message });
     }
 });

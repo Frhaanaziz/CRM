@@ -64,7 +64,7 @@ const { profileForm, profileState, submitProfile } = useProfileSetup();
 const { createOrganizationForm, organizationState, submitOrganization } = useCreateOrganization();
 const { joinOrganizationForm, joinOrganizationState, submitJoinOrganization } = useJoinOrganization();
 
-const nextStep = () => profileForm.value?.validate(['phone', 'hope']).then(stepper.goToNext);
+const nextStep = () => profileForm.value?.validate(['phone', 'expectation']).then(stepper.goToNext);
 async function submitForm() {
     try {
         if (joinOrganizationState.value.code) {
@@ -109,8 +109,8 @@ function useProfileSetup() {
         try {
             isSubmitting.value = true;
 
-            await $fetch(`/api/users/${user.value?.id}`, {
-                method: 'PUT',
+            await $fetch(`/api/users/${user.value?.id}/setup`, {
+                method: 'POST',
                 body: JSON.stringify(state.value),
             });
         } catch (e) {
@@ -242,7 +242,7 @@ async function handleSignout() {
                     <UForm
                         v-if="stepper.isCurrent('profile-setup')"
                         ref="profileForm"
-                        :schema="profileSetupSchema"
+                        :schema="setupUserSchema"
                         :state="profileState"
                         class="space-y-10"
                         @submit="submitProfile"
@@ -251,7 +251,7 @@ async function handleSignout() {
                             <UInput v-model="profileState.phone" class="max-w-[392px]" placeholder="e.g. +62 812 5555 8888" />
                         </UFormGroup>
 
-                        <UFormGroup label="What do you hope todo with this CRM?" name="hope">
+                        <UFormGroup label="What do you hope todo with this CRM?" name="expectation">
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="flex items-center gap-4 rounded-lg border p-4">
                                     <UCheckbox

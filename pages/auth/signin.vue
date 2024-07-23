@@ -8,7 +8,6 @@ definePageMeta({
 });
 
 const supabase = useSupabaseClient<Database>();
-const runtimeConfig = useRuntimeConfig();
 const { query } = useRoute();
 
 const { isSubmitting, state, submit } = useSignIn();
@@ -18,33 +17,8 @@ onMounted(async () => {
     if (errorDescription) toast.error(errorDescription);
 });
 
-async function signInWithGoogle() {
-    try {
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: `${runtimeConfig.public.BASE_URL}/auth/confirm`,
-                // scopes: 'email, openid, profile, https://mail.google.com/',
+const { authorizeWithGoogle } = useAuthorizeWithGoogle();
 
-                // queryParams: {
-                //     access_type: 'offline',
-                //     prompt: 'consent',
-                // },
-            },
-        });
-        if (error) {
-            console.error('Error signing in with Google:', error);
-            throw new Error(error.message);
-        }
-
-        // const sessionStore = userSessionStore();
-        // sessionStore.session = data.session;
-        // sessionStore.user = data.user;
-    } catch (e) {
-        console.error('Error signing in with Google:', e);
-        toast.error(getErrorMessage(e));
-    }
-}
 function useSignIn() {
     type SignInType = z.infer<typeof signInSchema>;
 
@@ -112,8 +86,8 @@ function useSignIn() {
                 },
             }"
         >
-            <UButton color="black" block size="md" @click="signInWithGoogle">
-                <NuxtImg src="/icons/google.svg" />
+            <UButton color="black" block size="md" @click="authorizeWithGoogle">
+                <NuxtImg src="/icons/google.svg" width="20" height="20" />
                 Sign In with Google
             </UButton>
 

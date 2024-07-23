@@ -24,3 +24,11 @@ export const updateUserSchema = userSchema
     .partial();
 export const updateUserRoleSchema = userSchema.pick({ id: true, role_id: true });
 export const updateUserStatusSchema = userSchema.pick({ id: true, status: true });
+
+export const setupUserSchema = userSchema
+    .pick({
+        phone: true,
+    })
+    .extend({
+        expectation: z.array(z.string()).min(1, { message: 'Please select an option' }),
+    });
