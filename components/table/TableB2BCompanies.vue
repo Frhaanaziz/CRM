@@ -351,7 +351,9 @@ function useTable() {
         </template>
 
         <template #location-data="{ row }">
-            {{ `${row.province}, ${row.city}` }}
+            <template v-if="row.province || row.city">
+                {{ `${row.province}, ${row.city}` }}
+            </template>
         </template>
 
         <template #empty-state>
