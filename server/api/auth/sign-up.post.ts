@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
         email,
         password,
         options: {
-            emailRedirectTo: runtimeConfig.public.BASE_URL + '/auth/signin',
+            emailRedirectTo: runtimeConfig.public.BASE_URL + '/auth/confirm',
             data: {
                 email,
                 first_name,

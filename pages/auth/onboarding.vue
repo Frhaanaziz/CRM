@@ -4,7 +4,6 @@ import { useStepper } from '@vueuse/core';
 const supabase = useSupabaseClient();
 const sessionStore = userSessionStore();
 const { user } = storeToRefs(sessionStore);
-if (!user.value) await navigateTo('/auth/signin');
 
 const [{ data: industriesOption }, { data: sizesOption }] = await Promise.all([
     useLazyFetch('/api/industries', {
@@ -97,7 +96,7 @@ async function submitForm() {
 function useProfileSetup() {
     const profileForm = ref();
     const state = ref({
-        phone: user.value!.user_metadata?.phone ?? '',
+        phone: user.value?.user_metadata?.phone ?? '',
         expectation: [],
     });
 
@@ -105,7 +104,7 @@ function useProfileSetup() {
         try {
             isSubmitting.value = true;
 
-            await $fetch(`/api/users/${user.value!.id}`, {
+            await $fetch(`/api/users/${user.value?.id}`, {
                 method: 'PUT',
                 body: JSON.stringify(state.value),
             });
@@ -126,7 +125,7 @@ function useProfileSetup() {
 function useCreateOrganization() {
     const createOrganizationForm = ref();
     const state = ref({
-        user_id: user.value!.id,
+        user_id: user.value?.id,
         name: '',
         website: '',
         industry_id: undefined,
