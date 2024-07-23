@@ -16,6 +16,7 @@ if (!currentUser.value || !currentUser.value.user_metadata.organization_id)
     throw createError({ status: 401, message: 'Unauthorized' });
 
 const { data: usersOption } = await useLazyFetch(`/api/organizations/${currentUser.value.user_metadata.organization_id}/users`, {
+    key: `organizations-${currentUser.value.user_metadata.organization_id}-users`,
     transform: (users) =>
         users
             .map((user) => ({

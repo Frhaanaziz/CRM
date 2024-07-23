@@ -24,7 +24,7 @@ async function signInWithGoogle() {
             provider: 'google',
             options: {
                 redirectTo: `${runtimeConfig.public.BASE_URL}/auth/confirm`,
-                scopes: 'email, openid, profile, https://mail.google.com/',
+                // scopes: 'email, openid, profile, https://mail.google.com/',
 
                 // queryParams: {
                 //     access_type: 'offline',
@@ -112,7 +112,7 @@ function useSignIn() {
                 },
             }"
         >
-            <UButton color="black" block size="md" disabled @click="signInWithGoogle">
+            <UButton color="black" block size="md" @click="signInWithGoogle">
                 <NuxtImg src="/icons/google.svg" />
                 Sign In with Google
             </UButton>

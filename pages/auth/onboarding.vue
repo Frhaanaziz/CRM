@@ -5,16 +5,21 @@ const supabase = useSupabaseClient();
 const sessionStore = userSessionStore();
 const { user } = storeToRefs(sessionStore);
 
-const [{ data: industriesOption }, { data: sizesOption }] = await Promise.all([
-    useLazyFetch('/api/industries', {
-        key: 'industries',
-        transform: (industries) => industries.map(({ id, name }) => ({ value: id, label: name })),
-    }),
-    useLazyFetch('/api/sizes', {
-        key: 'sizes',
-        transform: (sizes) => sizes.map(({ id, size_range }) => ({ value: id, label: size_range })),
-    }),
-]);
+const { data } = await useLazyAsyncData(
+    () => {
+        return Promise.all([$fetch('/api/industries'), $fetch('/api/sizes')]);
+    },
+    {
+        transform: ([industries, sizes]) => [
+            industries.map(({ id, name }) => ({ value: id, label: name })),
+            sizes.map(({ id, size_range }) => ({ value: id, label: size_range })),
+        ],
+        default: () => [[], []],
+    }
+);
+const industriesOption = computed(() => data.value[0]);
+const sizesOption = computed(() => data.value[1]);
+
 const salesSizesOption = ['Just me', '2-10', '11-25', '26-50', '51-200', '201+'];
 const leadSourcesOption = [
     "i don't have any leads yet",

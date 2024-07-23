@@ -15,7 +15,9 @@ const currentUser = useSupabaseUser();
 if (!currentUser.value || !currentUser.value.user_metadata.organization_id)
     throw createError({ status: 401, message: 'Unauthorized' });
 
-const { data: users } = await useLazyFetch(`/api/organizations/${currentUser.value.user_metadata.organization_id}/users`);
+const { data: users } = await useLazyFetch(`/api/organizations/${currentUser.value.user_metadata.organization_id}/users`, {
+    key: `organizations-${currentUser.value.user_metadata.organization_id}-users`,
+});
 const usersOption = computed(() => {
     return (
         users.value

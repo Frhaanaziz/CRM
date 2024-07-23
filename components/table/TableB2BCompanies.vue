@@ -1,32 +1,38 @@
 <script lang="ts" setup>
 import { useDateFormat } from '@vueuse/core';
 
-// const [{ data: companies, status }, { data: industries }, { data: sizes }, { data: provinces }, { data: cities }] =
-const [{ data: companies, status }, { data: industries }, { data: sizes }] = await Promise.all([
-    await useLazyFetch('/api/b2b-companies', {
-        transform: (companies) =>
-            companies.map((company) => ({
-                id: company.id,
-                name: company.name,
-                industry: company?.industry?.name ?? '',
-                size: company.size?.size_range ?? '',
-                province: company?.province?.name ?? '',
-                city: company?.city?.name ?? '',
-                website: company.website,
-                avatar: company.avatar,
-                created_at: company.created_at,
-                email: company.email,
-                linkedin: company.linkedin,
-                phone: company.phone,
-                zip_code: company.zip_code,
-            })),
-        default: () => [],
-    }),
-    useLazyFetch('/api/industries'),
-    useLazyFetch('/api/sizes'),
-    // useLazyFetch('/api/provinces'),
-    // useLazyFetch('/api/cities'),
-]);
+const { data, status } = await useLazyAsyncData(
+    () => {
+        return Promise.all([$fetch('/api/b2b-companies'), $fetch('/api/industries'), $fetch('/api/sizes')]);
+    },
+    {
+        transform: ([companies, industries, sizes]) =>
+            [
+                companies.map((company) => ({
+                    id: company.id,
+                    name: company.name,
+                    industry: company?.industry?.name ?? '',
+                    size: company.size?.size_range ?? '',
+                    province: company?.province?.name ?? '',
+                    city: company?.city?.name ?? '',
+                    website: company.website,
+                    avatar: company.avatar,
+                    created_at: company.created_at,
+                    email: company.email,
+                    linkedin: company.linkedin,
+                    phone: company.phone,
+                    zip_code: company.zip_code,
+                })),
+                industries,
+                sizes,
+            ] as const,
+        default: () => [[], [], []],
+    }
+);
+const companies = computed(() => data.value[0]);
+const industries = computed(() => data.value[1]);
+const sizes = computed(() => data.value[2]);
+
 const pending = computed(() => status.value === 'pending');
 
 const {

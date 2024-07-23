@@ -18,16 +18,20 @@ const { opportunity } = toRefs(props);
 const { updateState, isUpdating, updateOpportunity, formRef, submitForm, isFormDirty, resetForm } = useUpdateOpportunity();
 defineExpose({ submitForm, resetForm, isFormDirty, isUpdating });
 
-const [{ data: paymentPlansOption }, { data: currenciesOption }] = await Promise.all([
-    useLazyFetch('/api/payment-plans', {
-        key: `payment-plans`,
-        transform: (data) => data.map((plan) => ({ label: capitalize(plan.name), value: plan.id })),
-    }),
-    useLazyFetch('/api/currencies', {
-        key: `currencies`,
-        transform: (data) => data.map((currency) => ({ label: currency.name, value: currency.id })),
-    }),
-]);
+const { data } = await useLazyAsyncData(
+    () => {
+        return Promise.all([$fetch('/api/payment-plans'), $fetch('/api/currencies')]);
+    },
+    {
+        transform: ([plans, currencies]) => [
+            plans.map((plan) => ({ label: capitalize(plan.name), value: plan.id })),
+            currencies.map((currency) => ({ label: currency.name, value: currency.id })),
+        ],
+        default: () => [[], []],
+    }
+);
+const paymentPlansOption = computed(() => data.value[0]);
+const currenciesOption = computed(() => data.value[1]);
 
 onBeforeRouteLeave(() => {
     if (isFormDirty.value) {

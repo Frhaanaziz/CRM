@@ -19,16 +19,21 @@ const { data: company, refresh: refreshCompany } = await useFetch(`/api/companie
 });
 if (!company.value) throw createError({ status: 404, message: 'Company not found' });
 
-const [{ data: opportunityStatusesOption }, { data: paymentPlansOption }] = await Promise.all([
-    useLazyFetch(`/api/opportunity-statuses`, {
-        key: `opportunity-statuses`,
-        transform: (data) => data.map((status) => ({ label: capitalize(status.name), value: status.id })),
-    }),
-    useLazyFetch('/api/payment-plans', {
-        key: `payment-plans`,
-        transform: (data) => data.map((plan) => ({ label: capitalize(plan.name), value: plan.id })),
-    }),
-]);
+const { data } = await useLazyAsyncData(
+    () => {
+        return Promise.all([$fetch('/api/opportunity-statuses'), $fetch('/api/payment-plans')]);
+    },
+    {
+        transform: ([statuses, plans]) => [
+            statuses.map((status) => ({ label: capitalize(status.name), value: status.id })),
+            plans.map((plan) => ({ label: capitalize(plan.name), value: plan.id })),
+        ],
+        default: () => [[], []],
+    }
+);
+const opportunityStatusesOption = computed(() => data.value[0]);
+const paymentPlansOption = computed(() => data.value[1]);
+
 const contactsOption = computed(() =>
     company.value!.contacts.map((contact) => ({
         value: contact.id,

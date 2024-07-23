@@ -22,14 +22,24 @@ const { data: company, refresh: refreshCompany } = await useFetch<IB2BCompany>(`
 });
 if (!company.value) throw createError({ status: 404, message: 'B2B Company not found' });
 
-const [{ data: industriesOption }, { data: sizesOption }, { data: provincesOption }, { data: citiesOption }] = await Promise.all([
-    useLazyFetch('/api/industries', {
-        transform: (industries) => industries.map(({ id, name }) => ({ value: id, label: name })),
-    }),
-    useLazyFetch('/api/sizes', { transform: (sizes) => sizes.map(({ id, size_range }) => ({ value: id, label: size_range })) }),
-    useLazyFetch('/api/provinces', { transform: (provinces) => provinces.map(({ id, name }) => ({ value: id, label: name })) }),
-    useLazyFetch('/api/cities', { transform: (cities) => cities.map(({ id, name }) => ({ value: id, label: name })) }),
-]);
+const { data } = await useLazyAsyncData(
+    () => {
+        return Promise.all([$fetch('/api/industries'), $fetch('/api/sizes'), $fetch('/api/provinces'), $fetch('/api/cities')]);
+    },
+    {
+        transform: ([industries, sizes, provinces, cities]) => [
+            industries.map(({ id, name }) => ({ value: id, label: name })),
+            sizes.map(({ id, size_range }) => ({ value: id, label: size_range })),
+            provinces.map(({ id, name }) => ({ value: id, label: name })),
+            cities.map(({ id, name }) => ({ value: id, label: name })),
+        ],
+        default: () => [[], [], [], []],
+    }
+);
+const industriesOption = computed(() => data.value[0]);
+const sizesOption = computed(() => data.value[1]);
+const provincesOption = computed(() => data.value[2]);
+const citiesOption = computed(() => data.value[3]);
 
 const accordionItems = computed(() =>
     company.value!.b2b_contacts.map(

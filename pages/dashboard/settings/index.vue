@@ -7,7 +7,7 @@ import { photoSchema } from '~/utils/validators';
 const sessionStore = userSessionStore();
 const { user } = storeToRefs(userSessionStore());
 const { data: profile } = await useFetch(`/api/users/${user.value?.id}`, {
-    key: 'profile',
+    key: `profile-${user.value?.id}`,
 });
 if (!profile.value) throw createError({ status: 404, message: 'User not found' });
 

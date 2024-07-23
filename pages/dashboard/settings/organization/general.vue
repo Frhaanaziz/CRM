@@ -1,20 +1,33 @@
 <script setup lang="ts">
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
+
 const { user } = storeToRefs(userSessionStore());
 if (!user.value) throw createError({ status: 401, message: 'User is not authenticated' });
 
-const { data: organization } = await useLazyFetch(`/api/users/${user.value.id}/organization`);
-const [{ data: industries }, { data: sizes }, { data: countries }, { data: provinces }, { data: cities }] = await Promise.all([
-    useLazyFetch('/api/industries'),
-    useLazyFetch('/api/sizes'),
-    useLazyFetch('/api/countries'),
-    useLazyFetch('/api/provinces'),
-    useLazyFetch('/api/cities'),
-]);
-const isLoadingData = computed(
-    () => !organization.value || !industries.value || !sizes.value || !provinces.value || !cities.value || !countries.value
+const { data, status } = await useLazyAsyncData(
+    () => {
+        return Promise.all([
+            $fetch(`/api/users/${user.value?.id}/organization`),
+            $fetch('/api/industries'),
+            $fetch('/api/sizes'),
+            $fetch('/api/countries'),
+            $fetch('/api/provinces'),
+            $fetch('/api/cities'),
+        ]);
+    },
+    {
+        default: () => [undefined, [], [], [], [], []] as const,
+    }
 );
+const organization = computed(() => data.value[0]);
+const industries = computed(() => data.value[1]);
+const sizes = computed(() => data.value[2]);
+const countries = computed(() => data.value[3]);
+const provinces = computed(() => data.value[4]);
+const cities = computed(() => data.value[5]);
+
+const isLoadingData = computed(() => status.value === 'pending');
 
 const isSubmitting = ref(false);
 const { state, stateRef } = useOrganization();
