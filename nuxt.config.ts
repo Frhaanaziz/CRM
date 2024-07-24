@@ -1,47 +1,50 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-    devtools: { enabled: true },
-    modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image', '@pinia/nuxt'],
-    routeRules: {
-        '/': { redirect: '/dashboard' },
-    },
+  devtools: { enabled: true },
+  modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image', '@pinia/nuxt'],
 
-    runtimeConfig: {
-        BACKEND_URL: process.env.NUXT_BACKEND_URL,
-        public: {
-            BASE_URL: process.env.NUXT_PUBLIC_BASE_URL,
-        },
-    },
+  routeRules: {
+      '/': { redirect: '/dashboard' },
+  },
 
-    app: {
-        head: {
-            htmlAttrs: {
-                lang: 'en',
-            },
-        },
-    },
+  runtimeConfig: {
+      BACKEND_URL: process.env.NUXT_BACKEND_URL,
+      public: {
+          BASE_URL: process.env.NUXT_PUBLIC_BASE_URL,
+      },
+  },
 
-    tailwindcss: {
-        viewer: false,
-    },
+  app: {
+      head: {
+          htmlAttrs: {
+              lang: 'en',
+          },
+      },
+  },
 
-    ui: {
-        icons: ['heroicons'],
-    },
+  tailwindcss: {
+      viewer: false,
+  },
 
-    // UI module options
-    colorMode: {
-        preference: 'light',
-    },
+  ui: {
+      icons: ['heroicons'],
+  },
 
-    // TypeScript module options
-    typescript: {
-        typeCheck: true,
-    },
+  // UI module options
+  colorMode: {
+      preference: 'light',
+  },
 
-    // Supabase module options
-    supabase: {
-        redirect: false,
-        types: './types/supabase.d.ts',
-    },
+  // TypeScript module options
+  typescript: {
+      typeCheck: true,
+  },
+
+  // Supabase module options
+  supabase: {
+      redirect: false,
+      types: './types/supabase.d.ts',
+  },
+
+  compatibilityDate: '2024-07-24',
 });
