@@ -33,7 +33,7 @@ export const addB2BContactSchema = B2BContactSchema.pick({
     email: true,
     mobile_phone: true,
 }).extend({
-    first_name: z.string().min(1, { message: 'First name is required.' }),
-    last_name: z.string().min(1, { message: 'Last name is required.' }),
-    job_title: z.string().min(1, { message: 'Job title is required.' }),
+    first_name: z.string().trim().min(1, { message: 'First name is required.' }),
+    last_name: z.string().trim().min(1, { message: 'Last name is required.' }),
+    job_title: z.string().trim().min(1, { message: 'Job title is required.' }),
 });

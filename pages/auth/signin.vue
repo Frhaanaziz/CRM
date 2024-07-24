@@ -7,32 +7,20 @@ definePageMeta({
     layout: 'auth',
 });
 
-const { user } = storeToRefs(userSessionStore());
-const runtimeConfig = useRuntimeConfig();
+const supabase = useSupabaseClient<Database>();
 const { query } = useRoute();
 
 const { isSubmitting, state, submit } = useSignIn();
-
-// Get redirect path from cookies
-const cookieName = runtimeConfig.public.supabase.cookieName;
-const redirectPath = useCookie(`${cookieName}-redirect-path`).value;
-watchEffect(() => {
-    if (user.value) {
-        // Clear cookie
-        useCookie(`${cookieName}-redirect-path`).value = null;
-        // Redirect to path
-        return navigateTo((redirectPath === runtimeConfig.public.BASE_URL && '/dashboard') || '/dashboard');
-    }
-});
 
 onMounted(async () => {
     const errorDescription = query.error_description as string;
     if (errorDescription) toast.error(errorDescription);
 });
 
+const { authorizeWithGoogle } = useAuthorizeWithGoogle();
+
 function useSignIn() {
     type SignInType = z.infer<typeof signInSchema>;
-    const supabase = useSupabaseClient<Database>();
 
     const isSubmitting = ref(false);
     const initialState = {
@@ -68,6 +56,7 @@ function useSignIn() {
             sessionStore.user = data.user;
 
             toast.success('You have successfully signed in.');
+            await navigateTo('/dashboard');
         } catch (e) {
             console.error('Error signing in:', e);
             toast.error(getErrorMessage(e));
@@ -97,8 +86,8 @@ function useSignIn() {
                 },
             }"
         >
-            <UButton color="black" block size="md" disabled>
-                <NuxtImg src="/icons/google.svg" />
+            <UButton color="black" block size="md" @click="authorizeWithGoogle">
+                <NuxtImg src="/icons/google.svg" width="20" height="20" />
                 Sign In with Google
             </UButton>
 

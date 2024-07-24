@@ -25,6 +25,38 @@ const { data: companies, status } = await useLazyFetch('/api/companies', {
 });
 const pending = computed(() => status.value === 'pending');
 
+const filterTypes = [
+    {
+        type: 'all',
+        label: 'All Companies',
+        ['tw-group']: 'group/all',
+        ['tw-button']: 'group-hover/all:opacity-100',
+    },
+    {
+        type: 'inactive',
+        label: 'Inactive Companies',
+        ['tw-group']: 'group/inactive',
+        ['tw-button']: 'group-hover/inactive:opacity-100',
+    },
+    {
+        type: 'active',
+        label: 'Active Companies',
+        ['tw-group']: 'group/my-active',
+        ['tw-button']: 'group-hover/my-active:opacity-100',
+    },
+] as const;
+const defaultFilterType = useCookie<'all' | 'inactive' | 'active'>('companies-filter-type', {
+    default: () => 'all',
+});
+
+const selectedFilterType = ref(defaultFilterType.value);
+const selectedFilter = computed({
+    get: () => filterTypes.find((type) => type.type === selectedFilterType.value),
+    set: (value) => {
+        selectedFilterType.value = value?.type ?? 'all';
+    },
+});
+
 const {
     columns,
     selectedColumns,
@@ -161,35 +193,35 @@ function useTable() {
 <template>
     <!-- Header and Action buttons -->
     <div class="flex items-center justify-between gap-x-3 p-4">
-        <h1 class="text-2xl font-semibold">My Active Companies</h1>
-
-        <!-- <UPopover>
+        <UPopover v-if="selectedFilter">
             <div class="flex items-center gap-4">
-                <h1 class="text-2xl font-semibold">My Active Companies</h1>
+                <h1 class="text-2xl font-semibold">{{ selectedFilter.label }}</h1>
                 <UIcon name="i-heroicons-chevron-down" class="h-5 w-5" />
             </div>
 
             <template #panel>
-                <div class="w-72 p-1">
-                    <div class="group flex items-center justify-between rounded p-2 hover:bg-brand-50">
-                        <button class="text-sm">All Companies</button>
-                        <button class="hidden text-xs text-brand hover:underline group-hover:block">Set as Default</button>
-                    <p class="flex items-center gap-2 text-xs text-brand">
+                <ul class="w-72 p-1">
+                    <li
+                        v-for="filter in filterTypes"
+                        :key="filter.type"
+                        :class="['flex items-center justify-between rounded p-2 hover:bg-brand-50', filter['tw-group']]"
+                    >
+                        <button class="text-sm" @click="selectedFilter = filter">{{ filter.label }}</button>
+                        <button
+                            v-if="filter.type !== defaultFilterType"
+                            :class="['text-xs text-brand opacity-0 hover:underline', filter['tw-button']]"
+                            @click="defaultFilterType = filter.type"
+                        >
+                            Set as Default
+                        </button>
+                        <p v-else class="flex items-center gap-2 text-xs text-brand">
                             <span>Default</span>
                             <UIcon name="i-heroicons-check" class="h-4 w-4" />
-                        </p> 
-                    </div>
-                    <div class="group flex items-center justify-between rounded p-2 hover:bg-brand-50">
-                        <button class="text-sm">Inactive Companies</button>
-                        <button class="hidden text-xs text-brand hover:underline group-hover:block">Set as Default</button>
-                    </div>
-                    <div class="group flex items-center justify-between rounded p-2 hover:bg-brand-50">
-                        <button class="text-sm">My Active Companies</button>
-                        <button class="hidden text-xs text-brand hover:underline group-hover:block">Set as Default</button>
-                    </div>
-                </div>
+                        </p>
+                    </li>
+                </ul>
             </template>
-        </UPopover> -->
+        </UPopover>
 
         <div class="hidden sm:flex sm:items-center sm:gap-1.5">
             <UButton

@@ -7,7 +7,7 @@ export const organizationSchema = z.object({
     created_at: z.coerce.date(),
     description: z.string().optional().nullable(),
     industry_id: z.coerce.number().int().optional().nullable(),
-    name: z.string().min(1, { message: 'Organization name is required' }),
+    name: z.string().trim().min(1, { message: 'Organization name is required' }),
     province_id: z.coerce.number().int().optional().nullable(),
     size_id: z.coerce.number().int().optional().nullable(),
     updated_at: z.coerce.date(),
@@ -26,11 +26,11 @@ export const createOrganizationSchema = organizationSchema
         lead_source: true,
     })
     .extend({
-        user_id: z.string().min(1),
+        user_id: z.string().trim(),
     });
 
 export const joinOrganizationSchema = z.object({
-    code: z.string().min(1, { message: 'Code is required' }),
+    code: z.string().trim().min(1, { message: 'Code is required' }),
 });
 
 export const updateOrganizationSchema = organizationSchema.omit({
@@ -40,5 +40,5 @@ export const updateOrganizationSchema = organizationSchema.omit({
 
 export const inviteUserSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
-    role: z.string().min(1, { message: 'Role is required' }),
+    role: z.string().trim().min(1, { message: 'Role is required' }),
 });

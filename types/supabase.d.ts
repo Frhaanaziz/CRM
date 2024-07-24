@@ -874,27 +874,6 @@ export type Database = {
           },
         ]
       }
-      Lead_Statuses: {
-        Row: {
-          created_at: string
-          id: number
-          name: Database["public"]["Enums"]["lead_statuses"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          name: Database["public"]["Enums"]["lead_statuses"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          name?: Database["public"]["Enums"]["lead_statuses"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
       Leads: {
         Row: {
           company_id: number
@@ -1550,9 +1529,9 @@ export type Database = {
           created_at: string
           email: string
           expectation: string[] | null
-          first_name: string
+          first_name: string | null
           id: string
-          last_name: string
+          last_name: string | null
           linkedin: string | null
           organization_id: number | null
           phone: string | null
@@ -1565,9 +1544,9 @@ export type Database = {
           created_at?: string
           email: string
           expectation?: string[] | null
-          first_name: string
+          first_name?: string | null
           id: string
-          last_name: string
+          last_name?: string | null
           linkedin?: string | null
           organization_id?: number | null
           phone?: string | null
@@ -1580,9 +1559,9 @@ export type Database = {
           created_at?: string
           email?: string
           expectation?: string[] | null
-          first_name?: string
+          first_name?: string | null
           id?: string
-          last_name?: string
+          last_name?: string | null
           linkedin?: string | null
           organization_id?: number | null
           phone?: string | null
@@ -1661,7 +1640,7 @@ export type Database = {
       priority_statuses: "urgent" | "high" | "medium" | "low"
       rating_name: "cool" | "warm" | "hot"
       role_names: "owner" | "admin" | "manager" | "sales"
-      source_name: "google" | "linkedin" | "manual"
+      source_name: "google" | "linkedin" | "manual" | "form"
       user_statuses: "active" | "inactive"
     }
     CompositeTypes: {

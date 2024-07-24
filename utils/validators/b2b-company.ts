@@ -25,7 +25,7 @@ export const B2BCompanySchema = z.object({
         .optional()
         .nullable(),
     location: z.string().optional().nullable(),
-    name: z.string().min(1, { message: 'Name is required' }),
+    name: z.string().trim().min(1, { message: 'Name is required' }),
     phone: z.string().optional().nullable(),
     province_id: z.coerce.number().int().optional().nullable(),
     size_id: z.coerce.number().int().optional().nullable(),

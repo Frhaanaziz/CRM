@@ -22,14 +22,24 @@ const { data: company, refresh: refreshCompany } = await useFetch<IB2BCompany>(`
 });
 if (!company.value) throw createError({ status: 404, message: 'B2B Company not found' });
 
-const [{ data: industriesOption }, { data: sizesOption }, { data: provincesOption }, { data: citiesOption }] = await Promise.all([
-    useLazyFetch('/api/industries', {
-        transform: (industries) => industries.map(({ id, name }) => ({ value: id, label: name })),
-    }),
-    useLazyFetch('/api/sizes', { transform: (sizes) => sizes.map(({ id, size_range }) => ({ value: id, label: size_range })) }),
-    useLazyFetch('/api/provinces', { transform: (provinces) => provinces.map(({ id, name }) => ({ value: id, label: name })) }),
-    useLazyFetch('/api/cities', { transform: (cities) => cities.map(({ id, name }) => ({ value: id, label: name })) }),
-]);
+const { data } = await useLazyAsyncData(
+    () => {
+        return Promise.all([$fetch('/api/industries'), $fetch('/api/sizes'), $fetch('/api/provinces'), $fetch('/api/cities')]);
+    },
+    {
+        transform: ([industries, sizes, provinces, cities]) => [
+            industries.map(({ id, name }) => ({ value: id, label: name })),
+            sizes.map(({ id, size_range }) => ({ value: id, label: size_range })),
+            provinces.map(({ id, name }) => ({ value: id, label: name })),
+            cities.map(({ id, name }) => ({ value: id, label: name })),
+        ],
+        default: () => [[], [], [], []],
+    }
+);
+const industriesOption = computed(() => data.value[0]);
+const sizesOption = computed(() => data.value[1]);
+const provincesOption = computed(() => data.value[2]);
+const citiesOption = computed(() => data.value[3]);
 
 const accordionItems = computed(() =>
     company.value!.b2b_contacts.map(
@@ -121,7 +131,7 @@ function useUpdateB2BCompany() {
 
 <template>
     <div v-if="company" class="min-h-screen bg-base-200">
-        <header class="bg-base-100">
+        <header class="sticky top-0 z-10 bg-base-100 shadow">
             <div class="flex items-center border-b">
                 <NuxtLink href="/dashboard/resources/b2b-database" class="flex h-10 w-10 items-center justify-center border">
                     <UIcon name="i-heroicons-arrow-left-20-solid" class="h-[18px] w-[18px]" />

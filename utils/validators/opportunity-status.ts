@@ -23,5 +23,5 @@ export const editOpportunityStatusSchema = opportunityStatusSchema
     })
     .partial()
     .extend({
-        id: z.number().int(),
+        id: z.coerce.number().int(),
     });

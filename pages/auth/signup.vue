@@ -10,6 +10,7 @@ definePageMeta({
 const formRef = ref();
 const stepper = useStepper(['register', 'set-password']);
 
+const { authorizeWithGoogle } = useAuthorizeWithGoogle();
 const { isSubmitting, state, submit } = useSignUp();
 
 async function nextStep() {
@@ -76,9 +77,9 @@ function useSignUp() {
                 },
             }"
         >
-            <UButton color="black" block size="md" disabled>
-                <NuxtImg src="/icons/google.svg" />
-                Sign In with Google
+            <UButton color="black" block size="md" @click="authorizeWithGoogle">
+                <NuxtImg src="/icons/google.svg" width="20" height="20" />
+                Sign Up with Google
             </UButton>
 
             <UDivider

@@ -9,7 +9,7 @@ export const companiesSchema = z.object({
     created_at: z.coerce.date(),
     industry_id: z.coerce.number().int().optional().nullable(),
     linkedin: z.string().optional().nullable(),
-    name: z.string().min(1, { message: 'Name is required' }),
+    name: z.string().trim().min(1, { message: 'Name is required' }),
     phone: z.string().optional().nullable(),
     postal_code: z.string().optional().nullable(),
     primary_contact_id: z.coerce.number().int().optional().nullable(),
@@ -20,7 +20,7 @@ export const companiesSchema = z.object({
     street_3: z.string().optional().nullable(),
     state_id: z.coerce.number().optional(),
     updated_at: z.coerce.date(),
-    user_id: z.string(),
+    user_id: z.string().trim(),
     organization_id: z.coerce.number().int(),
     website: z.string().url({ message: 'Invalid URL' }).optional().nullable(),
 });

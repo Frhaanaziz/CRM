@@ -8,7 +8,7 @@ import Draggable from 'vuedraggable';
 
 const modal = useModal();
 
-const { data: opportunityStatuses } = useFetch('/api/opportunity-statuses', {
+const { data: opportunityStatuses } = await useFetch('/api/opportunity-statuses', {
     key: 'opportunity-statuses',
 });
 const {

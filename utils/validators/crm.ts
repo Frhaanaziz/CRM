@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
 const addCompanyLeadSchema = z.object({
-    industry_id: z.number(),
-    size_id: z.number(),
-    country_id: z.number(),
-    province_id: z.number(),
-    city_id: z.number(),
-    name: z.string(),
+    industry_id: z.coerce.number(),
+    size_id: z.coerce.number(),
+    country_id: z.coerce.number(),
+    province_id: z.coerce.number(),
+    city_id: z.coerce.number(),
+    name: z.string().trim(),
     website: z.string().optional().nullable(),
     linkedin: z.string().optional().nullable(),
     phone: z.string().optional().nullable(),
@@ -15,13 +15,13 @@ const addCompanyLeadSchema = z.object({
 });
 
 const addContactLeadSchema = z.object({
-    country_id: z.number().optional().nullable(),
-    province_id: z.number().optional().nullable(),
-    city_id: z.number().optional().nullable(),
-    first_name: z.string(),
-    last_name: z.string(),
+    country_id: z.coerce.number().optional().nullable(),
+    province_id: z.coerce.number().optional().nullable(),
+    city_id: z.coerce.number().optional().nullable(),
+    first_name: z.string().trim(),
+    last_name: z.string().trim(),
     job_title: z.string().optional().nullable(),
-    email: z.string(),
+    email: z.string().email(),
     main_phone: z.string().optional().nullable(),
     mobile_phone: z.string().optional().nullable(),
     whatsapp: z.string().optional().nullable(),

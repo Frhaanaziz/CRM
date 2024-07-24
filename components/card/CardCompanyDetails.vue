@@ -24,21 +24,32 @@ onBeforeRouteLeave(() => {
     }
 });
 
-const [
-    { data: industriesOption },
-    { data: sizesOption },
-    { data: countriesOption },
-    { data: provincesOption },
-    { data: citiesOption },
-] = await Promise.all([
-    useLazyFetch('/api/industries', {
-        transform: (industries) => industries.map(({ id, name }) => ({ value: id, label: name })),
-    }),
-    useLazyFetch('/api/sizes', { transform: (sizes) => sizes.map(({ id, size_range }) => ({ value: id, label: size_range })) }),
-    useLazyFetch('/api/countries', { transform: (countries) => countries.map(({ id, name }) => ({ value: id, label: name })) }),
-    useLazyFetch('/api/provinces', { transform: (provinces) => provinces.map(({ id, name }) => ({ value: id, label: name })) }),
-    useLazyFetch('/api/cities', { transform: (cities) => cities.map(({ id, name }) => ({ value: id, label: name })) }),
-]);
+const { data } = await useLazyAsyncData(
+    () => {
+        return Promise.all([
+            $fetch('/api/industries'),
+            $fetch('/api/sizes'),
+            $fetch('/api/countries'),
+            $fetch('/api/provinces'),
+            $fetch('/api/cities'),
+        ]);
+    },
+    {
+        transform: ([industries, sizes, countries, provinces, cities]) => [
+            industries.map(({ id, name }) => ({ value: id, label: name })),
+            sizes.map(({ id, size_range }) => ({ value: id, label: size_range })),
+            countries.map(({ id, name }) => ({ value: id, label: name })),
+            provinces.map(({ id, name }) => ({ value: id, label: name })),
+            cities.map(({ id, name }) => ({ value: id, label: name })),
+        ],
+        default: () => [[], [], [], [], []],
+    }
+);
+const industriesOption = computed(() => data.value[0]);
+const sizesOption = computed(() => data.value[1]);
+const countriesOption = computed(() => data.value[2]);
+const provincesOption = computed(() => data.value[3]);
+const citiesOption = computed(() => data.value[4]);
 
 function useUpdateB2BCompany() {
     type UpdateB2BCompanyType = z.infer<typeof updateCompanySchema>;

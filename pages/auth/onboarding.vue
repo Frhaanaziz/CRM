@@ -4,18 +4,22 @@ import { useStepper } from '@vueuse/core';
 const supabase = useSupabaseClient();
 const sessionStore = userSessionStore();
 const { user } = storeToRefs(sessionStore);
-if (!user.value) await navigateTo('/auth/signin');
 
-const [{ data: industriesOption }, { data: sizesOption }] = await Promise.all([
-    useLazyFetch('/api/industries', {
-        key: 'industries',
-        transform: (industries) => industries.map(({ id, name }) => ({ value: id, label: name })),
-    }),
-    useLazyFetch('/api/sizes', {
-        key: 'sizes',
-        transform: (sizes) => sizes.map(({ id, size_range }) => ({ value: id, label: size_range })),
-    }),
-]);
+const { data } = await useLazyAsyncData(
+    () => {
+        return Promise.all([$fetch('/api/industries'), $fetch('/api/sizes')]);
+    },
+    {
+        transform: ([industries, sizes]) => [
+            industries.map(({ id, name }) => ({ value: id, label: name })),
+            sizes.map(({ id, size_range }) => ({ value: id, label: size_range })),
+        ],
+        default: () => [[], []],
+    }
+);
+const industriesOption = computed(() => data.value[0]);
+const sizesOption = computed(() => data.value[1]);
+
 const salesSizesOption = ['Just me', '2-10', '11-25', '26-50', '51-200', '201+'];
 const leadSourcesOption = [
     "i don't have any leads yet",
@@ -60,7 +64,7 @@ const { profileForm, profileState, submitProfile } = useProfileSetup();
 const { createOrganizationForm, organizationState, submitOrganization } = useCreateOrganization();
 const { joinOrganizationForm, joinOrganizationState, submitJoinOrganization } = useJoinOrganization();
 
-const nextStep = () => profileForm.value?.validate(['phone', 'hope']).then(stepper.goToNext);
+const nextStep = () => profileForm.value?.validate(['phone', 'expectation']).then(stepper.goToNext);
 async function submitForm() {
     try {
         if (joinOrganizationState.value.code) {
@@ -97,7 +101,7 @@ async function submitForm() {
 function useProfileSetup() {
     const profileForm = ref();
     const state = ref({
-        phone: user.value!.user_metadata?.phone ?? '',
+        phone: user.value?.user_metadata?.phone ?? '',
         expectation: [],
     });
 
@@ -105,8 +109,8 @@ function useProfileSetup() {
         try {
             isSubmitting.value = true;
 
-            await $fetch(`/api/users/${user.value!.id}`, {
-                method: 'PUT',
+            await $fetch(`/api/users/${user.value?.id}/setup`, {
+                method: 'POST',
                 body: JSON.stringify(state.value),
             });
         } catch (e) {
@@ -126,7 +130,7 @@ function useProfileSetup() {
 function useCreateOrganization() {
     const createOrganizationForm = ref();
     const state = ref({
-        user_id: user.value!.id,
+        user_id: user.value?.id,
         name: '',
         website: '',
         industry_id: undefined,
@@ -238,7 +242,7 @@ async function handleSignout() {
                     <UForm
                         v-if="stepper.isCurrent('profile-setup')"
                         ref="profileForm"
-                        :schema="profileSetupSchema"
+                        :schema="setupUserSchema"
                         :state="profileState"
                         class="space-y-10"
                         @submit="submitProfile"
@@ -247,7 +251,7 @@ async function handleSignout() {
                             <UInput v-model="profileState.phone" class="max-w-[392px]" placeholder="e.g. +62 812 5555 8888" />
                         </UFormGroup>
 
-                        <UFormGroup label="What do you hope todo with this CRM?" name="hope">
+                        <UFormGroup label="What do you hope todo with this CRM?" name="expectation">
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="flex items-center gap-4 rounded-lg border p-4">
                                     <UCheckbox
