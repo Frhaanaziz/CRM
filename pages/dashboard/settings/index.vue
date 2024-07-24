@@ -24,6 +24,8 @@ function useUpdateProfile({ user }: { user: User }) {
     const isSubmitting = ref(false);
     const state = ref({
         ...userProfile.value,
+        first_name: userProfile.value.first_name || undefined,
+        last_name: userProfile.value.last_name || undefined,
         phone: userProfile.value.phone || undefined,
         linkedin: userProfile.value.linkedin || undefined,
     });
