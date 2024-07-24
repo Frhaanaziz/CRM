@@ -42,6 +42,6 @@ export default defineNuxtConfig({
     // Supabase module options
     supabase: {
         redirect: false,
-        types: 'types/supabase.d.ts',
+        types: './types/supabase.d.ts',
     },
 });
