@@ -369,7 +369,7 @@ function useTable() {
                 v-model:pageCount="pageCount"
                 v-model:sort="sort"
                 v-model:selectedRows="selectedRows"
-                :pageTotal
+                :totalRows="pageTotal"
                 :columns="tableColumns"
                 :opportunitiesRows
                 :pending="status === 'pending'"

@@ -1,29 +1,10 @@
 <script lang="ts" setup>
-import { useDateFormat } from '@vueuse/core';
+import { refDebounced, useDateFormat } from '@vueuse/core';
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAddCompany from '~/components/modal/ModalAddCompany.vue';
 import type { Company } from '~/types';
 
 const modal = useModal();
-
-const { data: companies, status } = await useLazyFetch('/api/companies', {
-    key: 'companies',
-    transform: (companies) =>
-        companies.map((company) => ({
-            id: company.id,
-            name: company.name,
-            phone: company.phone,
-            primaryContact: company.primaryContact,
-            industry: company?.industry?.name ?? '',
-            size: company.size?.size_range ?? '',
-            location: `${company?.province?.name ?? ''}, ${company?.city?.name ?? ''}`,
-            website: company.website,
-            created_at: company.created_at,
-            linkedin: company.linkedin,
-        })),
-    default: () => [],
-});
-const pending = computed(() => status.value === 'pending');
 
 const filterTypes = [
     {
@@ -57,20 +38,37 @@ const selectedFilter = computed({
     },
 });
 
-const {
-    columns,
-    selectedColumns,
-    tableColumns,
-    selectedRows,
-    selectRow,
-    companiesRows,
-    search,
-    page,
-    pageCount,
-    sort,
-    pageTotal,
-    resetFilters,
-} = useTable();
+const { columns, selectedColumns, tableColumns, selectedRows, selectRow, search, debouncedSearch, page, pageCount, sort } =
+    useTable();
+
+const { data: companiesPaginated, status } = await useLazyFetch('/api/companies', {
+    query: {
+        query: debouncedSearch,
+        page: page,
+        limit: pageCount,
+        sort: computed(() => sort.value.column),
+        order: computed(() => sort.value.direction),
+    },
+    transform: (data) => ({
+        ...data,
+        result: data.result.map((company) => ({
+            id: company.id,
+            name: company.name,
+            phone: company.phone,
+            primaryContact: {
+                value: getUserFullName(company.primaryContact),
+                class: 'w-[200px] max-w-[200px]',
+            },
+            primaryContactEmail: { value: company.primaryContact?.email ?? '', class: 'w-[220px] max-w-[220px]' },
+            industry: company?.industry?.name ?? '',
+            size: company.size?.size_range ?? '',
+            location: `${company?.province?.name ?? ''}, ${company?.city?.name ?? ''}`,
+            website: company.website,
+            created_at: company.created_at,
+            linkedin: company.linkedin,
+        })),
+    }),
+});
 
 async function handleDeleteCompanies() {
     try {
@@ -98,27 +96,27 @@ function useTable() {
         {
             key: 'primaryContact',
             label: 'Primary Contact',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'primaryContactEmail',
             label: 'Email (Primary Contact)',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'industry',
             label: 'Industry',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'size',
             label: 'Size',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'location',
             label: 'Location',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'website',
@@ -153,39 +151,31 @@ function useTable() {
         }
     }
 
-    const {
-        filteredData: filteredCompanies,
-        search,
-        page,
-        pageCount,
-        sort,
-        pageTotal,
-        resetFilters,
-    } = useFilterAndPaginate(companies);
-    const filteredCompaniesCustom = computed(() =>
-        filteredCompanies.value.map((company) => ({
-            ...company,
-            primaryContact: {
-                value: getUserFullName(company.primaryContact),
-                class: 'w-[200px] max-w-[200px]',
-            },
-            primaryContactEmail: { value: company.primaryContact?.email ?? '', class: 'w-[220px] max-w-[220px]' },
-        }))
+    const search = ref('');
+    const debouncedSearch = refDebounced(
+        computed(() => search.value.trim()),
+        300
     );
+    const page = ref(1);
+    const pageCount = ref(10);
+    const sort = ref({ column: 'created_at', direction: 'desc' as const });
+
+    // Reset page when search changes
+    watch(debouncedSearch, () => {
+        page.value = 1;
+    });
 
     return {
-        columns,
-        selectedColumns,
-        tableColumns,
-        selectedRows,
-        selectRow,
-        companiesRows: filteredCompaniesCustom,
         search,
+        debouncedSearch,
         page,
         pageCount,
         sort,
-        pageTotal,
-        resetFilters,
+        selectedColumns,
+        tableColumns,
+        columns,
+        selectedRows,
+        selectRow,
     };
 }
 </script>
@@ -210,7 +200,12 @@ function useTable() {
                         <button
                             v-if="filter.type !== defaultFilterType"
                             :class="['text-xs text-brand opacity-0 hover:underline', filter['tw-button']]"
-                            @click="defaultFilterType = filter.type"
+                            @click="
+                                () => {
+                                    defaultFilterType = filter.type;
+                                    selectedFilter = filter;
+                                }
+                            "
                         >
                             Set as Default
                         </button>
@@ -262,18 +257,6 @@ function useTable() {
                 <UButton icon="i-heroicons-view-columns" color="black" size="xs" variant="ghost"> Columns </UButton>
             </USelectMenu>
 
-            <!-- Reset Filters Button -->
-            <UButton
-                icon="i-heroicons-funnel"
-                color="black"
-                size="xs"
-                :disabled="!!!search.length"
-                variant="ghost"
-                @click="resetFilters"
-            >
-                Reset
-            </UButton>
-
             <UInput v-model="search" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search..." />
         </div>
     </div>
@@ -283,14 +266,18 @@ function useTable() {
         v-model="selectedRows"
         v-model:sort="sort"
         by="id"
-        :loading="pending"
-        :rows="companiesRows"
+        :loading="status === 'pending'"
+        :rows="companiesPaginated?.result ?? []"
         :columns="tableColumns"
         sort-mode="manual"
         class="w-full"
         :ui="{
             tr: { base: '[&>td]:hover:bg-base-200' },
             td: { base: 'max-w-[0] truncate text-default' },
+            th: {
+                color: 'text-weak',
+                font: 'font-normal',
+            },
         }"
         @select="selectRow"
     >
@@ -337,5 +324,10 @@ function useTable() {
     </UTable>
 
     <!-- Number of rows & Pagination -->
-    <TableFooter v-model:page="page" v-model:pageCount="pageCount" :pageTotal="pageTotal" />
+    <TableFooter
+        v-if="companiesPaginated"
+        v-model:page="page"
+        v-model:pageCount="pageCount"
+        :totalRows="companiesPaginated.total_row"
+    />
 </template>

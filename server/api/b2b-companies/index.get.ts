@@ -1,28 +1,26 @@
-import type { Database } from '~/types/supabase';
-import { serverSupabaseClient } from '#supabase/server';
+import type { B2BCompany, City, Industry, PaginationUtils, Province, Size } from '~/types';
+import qs from 'qs';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
-
-    const res = await supabase
-        .from('B2B_Companies')
-        .select(
-            `
-            *,
-            industry: Industries(*),
-            size: Sizes(*),
-            province: Provinces(*),
-            city: Cities(*)
-            `
-        )
-        .order('created_at', { ascending: false });
-    if (res.error) {
-        console.error('Error fetching B2B companies', res.error);
-        throw createError({
-            status: 500,
-            statusMessage: res.error.message,
-        });
+    interface IB2BCompany extends B2BCompany {
+        industry: Industry | null;
+        size: Size | null;
+        province: Province | null;
+        city: City | null;
     }
 
-    return res.data;
+    const query = getQuery(event);
+
+    const fetchApi = await backendApi(event);
+    const { data } = await fetchApi<{ data: PaginationUtils & { result: IB2BCompany[] } }>(
+        `/b2b-companies?${qs.stringify({
+            ...query,
+            filters: {
+                industry_id: query.industry_id,
+                size_id: query.size_id,
+            },
+        })}`
+    );
+
+    return data;
 });

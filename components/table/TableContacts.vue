@@ -1,15 +1,25 @@
 <script lang="ts" setup>
-import { useDateFormat } from '@vueuse/core';
+import { refDebounced, useDateFormat } from '@vueuse/core';
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAddContact from '~/components/modal/ModalAddContact.vue';
 import type { Company } from '~/types';
 
 const modal = useModal();
 
-const { data: contacts, status } = await useLazyFetch('/api/contacts', {
-    key: 'contacts',
-    transform: (contacts) =>
-        contacts.map((contact) => ({
+const { columns, selectedColumns, tableColumns, selectedRows, selectRow, search, debouncedSearch, page, pageCount, sort } =
+    useTable();
+
+const { data: contactsPaginated, status } = await useLazyFetch('/api/contacts', {
+    query: {
+        query: debouncedSearch,
+        page: page,
+        limit: pageCount,
+        sort: computed(() => sort.value.column),
+        order: computed(() => sort.value.direction),
+    },
+    transform: (data) => ({
+        ...data,
+        result: data.result.map((contact) => ({
             id: contact.id,
             fullName: getUserFullName(contact),
             email: contact.email,
@@ -19,24 +29,8 @@ const { data: contacts, status } = await useLazyFetch('/api/contacts', {
             created_at: contact.created_at,
             isValidEmail: contact.is_valid_email,
         })),
-    default: () => [],
+    }),
 });
-const pending = computed(() => status.value === 'pending');
-
-const {
-    columns,
-    selectedColumns,
-    tableColumns,
-    selectedRows,
-    selectRow,
-    contactsRows,
-    search,
-    page,
-    pageCount,
-    sort,
-    pageTotal,
-    resetFilters,
-} = useTable();
 
 async function handleDeleteContacts() {
     try {
@@ -52,7 +46,7 @@ async function handleDeleteContacts() {
 function useTable() {
     const columns = [
         {
-            key: 'fullName',
+            key: 'first_name',
             label: 'Full Name',
             sortable: true,
         },
@@ -64,7 +58,7 @@ function useTable() {
         {
             key: 'companyName',
             label: 'Company Name',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'mainPhone',
@@ -87,7 +81,7 @@ function useTable() {
             sortable: true,
         },
     ];
-    const initialColumnKeys = ['fullName', 'email', 'companyName', 'mobilePhone'];
+    const initialColumnKeys = ['first_name', 'email', 'companyName', 'mobilePhone'];
     const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
     const tableColumns = computed(() =>
         columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
@@ -104,39 +98,31 @@ function useTable() {
         }
     }
 
-    const {
-        filteredData: filteredContacts,
-        search,
-        page,
-        pageCount,
-        sort,
-        pageTotal,
-        resetFilters,
-    } = useFilterAndPaginate(contacts);
-    const filteredContactsCustom = computed(() =>
-        filteredContacts.value.map((company) => ({
-            ...company,
-            // primaryContact: {
-            //     value: getUserFullName(company.primaryContact),
-            //     class: 'w-[200px] max-w-[200px]',
-            // },
-            // primaryContactEmail: { value: company.primaryContact?.email ?? '', class: 'w-[220px] max-w-[220px]' },
-        }))
+    const search = ref('');
+    const debouncedSearch = refDebounced(
+        computed(() => search.value.trim()),
+        300
     );
+    const page = ref(1);
+    const pageCount = ref(10);
+    const sort = ref({ column: 'created_at', direction: 'desc' as const });
+
+    // Reset page when search changes
+    watch(debouncedSearch, () => {
+        page.value = 1;
+    });
 
     return {
-        columns,
-        selectedColumns,
-        tableColumns,
-        selectedRows,
-        selectRow,
-        contactsRows: filteredContactsCustom,
         search,
+        debouncedSearch,
         page,
         pageCount,
         sort,
-        pageTotal,
-        resetFilters,
+        selectedColumns,
+        tableColumns,
+        columns,
+        selectedRows,
+        selectRow,
     };
 }
 </script>
@@ -185,18 +171,6 @@ function useTable() {
                 <UButton icon="i-heroicons-view-columns" color="black" size="xs" variant="ghost"> Columns </UButton>
             </USelectMenu>
 
-            <!-- Reset Filters Button -->
-            <UButton
-                icon="i-heroicons-funnel"
-                color="black"
-                size="xs"
-                :disabled="!!!search.length"
-                variant="ghost"
-                @click="resetFilters"
-            >
-                Reset
-            </UButton>
-
             <UInput v-model="search" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search..." />
         </div>
     </div>
@@ -206,18 +180,22 @@ function useTable() {
         v-model="selectedRows"
         v-model:sort="sort"
         by="id"
-        :loading="pending"
-        :rows="contactsRows"
+        :loading="status === 'pending'"
+        :rows="contactsPaginated?.result ?? []"
         :columns="tableColumns"
         sort-mode="manual"
         class="w-full"
         :ui="{
             tr: { base: '[&>td]:hover:bg-base-200' },
             td: { base: 'max-w-[0] truncate text-default' },
+            th: {
+                color: 'text-weak',
+                font: 'font-normal',
+            },
         }"
         @select="selectRow"
     >
-        <template #fullName-data="{ row }">
+        <template #first_name-data="{ row }">
             <NuxtLink :href="`/dashboard/customer/contacts/${row.id}`" class="text-brand hover:underline">
                 {{ row.fullName }}
             </NuxtLink>
@@ -248,5 +226,10 @@ function useTable() {
     </UTable>
 
     <!-- Number of rows & Pagination -->
-    <TableFooter v-model:page="page" v-model:pageCount="pageCount" :pageTotal="pageTotal" />
+    <TableFooter
+        v-if="contactsPaginated"
+        v-model:page="page"
+        v-model:pageCount="pageCount"
+        :totalRows="contactsPaginated.total_row"
+    />
 </template>

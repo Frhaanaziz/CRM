@@ -1,55 +1,62 @@
 <script lang="ts" setup>
-import { useDateFormat } from '@vueuse/core';
+import { refDebounced, useDateFormat } from '@vueuse/core';
 
-const { data, status } = await useLazyAsyncData(
+const { data } = await useLazyAsyncData(
     () => {
-        return Promise.all([$fetch('/api/b2b-companies'), $fetch('/api/industries'), $fetch('/api/sizes')]);
+        return Promise.all([$fetch('/api/industries'), $fetch('/api/sizes')]);
     },
     {
-        transform: ([companies, industries, sizes]) =>
-            [
-                companies.map((company) => ({
-                    id: company.id,
-                    name: company.name,
-                    industry: company?.industry?.name ?? '',
-                    size: company.size?.size_range ?? '',
-                    province: company?.province?.name ?? '',
-                    city: company?.city?.name ?? '',
-                    website: company.website,
-                    avatar: company.avatar,
-                    created_at: company.created_at,
-                    email: company.email,
-                    linkedin: company.linkedin,
-                    phone: company.phone,
-                    zip_code: company.zip_code,
-                })),
-                industries,
-                sizes,
-            ] as const,
-        default: () => [[], [], []],
+        transform: ([industries, sizes]) => [industries, sizes] as const,
+        default: () => [[], []],
+        server: false,
     }
 );
-const companies = computed(() => data.value[0]);
-const industries = computed(() => data.value[1]);
-const sizes = computed(() => data.value[2]);
-
-const pending = computed(() => status.value === 'pending');
+const industries = computed(() => data.value[0]);
+const sizes = computed(() => data.value[1]);
 
 const {
-    columns,
-    selectedColumns,
-    tableColumns,
-    companiesRows,
     search,
+    debouncedSearch,
     page,
     pageCount,
     sort,
-    pageTotal,
-    resetFilters,
     inputIndustries,
     inputSizes,
-    filters,
+    resetFilters,
+    selectedColumns,
+    tableColumns,
+    columns,
 } = useTable();
+
+const { data: companiesPaginated, status } = await useLazyFetch(`/api/b2b-companies`, {
+    query: {
+        query: debouncedSearch,
+        page: page,
+        limit: pageCount,
+        sort: computed(() => sort.value.column),
+        order: computed(() => sort.value.direction),
+        industry_id: computed(() => inputIndustries.value),
+        size_id: computed(() => inputSizes.value),
+    },
+    transform: (data) => ({
+        ...data,
+        result: data.result.map((company) => ({
+            id: company.id,
+            name: company.name,
+            industry: company?.industry?.name ?? '',
+            size: company.size?.size_range ?? '',
+            province: company?.province?.name ?? '',
+            city: company?.city?.name ?? '',
+            website: company.website,
+            avatar: company.avatar,
+            created_at: company.created_at,
+            email: company.email,
+            linkedin: company.linkedin,
+            phone: company.phone,
+            zip_code: company.zip_code,
+        })),
+    }),
+});
 
 function useTable() {
     const columns = [
@@ -61,12 +68,12 @@ function useTable() {
         {
             key: 'industry',
             label: 'Industry',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'size',
             label: 'Size',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'location',
@@ -110,42 +117,42 @@ function useTable() {
         columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
     );
 
+    const search = ref('');
+    const debouncedSearch = refDebounced(
+        computed(() => search.value.trim()),
+        300
+    );
+    const page = ref(1);
+    const pageCount = ref(10);
+    const sort = ref({ column: 'created_at', direction: 'desc' as const });
+
+    // Reset page when search changes
+    watch(debouncedSearch, () => {
+        page.value = 1;
+    });
+
     const inputIndustries = ref<string[]>([]);
     const inputSizes = ref<string[]>([]);
 
-    const {
-        filteredData: filteredCompanies,
-        search,
-        page,
-        pageCount,
-        sort,
-        filters,
-        pageTotal,
-        resetFilters,
-    } = useFilterAndPaginate(companies);
-
-    // Update filters
-    filters.value = {
-        industry: [],
-        size: [],
-        province: [],
-        city: [],
+    const resetFilters = () => {
+        search.value = '';
+        inputIndustries.value = [];
+        inputSizes.value = [];
+        page.value = 1;
     };
 
     return {
-        columns,
-        selectedColumns,
-        tableColumns,
-        companiesRows: filteredCompanies,
         search,
+        debouncedSearch,
         page,
         pageCount,
         sort,
-        pageTotal,
-        resetFilters,
         inputIndustries,
         inputSizes,
-        filters,
+        resetFilters,
+        selectedColumns,
+        tableColumns,
+        columns,
     };
 }
 </script>
@@ -174,37 +181,15 @@ function useTable() {
                     <template #panel>
                         <div class="min-w-72">
                             <p class="border-b p-3 font-semibold">Filter by Industry</p>
-                            <template v-if="industries">
-                                <div class="max-h-52 space-y-3 overflow-x-auto bg-base-200 p-3">
-                                    <div v-for="industry in industries" :key="industry.id" class="flex items-center gap-2">
-                                        <UCheckbox
-                                            :id="`industry-${industry.id}`"
-                                            v-model="inputIndustries"
-                                            :value="industry.name"
-                                        />
-                                        <label :for="`industry-${industry.id}`" class="text-sm">
-                                            {{ industry.name }}
-                                        </label>
-                                    </div>
+                            <div v-if="industries" class="max-h-52 space-y-3 overflow-x-auto bg-base-200 p-3">
+                                <div v-for="industry in industries" :key="industry.id" class="flex items-center gap-2">
+                                    <UCheckbox :id="`industry-${industry.id}`" v-model="inputIndustries" :value="industry.id" />
+                                    <label :for="`industry-${industry.id}`" class="text-sm">
+                                        {{ industry.name }}
+                                    </label>
                                 </div>
-                                <div class="flex justify-end gap-2 bg-base-200 p-3">
-                                    <UButton
-                                        variant="outline"
-                                        size="sm"
-                                        @click="
-                                            () => {
-                                                inputIndustries = [];
-                                                filters.industry = [];
-                                            }
-                                        "
-                                        >Cancel
-                                    </UButton>
-                                    <UButton size="sm" @click="filters.industry = inputIndustries"> Apply </UButton>
-                                </div>
-                            </template>
-                            <template v-else>
-                                <p class="flex items-center justify-center p-3">no data</p>
-                            </template>
+                            </div>
+                            <p v-else class="flex items-center justify-center p-3">no data</p>
                         </div>
                     </template>
                 </UPopover>
@@ -225,30 +210,14 @@ function useTable() {
                     <template #panel>
                         <div class="min-w-72">
                             <p class="border-b p-3 font-semibold">Filter by Company Size</p>
-                            <template v-if="sizes">
-                                <div class="max-h-52 space-y-3 overflow-x-auto bg-base-200 p-3">
-                                    <div v-for="size in sizes" :key="size.id" class="flex items-center gap-2">
-                                        <UCheckbox :id="`size-${size.id}`" v-model="inputSizes" :value="size.size_range" />
-                                        <label :for="`size-${size.id}`" class="text-sm">
-                                            {{ size.size_range }}
-                                        </label>
-                                    </div>
+                            <div v-if="sizes" class="max-h-52 space-y-3 overflow-x-auto bg-base-200 p-3">
+                                <div v-for="size in sizes" :key="size.id" class="flex items-center gap-2">
+                                    <UCheckbox :id="`size-${size.id}`" v-model="inputSizes" :value="size.id" />
+                                    <label :for="`size-${size.id}`" class="text-sm">
+                                        {{ size.size_range }}
+                                    </label>
                                 </div>
-                                <div class="flex justify-end gap-2 bg-base-200 p-3">
-                                    <UButton
-                                        variant="outline"
-                                        size="sm"
-                                        @click="
-                                            () => {
-                                                inputSizes = [];
-                                                filters.size = [];
-                                            }
-                                        "
-                                        >Cancel</UButton
-                                    >
-                                    <UButton size="sm" @click="filters.size = inputSizes">Apply</UButton>
-                                </div>
-                            </template>
+                            </div>
                             <template v-else>
                                 <p class="flex items-center justify-center p-3">no data</p>
                             </template>
@@ -302,15 +271,7 @@ function useTable() {
                 icon="i-heroicons-funnel"
                 color="gray"
                 size="xs"
-                :disabled="
-                    !(
-                        !!search.length ||
-                        !!filters.industry?.length ||
-                        !!filters.size?.length ||
-                        !!filters.province?.length ||
-                        !!filters.city?.length
-                    )
-                "
+                :disabled="!(!!search.length || !!inputIndustries?.length || !!inputSizes?.length)"
                 @click="resetFilters"
             >
                 Reset
@@ -321,14 +282,18 @@ function useTable() {
     <!-- Table -->
     <UTable
         v-model:sort="sort"
-        :rows="companiesRows"
+        :rows="companiesPaginated?.result ?? []"
         :columns="tableColumns"
-        :loading="pending"
+        :loading="status === 'pending'"
         sort-mode="manual"
         class="w-full"
         :ui="{
             tr: { base: '[&>td]:hover:bg-base-200' },
             td: { base: 'max-w-[0] truncate text-default' },
+            th: {
+                color: 'text-weak',
+                font: 'font-normal',
+            },
         }"
     >
         <template #name-data="{ row }">
@@ -371,5 +336,10 @@ function useTable() {
     </UTable>
 
     <!-- Number of rows & Pagination -->
-    <TableFooter v-model:page="page" v-model:pageCount="pageCount" :pageTotal="pageTotal" />
+    <TableFooter
+        v-if="companiesPaginated"
+        v-model:page="page"
+        v-model:pageCount="pageCount"
+        :totalRows="companiesPaginated.total_row"
+    />
 </template>

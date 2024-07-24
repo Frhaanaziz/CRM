@@ -1,13 +1,13 @@
 <script setup lang="ts">
 const props = defineProps<{
-    pageTotal: number;
+    totalRows: number;
 }>();
-const { pageTotal } = toRefs(props);
+const { totalRows } = toRefs(props);
 const page = defineModel('page', { type: Number, required: true });
 const pageCount = defineModel('pageCount', { type: Number, required: true });
 
 const pageFrom = computed(() => (page.value - 1) * pageCount.value + 1);
-const pageTo = computed(() => Math.min(page.value * pageCount.value, pageTotal.value));
+const pageTo = computed(() => Math.min(page.value * pageCount.value, totalRows.value));
 </script>
 
 <template>
@@ -19,7 +19,7 @@ const pageTo = computed(() => Math.min(page.value * pageCount.value, pageTotal.v
                 to
                 <span class="font-medium">{{ pageTo }}</span>
                 of
-                <span class="font-medium">{{ pageTotal }}</span>
+                <span class="font-medium">{{ totalRows }}</span>
                 results
             </span>
         </div>
@@ -33,7 +33,7 @@ const pageTo = computed(() => Math.min(page.value * pageCount.value, pageTotal.v
         <UPagination
             v-model="page"
             :page-count="pageCount"
-            :total="pageTotal"
+            :total="totalRows"
             :ui="{
                 wrapper: 'flex items-center gap-1',
                 rounded: '!rounded-full min-w-[32px] justify-center',

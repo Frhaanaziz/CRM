@@ -204,5 +204,5 @@ function useTable() {
     </UTable>
 
     <!-- Number of rows & Pagination -->
-    <TableFooter v-model:page="page" v-model:pageCount="pageCount" :pageTotal="pageTotal" />
+    <TableFooter v-model:page="page" v-model:pageCount="pageCount" :totalRows="pageTotal" />
 </template>

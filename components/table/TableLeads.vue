@@ -1,15 +1,26 @@
 <script lang="ts" setup>
-import { useDateFormat } from '@vueuse/core';
+import { refDebounced, useDateFormat } from '@vueuse/core';
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAddLead from '~/components/modal/ModalAddLead.vue';
 import type { Lead } from '~/types';
 
 const modal = useModal();
 
-const { data: leads, status } = await useLazyFetch('/api/leads', {
-    key: 'leads',
-    transform: (leads) =>
-        leads.map((lead) => ({
+const { columns, selectedColumns, tableColumns, selectedRows, select, search, debouncedSearch, page, pageCount, sort } =
+    useTable();
+
+const { data: leadsPaginated, status } = await useLazyFetch('/api/leads', {
+    key: `leads-${page}-${sort.value.column}-${sort.value.direction}-${pageCount}-${debouncedSearch}`,
+    query: {
+        query: debouncedSearch,
+        page: page,
+        limit: pageCount,
+        sort: computed(() => sort.value.column),
+        order: computed(() => sort.value.direction),
+    },
+    transform: (data) => ({
+        ...data,
+        result: data.result.map((lead) => ({
             id: lead.id,
             name: getUserFullName(lead.contact),
             company: lead.company,
@@ -21,24 +32,8 @@ const { data: leads, status } = await useLazyFetch('/api/leads', {
             source: lead.source?.name,
             created_at: lead.created_at,
         })),
-    default: () => [],
+    }),
 });
-const pending = computed(() => status.value === 'pending');
-
-const {
-    columns,
-    selectedColumns,
-    tableColumns,
-    selectedRows,
-    select,
-    leadsRows,
-    search,
-    page,
-    pageCount,
-    sort,
-    pageTotal,
-    resetFilters,
-} = useTable();
 
 async function handleDeleteLeads() {
     try {
@@ -56,17 +51,17 @@ function useTable() {
         {
             key: 'name',
             label: 'Name',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'companyName',
             label: 'Company',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'userName',
             label: 'Assigned To',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'score',
@@ -81,17 +76,17 @@ function useTable() {
         {
             key: 'disqualify_reason',
             label: 'Disqualify Reason',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'rating',
             label: 'Rating',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'source',
             label: 'Lead Source',
-            sortable: true,
+            sortable: false,
         },
         {
             key: 'created_at',
@@ -116,7 +111,19 @@ function useTable() {
         }
     }
 
-    const { filteredData: filteredLeads, search, page, pageCount, sort, pageTotal, resetFilters } = useFilterAndPaginate(leads);
+    const search = ref('');
+    const debouncedSearch = refDebounced(
+        computed(() => search.value.trim()),
+        300
+    );
+    const page = ref(1);
+    const pageCount = ref(10);
+    const sort = ref({ column: 'created_at', direction: 'desc' as const });
+
+    // Reset page when search changes
+    watch(debouncedSearch, () => {
+        page.value = 1;
+    });
 
     return {
         columns,
@@ -124,13 +131,11 @@ function useTable() {
         tableColumns,
         selectedRows,
         select,
-        leadsRows: filteredLeads,
         search,
+        debouncedSearch,
         page,
         pageCount,
         sort,
-        pageTotal,
-        resetFilters,
     };
 }
 </script>
@@ -178,18 +183,6 @@ function useTable() {
                 <UButton icon="i-heroicons-view-columns" color="black" size="xs" variant="ghost"> Columns </UButton>
             </USelectMenu>
 
-            <!-- Reset Filters Button -->
-            <UButton
-                icon="i-heroicons-funnel"
-                color="black"
-                size="xs"
-                :disabled="!!!search.length"
-                variant="ghost"
-                @click="resetFilters"
-            >
-                Reset
-            </UButton>
-
             <UInput v-model="search" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search..." />
         </div>
     </div>
@@ -199,14 +192,18 @@ function useTable() {
         v-model="selectedRows"
         v-model:sort="sort"
         by="id"
-        :loading="pending"
-        :rows="leadsRows"
+        :loading="status === 'pending'"
+        :rows="leadsPaginated?.result ?? []"
         :columns="tableColumns"
         sort-mode="manual"
         class="w-full"
         :ui="{
             tr: { base: '[&>td]:hover:bg-base-200' },
             td: { base: 'max-w-[0] truncate text-default' },
+            th: {
+                color: 'text-weak',
+                font: 'font-normal',
+            },
         }"
         @select="select"
     >
@@ -242,5 +239,5 @@ function useTable() {
     </UTable>
 
     <!-- Number of rows & Pagination -->
-    <TableFooter v-model:page="page" v-model:pageCount="pageCount" :pageTotal="pageTotal" />
+    <TableFooter v-if="leadsPaginated" v-model:page="page" v-model:pageCount="pageCount" :totalRows="leadsPaginated.total_row" />
 </template>

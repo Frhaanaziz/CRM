@@ -34,3 +34,14 @@ export type Currency = Tables<'Currencies'>;
 export type PaymentPlan = Tables<'Payment_Plans'>;
 export type Activity = Tables<'Activities'>;
 export type ActivityParticipant = Tables<'Activity_Participants'>;
+
+export type PaginationUtils = {
+    current_page: number;
+    row_per_page: number;
+    is_first_page: boolean;
+    is_last_page: boolean;
+    prev_page: number;
+    next_page: number;
+    total_row: number;
+    total_page: number;
+};
