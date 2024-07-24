@@ -21,6 +21,6 @@ export function phone(schema: z.ZodString) {
 }
 
 export const reorderSchema = z.object({
-    prevElIndexNumber: z.number().optional(),
-    nextElIndexNumber: z.number().optional(),
+    prevElIndexNumber: z.coerce.number().optional(),
+    nextElIndexNumber: z.coerce.number().optional(),
 });

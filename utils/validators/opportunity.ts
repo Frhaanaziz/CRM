@@ -36,9 +36,9 @@ export const opportunitySchema = z.object({
         .int(),
     payment_plan_id: z.coerce.number().int().optional().nullable(),
     proposed_solution: z.string().optional().nullable(),
-    topic: z.string().min(1, { message: 'Topic is required' }),
+    topic: z.string().trim().min(1, { message: 'Topic is required' }),
     updated_at: z.coerce.date().optional().nullable(),
-    user_id: z.string(),
+    user_id: z.string().trim(),
     organization_id: z.coerce.number().int(),
     priority: z.enum(priorityStatuses),
 });
@@ -66,11 +66,10 @@ export const addOpportunitySchema = opportunitySchema
         company_id: true,
         organization_id: true,
         user_id: true,
-        // oppotunity_status_id: true,
     })
     .extend({
-        first_name: z.string().min(1, { message: 'First name is required' }),
-        last_name: z.string().min(1, { message: 'Last name is required' }),
+        first_name: z.string().trim().min(1, { message: 'First name is required' }),
+        last_name: z.string().trim().min(1, { message: 'Last name is required' }),
         email: z.string().email({ message: 'Invalid email address' }),
         phone: phone(z.string()).optional().nullable(),
     });

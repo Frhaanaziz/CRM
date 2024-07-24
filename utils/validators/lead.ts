@@ -5,7 +5,7 @@ import { leadStatuses } from '../constants';
 export const leadSchema = z.object({
     company_id: z.coerce.number().int(),
     contact_id: z.coerce.number().int(),
-    created_at: z.string().optional().nullable(),
+    created_at: z.coerce.date().optional().nullable(),
     disqualify_reason_id: z.coerce.number().int().optional().nullable(),
     id: z.coerce.number().int(),
     status: z.enum(leadStatuses),
@@ -15,7 +15,7 @@ export const leadSchema = z.object({
     source_id: z.coerce.number().int(),
     topic: z.string().optional().nullable(),
     updated_at: z.coerce.date().optional().nullable(),
-    user_id: z.string(),
+    user_id: z.string().trim(),
     organization_id: z.coerce.number().int(),
 });
 
@@ -27,8 +27,8 @@ export const addLeadSchema = leadSchema
         contact_id: true,
     })
     .extend({
-        first_name: z.string().min(1, { message: 'First name is required' }),
-        last_name: z.string().min(1, { message: 'Last name is required' }),
+        first_name: z.string().trim().min(1, { message: 'First name is required' }),
+        last_name: z.string().trim().min(1, { message: 'Last name is required' }),
         email: z.string().email({ message: 'Invalid email address' }),
         mobile_phone: phone(z.string()).optional().nullable(),
     });

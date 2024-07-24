@@ -24,7 +24,7 @@ export const contactSchema = z.object({
     street_2: z.string().optional().nullable(),
     street_3: z.string().optional().nullable(),
     updated_at: z.coerce.date(),
-    user_id: z.string(),
+    user_id: z.string().trim(),
     organization_id: z.coerce.number().int(),
     website: z.string().url().optional().nullable(),
     whatsapp: z.string().optional().nullable(),
@@ -44,7 +44,7 @@ export const updateContactSchema = contactSchema
     })
     .partial()
     .extend({
-        id: z.number().int(),
+        id: z.coerce.number().int(),
     });
 
 export const addContactSchema = contactSchema
@@ -53,8 +53,8 @@ export const addContactSchema = contactSchema
         company_id: true,
     })
     .extend({
-        first_name: z.string().min(1, { message: 'First name is required' }),
-        last_name: z.string().min(1, { message: 'Last name is required' }),
+        first_name: z.string().trim().min(1, { message: 'First name is required' }),
+        last_name: z.string().trim().min(1, { message: 'Last name is required' }),
         email: z.string().email({ message: 'Invalid email address' }),
     });
 
