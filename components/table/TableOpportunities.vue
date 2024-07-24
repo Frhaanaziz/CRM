@@ -8,7 +8,7 @@ defineProps<{
     opportunitiesRows: any[];
     pending: boolean;
     columns: any[];
-    pageTotal: number;
+    totalRows: number;
 }>();
 
 const selectedRows = defineModel('selectedRows', { type: Array, required: true });
@@ -100,5 +100,5 @@ const pageCount = defineModel('pageCount', { type: Number, required: true });
     </UTable>
 
     <!-- Number of rows & Pagination -->
-    <TableFooter v-model:page="page" v-model:pageCount="pageCount" :pageTotal="pageTotal" />
+    <TableFooter v-model:page="page" v-model:pageCount="pageCount" :totalRows />
 </template>

@@ -1,4 +1,4 @@
-import type { Company, Contact } from '~/types';
+import type { Company, Contact, PaginationUtils } from '~/types';
 
 export default defineEventHandler(async (event) => {
     interface IContact extends Contact {
@@ -6,7 +6,9 @@ export default defineEventHandler(async (event) => {
     }
 
     const fetchApi = await backendApi(event);
-    const { data } = await fetchApi<{ data: IContact[] }>('/contacts');
+    const { data } = await fetchApi<{ data: PaginationUtils & { result: IContact[] } }>('/contacts', {
+        query: getQuery(event),
+    });
 
     return data;
 });

@@ -1,4 +1,4 @@
-import type { City, Company, Contact, Industry, Province, Size } from '~/types';
+import type { City, Company, Contact, Industry, PaginationUtils, Province, Size } from '~/types';
 
 export default defineEventHandler(async (event) => {
     interface ICompany extends Company {
@@ -10,7 +10,9 @@ export default defineEventHandler(async (event) => {
     }
 
     const fetchApi = await backendApi(event);
-    const { data } = await fetchApi<{ data: ICompany[] }>('/companies');
+    const { data } = await fetchApi<{ data: PaginationUtils & { result: ICompany[] } }>('/companies', {
+        query: getQuery(event),
+    });
 
     return data;
 });
