@@ -2,7 +2,7 @@
 import { refDebounced, useDateFormat } from '@vueuse/core';
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAddContact from '~/components/modal/ModalAddContact.vue';
-import type { Company } from '~/types';
+import type { Contact } from '~/types';
 
 const modal = useModal();
 
@@ -88,8 +88,8 @@ function useTable() {
     );
 
     // Selected Rows
-    const selectedRows = ref<Pick<Company, 'id'>[]>([]);
-    function selectRow(row: Pick<Company, 'id'>) {
+    const selectedRows = ref<Pick<Contact, 'id'>[]>([]);
+    function selectRow(row: Pick<Contact, 'id'>) {
         const index = selectedRows.value.findIndex((item) => item.id === row.id);
         if (index === -1) {
             selectedRows.value.push(row);

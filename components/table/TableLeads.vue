@@ -10,7 +10,6 @@ const { columns, selectedColumns, tableColumns, selectedRows, select, search, de
     useTable();
 
 const { data: leadsPaginated, status } = await useLazyFetch('/api/leads', {
-    key: `leads-${page}-${sort.value.column}-${sort.value.direction}-${pageCount}-${debouncedSearch}`,
     query: {
         query: debouncedSearch,
         page: page,
