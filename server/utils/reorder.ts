@@ -1,3 +1,10 @@
+/**
+ * Calculates the current element index number based on the previous and next element index numbers.
+ * @param prevElIndexNumber The index number of the previous element.
+ * @param nextElIndexNumber The index number of the next element.
+ * @returns The calculated current element index number.
+ * @throws An error if both prevElIndexNumber and nextElIndexNumber are undefined.
+ */
 export function calculateCurrElIndexNumber(prevElIndexNumber?: number, nextElIndexNumber?: number) {
     let currElIndexNumber: number;
 

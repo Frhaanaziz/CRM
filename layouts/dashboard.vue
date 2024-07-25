@@ -2,12 +2,13 @@
 import { ref } from 'vue';
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue';
 
-const sidebarOpen = ref(false);
 const { user } = storeToRefs(userSessionStore());
+
 const route = useRoute();
 const pathname = ref(route.path);
-
 watchEffect(() => (pathname.value = route.path));
+
+const sidebarOpen = ref(false);
 
 const navigations = computed(() => {
     const isCurrent = (path: string) => pathname.value === path;

@@ -3,10 +3,9 @@ const emit = defineEmits(['close']);
 
 const { user } = storeToRefs(userSessionStore());
 
-const props = defineProps<{
+defineProps<{
     navigations: { name: string; links: { name: string; href: string; icon: string; current: boolean }[] }[];
 }>();
-const { navigations } = toRefs(props);
 
 const route = useRoute();
 const pathname = ref(route.path);

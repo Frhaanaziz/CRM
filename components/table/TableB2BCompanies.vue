@@ -8,7 +8,6 @@ const { data } = await useLazyAsyncData(
     {
         transform: ([industries, sizes]) => [industries, sizes] as const,
         default: () => [[], []],
-        server: false,
     }
 );
 const industries = computed(() => data.value[0]);

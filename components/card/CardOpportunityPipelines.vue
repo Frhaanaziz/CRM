@@ -2,6 +2,7 @@
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
 import type { OpportunityStatus } from '~/types';
+
 const props = defineProps<{
     opportunityStatus: OpportunityStatus;
     no: number;

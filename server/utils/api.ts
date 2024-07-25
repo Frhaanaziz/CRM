@@ -1,6 +1,12 @@
 import { serverSupabaseSession } from '#supabase/server';
 import type { EventHandlerRequest, H3Event } from 'h3';
 
+/**
+ * Makes a request to the backend API.
+ *
+ * @param event - The event object containing the request details.
+ * @returns A promise that resolves to the response from the backend API.
+ */
 export const backendApi = async (event: H3Event<EventHandlerRequest>) => {
     const access_token = (await serverSupabaseSession(event))?.access_token;
     const runtimeConfig = useRuntimeConfig();

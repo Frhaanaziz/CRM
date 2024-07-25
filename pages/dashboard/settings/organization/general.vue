@@ -27,9 +27,8 @@ const countries = computed(() => data.value[3]);
 const provinces = computed(() => data.value[4]);
 const cities = computed(() => data.value[5]);
 
-const isLoadingData = computed(() => status.value === 'pending');
-
 const isSubmitting = ref(false);
+
 const { state, stateRef } = useOrganization();
 const { industriesOption, sizesOption, provincesOption, citiesOption, countriesOption } = useOptionsData();
 
@@ -117,7 +116,7 @@ function useOptionsData() {
         <h1 class="p-7 text-2xl font-semibold">General</h1>
         <section class="max-w-screen-sm p-7">
             <UForm
-                v-if="!isLoadingData"
+                v-if="!(status === 'pending')"
                 :schema="updateOrganizationSchema"
                 :state="state"
                 class="mt-6 space-y-3"

@@ -48,6 +48,16 @@ export const toast = {
     },
 };
 
+/**
+ * Returns the error message from the given error object.
+ * If the error object is of type Error, it returns the error message.
+ * If the error object has a 'statusMessage' property, it returns the value of that property.
+ * If the error object is a string, it returns the error string itself.
+ * Otherwise, it returns a default error message.
+ *
+ * @param error - The error object from which to extract the error message.
+ * @returns The error message.
+ */
 export function getErrorMessage(error: unknown): string {
     let message: string;
 
@@ -64,6 +74,14 @@ export function getErrorMessage(error: unknown): string {
     return message;
 }
 
+/**
+ * Retrieves the error code from the given error object.
+ * If the error object has a `statusCode` property, it will be used as the error code.
+ * Otherwise, a default error code of 500 will be returned.
+ *
+ * @param error - The error object from which to retrieve the error code.
+ * @returns The error code.
+ */
 export function getErrorCode(error: unknown): number {
     let code: number;
 
@@ -107,6 +125,14 @@ export function extractDomain(url: string): string {
     }
 }
 
+/**
+ * Truncates a string to a specified maximum length and adds a suffix if necessary.
+ * If the length of the string is less than or equal to the maximum length, the original string is returned.
+ * @param str - The string to truncate.
+ * @param maxLength - The maximum length of the truncated string.
+ * @param suffix - The suffix to add to the truncated string. If not provided, the default suffix "..." is used.
+ * @returns The truncated string.
+ */
 export function truncateString(str: string, maxLength: number, suffix?: string): string {
     if (str.length <= maxLength) {
         return str; // Jika panjang string kurang dari atau sama dengan maxLength, kembalikan string asli
@@ -119,14 +145,31 @@ export function truncateString(str: string, maxLength: number, suffix?: string):
     return str.slice(0, maxLength - ellipsis.length) + ellipsis;
 }
 
+/**
+ * Capitalizes the first letter of a string and converts the rest of the letters to lowercase.
+ * @param str - The string to be capitalized.
+ * @returns The capitalized string.
+ */
 export function capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
+/**
+ * Formats a number to Indonesian Rupiah currency format.
+ *
+ * @param amount - The number to be formatted.
+ * @returns The formatted number in Indonesian Rupiah currency format.
+ */
 export function formatToRupiah(amount: number) {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(amount);
 }
 
+/**
+ * Generates a fallback avatar URL based on the provided name.
+ * If no name is provided, a default avatar URL is returned.
+ * @param name - The name used to generate the avatar URL.
+ * @returns The generated fallback avatar URL.
+ */
 export function getFallbackAvatarUrl(name: string) {
     if (!name) return 'https://ui-avatars.com/api/?name=FA&background=3892F3&color=fff&bold=true';
 
@@ -156,6 +199,12 @@ export function getUserFallbackAvatarUrl(user?: Pick<User, 'first_name' | 'last_
     return baseUrl + '?' + params.toString();
 }
 
+/**
+ * Returns the full name of a user.
+ *
+ * @param user - The user object containing the first name and last name.
+ * @returns The full name of the user.
+ */
 export function getUserFullName(user?: Pick<User, 'first_name' | 'last_name'> | { [key: string]: any } | null): string {
     if (!user || !user.first_name || !user.last_name) return '';
     return user.first_name + ' ' + user.last_name;

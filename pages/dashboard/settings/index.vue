@@ -6,6 +6,7 @@ import { photoSchema } from '~/utils/validators';
 
 const sessionStore = userSessionStore();
 const { user } = storeToRefs(userSessionStore());
+
 const { data: profile } = await useFetch(`/api/users/${user.value?.id}`, {
     key: `profile-${user.value?.id}`,
 });
@@ -30,11 +31,6 @@ function useUpdateProfile({ user }: { user: User }) {
         linkedin: userProfile.value.linkedin || undefined,
     });
 
-    /**
-     * Handles the form submission event.
-     * @param {FormSubmitEvent<UpdateUserType>} event - The form submission event.
-     * @returns {Promise<void>} - A promise that resolves when the profile is updated successfully.
-     */
     async function onSubmit(event: FormSubmitEvent<UpdateUserType>): Promise<void> {
         try {
             isSubmitting.value = true;
@@ -54,11 +50,6 @@ function useUpdateProfile({ user }: { user: User }) {
         }
     }
 
-    /**
-     * Handles the file change event.
-     * @param {Event} event - The file change event.
-     * @returns {Promise<void>} - A promise that resolves when the profile photo is updated successfully.
-     */
     async function onChangeFile(event: Event): Promise<void> {
         photoError.value = '';
         isSubmitting.value = true;
