@@ -1,26 +1,31 @@
 <script setup lang="ts">
 import LazyModalAddCompanyToCRM from '~/components/modal/ModalAddCompanyToCRM.vue';
 import LazyModalAddB2BContact from '~/components/modal/ModalAddB2BContact.vue';
-import type { B2BCompany, B2BContact, City, Industry, Province, Size } from '~/types';
 import type { AccordionItem, FormSubmitEvent } from '#ui/types';
 import { useRefHistory } from '@vueuse/core';
 import type { z } from 'zod';
-
-interface IB2BCompany extends B2BCompany {
-    industry?: Pick<Industry, 'name' | 'id'>;
-    size?: Pick<Size, 'size_range' | 'id'>;
-    province?: Pick<Province, 'name' | 'id'>;
-    city?: Pick<City, 'name' | 'id'>;
-    b2b_contacts: B2BContact[];
-}
+import type { B2BCompany, B2BContact, City, Industry, Province, Size } from '~/types';
 
 const modal = useModal();
 const id = useRoute().params.id;
-const { data: company, refresh: refreshCompany } = await useFetch<IB2BCompany>(`/api/b2b-companies/${id}`, {
-    key: `b2b-companies-${id}`,
-    method: 'GET',
-});
-if (!company.value) throw createError({ status: 404, message: 'B2B Company not found' });
+
+interface IB2BCompany extends B2BCompany {
+    industry: Industry | null;
+    size: Size | null;
+    province: Province | null;
+    city: City | null;
+    contacts: B2BContact[] | null;
+}
+const { data: companyData, refresh: refreshCompany } = await useFetch<{ data: IB2BCompany; similar_companies: B2BCompany[] }>(
+    `/api/b2b-companies/${id}`,
+    {
+        key: `b2b-companies-${id}`,
+    }
+);
+if (!companyData.value) throw createError({ status: 404, message: 'B2B Company not found' });
+
+const company = computed(() => companyData.value?.data);
+const similarCompanies = computed(() => companyData.value?.similar_companies);
 
 const { data } = await useLazyAsyncData(
     () => {
@@ -42,7 +47,7 @@ const provincesOption = computed(() => data.value[2]);
 const citiesOption = computed(() => data.value[3]);
 
 const accordionItems = computed(() =>
-    company.value!.b2b_contacts.map(
+    company.value!.contacts?.map(
         (contact) =>
             ({
                 content: contact.id.toString(),
@@ -51,13 +56,13 @@ const accordionItems = computed(() =>
     )
 );
 function getB2BContact(id: number) {
-    return company.value!.b2b_contacts.find((contact) => contact.id === id);
+    return company.value!.contacts?.find((contact) => contact.id === id);
 }
 
 const { updateState, isUpdating, updateCompany, formRef, submitForm, isFormDirty, resetForm } = useUpdateB2BCompany();
 
 function openAddToCRMModal() {
-    const firstContact = company.value?.b2b_contacts[0];
+    const firstContact = company.value?.contacts?.at(0);
     if (!firstContact) {
         toast.error('Please add a contact to this company first.');
         return;
@@ -184,7 +189,7 @@ function useUpdateB2BCompany() {
             </div>
         </header>
 
-        <section class="grid gap-4 py-3 md:grid-cols-2">
+        <section class="grid gap-4 p-4 md:grid-cols-2">
             <div class="flex flex-col gap-4">
                 <UCard>
                     <template #header>
@@ -479,7 +484,7 @@ function useUpdateB2BCompany() {
                             </UButton>
                         </template>
 
-                        <template v-for="b2b_contact in company.b2b_contacts" :key="b2b_contact.id" #[b2b_contact.id.toString()]>
+                        <template v-for="b2b_contact in company.contacts" :key="b2b_contact.id" #[b2b_contact.id.toString()]>
                             <div class="flex gap-6 p-4 text-sm sm:text-base">
                                 <div class="text-weak grid shrink-0 grid-rows-7 gap-y-8">
                                     <p>Email</p>
@@ -520,7 +525,7 @@ function useUpdateB2BCompany() {
                         </template>
                     </UAccordion>
                     <UButton
-                        v-if="!company.b2b_contacts.length"
+                        v-if="!company.contacts?.length"
                         variant="ghost"
                         color="black"
                         block
@@ -532,6 +537,25 @@ function useUpdateB2BCompany() {
                     </UButton>
                 </UCard>
             </div>
+        </section>
+
+        <section v-if="similarCompanies" class="p-4">
+            <h2 class="text-xl font-semibold">SIMILAR COMPANIES</h2>
+            <UDivider class="mb-4 mt-2" />
+
+            <UCarousel v-if="company" v-slot="{ item: similarCompany }" :items="similarCompanies" :ui="{ container: 'gap-4' }">
+                <li class="flex w-[200px] flex-col items-center justify-center bg-base-100 p-4 shadow-md">
+                    <UAvatar :src="similarCompany.avatar ?? getFallbackAvatarUrl(similarCompany.name)" size="2xl" class="mb-4" />
+                    <NuxtLink
+                        :href="`/dashboard/resources/b2b-database/${similarCompany.id}`"
+                        class="text-center font-semibold text-brand"
+                    >
+                        {{ similarCompany.name }}
+                    </NuxtLink>
+                    <p class="text-weak mt-1 line-clamp-1 text-wrap text-xs">{{ similarCompany.industry?.name }}</p>
+                    <p class="text-weak mt-1 text-xs">{{ similarCompany.size?.size_range }}</p>
+                </li>
+            </UCarousel>
         </section>
     </div>
 </template>
