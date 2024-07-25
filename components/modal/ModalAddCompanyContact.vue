@@ -29,7 +29,7 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
         });
 
         closeModal();
-        await refreshNuxtData([`company-${props.company.id}`, `company-${props.company.id}-contacts`]);
+        await refreshNuxtData([`companies-${props.company.id}`, `companies-${props.company.id}-contacts`]);
         toast.success('Contact added successfully.');
     } catch (e) {
         console.error('Failed to add contact', e);

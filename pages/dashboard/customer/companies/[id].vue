@@ -57,7 +57,7 @@ async function handleDeleteCompanies() {
         await $fetch(`/api/companies/${id}`, { method: 'DELETE' });
 
         toast.success('Company has been deleted successfully.');
-        await refreshNuxtData('companies');
+        await refreshNuxtData();
         await navigateTo('/dashboard/customer/companies');
     } catch (e) {
         console.error('Failed to delete company:', e);

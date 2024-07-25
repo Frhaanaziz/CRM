@@ -99,7 +99,7 @@ async function deleteOpportunity() {
         await $fetch(`/api/opportunities/${id}`, { method: 'DELETE' });
 
         toast.success('Opportunity has been deleted successfully.');
-        await refreshNuxtData('opportunities');
+        await refreshNuxtData();
         await navigateTo('/dashboard/pipeline/opportunities');
     } catch (e) {
         console.error('Failed to delete Opportunity:', e);

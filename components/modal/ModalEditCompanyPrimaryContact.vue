@@ -37,7 +37,7 @@ async function handleSubmit(event: FormSubmitEvent<AddCompanyPrimaryContactType>
         });
 
         closeModal();
-        await refreshNuxtData(`company-${props.company.id}`);
+        await refreshNuxtData(`companies-${props.company.id}`);
     } catch (e) {
         console.error(e);
     } finally {

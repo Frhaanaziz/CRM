@@ -37,7 +37,7 @@ async function handleDeleteContacts() {
         await Promise.all(selectedRows.value.map((company) => $fetch(`/api/contacts/${company.id}`, { method: 'DELETE' })));
 
         toast.success('Contact has been deleted successfully.');
-        await refreshNuxtData('contacts');
+        await refreshNuxtData();
     } catch (e) {
         console.error('Failed to delete contact:', e);
         toast.error('Failed to delete contact, please try again later.');
@@ -56,9 +56,9 @@ function useTable() {
             sortable: true,
         },
         {
-            key: 'companyName',
+            key: 'company(name)',
             label: 'Company Name',
-            sortable: false,
+            sortable: true,
         },
         {
             key: 'mainPhone',
@@ -81,7 +81,7 @@ function useTable() {
             sortable: true,
         },
     ];
-    const initialColumnKeys = ['first_name', 'email', 'companyName', 'mobilePhone'];
+    const initialColumnKeys = ['first_name', 'email', 'company(name)', 'mobilePhone'];
     const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
     const tableColumns = computed(() =>
         columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
@@ -201,7 +201,7 @@ function useTable() {
             </NuxtLink>
         </template>
 
-        <template #companyName-data="{ row }">
+        <template #company(name)-data="{ row }">
             <NuxtLink :href="`/dashboard/customer/companies/${row.company.id}`" class="text-brand hover:underline">
                 {{ row.company.name }}
             </NuxtLink>

@@ -22,7 +22,7 @@ async function handleSubmit(event: FormSubmitEvent<AddCompanyType>) {
 
         closeModal();
         toast.success('Company added successfully.');
-        await refreshNuxtData('companies');
+        await refreshNuxtData();
     } catch (e) {
         console.error('Failed to add company', e);
         toast.error('Failed to add company, please try again later.');

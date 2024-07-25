@@ -110,7 +110,7 @@ async function handleDeleteLead() {
         await $fetch(`/api/leads/${id}`, { method: 'DELETE' });
 
         toast.success('Lead has been deleted successfully.');
-        await refreshNuxtData('leads');
+        await refreshNuxtData();
         await navigateTo('/dashboard/pipeline/leads');
     } catch (e) {
         console.error('Failed to delete Lead:', e);
@@ -138,7 +138,7 @@ function useTask() {
             });
 
             toast.success('Task added successfully.');
-            await refreshNuxtData(`lead-${id}`);
+            await refreshNuxtData(`leads-${id}`);
             state.value = { ...state.value, description: '', date: new Date().toISOString() };
             isCreatingTask.value = false;
         } catch (e) {

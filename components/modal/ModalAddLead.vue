@@ -140,7 +140,7 @@ function useAddLead() {
 
             closeModal();
             toast.success('Lead added successfully.');
-            await refreshNuxtData('leads');
+            await refreshNuxtData();
         } catch (e) {
             console.error('Failed to add lead', e);
             toast.error('Failed to add lead, please try again later.');
@@ -214,7 +214,7 @@ function useConfirmLead() {
 
             closeModal();
             toast.success('Lead added successfully.');
-            await refreshNuxtData('leads');
+            await refreshNuxtData();
         } catch (e) {
             console.error('Failed to add lead', e);
             toast.error('Failed to add lead, please try again later.');
@@ -249,7 +249,7 @@ function useConfirmLead() {
 
             closeModal();
             toast.success('Lead added successfully.');
-            await refreshNuxtData('leads');
+            await refreshNuxtData();
         } catch (e) {
             console.error('Failed to add lead', e);
             toast.error('Failed to add lead, please try again later.');

@@ -26,7 +26,7 @@ async function handleSubmit(event: FormSubmitEvent<UpdateLeadTopic>) {
         });
 
         closeModal();
-        await refreshNuxtData(`lead-${props.lead.id}`);
+        await refreshNuxtData(`leads-${props.lead.id}`);
     } catch (e) {
         console.error(e);
     } finally {
