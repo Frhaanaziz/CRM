@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import LazyModalSignOut from '~/components/modal/ModalSignOut.vue';
 
+const modal = useModal();
+
 const route = useRoute();
 const pathname = ref(route.path);
-
 watchEffect(() => (pathname.value = route.path));
 
 const navigations = computed(() => {
@@ -50,13 +51,6 @@ const navigations = computed(() => {
         },
     ];
 });
-
-const modal = useModal();
-function openLogOutModal() {
-    modal.open(LazyModalSignOut, {
-        onClose: () => modal.close(),
-    });
-}
 </script>
 
 <template>
@@ -78,7 +72,16 @@ function openLogOutModal() {
                     </div>
                 </li>
                 <li class="py-5">
-                    <button class="py-3 transition-colors hover:text-brand" @click="openLogOutModal()">Log out</button>
+                    <button
+                        class="py-3 transition-colors hover:text-brand"
+                        @click="
+                            modal.open(LazyModalSignOut, {
+                                onClose: () => modal.close(),
+                            })
+                        "
+                    >
+                        Log out
+                    </button>
                 </li>
             </ul>
         </nav>

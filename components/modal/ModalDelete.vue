@@ -29,12 +29,12 @@ async function deleteItem() {
             <div class="flex items-center justify-between">
                 <div class="flex shrink-0 items-center gap-2">
                     <NuxtImg src="/icons/exclamation-circle-red.svg" alt="" width="32" height="32" />
-                    <p class="font-semibold">Delete {{ props.title }}</p>
+                    <p class="font-semibold">Delete {{ title }}</p>
                 </div>
                 <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="closeModal" />
             </div>
 
-            <p v-if="props.description" class="text-weak">{{ props.description }}</p>
+            <p v-if="description" class="text-weak">{{ description }}</p>
             <p v-else class="text-weak">Are you sure you want to delete this item? This action cannot be undone.</p>
 
             <div class="flex items-center justify-end gap-x-2">

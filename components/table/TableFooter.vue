@@ -2,17 +2,17 @@
 const props = defineProps<{
     totalRows: number;
 }>();
-const { totalRows } = toRefs(props);
+
 const page = defineModel('page', { type: Number, required: true });
 const pageCount = defineModel('pageCount', { type: Number, required: true });
 
 const pageFrom = computed(() => (page.value - 1) * pageCount.value + 1);
-const pageTo = computed(() => Math.min(page.value * pageCount.value, totalRows.value));
+const pageTo = computed(() => Math.min(page.value * pageCount.value, props.totalRows));
 </script>
 
 <template>
     <div class="mt-5 flex flex-wrap items-center justify-between">
-        <div>
+        <div class="hidden md:block">
             <span class="text-sm leading-5">
                 Showing
                 <span class="font-medium">{{ pageFrom }}</span>

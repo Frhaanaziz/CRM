@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { useDateFormat } from '@vueuse/core';
-import type { User } from '~/types';
 import LazyModalInviteUser from '~/components/modal/ModalInviteUser.vue';
 import LazyModalUpdateUserOrganization from '~/components/modal/ModalUpdateUserOrganization.vue';
+
+const modal = useModal();
 
 const { user } = storeToRefs(userSessionStore());
 if (!user.value) throw createError({ status: 401, message: 'You must be logged in to access this page.' });
@@ -20,18 +21,6 @@ const pending = computed(() => status.value === 'pending');
 
 const { columns, selectedColumns, tableColumns, usersRows, search, page, pageCount, sort, pageTotal } = useTable();
 
-const modal = useModal();
-function openInviteUserModal() {
-    modal.open(LazyModalInviteUser, {
-        onClose: () => modal.close(),
-    });
-}
-function openUpdateUserModal(user: { id: User['id']; role_id: User['role_id']; status: User['status'] }) {
-    modal.open(LazyModalUpdateUserOrganization, {
-        onClose: () => modal.close(),
-        user,
-    });
-}
 function useTable() {
     const columns = [
         {
@@ -113,7 +102,16 @@ function useTable() {
         </div>
 
         <div class="flex items-center gap-2">
-            <UButton icon="i-heroicons-plus" @click="openInviteUserModal"> Invite </UButton>
+            <UButton
+                icon="i-heroicons-plus"
+                @click="
+                    modal.open(LazyModalInviteUser, {
+                        onClose: () => modal.close(),
+                    })
+                "
+            >
+                Invite
+            </UButton>
             <UInput
                 v-model="search"
                 icon="i-heroicons-magnifying-glass-20-solid"
@@ -190,7 +188,12 @@ function useTable() {
                     variant="ghost"
                     color="gray"
                     :disabled="user?.id === row.id"
-                    @click="openUpdateUserModal({ id: row.id, role_id: row.role.id, status: row.status.value })"
+                    @click="
+                        modal.open(LazyModalUpdateUserOrganization, {
+                            onClose: () => modal.close(),
+                            user: { id: row.id, role_id: row.role.id, status: row.status.value },
+                        })
+                    "
                 />
             </div>
         </template>

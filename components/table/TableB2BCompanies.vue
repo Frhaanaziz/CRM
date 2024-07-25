@@ -8,7 +8,6 @@ const { data } = await useLazyAsyncData(
     {
         transform: ([industries, sizes]) => [industries, sizes] as const,
         default: () => [[], []],
-        server: false,
     }
 );
 const industries = computed(() => data.value[0]);
@@ -38,24 +37,6 @@ const { data: companiesPaginated, status } = await useLazyFetch(`/api/b2b-compan
         industry_id: computed(() => inputIndustries.value),
         size_id: computed(() => inputSizes.value),
     },
-    transform: (data) => ({
-        ...data,
-        result: data.result.map((company) => ({
-            id: company.id,
-            name: company.name,
-            industry: company?.industry?.name ?? '',
-            size: company.size?.size_range ?? '',
-            province: company?.province?.name ?? '',
-            city: company?.city?.name ?? '',
-            website: company.website,
-            avatar: company.avatar,
-            created_at: company.created_at,
-            email: company.email,
-            linkedin: company.linkedin,
-            phone: company.phone,
-            zip_code: company.zip_code,
-        })),
-    }),
 });
 
 function useTable() {
@@ -66,17 +47,17 @@ function useTable() {
             sortable: true,
         },
         {
-            key: 'industry',
+            key: 'industry(name)',
             label: 'Industry',
-            sortable: false,
+            sortable: true,
         },
         {
-            key: 'size',
+            key: 'size(size_range)',
             label: 'Size',
-            sortable: false,
+            sortable: true,
         },
         {
-            key: 'location',
+            key: 'province(name)',
             label: 'Location',
             sortable: true,
         },
@@ -111,7 +92,7 @@ function useTable() {
             sortable: true,
         },
     ];
-    const initialColumnKeys = ['name', 'industry', 'size', 'location', 'website'];
+    const initialColumnKeys = ['name', 'industry(name)', 'size(size_range)', 'province(name)', 'website'];
     const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
     const tableColumns = computed(() =>
         columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
@@ -305,6 +286,20 @@ function useTable() {
             </div>
         </template>
 
+        <template #industry(name)-data="{ row }">
+            {{ row.industry?.name }}
+        </template>
+
+        <template #size(size_range)-data="{ row }">
+            {{ row.size?.size_range }}
+        </template>
+
+        <template #province(name)-data="{ row }">
+            <template v-if="row.province || row.city">
+                {{ `${row.province?.name ?? ''}, ${row.city?.name ?? ''}` }}
+            </template>
+        </template>
+
         <template #website-data="{ row }">
             <NuxtLink :href="row.website" class="text-brand hover:underline" external target="_blank">
                 {{ extractDomain(row.website ?? '') }}
@@ -319,12 +314,6 @@ function useTable() {
 
         <template #created_at-data="{ row }">
             {{ useDateFormat(row.created_at, 'YYYY-MM-DD HH:mm:ss').value.replace('"', '') }}
-        </template>
-
-        <template #location-data="{ row }">
-            <template v-if="row.province || row.city">
-                {{ `${row.province}, ${row.city}` }}
-            </template>
         </template>
 
         <template #empty-state>

@@ -52,20 +52,12 @@ const { data: companiesPaginated, status } = await useLazyFetch('/api/companies'
     transform: (data) => ({
         ...data,
         result: data.result.map((company) => ({
-            id: company.id,
-            name: company.name,
-            phone: company.phone,
+            ...company,
             primaryContact: {
                 value: getUserFullName(company.primaryContact),
                 class: 'w-[200px] max-w-[200px]',
             },
             primaryContactEmail: { value: company.primaryContact?.email ?? '', class: 'w-[220px] max-w-[220px]' },
-            industry: company?.industry?.name ?? '',
-            size: company.size?.size_range ?? '',
-            location: `${company?.province?.name ?? ''}, ${company?.city?.name ?? ''}`,
-            website: company.website,
-            created_at: company.created_at,
-            linkedin: company.linkedin,
         })),
     }),
 });
@@ -75,7 +67,7 @@ async function handleDeleteCompanies() {
         await Promise.all(selectedRows.value.map((company) => $fetch(`/api/companies/${company.id}`, { method: 'DELETE' })));
 
         toast.success('Company has been deleted successfully.');
-        await refreshNuxtData('companies');
+        await refreshNuxtData();
     } catch (e) {
         console.error('Failed to delete company:', e);
         toast.error('Failed to delete company, please try again later.');
@@ -94,29 +86,29 @@ function useTable() {
             sortable: true,
         },
         {
-            key: 'primaryContact',
+            key: 'primaryContact(first_name)',
             label: 'Primary Contact',
-            sortable: false,
+            sortable: true,
         },
         {
-            key: 'primaryContactEmail',
+            key: 'primaryContact(email)',
             label: 'Email (Primary Contact)',
-            sortable: false,
+            sortable: true,
         },
         {
-            key: 'industry',
+            key: 'industry(name)',
             label: 'Industry',
-            sortable: false,
+            sortable: true,
         },
         {
-            key: 'size',
+            key: 'size(size_range)',
             label: 'Size',
-            sortable: false,
+            sortable: true,
         },
         {
-            key: 'location',
+            key: 'province(name)',
             label: 'Location',
-            sortable: false,
+            sortable: true,
         },
         {
             key: 'website',
@@ -134,7 +126,7 @@ function useTable() {
             sortable: true,
         },
     ];
-    const initialColumnKeys = ['name', 'phone', 'primaryContact', 'primaryContactEmail'];
+    const initialColumnKeys = ['name', 'phone', 'primaryContact(first_name)', 'primaryContact(email)'];
     const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
     const tableColumns = computed(() =>
         columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
@@ -287,17 +279,27 @@ function useTable() {
             </NuxtLink>
         </template>
 
-        <template #primaryContact-data="{ row }">
+        <template #primaryContact(first_name)-data="{ row }">
             <NuxtLink :href="`/dashboard/customer/contacts/${row.id}`" class="text-brand hover:underline">
                 {{ row.primaryContact.value }}
             </NuxtLink>
         </template>
 
-        <template #primaryContactEmail-data="{ row }">
+        <template #primaryContact(email)-data="{ row }">
             <NuxtLink :href="`/dashboard/customer/contacts/${row.id}`" class="text-brand hover:underline">
                 {{ row.primaryContactEmail.value }}
             </NuxtLink>
         </template>
+
+        <template #industry(name)-data="{ row }">
+            {{ row.industry.name }}
+        </template>
+
+        <template #size(size_range)-data="{ row }">
+            {{ row.size.size_range }}
+        </template>
+
+        <template #province(name)-data="{ row }"> {{ row.province?.name ?? '' }}, {{ row.city?.name ?? '' }} </template>
 
         <template #website-data="{ row }">
             <NuxtLink :href="row.website" class="text-brand hover:underline" external target="_blank">

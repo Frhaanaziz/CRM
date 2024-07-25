@@ -22,7 +22,7 @@ async function handleDeleteContact() {
         await $fetch(`/api/contacts/${id}`, { method: 'DELETE' });
 
         toast.success('Contact has been deleted successfully.');
-        await refreshNuxtData('contacts');
+        await refreshNuxtData();
         await navigateTo('/dashboard/customer/contacts');
     } catch (e) {
         console.error('Failed to delete contact:', e);

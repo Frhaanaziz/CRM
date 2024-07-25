@@ -41,7 +41,7 @@ async function handleSubmit(event: FormSubmitEvent<AddOpportunityType>) {
 
         closeModal();
         toast.success('Opportunity added successfully.');
-        await refreshNuxtData('opportunities');
+        await refreshNuxtData();
     } catch (e) {
         console.error('Failed to add opportunity', e);
         toast.error('Failed to add opportunity, please try again later.');

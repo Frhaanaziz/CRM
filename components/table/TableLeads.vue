@@ -17,21 +17,6 @@ const { data: leadsPaginated, status } = await useLazyFetch('/api/leads', {
         sort: computed(() => sort.value.column),
         order: computed(() => sort.value.direction),
     },
-    transform: (data) => ({
-        ...data,
-        result: data.result.map((lead) => ({
-            id: lead.id,
-            name: getUserFullName(lead.contact),
-            company: lead.company,
-            score: lead.score,
-            userName: getUserFullName(lead.user),
-            status: lead.status,
-            disqualify_reason: lead.disqualify_reason?.name,
-            rating: lead.rating?.name,
-            source: lead.source?.name,
-            created_at: lead.created_at,
-        })),
-    }),
 });
 
 async function handleDeleteLeads() {
@@ -39,7 +24,7 @@ async function handleDeleteLeads() {
         await Promise.all(selectedRows.value.map((lead) => $fetch(`/api/leads/${lead.id}`, { method: 'DELETE' })));
 
         toast.success('Lead has been deleted successfully.');
-        await refreshNuxtData('leads');
+        await refreshNuxtData();
     } catch (e) {
         console.error('Failed to delete Lead:', e);
         toast.error('Failed to delete Lead, please try again later.');
@@ -48,19 +33,19 @@ async function handleDeleteLeads() {
 function useTable() {
     const columns = [
         {
-            key: 'name',
+            key: 'contact(first_name)',
             label: 'Name',
-            sortable: false,
+            sortable: true,
         },
         {
-            key: 'companyName',
+            key: 'company(name)',
             label: 'Company',
-            sortable: false,
+            sortable: true,
         },
         {
-            key: 'userName',
+            key: 'user(first_name)',
             label: 'Assigned To',
-            sortable: false,
+            sortable: true,
         },
         {
             key: 'score',
@@ -73,19 +58,19 @@ function useTable() {
             sortable: true,
         },
         {
-            key: 'disqualify_reason',
+            key: 'disqualify_reason(name)',
             label: 'Disqualify Reason',
-            sortable: false,
+            sortable: true,
         },
         {
-            key: 'rating',
+            key: 'rating(name)',
             label: 'Rating',
-            sortable: false,
+            sortable: true,
         },
         {
-            key: 'source',
+            key: 'source(name)',
             label: 'Lead Source',
-            sortable: false,
+            sortable: true,
         },
         {
             key: 'created_at',
@@ -93,7 +78,7 @@ function useTable() {
             sortable: true,
         },
     ];
-    const initialColumnKeys = ['name', 'companyName', 'score', 'status', 'rating', 'created_at'];
+    const initialColumnKeys = ['contact(first_name)', 'company(name)', 'score', 'status', 'rating(name)', 'created_at'];
     const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
     const tableColumns = computed(() =>
         columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
@@ -206,13 +191,13 @@ function useTable() {
         }"
         @select="select"
     >
-        <template #name-data="{ row }">
+        <template #contact(first_name)-data="{ row }">
             <NuxtLink :href="`/dashboard/pipeline/leads/${row.id}`" class="text-brand hover:underline">
-                {{ row.name }}
+                {{ getUserFullName(row.contact) }}
             </NuxtLink>
         </template>
 
-        <template #companyName-data="{ row }">
+        <template #company(name)-data="{ row }">
             <NuxtLink
                 v-if="row.company"
                 :href="`/dashboard/customer/companies/${row.company.id}`"
@@ -220,6 +205,22 @@ function useTable() {
             >
                 {{ row.company?.name }}
             </NuxtLink>
+        </template>
+
+        <template #user(first_name)-data="{ row }">
+            {{ getUserFullName(row.user) }}
+        </template>
+
+        <template #rating(name)-data="{ row }">
+            {{ row.rating?.name ?? '' }}
+        </template>
+
+        <template #disqualify_reason(name)-data="{ row }">
+            {{ row.disqualify_reason?.name ?? '' }}
+        </template>
+
+        <template #source(name)-data="{ row }">
+            {{ row.source?.name ?? '' }}
         </template>
 
         <template #created_at-data="{ row }">

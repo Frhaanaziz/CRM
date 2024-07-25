@@ -38,7 +38,7 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
 
         closeModal();
         toast.success('Contact added successfully.');
-        await refreshNuxtData('contacts');
+        await refreshNuxtData();
     } catch (e) {
         console.error('Failed to add contact', e);
         toast.error('Failed to add contact, please try again later.');

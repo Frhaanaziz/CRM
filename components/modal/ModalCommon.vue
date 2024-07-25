@@ -2,7 +2,7 @@
 const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
 
-const props = defineProps<{
+defineProps<{
     title: string;
 }>();
 </script>
@@ -14,7 +14,7 @@ const props = defineProps<{
         }"
     >
         <div class="flex items-center justify-between p-4">
-            <p class="text-xl font-semibold">{{ props.title }}</p>
+            <p class="text-xl font-semibold">{{ title }}</p>
             <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" square @click="closeModal" />
         </div>
 
