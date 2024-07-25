@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
     const zodResult = await readValidatedBody(
         event,
-        addLeadSchema.omit({ email: true, first_name: true, last_name: true }).safeParse
+        addLeadSchema.omit({ email: true, first_name: true, last_name: true, mobile_phone: true }).safeParse
     );
     if (!zodResult.success) {
         console.error('Error validating body:', zodResult.error);
