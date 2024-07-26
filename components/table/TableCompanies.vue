@@ -230,13 +230,13 @@ async function handleDeleteCompanies() {
         </template>
 
         <template #primaryContact(first_name)-data="{ row }">
-            <NuxtLink :href="`/dashboard/customer/contacts/${row.primaryContact.id}`" class="text-brand hover:underline">
+            <NuxtLink :href="`/dashboard/customer/contacts/${row.primaryContact?.id}`" class="text-brand hover:underline">
                 {{ getUserFullName(row.primaryContact) }}
             </NuxtLink>
         </template>
 
         <template #primaryContact(email)-data="{ row }">
-            <NuxtLink :href="`/dashboard/customer/contacts/${row.primaryContact.id}`" class="text-brand hover:underline">
+            <NuxtLink :href="`/dashboard/customer/contacts/${row.primaryContact?.id}`" class="text-brand hover:underline">
                 {{ row.primaryContact?.email }}
             </NuxtLink>
         </template>
