@@ -1,161 +1,243 @@
 <script setup lang="ts">
 import { Line, Doughnut } from 'vue-chartjs';
-import { Chart as ChartJS, Filler, Tooltip, LineElement, PointElement, CategoryScale, LinearScale, ArcElement } from 'chart.js';
-import gradient from 'chartjs-plugin-gradient';
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Tooltip,
-    gradient,
+const selectedRange = ref(5);
+const rangeOptions = [
+    {
+        id: 1,
+        label: 'Today',
+        type: 'daily',
+        value: {
+            start_date: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
+            end_date: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
+        },
+    },
+    {
+        id: 2,
+        label: 'Yesterday',
+        type: 'daily',
+        value: {
+            start_date: new Date(new Date(new Date().setDate(new Date().getDate() - 1)).setHours(0, 0, 0, 0)).toISOString(),
+            end_date: new Date(new Date(new Date().setDate(new Date().getDate() - 1)).setHours(23, 59, 59, 999)).toISOString(),
+        },
+    },
+    {
+        id: 3,
+        label: 'This Week',
+        type: 'weekly',
+        value: {
+            start_date: new Date(
+                new Date(new Date().setDate(new Date().getDate() - new Date().getDay())).setHours(0, 0, 0, 0)
+            ).toISOString(),
+            end_date: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
+        },
+    },
+    {
+        id: 4,
+        label: 'Last Week',
+        type: 'weekly',
+        value: {
+            start_date: new Date(
+                new Date(new Date().setDate(new Date().getDate() - new Date().getDay() - 7)).setHours(0, 0, 0, 0)
+            ).toISOString(),
+            end_date: new Date(
+                new Date(new Date().setDate(new Date().getDate() - new Date().getDay() - 1)).setHours(23, 59, 59, 999)
+            ).toISOString(),
+        },
+    },
+    {
+        id: 5,
+        label: 'This Month',
+        type: 'monthly',
+        value: {
+            start_date: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0, 0)).toISOString(),
+            end_date: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
+        },
+    },
+    {
+        id: 6,
+        label: 'Last Month',
+        type: 'monthly',
+        value: {
+            start_date: new Date(
+                new Date(new Date(new Date().setMonth(new Date().getMonth() - 1)).setDate(1)).setHours(0, 0, 0, 0)
+            ).toISOString(),
+            end_date: new Date(new Date(new Date().setDate(0)).setHours(23, 59, 59, 999)).toISOString(),
+        },
+    },
+    {
+        id: 7,
+        label: 'This Year',
+        type: 'yearly',
+        value: {
+            start_date: new Date(new Date(new Date().getFullYear(), 0, 1).setHours(0, 0, 0, 0)).toISOString(),
+            end_date: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
+        },
+    },
+    {
+        id: 8,
+        label: 'Last Year',
+        type: 'yearly',
+        value: {
+            start_date: new Date(new Date(new Date().getFullYear() - 1, 0, 1).setHours(0, 0, 0, 0)).toISOString(),
+            end_date: new Date(new Date(new Date().getFullYear(), 0, 0).setHours(23, 59, 59, 999)).toISOString(),
+        },
+    },
+];
+const selectedRangeOption = computed(() => rangeOptions.find((option) => option.id === selectedRange.value));
 
-    // Area CHART
-    Filler,
+const { data } = await useFetch('/api/reports', {
+    key: 'reports',
+    query: selectedRangeOption.value?.value,
+});
+console.log('reports', data.value);
 
-    // Doughnut CHART
-    ArcElement
-);
+const opportunitiesData = computed(() => data.value?.opportunity_data);
+const leadsData = computed(() => data.value?.lead_data);
 
-const range = ref('This Month');
+const stats = ref([
+    {
+        title: 'Act. Revenue',
+        value: formatToRupiah(opportunitiesData.value?.total_act_revenue ?? 0),
+        percentage: -1,
+    },
+    {
+        title: 'Opportunities Won',
+        value: opportunitiesData.value?.total_opportunity_won ?? 0,
+        percentage: opportunitiesData.value?.percentage_opportunity_won ?? 0,
+    },
+    {
+        title: 'Avg. Deal Size',
+        value: formatToRupiah(-1),
+    },
+    {
+        title: 'New Leads',
+        value: leadsData.value?.total_new_leads ?? 0,
+        percentage: leadsData.value?.percentage_new_leads ?? 0,
+    },
+    {
+        title: 'New Opportunities',
+        value: opportunitiesData.value?.total_new_opportunities ?? 0,
+        percentage: opportunitiesData.value?.percentage_new_opportunities ?? 0,
+    },
+    {
+        title: 'Avg. Deal Age (Days)',
+        value: -1,
+    },
+]);
+
+const backgroundColor = ['#3892F3', '#7E84FC', '#15A46E', '#E46F00', '#F75C46', '#AAADB1'];
+const generateChartData = (data: Record<string, number>) => {
+    const limit = 5;
+
+    const sortedData = Object.entries(data).sort((a, b) => b[1] - a[1]);
+    const labels = sortedData.slice(0, limit).map(([key]) => key);
+    const datasetData = sortedData.slice(0, limit).map(([_, value]) => value);
+
+    // Calculate the total sum of datasetData
+    const totalSum = datasetData.reduce((sum, value) => sum + value, 0);
+
+    // Calculate the percentage for each value and round it to 2 decimal places
+    const percentages = datasetData.map((value) => Math.round((value / totalSum) * 10000) / 100);
+
+    // Calculate the remaining percentage for "Others"
+    const othersPercentage = 100 - percentages.reduce((sum, value) => sum + value, 0);
+
+    return {
+        labels: [...labels, 'Others'],
+        datasets: [
+            {
+                backgroundColor,
+                data: [...percentages, othersPercentage],
+            },
+        ],
+    };
+};
+function calculateTotalSalesdata(inputData: { date: string; total: number }[]) {
+    const sortedData = inputData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    switch (selectedRangeOption.value!.type) {
+        case 'daily':
+            return generateDailyData(sortedData);
+        case 'weekly':
+            return generateWeeklyData(sortedData);
+        case 'monthly':
+            return generateMonthlyData(sortedData);
+        case 'yearly':
+            return generateYearlyData(sortedData);
+        default:
+            throw new Error('Invalid range option');
+    }
+}
+
+function generateDailyData(data: { date: string; total: number }[]) {
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const result = { labels: daysOfWeek, data: new Array(7).fill(0) };
+
+    data.forEach((item) => {
+        const dayIndex = new Date(item.date).getDay();
+        result.data[dayIndex] += item.total;
+    });
+
+    return result;
+}
+
+function generateWeeklyData(data: { date: string; total: number }[]) {
+    const result = { labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'], data: new Array(4).fill(0) };
+
+    data.forEach((item) => {
+        const date = new Date(item.date);
+        const weekIndex = Math.floor((date.getDate() - 1) / 7);
+        result.data[weekIndex] += item.total;
+    });
+
+    return result;
+}
+
+function generateMonthlyData(data: { date: string; total: number }[]) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const result = { labels: months, data: new Array(12).fill(0) };
+
+    data.forEach((item) => {
+        const monthIndex = new Date(item.date).getMonth();
+        result.data[monthIndex] += item.total;
+    });
+
+    return result;
+}
+
+function generateYearlyData(data: { date: string; total: number }[]) {
+    const years = new Set(data.map((item) => new Date(item.date).getFullYear()));
+    const sortedYears = Array.from(years).sort();
+    const result = { labels: sortedYears.map(String), data: new Array(sortedYears.length).fill(0) };
+
+    data.forEach((item) => {
+        const year = new Date(item.date).getFullYear();
+        const yearIndex = sortedYears.indexOf(year);
+        result.data[yearIndex] += item.total;
+    });
+
+    return result;
+}
 
 const doughnutCharts = ref([
     {
         title: 'Leads By Rating',
-        data: {
-            labels: ['Cold', 'Warm', 'Hot'],
-            datasets: [
-                {
-                    backgroundColor: ['#3892F3', '#E46F00', '#F75C46'],
-                    data: [55, 20, 25],
-                },
-            ],
-        },
+        data: generateChartData(leadsData.value?.leads_rating ?? {}),
     },
     {
         title: 'Deals Lost Reason',
-        data: {
-            labels: ['Pricing', 'Competition', 'Long Sales Cycle', 'Communication', 'Decision Making', 'Others'],
-            datasets: [
-                {
-                    backgroundColor: ['#3892F3', '#7E84FC', '#15A46E', '#E46F00', '#F75C46', '#AAADB1'],
-                    data: [30, 20, 15, 10, 10, 15],
-                },
-            ],
-        },
+        data: generateChartData(opportunitiesData.value?.opportunity_lost_reason ?? {}),
     },
     {
         title: 'Leads By Industry',
-        data: {
-            labels: ['Manufacturing', 'Logistics and Supply Chain', 'Healthcare', 'Others'],
-            datasets: [
-                {
-                    backgroundColor: ['#3892F3', '#7E84FC', '#15A46E', '#E46F00'],
-                    data: [30, 20, 15, 35],
-                },
-            ],
-        },
+        data: generateChartData(leadsData.value?.leads_industry ?? {}),
     },
     {
         title: 'Leads By Size',
-        data: {
-            labels: ['101-200', '201-1000', '>1000'],
-            datasets: [
-                {
-                    backgroundColor: ['#3892F3', '#7E84FC', '#15A46E'],
-                    data: [30, 20, 50],
-                },
-            ],
-        },
-    },
-    {
-        title: 'Leads By Country',
-        data: {
-            labels: ['Indonesia', 'Singapore', 'Malaysia'],
-            datasets: [
-                {
-                    backgroundColor: ['#3892F3', '#7E84FC', '#15A46E'],
-                    data: [10, 30, 50],
-                },
-            ],
-        },
+        data: generateChartData(leadsData.value?.leads_size ?? {}),
     },
 ]);
-const stats = ref([
-    {
-        title: 'Act. Revenue',
-        value: formatToRupiah(300_000_000),
-        percentage: 28,
-    },
-    {
-        title: 'Opportunities Won',
-        value: 20,
-        percentage: -5,
-    },
-    {
-        title: 'Avg. Deal Size',
-        value: formatToRupiah(15_000_000),
-    },
-    {
-        title: 'New Leads',
-        value: 100,
-        percentage: 28,
-    },
-    {
-        title: 'New Opportunities',
-        value: 55,
-        percentage: -5,
-    },
-    {
-        title: 'Avg. Deal Age (Days)',
-        value: 40,
-    },
-]);
-
-const people = [
-    {
-        user: 'Tiana Calzoni',
-        revenue: 'Rp80jt',
-        // revenue: { value: 'Rp80jt', class: 'w-[120px]' },
-    },
-    {
-        user: 'Livia Septimus',
-        revenue: 'Rp60jt',
-    },
-    {
-        user: 'Zain Carder',
-        revenue: 'Rp54jt',
-    },
-    {
-        user: 'Angel Westervelt',
-        revenue: 'Rp44jt',
-    },
-    {
-        user: 'Brandon Mango',
-        revenue: 'Rp40jt',
-    },
-    {
-        user: 'Alena Rosser',
-        revenue: 'Rp32jt',
-    },
-    {
-        user: 'Alfonso Torff',
-        revenue: 'Rp30jt',
-    },
-    {
-        user: 'Dulce Westervelt',
-        revenue: 'Rp25jt',
-    },
-    {
-        user: 'Erin Gouse',
-        revenue: 'Rp22jt',
-    },
-    {
-        user: 'Kianna Calzoni',
-        revenue: 'Rp12jt',
-    },
-];
 </script>
 
 <template>
@@ -165,11 +247,7 @@ const people = [
         </header>
 
         <section class="bg-base-200 px-4 pt-4">
-            <USelectMenu
-                v-model="range"
-                :options="['Today', 'Yesterday', 'This Week', 'Last Week', 'This Month', 'Last Month', 'This Year', 'Last Year']"
-                class="w-80"
-            />
+            <USelectMenu v-model="selectedRange" :options="rangeOptions" value-attribute="id" class="w-80" />
             <p class="mt-[10px] px-2">April 2024 vs March 2024</p>
         </section>
 
@@ -198,7 +276,7 @@ const people = [
                     </div>
                 </div>
 
-                <div class="rounded bg-base-100 p-4 shadow">
+                <div v-if="opportunitiesData" class="rounded bg-base-100 p-4 shadow">
                     <h2 class="mb-6 text-xl font-semibold">Monthly Sales</h2>
                     <Line
                         :options="{
@@ -233,10 +311,10 @@ const people = [
                             },
                         }"
                         :data="{
-                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                            labels: calculateTotalSalesdata(opportunitiesData.total_sales).labels,
                             datasets: [
                                 {
-                                    data: [65, 59, 80, 81, 56, 55, 40, 60, 65, 59, 80, 81],
+                                    data: calculateTotalSalesdata(opportunitiesData.total_sales).data,
                                     borderColor: '#15A46E',
                                     fill: 'start',
                                     borderWidth: 1.5,
@@ -262,35 +340,44 @@ const people = [
 
                 <div class="rounded bg-base-100 p-4 shadow">
                     <h2 class="mb-6 text-xl font-semibold">This Month's Leaderboard</h2>
-                    <UTable :rows="people" />
+                    <UTable
+                        :rows="
+                            opportunitiesData?.opportunity_leaderboard.map(({ name, total }) => ({
+                                user: name,
+                                revenue: total,
+                            })) ?? []
+                        "
+                    />
                 </div>
             </div>
 
             <ul class="col-span-4 space-y-4">
-                <li v-for="chart in doughnutCharts" :key="chart.title" class="rounded bg-base-100 p-4 shadow">
-                    <h2 class="mb-4 text-xl font-semibold">{{ chart.title }}</h2>
-                    <div class="grid grid-cols-5 gap-4">
-                        <div class="col-span-2">
-                            <Doughnut
-                                :data="chart.data"
-                                :options="{
-                                    responsive: true,
-                                    cutout: '75%',
-                                }"
-                            />
-                        </div>
+                <template v-for="chart in doughnutCharts" :key="chart.title">
+                    <li v-if="chart.data.labels.length > 1" class="rounded bg-base-100 p-4 shadow">
+                        <h2 class="mb-4 text-xl font-semibold">{{ chart.title }}</h2>
+                        <div class="grid grid-cols-5 gap-4">
+                            <div class="col-span-2">
+                                <Doughnut
+                                    :data="chart.data"
+                                    :options="{
+                                        responsive: true,
+                                        cutout: '75%',
+                                    }"
+                                />
+                            </div>
 
-                        <div class="col-span-3 space-y-2">
-                            <div v-for="(label, i) in chart.data.labels" :key="label" class="flex items-center gap-2">
-                                <div
-                                    :style="`background-color: ${chart.data.datasets[0].backgroundColor[i]};`"
-                                    class="h-3 w-3 rounded"
-                                ></div>
-                                <p class="text-xs">{{ label }}</p>
+                            <div class="col-span-3 space-y-2">
+                                <div v-for="(label, i) in chart.data.labels" :key="label" class="flex items-center gap-2">
+                                    <div
+                                        :style="`background-color: ${chart.data.datasets[0].backgroundColor[i]};`"
+                                        class="h-3 w-3 rounded"
+                                    ></div>
+                                    <p class="text-xs">{{ label }}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </li>
+                    </li>
+                </template>
             </ul>
         </section>
     </div>

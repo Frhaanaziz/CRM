@@ -1,32 +1,67 @@
 <script lang="ts" setup>
-import { refDebounced, useDateFormat } from '@vueuse/core';
+import { useDateFormat } from '@vueuse/core';
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAddContact from '~/components/modal/ModalAddContact.vue';
-import type { Contact } from '~/types';
 
 const modal = useModal();
 
-const { columns, selectedColumns, tableColumns, selectedRows, selectRow, search, debouncedSearch, page, pageCount, sort } =
-    useTable();
+const { columns, selectedColumns, tableColumns, selectedRows, selectRow, search, debouncedSearch, page, pageSize, sort } =
+    useDataTable({
+        columns: [
+            {
+                key: 'first_name',
+                label: 'Full Name',
+                sortable: true,
+            },
+            {
+                key: 'email',
+                label: 'Email',
+                sortable: true,
+            },
+            {
+                key: 'company(name)',
+                label: 'Company Name',
+                sortable: true,
+            },
+            {
+                key: 'mainPhone',
+                label: 'Main Phone',
+                sortable: true,
+            },
+            {
+                key: 'mobilePhone',
+                label: 'Mobile Phone',
+                sortable: true,
+            },
+            {
+                key: 'created_at',
+                label: 'Created on',
+                sortable: true,
+            },
+            {
+                key: 'isValidEmail',
+                label: 'Valid Email',
+                sortable: true,
+            },
+        ],
+        initialColumnKeys: ['first_name', 'email', 'company(name)', 'mobilePhone'],
+    });
 
 const { data: contactsPaginated, status } = await useLazyFetch('/api/contacts', {
     query: {
         query: debouncedSearch,
         page: page,
-        limit: pageCount,
+        limit: pageSize,
         sort: computed(() => sort.value.column),
         order: computed(() => sort.value.direction),
     },
     transform: (data) => ({
         ...data,
         result: data.result.map((contact) => ({
-            id: contact.id,
+            ...contact,
             fullName: getUserFullName(contact),
-            email: contact.email,
             mainPhone: contact.main_phone,
             mobilePhone: contact.mobile_phone,
-            company: contact.company,
-            created_at: contact.created_at,
             isValidEmail: contact.is_valid_email,
         })),
     }),
@@ -42,88 +77,6 @@ async function handleDeleteContacts() {
         console.error('Failed to delete contact:', e);
         toast.error('Failed to delete contact, please try again later.');
     }
-}
-function useTable() {
-    const columns = [
-        {
-            key: 'first_name',
-            label: 'Full Name',
-            sortable: true,
-        },
-        {
-            key: 'email',
-            label: 'Email',
-            sortable: true,
-        },
-        {
-            key: 'company(name)',
-            label: 'Company Name',
-            sortable: true,
-        },
-        {
-            key: 'mainPhone',
-            label: 'Main Phone',
-            sortable: true,
-        },
-        {
-            key: 'mobilePhone',
-            label: 'Mobile Phone',
-            sortable: true,
-        },
-        {
-            key: 'created_at',
-            label: 'Created on',
-            sortable: true,
-        },
-        {
-            key: 'isValidEmail',
-            label: 'Valid Email',
-            sortable: true,
-        },
-    ];
-    const initialColumnKeys = ['first_name', 'email', 'company(name)', 'mobilePhone'];
-    const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
-    const tableColumns = computed(() =>
-        columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
-    );
-
-    // Selected Rows
-    const selectedRows = ref<Pick<Contact, 'id'>[]>([]);
-    function selectRow(row: Pick<Contact, 'id'>) {
-        const index = selectedRows.value.findIndex((item) => item.id === row.id);
-        if (index === -1) {
-            selectedRows.value.push(row);
-        } else {
-            selectedRows.value.splice(index, 1);
-        }
-    }
-
-    const search = ref('');
-    const debouncedSearch = refDebounced(
-        computed(() => search.value.trim()),
-        300
-    );
-    const page = ref(1);
-    const pageCount = ref(10);
-    const sort = ref({ column: 'created_at', direction: 'desc' as const });
-
-    // Reset page when search changes
-    watch(debouncedSearch, () => {
-        page.value = 1;
-    });
-
-    return {
-        search,
-        debouncedSearch,
-        page,
-        pageCount,
-        sort,
-        selectedColumns,
-        tableColumns,
-        columns,
-        selectedRows,
-        selectRow,
-    };
 }
 </script>
 
@@ -203,7 +156,7 @@ function useTable() {
 
         <template #company(name)-data="{ row }">
             <NuxtLink :href="`/dashboard/customer/companies/${row.company.id}`" class="text-brand hover:underline">
-                {{ row.company.name }}
+                {{ row.company?.name }}
             </NuxtLink>
         </template>
 
@@ -229,7 +182,7 @@ function useTable() {
     <TableFooter
         v-if="contactsPaginated"
         v-model:page="page"
-        v-model:pageCount="pageCount"
+        v-model:pageSize="pageSize"
         :totalRows="contactsPaginated.total_row"
     />
 </template>

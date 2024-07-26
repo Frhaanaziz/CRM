@@ -25,15 +25,14 @@ onBeforeRouteLeave(() => {
 });
 
 const { data } = await useLazyAsyncData(
-    () => {
-        return Promise.all([
+    () =>
+        Promise.all([
             $fetch('/api/industries'),
             $fetch('/api/sizes'),
             $fetch('/api/countries'),
             $fetch('/api/provinces'),
             $fetch('/api/cities'),
-        ]);
-    },
+        ]),
     {
         transform: ([industries, sizes, countries, provinces, cities]) => [
             industries.map(({ id, name }) => ({ value: id, label: name })),

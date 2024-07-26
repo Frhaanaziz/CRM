@@ -156,7 +156,7 @@ function useTable() {
         </template>
 
         <template #status-data="{ row }">
-            <UBadge v-if="row.status.value === 'active'" variant="outline" color="green" :ui="{ rounded: 'rounded-full' }"
+            <UBadge v-if="row.status?.value === 'active'" variant="outline" color="green" :ui="{ rounded: 'rounded-full' }"
                 >Active</UBadge
             >
             <UBadge v-else variant="outline" color="red" :ui="{ rounded: 'rounded-full' }">Inactive</UBadge>
@@ -191,7 +191,7 @@ function useTable() {
                     @click="
                         modal.open(LazyModalUpdateUserOrganization, {
                             onClose: () => modal.close(),
-                            user: { id: row.id, role_id: row.role.id, status: row.status.value },
+                            user: { id: row.id, role_id: row.role?.id, status: row.status.value },
                         })
                     "
                 />
@@ -207,5 +207,5 @@ function useTable() {
     </UTable>
 
     <!-- Number of rows & Pagination -->
-    <TableFooter v-model:page="page" v-model:pageCount="pageCount" :totalRows="pageTotal" />
+    <TableFooter v-model:page="page" v-model:pageSize="pageCount" :totalRows="pageTotal" />
 </template>

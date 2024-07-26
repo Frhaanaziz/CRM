@@ -1,5 +1,6 @@
 import { serverSupabaseSession } from '#supabase/server';
 import type { EventHandlerRequest, H3Event } from 'h3';
+import { getErrorMessage } from '~/utils';
 
 /**
  * Makes a request to the backend API.
@@ -25,10 +26,8 @@ export const backendApi = async (event: H3Event<EventHandlerRequest>) => {
                 }
             }
         },
-        //     async onResponseError({ response }) {
-        //         // if (response.status === 401) {
-        //         //     await navigateTo('/auth/signin');
-        //         // }
-        //     },
+        async onResponseError({ response }) {
+            console.error('Error response:', response._data?.errors);
+        },
     });
 };

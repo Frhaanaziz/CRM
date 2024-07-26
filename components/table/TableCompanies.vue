@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { refDebounced, useDateFormat } from '@vueuse/core';
+import { useDateFormat } from '@vueuse/core';
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAddCompany from '~/components/modal/ModalAddCompany.vue';
-import type { Company } from '~/types';
 
 const modal = useModal();
 
@@ -29,7 +28,6 @@ const filterTypes = [
 const defaultFilterType = useCookie<'all' | 'inactive' | 'active'>('companies-filter-type', {
     default: () => 'all',
 });
-
 const selectedFilterType = ref(defaultFilterType.value);
 const selectedFilter = computed({
     get: () => filterTypes.find((type) => type.type === selectedFilterType.value),
@@ -38,28 +36,71 @@ const selectedFilter = computed({
     },
 });
 
-const { columns, selectedColumns, tableColumns, selectedRows, selectRow, search, debouncedSearch, page, pageCount, sort } =
-    useTable();
+const { columns, selectedColumns, tableColumns, selectedRows, selectRow, search, debouncedSearch, page, pageSize, sort } =
+    useDataTable({
+        columns: [
+            {
+                key: 'name',
+                label: 'Company Name',
+                sortable: true,
+            },
+            {
+                key: 'phone',
+                label: 'Business Phone',
+                sortable: true,
+            },
+            {
+                key: 'primaryContact(first_name)',
+                label: 'Primary Contact',
+                sortable: true,
+            },
+            {
+                key: 'primaryContact(email)',
+                label: 'Email (Primary Contact)',
+                sortable: true,
+            },
+            {
+                key: 'industry(name)',
+                label: 'Industry',
+                sortable: true,
+            },
+            {
+                key: 'size(size_range)',
+                label: 'Size',
+                sortable: true,
+            },
+            {
+                key: 'province(name)',
+                label: 'Location',
+                sortable: true,
+            },
+            {
+                key: 'website',
+                label: 'Website',
+                sortable: true,
+            },
+            {
+                key: 'linkedin',
+                label: 'Linkedin',
+                sortable: true,
+            },
+            {
+                key: 'created_at',
+                label: 'Created on',
+                sortable: true,
+            },
+        ],
+        initialColumnKeys: ['name', 'phone', 'primaryContact(first_name)', 'primaryContact(email)'],
+    });
 
 const { data: companiesPaginated, status } = await useLazyFetch('/api/companies', {
     query: {
         query: debouncedSearch,
         page: page,
-        limit: pageCount,
+        limit: pageSize,
         sort: computed(() => sort.value.column),
         order: computed(() => sort.value.direction),
     },
-    transform: (data) => ({
-        ...data,
-        result: data.result.map((company) => ({
-            ...company,
-            primaryContact: {
-                value: getUserFullName(company.primaryContact),
-                class: 'w-[200px] max-w-[200px]',
-            },
-            primaryContactEmail: { value: company.primaryContact?.email ?? '', class: 'w-[220px] max-w-[220px]' },
-        })),
-    }),
 });
 
 async function handleDeleteCompanies() {
@@ -72,103 +113,6 @@ async function handleDeleteCompanies() {
         console.error('Failed to delete company:', e);
         toast.error('Failed to delete company, please try again later.');
     }
-}
-function useTable() {
-    const columns = [
-        {
-            key: 'name',
-            label: 'Company Name',
-            sortable: true,
-        },
-        {
-            key: 'phone',
-            label: 'Business Phone',
-            sortable: true,
-        },
-        {
-            key: 'primaryContact(first_name)',
-            label: 'Primary Contact',
-            sortable: true,
-        },
-        {
-            key: 'primaryContact(email)',
-            label: 'Email (Primary Contact)',
-            sortable: true,
-        },
-        {
-            key: 'industry(name)',
-            label: 'Industry',
-            sortable: true,
-        },
-        {
-            key: 'size(size_range)',
-            label: 'Size',
-            sortable: true,
-        },
-        {
-            key: 'province(name)',
-            label: 'Location',
-            sortable: true,
-        },
-        {
-            key: 'website',
-            label: 'Website',
-            sortable: true,
-        },
-        {
-            key: 'linkedin',
-            label: 'Linkedin',
-            sortable: true,
-        },
-        {
-            key: 'created_at',
-            label: 'Created on',
-            sortable: true,
-        },
-    ];
-    const initialColumnKeys = ['name', 'phone', 'primaryContact(first_name)', 'primaryContact(email)'];
-    const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
-    const tableColumns = computed(() =>
-        columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
-    );
-
-    // Selected Rows
-    const selectedRows = ref<Pick<Company, 'id'>[]>([]);
-    function selectRow(row: Pick<Company, 'id'>) {
-        const index = selectedRows.value.findIndex((item) => item.id === row.id);
-        if (index === -1) {
-            selectedRows.value.push(row);
-        } else {
-            selectedRows.value.splice(index, 1);
-        }
-    }
-
-    const search = ref('');
-    const debouncedSearch = refDebounced(
-        computed(() => search.value.trim()),
-        300
-    );
-    const page = ref(1);
-    const pageCount = ref(10);
-    const sort = ref({ column: 'created_at', direction: 'desc' as const });
-
-    // Reset page when search changes
-    watch(debouncedSearch, () => {
-        page.value = 1;
-    });
-
-    return {
-        search,
-        debouncedSearch,
-        page,
-        pageCount,
-        sort,
-        selectedColumns,
-        tableColumns,
-        columns,
-        selectedRows,
-        selectRow,
-    };
 }
 </script>
 
@@ -259,7 +203,13 @@ function useTable() {
         v-model:sort="sort"
         by="id"
         :loading="status === 'pending'"
-        :rows="companiesPaginated?.result ?? []"
+        :rows="
+            companiesPaginated?.result.map((companies) => ({
+                ...companies,
+                ['primaryContact(first_name)']: { class: 'w-[250px] max-w-[250px]' },
+                ['primaryContact(email)']: { class: 'w-[300px] max-w-[300px]' },
+            })) ?? []
+        "
         :columns="tableColumns"
         sort-mode="manual"
         class="w-full"
@@ -280,23 +230,23 @@ function useTable() {
         </template>
 
         <template #primaryContact(first_name)-data="{ row }">
-            <NuxtLink :href="`/dashboard/customer/contacts/${row.id}`" class="text-brand hover:underline">
-                {{ row.primaryContact.value }}
+            <NuxtLink :href="`/dashboard/customer/contacts/${row.primaryContact.id}`" class="text-brand hover:underline">
+                {{ getUserFullName(row.primaryContact) }}
             </NuxtLink>
         </template>
 
         <template #primaryContact(email)-data="{ row }">
-            <NuxtLink :href="`/dashboard/customer/contacts/${row.id}`" class="text-brand hover:underline">
-                {{ row.primaryContactEmail.value }}
+            <NuxtLink :href="`/dashboard/customer/contacts/${row.primaryContact.id}`" class="text-brand hover:underline">
+                {{ row.primaryContact?.email }}
             </NuxtLink>
         </template>
 
         <template #industry(name)-data="{ row }">
-            {{ row.industry.name }}
+            {{ row.industry?.name }}
         </template>
 
         <template #size(size_range)-data="{ row }">
-            {{ row.size.size_range }}
+            {{ row.size?.size_range }}
         </template>
 
         <template #province(name)-data="{ row }"> {{ row.province?.name ?? '' }}, {{ row.city?.name ?? '' }} </template>
@@ -329,7 +279,7 @@ function useTable() {
     <TableFooter
         v-if="companiesPaginated"
         v-model:page="page"
-        v-model:pageCount="pageCount"
+        v-model:pageSize="pageSize"
         :totalRows="companiesPaginated.total_row"
     />
 </template>

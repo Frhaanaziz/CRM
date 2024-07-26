@@ -28,9 +28,7 @@ const company = computed(() => companyData.value?.data);
 const similarCompanies = computed(() => companyData.value?.similar_companies);
 
 const { data } = await useLazyAsyncData(
-    () => {
-        return Promise.all([$fetch('/api/industries'), $fetch('/api/sizes'), $fetch('/api/provinces'), $fetch('/api/cities')]);
-    },
+    () => Promise.all([$fetch('/api/industries'), $fetch('/api/sizes'), $fetch('/api/provinces'), $fetch('/api/cities')]),
     {
         transform: ([industries, sizes, provinces, cities]) => [
             industries.map(({ id, name }) => ({ value: id, label: name })),

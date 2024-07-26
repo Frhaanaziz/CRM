@@ -81,7 +81,7 @@ const pageCount = defineModel('pageCount', { type: Number, required: true });
         </template>
 
         <template #rating-data="{ row }">
-            {{ row.rating.name }}
+            {{ row.rating?.name }}
         </template>
 
         <template #status-data="{ row }">
@@ -100,5 +100,5 @@ const pageCount = defineModel('pageCount', { type: Number, required: true });
     </UTable>
 
     <!-- Number of rows & Pagination -->
-    <TableFooter v-model:page="page" v-model:pageCount="pageCount" :totalRows />
+    <TableFooter v-model:page="page" v-model:pageSize="pageCount" :totalRows />
 </template>

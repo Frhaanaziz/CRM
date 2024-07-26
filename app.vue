@@ -1,5 +1,25 @@
 <script setup lang="ts">
 import { userSessionStore } from './stores/userSession';
+import { Chart as ChartJS, Filler, Tooltip, LineElement, PointElement, CategoryScale, LinearScale, ArcElement } from 'chart.js';
+import gradient from 'chartjs-plugin-gradient';
+
+/**
+ * Registers various elements and scales required for ChartJS.
+ */
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Tooltip,
+    gradient,
+
+    // Area CHART
+    Filler,
+
+    // Doughnut CHART
+    ArcElement
+);
 
 /**
  * Initializes the userSession store and listens for authentication events.

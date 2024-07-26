@@ -1,19 +1,67 @@
 <script lang="ts" setup>
-import { refDebounced, useDateFormat } from '@vueuse/core';
+import { useDateFormat } from '@vueuse/core';
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAddLead from '~/components/modal/ModalAddLead.vue';
-import type { Lead } from '~/types';
 
 const modal = useModal();
 
-const { columns, selectedColumns, tableColumns, selectedRows, select, search, debouncedSearch, page, pageCount, sort } =
-    useTable();
+const { columns, selectedColumns, tableColumns, selectedRows, selectRow, search, debouncedSearch, page, pageSize, sort } =
+    useDataTable({
+        columns: [
+            {
+                key: 'contact(first_name)',
+                label: 'Name',
+                sortable: true,
+            },
+            {
+                key: 'company(name)',
+                label: 'Company',
+                sortable: true,
+            },
+            {
+                key: 'user(first_name)',
+                label: 'Assigned To',
+                sortable: true,
+            },
+            {
+                key: 'score',
+                label: 'Lead Score',
+                sortable: true,
+            },
+            {
+                key: 'status',
+                label: 'Status',
+                sortable: true,
+            },
+            {
+                key: 'disqualify_reason(name)',
+                label: 'Disqualify Reason',
+                sortable: true,
+            },
+            {
+                key: 'rating(name)',
+                label: 'Rating',
+                sortable: true,
+            },
+            {
+                key: 'source(name)',
+                label: 'Lead Source',
+                sortable: true,
+            },
+            {
+                key: 'created_at',
+                label: 'Created on',
+                sortable: true,
+            },
+        ],
+        initialColumnKeys: ['contact(first_name)', 'company(name)', 'score', 'status', 'rating(name)', 'created_at'],
+    });
 
 const { data: leadsPaginated, status } = await useLazyFetch('/api/leads', {
     query: {
         query: debouncedSearch,
         page: page,
-        limit: pageCount,
+        limit: pageSize,
         sort: computed(() => sort.value.column),
         order: computed(() => sort.value.direction),
     },
@@ -29,98 +77,6 @@ async function handleDeleteLeads() {
         console.error('Failed to delete Lead:', e);
         toast.error('Failed to delete Lead, please try again later.');
     }
-}
-function useTable() {
-    const columns = [
-        {
-            key: 'contact(first_name)',
-            label: 'Name',
-            sortable: true,
-        },
-        {
-            key: 'company(name)',
-            label: 'Company',
-            sortable: true,
-        },
-        {
-            key: 'user(first_name)',
-            label: 'Assigned To',
-            sortable: true,
-        },
-        {
-            key: 'score',
-            label: 'Lead Score',
-            sortable: true,
-        },
-        {
-            key: 'status',
-            label: 'Status',
-            sortable: true,
-        },
-        {
-            key: 'disqualify_reason(name)',
-            label: 'Disqualify Reason',
-            sortable: true,
-        },
-        {
-            key: 'rating(name)',
-            label: 'Rating',
-            sortable: true,
-        },
-        {
-            key: 'source(name)',
-            label: 'Lead Source',
-            sortable: true,
-        },
-        {
-            key: 'created_at',
-            label: 'Created on',
-            sortable: true,
-        },
-    ];
-    const initialColumnKeys = ['contact(first_name)', 'company(name)', 'score', 'status', 'rating(name)', 'created_at'];
-    const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
-    const tableColumns = computed(() =>
-        columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
-    );
-
-    // Selected Rows
-    const selectedRows = ref<Pick<Lead, 'id'>[]>([]);
-    function select(row: Pick<Lead, 'id'>) {
-        const index = selectedRows.value.findIndex((item) => item.id === row.id);
-        if (index === -1) {
-            selectedRows.value.push(row);
-        } else {
-            selectedRows.value.splice(index, 1);
-        }
-    }
-
-    const search = ref('');
-    const debouncedSearch = refDebounced(
-        computed(() => search.value.trim()),
-        300
-    );
-    const page = ref(1);
-    const pageCount = ref(10);
-    const sort = ref({ column: 'created_at', direction: 'desc' as const });
-
-    // Reset page when search changes
-    watch(debouncedSearch, () => {
-        page.value = 1;
-    });
-
-    return {
-        columns,
-        selectedColumns,
-        tableColumns,
-        selectedRows,
-        select,
-        search,
-        debouncedSearch,
-        page,
-        pageCount,
-        sort,
-    };
 }
 </script>
 
@@ -189,7 +145,7 @@ function useTable() {
                 font: 'font-normal',
             },
         }"
-        @select="select"
+        @select="selectRow"
     >
         <template #contact(first_name)-data="{ row }">
             <NuxtLink :href="`/dashboard/pipeline/leads/${row.id}`" class="text-brand hover:underline">
@@ -239,5 +195,5 @@ function useTable() {
     </UTable>
 
     <!-- Number of rows & Pagination -->
-    <TableFooter v-if="leadsPaginated" v-model:page="page" v-model:pageCount="pageCount" :totalRows="leadsPaginated.total_row" />
+    <TableFooter v-if="leadsPaginated" v-model:page="page" v-model:pageSize="pageSize" :totalRows="leadsPaginated.total_row" />
 </template>

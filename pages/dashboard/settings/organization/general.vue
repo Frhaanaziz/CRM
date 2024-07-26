@@ -6,16 +6,15 @@ const { user } = storeToRefs(userSessionStore());
 if (!user.value) throw createError({ status: 401, message: 'User is not authenticated' });
 
 const { data, status } = await useLazyAsyncData(
-    () => {
-        return Promise.all([
+    () =>
+        Promise.all([
             $fetch(`/api/users/${user.value?.id}/organization`),
             $fetch('/api/industries'),
             $fetch('/api/sizes'),
             $fetch('/api/countries'),
             $fetch('/api/provinces'),
             $fetch('/api/cities'),
-        ]);
-    },
+        ]),
     {
         default: () => [undefined, [], [], [], [], []] as const,
     }

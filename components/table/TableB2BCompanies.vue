@@ -1,46 +1,15 @@
 <script lang="ts" setup>
-import { refDebounced, useDateFormat } from '@vueuse/core';
+import { useDateFormat } from '@vueuse/core';
 
-const { data } = await useLazyAsyncData(
-    () => {
-        return Promise.all([$fetch('/api/industries'), $fetch('/api/sizes')]);
-    },
-    {
-        transform: ([industries, sizes]) => [industries, sizes] as const,
-        default: () => [[], []],
-    }
-);
+const { data } = await useLazyAsyncData(() => Promise.all([$fetch('/api/industries'), $fetch('/api/sizes')]), {
+    transform: ([industries, sizes]) => [industries, sizes] as const,
+    default: () => [[], []],
+});
 const industries = computed(() => data.value[0]);
 const sizes = computed(() => data.value[1]);
 
-const {
-    search,
-    debouncedSearch,
-    page,
-    pageCount,
-    sort,
-    inputIndustries,
-    inputSizes,
-    resetFilters,
-    selectedColumns,
-    tableColumns,
-    columns,
-} = useTable();
-
-const { data: companiesPaginated, status } = await useLazyFetch(`/api/b2b-companies`, {
-    query: {
-        query: debouncedSearch,
-        page: page,
-        limit: pageCount,
-        sort: computed(() => sort.value.column),
-        order: computed(() => sort.value.direction),
-        industry_id: computed(() => inputIndustries.value),
-        size_id: computed(() => inputSizes.value),
-    },
-});
-
-function useTable() {
-    const columns = [
+const { columns, selectedColumns, tableColumns, search, debouncedSearch, page, pageSize, sort } = useDataTable({
+    columns: [
         {
             key: 'name',
             label: 'Name',
@@ -91,51 +60,31 @@ function useTable() {
             label: 'Created on',
             sortable: true,
         },
-    ];
-    const initialColumnKeys = ['name', 'industry(name)', 'size(size_range)', 'province(name)', 'website'];
-    const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
-    const tableColumns = computed(() =>
-        columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
-    );
+    ],
+    initialColumnKeys: ['name', 'industry(name)', 'size(size_range)', 'province(name)', 'website'],
+});
 
-    const search = ref('');
-    const debouncedSearch = refDebounced(
-        computed(() => search.value.trim()),
-        300
-    );
-    const page = ref(1);
-    const pageCount = ref(10);
-    const sort = ref({ column: 'created_at', direction: 'desc' as const });
+const inputIndustries = ref<string[]>([]);
+const inputSizes = ref<string[]>([]);
 
-    // Reset page when search changes
-    watch(debouncedSearch, () => {
-        page.value = 1;
-    });
+const resetFilters = () => {
+    search.value = '';
+    inputIndustries.value = [];
+    inputSizes.value = [];
+    page.value = 1;
+};
 
-    const inputIndustries = ref<string[]>([]);
-    const inputSizes = ref<string[]>([]);
-
-    const resetFilters = () => {
-        search.value = '';
-        inputIndustries.value = [];
-        inputSizes.value = [];
-        page.value = 1;
-    };
-
-    return {
-        search,
-        debouncedSearch,
-        page,
-        pageCount,
-        sort,
-        inputIndustries,
-        inputSizes,
-        resetFilters,
-        selectedColumns,
-        tableColumns,
-        columns,
-    };
-}
+const { data: companiesPaginated, status } = await useLazyFetch(`/api/b2b-companies`, {
+    query: {
+        query: debouncedSearch,
+        page: page,
+        limit: pageSize,
+        sort: computed(() => sort.value.column),
+        order: computed(() => sort.value.direction),
+        industry_id: computed(() => inputIndustries.value),
+        size_id: computed(() => inputSizes.value),
+    },
+});
 </script>
 
 <template>
@@ -328,7 +277,7 @@ function useTable() {
     <TableFooter
         v-if="companiesPaginated"
         v-model:page="page"
-        v-model:pageCount="pageCount"
+        v-model:pageSize="pageSize"
         :totalRows="companiesPaginated.total_row"
     />
 </template>
