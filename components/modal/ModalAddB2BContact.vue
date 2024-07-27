@@ -66,7 +66,7 @@ async function handleSubmit(event: FormSubmitEvent<AddB2BContactType>) {
                 />
             </UFormGroup>
 
-            <UFormGroup label="Email" name="email" required>
+            <UFormGroup label="Email" name="email">
                 <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter email" />
             </UFormGroup>
 

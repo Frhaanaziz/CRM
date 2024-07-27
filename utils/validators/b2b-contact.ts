@@ -6,9 +6,13 @@ export const B2BContactSchema = z.object({
     country_id: z.coerce.number().int(),
     created_at: z.coerce.date(),
     description: z.string().optional().nullable(),
-    email: z.string().email({
-        message: 'Invalid email address.',
-    }),
+    email: z
+        .string()
+        .email({
+            message: 'Invalid email address.',
+        })
+        .optional()
+        .nullable(),
     facebook: z.string().optional().nullable(),
     first_name: z.string().optional().nullable(),
     id: z.coerce.number().int(),
