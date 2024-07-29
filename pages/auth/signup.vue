@@ -7,6 +7,12 @@ definePageMeta({
     layout: 'auth',
 });
 
+const code = useRoute().query.code as string | undefined;
+
+const { data: invitation } = useFetch(`/api/invitations/${code}`, {
+    immediate: !!code,
+});
+
 const formRef = ref();
 const stepper = useStepper(['register', 'set-password']);
 
@@ -26,13 +32,13 @@ function useSignUp() {
 
     const isSubmitting = ref(false);
 
-    const initialState: SignUpType = {
+    const initialState = {
         first_name: '',
-        last_name: '',
-        email: '',
+        last_name: undefined,
+        email: invitation.value?.email ?? '',
         password: '',
     };
-    const state = ref<SignUpType>({ ...initialState });
+    const state = ref({ ...initialState });
 
     async function onSubmit(event: FormSubmitEvent<SignUpType>) {
         try {
@@ -65,7 +71,9 @@ function useSignUp() {
 
 <template>
     <section class="relative grid items-center p-32">
-        <NuxtImg src="/images/pipeline-logo.png" alt="pipeline" height="32" class="absolute right-0 top-0 p-10" />
+        <NuxtLink href="/dashboard">
+            <NuxtImg src="/images/pipeline-logo.png" alt="pipeline" height="32" class="absolute right-0 top-0 p-10" />
+        </NuxtLink>
 
         <UCard
             v-if="stepper.isCurrent('register')"
@@ -77,32 +85,40 @@ function useSignUp() {
                 },
             }"
         >
-            <UButton color="black" block size="md" @click="authorizeWithGoogle">
-                <NuxtImg src="/icons/google.svg" width="20" height="20" />
-                Sign Up with Google
-            </UButton>
+            <template v-if="invitation">
+                <p class="text-slate-700">
+                    You’ve receive an invitation from {{ getUserFullName(invitation.user) }} to join
+                    {{ invitation.organization?.name }}
+                </p>
+            </template>
+            <template v-else>
+                <UButton color="black" block size="md" @click="authorizeWithGoogle">
+                    <NuxtImg src="/icons/google.svg" width="20" height="20" />
+                    Sign Up with Google
+                </UButton>
 
-            <UDivider
-                label="Or Sign In with Email"
-                orientation="horizontal"
-                :ui="{
-                    container: {
-                        base: 'text-gray-500',
-                    },
-                    label: 'text-xs',
-                }"
-            />
+                <UDivider
+                    label="Or Sign In with Email"
+                    orientation="horizontal"
+                    :ui="{
+                        container: {
+                            base: 'text-gray-500',
+                        },
+                        label: 'text-xs',
+                    }"
+                />
+            </template>
             <UForm ref="formRef" :schema="signUpSchema" :state="state" class="mt-6 space-y-4" @submit="submit">
+                <UFormGroup label="Email" name="email" required>
+                    <UInput v-model="state.email" type="email" :disabled="isSubmitting || !!invitation?.email" />
+                </UFormGroup>
+
                 <UFormGroup label="First Name" name="first_name" required>
                     <UInput v-model="state.first_name" :disabled="isSubmitting" />
                 </UFormGroup>
 
-                <UFormGroup label="Last Name" name="last_name" required>
+                <UFormGroup label="Last Name" name="last_name">
                     <UInput v-model="state.last_name" :disabled="isSubmitting" />
-                </UFormGroup>
-
-                <UFormGroup label="Email" name="email" required>
-                    <UInput v-model="state.email" type="email" :disabled="isSubmitting" />
                 </UFormGroup>
 
                 <UButton type="button" block size="md" :disabled="isSubmitting" :loading="isSubmitting" @click="nextStep"

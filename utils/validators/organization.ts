@@ -31,6 +31,7 @@ export const createOrganizationSchema = organizationSchema
 
 export const joinOrganizationSchema = z.object({
     code: z.string().trim().min(1, { message: 'Code is required' }),
+    email: z.string().email({ message: 'Invalid email address' }),
 });
 
 export const updateOrganizationSchema = organizationSchema.omit({
@@ -40,5 +41,5 @@ export const updateOrganizationSchema = organizationSchema.omit({
 
 export const inviteUserSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
-    role: z.string().trim().min(1, { message: 'Role is required' }),
+    role_id: z.coerce.number({ message: 'Role is required' }),
 });

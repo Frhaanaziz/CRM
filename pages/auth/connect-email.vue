@@ -26,7 +26,9 @@ function openConnectEmailModal() {
 
 <template>
     <div>
-        <NuxtImg src="/images/pipeline-logo.png" alt="pipeline" height="32" class="absolute left-0 top-0 p-10" />
+        <NuxtLink href="/dashboard">
+            <NuxtImg src="/images/pipeline-logo.png" alt="pipeline" height="32" class="absolute left-0 top-0 p-10" />
+        </NuxtLink>
 
         <main class="relative mx-auto min-h-screen w-[800px]">
             <section class="py-20">

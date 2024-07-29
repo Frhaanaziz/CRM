@@ -75,9 +75,7 @@ async function submitForm() {
             await joinOrganizationForm.value?.validate();
             await submitJoinOrganization();
 
-            const { data: auth } = await supabase.auth.refreshSession();
-            sessionStore.session = auth.session;
-            sessionStore.user = auth.user;
+            await useRefreshAuthSession();
 
             toast.success('You have successfully joined the organization.');
             await navigateTo('/dashboard');
@@ -88,9 +86,7 @@ async function submitForm() {
             await createOrganizationForm.value?.validate();
             await submitOrganization();
 
-            const { data: auth } = await supabase.auth.refreshSession();
-            sessionStore.session = auth.session;
-            sessionStore.user = auth.user;
+            await useRefreshAuthSession();
 
             toast.success('You have successfully created an organization.');
             await navigateTo('/dashboard');
@@ -166,13 +162,17 @@ function useJoinOrganization() {
     const joinOrganizationForm = ref();
     const state = ref({
         code: '',
+        email: user.value?.email,
     });
 
     async function onSubmit() {
         try {
             isSubmitting.value = true;
 
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await $fetch('/api/organizations/join', {
+                method: 'POST',
+                body: JSON.stringify(state.value),
+            });
         } catch (e) {
             console.error('Error join organization:', e);
             toast.error(getErrorMessage(e));
@@ -203,7 +203,9 @@ async function handleSignout() {
 
 <template>
     <div>
-        <NuxtImg src="/images/pipeline-logo.png" alt="pipeline" height="32" class="absolute left-0 top-0 p-10" />
+        <NuxtLink href="/dashboard">
+            <NuxtImg src="/images/pipeline-logo.png" alt="pipeline" height="32" class="absolute left-0 top-0 p-10" />
+        </NuxtLink>
 
         <main class="relative mx-auto min-h-screen w-[800px]">
             <section class="py-20">

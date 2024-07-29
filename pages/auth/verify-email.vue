@@ -26,7 +26,9 @@ async function resendEmail() {
 
 <template>
     <main>
-        <NuxtImg src="/images/pipeline-logo.png" alt="pipeline" height="32" class="absolute left-0 top-0 p-10" />
+        <NuxtLink href="/dashboard">
+            <NuxtImg src="/images/pipeline-logo.png" alt="pipeline" height="32" class="absolute left-0 top-0 p-10" />
+        </NuxtLink>
 
         <section class="flex min-h-[calc(100vh-100px)] flex-col items-center justify-center gap-y-10">
             <div>

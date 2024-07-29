@@ -2,26 +2,32 @@
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
 
+const { user } = storeToRefs(userSessionStore());
+if (!user.value) throw createError({ status: 401, message: 'Unauthorized' });
+
 const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
 
 const { data: rolesOption } = await useLazyFetch('/api/roles', {
     key: 'roles',
-    transform: (roles) => roles.map((role) => ({ value: role.name, label: capitalize(role.name) })),
+    transform: (roles) => roles.map((role) => ({ value: role.id, label: capitalize(role.name) })),
     default: () => [],
 });
 
 type InviteUserType = z.infer<typeof inviteUserSchema>;
 const isSubmitting = ref(false);
-const state = ref<InviteUserType>({
+const state = ref({
     email: '',
-    role: '',
+    role_id: undefined,
 });
 async function handleSubmit(event: FormSubmitEvent<InviteUserType>) {
     try {
         isSubmitting.value = true;
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await $fetch(`/api/users/${user.value?.id}/invite`, {
+            method: 'POST',
+            body: JSON.stringify(event.data),
+        });
 
         toast.success('User invited successfully');
         closeModal();
@@ -49,9 +55,9 @@ async function handleSubmit(event: FormSubmitEvent<InviteUserType>) {
                     />
                 </UFormGroup>
 
-                <UFormGroup label="Role" name="role" required>
+                <UFormGroup label="Role" name="role_id" required>
                     <USelectMenu
-                        v-model="state.role"
+                        v-model="state.role_id"
                         value-attribute="value"
                         option-attribute="label"
                         :options="rolesOption"

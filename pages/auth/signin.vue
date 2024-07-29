@@ -75,7 +75,9 @@ function useSignIn() {
 
 <template>
     <section class="relative grid items-center p-32">
-        <NuxtImg src="/images/pipeline-logo.png" alt="pipeline" height="32" class="absolute right-0 top-0 p-10" />
+        <NuxtLink href="/dashboard">
+            <NuxtImg src="/images/pipeline-logo.png" alt="pipeline" height="32" class="absolute right-0 top-0 p-10" />
+        </NuxtLink>
 
         <UCard
             class="mx-auto w-[400px]"
