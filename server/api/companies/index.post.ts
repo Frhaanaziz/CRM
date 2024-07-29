@@ -1,5 +1,5 @@
 import type { Company } from '~/types';
-import { addCompanySchema, getZodErrorMessage } from '~/utils';
+import { addCompanySchema, getErrorCode, getNestErrorMessage, getZodErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
     const zodResult = await readValidatedBody(event, addCompanySchema.safeParse);
@@ -8,11 +8,16 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
 
-    const fetchApi = await backendApi(event);
-    const { data } = await fetchApi<{ data: Company }>('/companies', {
-        method: 'POST',
-        body: JSON.stringify(zodResult.data),
-    });
+    try {
+        const fetchApi = await backendApi(event);
+        const { data } = await fetchApi<{ data: Company }>('/companies', {
+            method: 'POST',
+            body: JSON.stringify(zodResult.data),
+        });
 
-    return data;
+        return data;
+    } catch (error) {
+        console.error('Error adding company (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
+    }
 });

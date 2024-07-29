@@ -1,3 +1,5 @@
+import { getErrorCode, getNestErrorMessage } from '~/utils';
+
 export default defineEventHandler(async (event) => {
     const fetchApi = await backendApi(event);
 
@@ -23,8 +25,13 @@ export default defineEventHandler(async (event) => {
         };
     }
 
-    const { data } = await fetchApi<IReports>(`/reports`, {
-        query: getQuery(event),
-    });
-    return data;
+    try {
+        const { data } = await fetchApi<IReports>(`/reports`, {
+            query: getQuery(event),
+        });
+        return data;
+    } catch (error) {
+        console.error('Error getting reports (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
+    }
 });

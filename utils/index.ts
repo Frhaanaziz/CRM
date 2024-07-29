@@ -76,6 +76,19 @@ export function getErrorMessage(error: unknown): string {
     return message;
 }
 
+// ._data?.errors
+export function getNestErrorMessage(error: unknown): string {
+    let message: string;
+
+    if (error && typeof error === 'object' && '_data' in error && 'errors' in (error._data as any)) {
+        message = (error._data as any).errors;
+    } else {
+        message = 'Something went wrong, please try again later.';
+    }
+
+    return message;
+}
+
 /**
  * Retrieves the error code from the given error object.
  * If the error object has a `statusCode` property, it will be used as the error code.

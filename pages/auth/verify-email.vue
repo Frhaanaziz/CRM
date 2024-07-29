@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const route = useRoute();
 const { email } = route.query;
-if (!email) throw createError({ statusCode: 404, message: 'Email not found' });
+if (!email) throw createError({ status: 404, message: 'Email not found' });
 
 const isSending = ref(false);
 

@@ -1,4 +1,5 @@
 import type { City, Company, Contact, Industry, PaginationUtils, Province, Size } from '~/types';
+import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
     interface ICompany extends Company {
@@ -9,10 +10,15 @@ export default defineEventHandler(async (event) => {
         city: Pick<City, 'name'> | null;
     }
 
-    const fetchApi = await backendApi(event);
-    const { data } = await fetchApi<{ data: PaginationUtils & { result: ICompany[] } }>('/companies', {
-        query: getQuery(event),
-    });
+    try {
+        const fetchApi = await backendApi(event);
+        const { data } = await fetchApi<{ data: PaginationUtils & { result: ICompany[] } }>('/companies', {
+            query: getQuery(event),
+        });
 
-    return data;
+        return data;
+    } catch (error) {
+        console.error('Error getting companies (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
+    }
 });
