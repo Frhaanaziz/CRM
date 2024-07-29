@@ -191,7 +191,7 @@ function useUpdateB2BCompany() {
                     class="hidden sm:flex"
                     @click="openAddToCRMModal"
                 >
-                    Add to CRM
+                    Add to leads
                 </UButton>
             </div>
         </header>

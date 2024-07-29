@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 const addCompanyLeadSchema = z.object({
-    industry_id: z.coerce.number(),
-    size_id: z.coerce.number(),
-    country_id: z.coerce.number(),
-    province_id: z.coerce.number(),
-    city_id: z.coerce.number(),
+    industry_id: z.coerce.number().optional().nullable(),
+    size_id: z.coerce.number().optional().nullable(),
+    country_id: z.coerce.number().optional().nullable(),
+    province_id: z.coerce.number().optional().nullable(),
+    city_id: z.coerce.number().optional().nullable(),
     name: z.string().trim(),
     website: z.string().optional().nullable(),
     linkedin: z.string().optional().nullable(),
@@ -21,7 +21,7 @@ const addContactLeadSchema = z.object({
     first_name: z.string().trim(),
     last_name: z.string().trim(),
     job_title: z.string().optional().nullable(),
-    email: z.string().email(),
+    email: z.string().email().optional().nullable(),
     main_phone: z.string().optional().nullable(),
     mobile_phone: z.string().optional().nullable(),
     whatsapp: z.string().optional().nullable(),

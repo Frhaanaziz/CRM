@@ -14,6 +14,8 @@ export default defineEventHandler(async (event) => {
                 total_sales: { date: string; total: number }[];
                 opportunity_leaderboard: { name: string; total: number }[];
                 opportunity_lost_reason: Record<string, number>;
+                avg_deal_size: number;
+                avg_deal_age: number;
             };
             lead_data: {
                 total_new_leads: number;
@@ -29,6 +31,7 @@ export default defineEventHandler(async (event) => {
         const { data } = await fetchApi<IReports>(`/reports`, {
             query: getQuery(event),
         });
+        console.log('reports', data);
         return data;
     } catch (error) {
         console.error('Error getting reports (SERVER):', error);

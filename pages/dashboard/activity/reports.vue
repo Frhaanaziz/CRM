@@ -109,7 +109,7 @@ const stats = ref([
     },
     {
         title: 'Avg. Deal Size',
-        value: formatToRupiah(-1),
+        value: formatToRupiah(opportunitiesData.value?.avg_deal_size ?? 0),
     },
     {
         title: 'New Leads',
@@ -123,7 +123,7 @@ const stats = ref([
     },
     {
         title: 'Avg. Deal Age (Days)',
-        value: -1,
+        value: opportunitiesData.value?.avg_deal_age ?? 0,
     },
 ]);
 
