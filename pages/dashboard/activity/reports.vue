@@ -91,7 +91,6 @@ const { data } = await useFetch('/api/reports', {
     query: selectedRangeOption.value?.value,
     headers: useRequestHeaders(['cookie']),
 });
-console.log('reports', data.value);
 
 const opportunitiesData = computed(() => data.value?.opportunity_data);
 const leadsData = computed(() => data.value?.lead_data);

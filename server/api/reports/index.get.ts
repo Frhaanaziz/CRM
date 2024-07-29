@@ -31,7 +31,6 @@ export default defineEventHandler(async (event) => {
         const { data } = await fetchApi<IReports>(`/reports`, {
             query: getQuery(event),
         });
-        console.log('reports', data);
         return data;
     } catch (error) {
         console.error('Error getting reports (SERVER):', error);

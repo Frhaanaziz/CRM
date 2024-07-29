@@ -10,7 +10,7 @@ export const globalStore = defineStore('global', () => {
         callMethod = value;
     }
 
-    function makeCall(number: number) {
+    function makeCall(number: string) {
         callMethod(number);
     }
 

@@ -8,6 +8,7 @@ const props = defineProps<{
     contact: Contact;
 }>();
 const { contact } = toRefs(props);
+const store = globalStore();
 
 const isVerifyingEmail = ref(false);
 
@@ -201,17 +202,28 @@ async function verifyEmail() {
                 </UFormGroup>
 
                 <UFormGroup name="mobile_phone">
-                    <UInput
-                        v-model="updateState.mobile_phone"
-                        placeholder="---"
-                        :ui="{
-                            color: {
-                                white: {
-                                    outline: 'ring-0 shadow-none hover:ring-1 ',
+                    <div class="flex items-center gap-2">
+                        <UInput
+                            v-model="updateState.mobile_phone"
+                            placeholder="---"
+                            class="flex-1"
+                            :ui="{
+                                color: {
+                                    white: {
+                                        outline: 'ring-0 shadow-none hover:ring-1 ',
+                                    },
                                 },
-                            },
-                        }"
-                    />
+                            }"
+                        />
+                        <UButton
+                            v-if="contact.mobile_phone"
+                            square
+                            variant="ghost"
+                            icon="i-heroicons-phone-solid"
+                            size="xs"
+                            @click="store.makeCall(contact.mobile_phone)"
+                        />
+                    </div>
                 </UFormGroup>
 
                 <UFormGroup name="whatsapp">

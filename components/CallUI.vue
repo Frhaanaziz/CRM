@@ -42,10 +42,11 @@ async function startupClient() {
     log.value = 'Requesting Access Token...';
 
     try {
-        const token = await $fetch<string>('/api/integrations/twilio/generate-access-token', { method: 'POST' });
-        console.log('token', token);
+        const data = await $fetch('/api/integrations/twilio/generate-access-token', { method: 'POST' });
+        console.log('token', data);
+
         log.value = 'Got a token.';
-        intitializeDevice(token);
+        intitializeDevice(data.token);
     } catch (err) {
         log.value = 'An error occurred. ' + getErrorMessage(err);
     }
@@ -79,8 +80,8 @@ function addDeviceListeners() {
     device?.on('incoming', handleIncomingCall);
 
     device?.on('tokenWillExpire', async () => {
-        const token = await $fetch<string>('/api/integrations/twilio/generate-access-token', { method: 'POST' });
-        device?.updateToken(token);
+        const data = await $fetch('/api/integrations/twilio/generate-access-token', { method: 'POST' });
+        device?.updateToken(data.token);
     });
 }
 
@@ -289,23 +290,24 @@ function toggleCallWindow() {
     }
 }
 
-// onMounted(async () => {
-//     const enabled = twilioSetting.value?.enabled;
-//     if (enabled === undefined) throw createError({ status: 500, message: 'Twilio setting is undefined' });
+onMounted(async () => {
+    const enabled = twilioSetting.value?.enabled;
+    if (enabled === undefined) throw createError({ status: 500, message: 'Twilio setting is undefined' });
 
-//     setTwilioEnabled(enabled);
-//     enabled && startupClient();
+    setTwilioEnabled(enabled);
+    // enabled && startupClient();
+    enabled && (await startupClient());
 
-//     setMakeCall(makeOutgoingCall);
-// });
+    setMakeCall(makeOutgoingCall);
+});
 
-// watch(
-//     () => log.value,
-//     (value) => {
-//         console.log(value);
-//     },
-//     { immediate: true }
-// );
+watch(
+    () => log.value,
+    (value) => {
+        console.log(value);
+    },
+    { immediate: true }
+);
 </script>
 
 <template>

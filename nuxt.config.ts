@@ -9,6 +9,7 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
         BACKEND_URL: process.env.NUXT_BACKEND_URL,
+        TWILIO_BACKEND_URL: process.env.NUXT_TWILIO_BACKEND_URL,
         public: {
             BASE_URL: process.env.NUXT_PUBLIC_BASE_URL,
         },
