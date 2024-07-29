@@ -5,13 +5,19 @@ const supabase = useSupabaseClient();
 const sessionStore = userSessionStore();
 const { user } = storeToRefs(sessionStore);
 
-const { data } = await useLazyAsyncData(() => Promise.all([$fetch('/api/industries'), $fetch('/api/sizes')]), {
-    transform: ([industries, sizes]) => [
-        industries.map(({ id, name }) => ({ value: id, label: name })),
-        sizes.map(({ id, size_range }) => ({ value: id, label: size_range })),
-    ],
-    default: () => [[], []],
-});
+const { data } = await useLazyAsyncData(
+    () => {
+        const headers = useRequestHeaders(['cookie']);
+        return Promise.all([$fetch('/api/industries', { headers }), $fetch('/api/sizes', { headers })]);
+    },
+    {
+        transform: ([industries, sizes]) => [
+            industries.map(({ id, name }) => ({ value: id, label: name })),
+            sizes.map(({ id, size_range }) => ({ value: id, label: size_range })),
+        ],
+        default: () => [[], []],
+    }
+);
 const industriesOption = computed(() => data.value[0]);
 const sizesOption = computed(() => data.value[1]);
 

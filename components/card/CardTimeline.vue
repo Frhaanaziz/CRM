@@ -23,6 +23,7 @@ const { data: activities } = await useFetch('/api/activities', {
         activities.sort((a, b) => {
             return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         }),
+    headers: useRequestHeaders(['cookie']),
 });
 
 const { noteState, createNote, isCreatingNote } = useCreateNote();

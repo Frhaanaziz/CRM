@@ -65,6 +65,7 @@ const { data: leadsPaginated, status } = await useLazyFetch('/api/leads', {
         sort: computed(() => sort.value.column),
         order: computed(() => sort.value.direction),
     },
+    headers: useRequestHeaders(['cookie']),
 });
 
 async function handleDeleteLeads() {

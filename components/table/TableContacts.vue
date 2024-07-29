@@ -65,6 +65,7 @@ const { data: contactsPaginated, status } = await useLazyFetch('/api/contacts', 
             isValidEmail: contact.is_valid_email,
         })),
     }),
+    headers: useRequestHeaders(['cookie']),
 });
 
 async function handleDeleteContacts() {

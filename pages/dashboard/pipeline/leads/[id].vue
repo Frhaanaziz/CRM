@@ -15,9 +15,11 @@ if (!user.value || !organization_id) throw createError({ status: 401, message: '
 
 const { data: disqualifyReasons } = await useLazyFetch('/api/disqualify-reasons', {
     key: 'disqualify-reasons',
+    headers: useRequestHeaders(['cookie']),
 });
 const { data: lead } = await useFetch(`/api/leads/${id}`, {
     key: `leads-${id}`,
+    headers: useRequestHeaders(['cookie']),
 });
 if (!lead.value) throw createError({ status: 404, message: 'Lead not found' });
 

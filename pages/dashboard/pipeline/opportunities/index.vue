@@ -10,6 +10,7 @@ const modal = useModal();
 
 const { data: opportunityStatuses } = await useFetch('/api/opportunity-statuses', {
     key: 'opportunity-statuses',
+    headers: useRequestHeaders(['cookie']),
 });
 const {
     data: opportunities,
@@ -17,6 +18,7 @@ const {
     refresh: refreshOpportunities,
 } = await useFetch('/api/opportunities', {
     key: 'opportunities',
+    headers: useRequestHeaders(['cookie']),
     default: () => [],
 });
 

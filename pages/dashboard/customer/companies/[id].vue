@@ -16,16 +16,23 @@ if (!user.value || !organization_id) throw createError({ status: 401, message: '
 
 const { data: company, refresh: refreshCompany } = await useFetch(`/api/companies/${id}`, {
     key: `companies-${id}`,
+    headers: useRequestHeaders(['cookie']),
 });
 if (!company.value) throw createError({ status: 404, message: 'Company not found' });
 
-const { data } = await useLazyAsyncData(() => Promise.all([$fetch('/api/opportunity-statuses'), $fetch('/api/payment-plans')]), {
-    transform: ([statuses, plans]) => [
-        statuses.map((status) => ({ label: capitalize(status.name), value: status.id })),
-        plans.map((plan) => ({ label: capitalize(plan.name), value: plan.id })),
-    ],
-    default: () => [[], []],
-});
+const { data } = await useLazyAsyncData(
+    () => {
+        const headers = useRequestHeaders(['cookie']);
+        return Promise.all([$fetch('/api/opportunity-statuses', { headers }), $fetch('/api/payment-plans', { headers })]);
+    },
+    {
+        transform: ([statuses, plans]) => [
+            statuses.map((status) => ({ label: capitalize(status.name), value: status.id })),
+            plans.map((plan) => ({ label: capitalize(plan.name), value: plan.id })),
+        ],
+        default: () => [[], []],
+    }
+);
 const opportunityStatusesOption = computed(() => data.value[0]);
 const paymentPlansOption = computed(() => data.value[1]);
 

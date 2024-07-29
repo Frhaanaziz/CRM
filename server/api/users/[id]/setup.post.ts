@@ -28,29 +28,49 @@ export default defineEventHandler(async (event) => {
         last_name = names.slice(1).join(' ');
     }
 
-    const { error: authError } = await supabase.auth.updateUser({
-        data: {
+    // Insert twilio agents and settings for the user
+    const [{ data: twilioAgent, error: insertTwilioAgentsError }, { data: twilioSettings, error: insertTwilioSettingsError }] =
+        await Promise.all([
+            supabase.from('Twilio_Agents').insert({}).select('id').single(),
+            supabase.from('Twilio_Settings').insert({}).select('id').single(),
+        ]);
+    if (insertTwilioAgentsError) {
+        console.error('Error inserting twilio agents (SERVER):', insertTwilioAgentsError);
+        throw createError({ status: 400, statusMessage: insertTwilioAgentsError.message });
+    }
+    if (insertTwilioSettingsError) {
+        console.error('Error inserting twilio settings (SERVER):', insertTwilioSettingsError);
+        throw createError({ status: 400, statusMessage: insertTwilioSettingsError.message });
+    }
+
+    const [{ error: authError }, { error: insertError }] = await Promise.all([
+        supabase.auth.updateUser({
+            data: {
+                first_name,
+                last_name,
+                phone,
+                expectation,
+                photo: user.user_metadata.avatar_url,
+                twilio_agent_id: twilioAgent?.id,
+                twilio_setting_id: twilioSettings?.id,
+            },
+        }),
+        supabase.from('Users').insert({
+            id: user.id,
             first_name,
             last_name,
+            email: user.email || user.user_metadata.email,
             phone,
             expectation,
-            photo: user.user_metadata.avatar_url,
-        },
-    });
+            photo: user.user_metadata.avatar_url ?? null,
+            twilio_agent_id: twilioAgent?.id,
+            twilio_setting_id: twilioSettings?.id,
+        }),
+    ]);
     if (authError) {
         console.error('Error updating user auth (SERVER):', authError);
         throw createError({ status: 400, statusMessage: authError.message });
     }
-
-    const { error: insertError } = await supabase.from('Users').insert({
-        id: user.id,
-        first_name,
-        last_name,
-        email: user.email || user.user_metadata.email,
-        phone,
-        expectation,
-        photo: user.user_metadata.avatar_url ?? null,
-    });
     if (insertError) {
         console.error('Error inserting user public (SERVER):', insertError);
         throw createError({ status: 400, statusMessage: insertError.message });

@@ -34,6 +34,8 @@ export type Currency = Tables<'Currencies'>;
 export type PaymentPlan = Tables<'Payment_Plans'>;
 export type Activity = Tables<'Activities'>;
 export type ActivityParticipant = Tables<'Activity_Participants'>;
+export type TwilioSetting = Tables<'Twilio_Settings'>;
+export type TwilioAgent = Tables<'Twilio_Agents'>;
 
 export type PaginationUtils = {
     current_page: number;

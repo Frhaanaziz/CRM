@@ -43,6 +43,7 @@ watchEffect(() => (pathname.value = route.path));
                 </ul>
             </li>
             <li class="-mx-6 mt-auto">
+                <CallUI />
                 <NuxtLink
                     href="/dashboard/settings"
                     class="text-weak mx-4 flex gap-x-3 rounded p-2 text-sm font-semibold leading-6 transition"

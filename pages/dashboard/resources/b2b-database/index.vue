@@ -1,7 +1,13 @@
 <script setup lang="ts">
 const { data: dataSummary } = await useAsyncData(async () => {
     const model = ['b2b-companies', 'industries', 'cities'];
-    const data = await Promise.all(model.map((model) => $fetch(`/api/${model}/count`)));
+    const data = await Promise.all(
+        model.map((model) =>
+            $fetch(`/api/${model}/count`, {
+                headers: useRequestHeaders(['cookie']),
+            })
+        )
+    );
     return data.map((value, i) => ({ title: !i ? 'Companies' : model[i], value }));
 });
 </script>

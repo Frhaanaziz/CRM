@@ -89,6 +89,7 @@ const selectedRangeOption = computed(() => rangeOptions.find((option) => option.
 const { data } = await useFetch('/api/reports', {
     key: 'reports',
     query: selectedRangeOption.value?.value,
+    headers: useRequestHeaders(['cookie']),
 });
 console.log('reports', data.value);
 
