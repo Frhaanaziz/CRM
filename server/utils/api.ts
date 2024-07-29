@@ -1,6 +1,5 @@
 import { serverSupabaseSession } from '#supabase/server';
 import type { EventHandlerRequest, H3Event } from 'h3';
-import { getErrorMessage } from '~/utils';
 
 /**
  * Makes a request to the backend API.

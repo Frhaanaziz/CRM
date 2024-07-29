@@ -15,6 +15,7 @@ const { data: users, status } = await useLazyFetch(`/api/organizations/${user.va
             ...user,
             role: user.role?.name,
         })),
+    headers: useRequestHeaders(['cookie']),
     default: () => [],
 });
 const pending = computed(() => status.value === 'pending');

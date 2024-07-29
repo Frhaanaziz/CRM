@@ -1,10 +1,16 @@
 <script lang="ts" setup>
 import { useDateFormat } from '@vueuse/core';
 
-const { data } = await useLazyAsyncData(() => Promise.all([$fetch('/api/industries'), $fetch('/api/sizes')]), {
-    transform: ([industries, sizes]) => [industries, sizes] as const,
-    default: () => [[], []],
-});
+const { data } = await useLazyAsyncData(
+    () => {
+        const headers = useRequestHeaders(['cookie']);
+        return Promise.all([$fetch('/api/industries', { headers }), $fetch('/api/sizes', { headers })]);
+    },
+    {
+        transform: ([industries, sizes]) => [industries, sizes] as const,
+        default: () => [[], []],
+    }
+);
 const industries = computed(() => data.value[0]);
 const sizes = computed(() => data.value[1]);
 
@@ -84,6 +90,7 @@ const { data: companiesPaginated, status } = await useLazyFetch(`/api/b2b-compan
         industry_id: computed(() => inputIndustries.value),
         size_id: computed(() => inputSizes.value),
     },
+    headers: useRequestHeaders(['cookie']),
 });
 </script>
 

@@ -101,6 +101,7 @@ const { data: companiesPaginated, status } = await useLazyFetch('/api/companies'
         sort: computed(() => sort.value.column),
         order: computed(() => sort.value.direction),
     },
+    headers: useRequestHeaders(['cookie']),
 });
 
 async function handleDeleteCompanies() {

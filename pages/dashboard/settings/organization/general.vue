@@ -6,15 +6,17 @@ const { user } = storeToRefs(userSessionStore());
 if (!user.value) throw createError({ status: 401, message: 'User is not authenticated' });
 
 const { data, status } = await useLazyAsyncData(
-    () =>
-        Promise.all([
-            $fetch(`/api/users/${user.value?.id}/organization`),
-            $fetch('/api/industries'),
-            $fetch('/api/sizes'),
-            $fetch('/api/countries'),
-            $fetch('/api/provinces'),
-            $fetch('/api/cities'),
-        ]),
+    () => {
+        const headers = useRequestHeaders(['cookie']);
+        return Promise.all([
+            $fetch(`/api/users/${user.value?.id}/organization`, { headers }),
+            $fetch('/api/industries', { headers }),
+            $fetch('/api/sizes', { headers }),
+            $fetch('/api/countries', { headers }),
+            $fetch('/api/provinces', { headers }),
+            $fetch('/api/cities', { headers }),
+        ]);
+    },
     {
         default: () => [undefined, [], [], [], [], []] as const,
     }

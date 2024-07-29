@@ -9,6 +9,7 @@ const { user } = storeToRefs(userSessionStore());
 
 const { data: profile } = await useFetch(`/api/users/${user.value?.id}`, {
     key: `profile-${user.value?.id}`,
+    headers: useRequestHeaders(['cookie']),
 });
 if (!profile.value) throw createError({ status: 404, message: 'User not found' });
 

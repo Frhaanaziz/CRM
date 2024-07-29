@@ -7,6 +7,7 @@ const id = parseInt(useRoute().params.id as string);
 
 const { data: contact } = await useFetch(`/api/contacts/${id}`, {
     key: `contacts-${id}`,
+    headers: useRequestHeaders(['cookie']),
 });
 if (!contact.value) throw createError({ status: 404, message: 'contact not found' });
 

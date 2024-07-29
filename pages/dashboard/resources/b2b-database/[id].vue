@@ -20,6 +20,7 @@ const { data: companyData, refresh: refreshCompany } = await useFetch<{ data: IB
     `/api/b2b-companies/${id}`,
     {
         key: `b2b-companies-${id}`,
+        headers: useRequestHeaders(['cookie']),
     }
 );
 if (!companyData.value) throw createError({ status: 404, message: 'B2B Company not found' });
@@ -28,7 +29,15 @@ const company = computed(() => companyData.value?.data);
 const similarCompanies = computed(() => companyData.value?.similar_companies);
 
 const { data } = await useLazyAsyncData(
-    () => Promise.all([$fetch('/api/industries'), $fetch('/api/sizes'), $fetch('/api/provinces'), $fetch('/api/cities')]),
+    () => {
+        const headers = useRequestHeaders(['cookie']);
+        return Promise.all([
+            $fetch('/api/industries', { headers }),
+            $fetch('/api/sizes', { headers }),
+            $fetch('/api/provinces', { headers }),
+            $fetch('/api/cities', { headers }),
+        ]);
+    },
     {
         transform: ([industries, sizes, provinces, cities]) => [
             industries.map(({ id, name }) => ({ value: id, label: name })),

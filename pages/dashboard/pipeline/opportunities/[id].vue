@@ -22,9 +22,11 @@ const isCreatingTask = ref(false);
 
 const { data: opportunityStatuses } = await useLazyFetch(`/api/opportunity-statuses`, {
     key: `opportunity-statuses`,
+    headers: useRequestHeaders(['cookie']),
 });
 const { data: opportunity, refresh: refreshOpportunity } = await useFetch(`/api/opportunities/${id}`, {
     key: `opportunities-${id}`,
+    headers: useRequestHeaders(['cookie']),
 });
 if (!opportunity.value) throw createError({ status: 404, message: 'Opportunity not found' });
 

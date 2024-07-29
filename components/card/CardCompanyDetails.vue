@@ -25,14 +25,16 @@ onBeforeRouteLeave(() => {
 });
 
 const { data } = await useLazyAsyncData(
-    () =>
-        Promise.all([
-            $fetch('/api/industries'),
-            $fetch('/api/sizes'),
-            $fetch('/api/countries'),
-            $fetch('/api/provinces'),
-            $fetch('/api/cities'),
-        ]),
+    () => {
+        const headers = useRequestHeaders(['cookie']);
+        return Promise.all([
+            $fetch('/api/industries', { headers }),
+            $fetch('/api/sizes', { headers }),
+            $fetch('/api/countries', { headers }),
+            $fetch('/api/provinces', { headers }),
+            $fetch('/api/cities', { headers }),
+        ]);
+    },
     {
         transform: ([industries, sizes, countries, provinces, cities]) => [
             industries.map(({ id, name }) => ({ value: id, label: name })),

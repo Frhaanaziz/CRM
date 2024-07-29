@@ -13,6 +13,8 @@ export * from './validators/opportunity-status';
 export * from './validators/b2b-contact';
 export * from './validators/b2b-company';
 export * from './validators/activity';
+export * from './validators/twilio-setting';
+export * from './validators/twilio-agent';
 export * from './constants';
 
 /**
