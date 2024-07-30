@@ -1,17 +1,14 @@
-import type { Database } from '~/types/supabase';
-import { serverSupabaseClient } from '#supabase/server';
+import type { Industry } from '~/types';
+import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
+    try {
+        const fetchApi = await backendApi(event);
+        const { data } = await fetchApi<{ data: Industry[] }>('/industries');
 
-    const res = await supabase.from('Industries').select().order('created_at', { ascending: false });
-    if (res.error) {
-        console.error('Error fetching industries', res.error);
-        throw createError({
-            status: 500,
-            statusMessage: res.error.message,
-        });
+        return data;
+    } catch (error) {
+        console.error('Error getting industries (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
-
-    return res.data;
 });

@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
-import type { Opportunity, OpportunityStatus } from '~/types';
+import type { Opportunity } from '~/types';
 
 const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
 
 const props = defineProps<{
     opportunity: Pick<Opportunity, 'id' | 'act_close_date' | 'act_revenue'>;
-    wonStatus: OpportunityStatus;
 }>();
 
 const { user } = storeToRefs(userSessionStore());
@@ -27,10 +26,7 @@ async function handleSubmit(event: FormSubmitEvent<CloseOpportunityAsWonType>) {
 
         await $fetch(`/api/opportunities/${props.opportunity.id}/close-as-won`, {
             method: 'POST',
-            body: JSON.stringify({
-                ...event.data,
-                opportunity_status_id: props.wonStatus.id,
-            }),
+            body: JSON.stringify(event.data),
         });
 
         closeModal();

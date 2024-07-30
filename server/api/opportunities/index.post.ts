@@ -77,7 +77,8 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 500, statusMessage: leadRes.error.message });
     }
 
-    const { data: maxIndexOpportunity, error } = await supabase
+    // eslint-disable-next-line prefer-const
+    let { data: maxIndexOpportunity, error } = await supabase
         .from('Opportunities')
         .select('index_number')
         .match({
@@ -87,7 +88,7 @@ export default defineEventHandler(async (event) => {
         .order('index_number', { ascending: false })
         .limit(1)
         .single();
-    if (error) {
+    if (error && error.code !== 'PGRST116') {
         console.error('Error fetching max index opportunity (SERVER)', error);
         throw createError({
             status: 500,

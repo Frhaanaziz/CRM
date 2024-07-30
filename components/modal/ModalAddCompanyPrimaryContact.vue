@@ -30,8 +30,8 @@ async function handleSubmit(event: FormSubmitEvent<AddCompanyPrimaryContactType>
     try {
         isSubmitting.value = true;
 
-        await $fetch(`/api/companies/${props.company.id}/primary-contact-id`, {
-            method: 'PATCH',
+        await $fetch(`/api/companies/${props.company.id}`, {
+            method: 'PUT',
             body: JSON.stringify(event.data),
         });
 

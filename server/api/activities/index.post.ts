@@ -3,7 +3,11 @@ import type { Database } from '~/types/supabase';
 import { createActivitySchema, getZodErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
+    const user = await serverSupabaseUser(event);
+    if (!user || !user.user_metadata.organization_id) {
+        console.error('Unouthorized access to activities');
+        throw createError({ status: 401, statusMessage: 'Unauthorized' });
+    }
 
     const zodResult = await readValidatedBody(event, createActivitySchema.safeParse);
     if (!zodResult.success) {
@@ -11,11 +15,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
 
-    const user = await serverSupabaseUser(event);
-    if (!user || !user.user_metadata.organization_id) {
-        console.error('Unouthorized access to activities');
-        throw createError({ status: 401, statusMessage: 'Unauthorized' });
-    }
+    const supabase = await serverSupabaseClient<Database>(event);
 
     const res = await supabase.from('Activities').insert({
         ...zodResult.data,

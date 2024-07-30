@@ -24,7 +24,36 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 400, statusMessage: organizationError.message });
     }
 
-    const { data: ownerRole, error: roleError } = await supabase.from('Roles').select('id').eq('name', 'owner').single();
+    const [{ data: ownerRole, error: roleError }] = await Promise.all([
+        supabase.from('Roles').select('id').eq('name', 'owner').single(),
+        supabase.from('Opportunity_Statuses').insert([
+            {
+                name: 'lost',
+                index_number: 1,
+                organization_id: organization.id,
+            },
+            {
+                name: 'won',
+                index_number: 2,
+                organization_id: organization.id,
+            },
+            {
+                name: 'proposal send',
+                index_number: 3,
+                organization_id: organization.id,
+            },
+            {
+                name: 'contract send',
+                index_number: 4,
+                organization_id: organization.id,
+            },
+            {
+                name: 'qualified',
+                index_number: 5,
+                organization_id: organization.id,
+            },
+        ]),
+    ]);
     if (roleError) {
         console.error('Error getting owner role:', roleError);
         throw createError({ status: 500, statusMessage: 'Error getting owner role' });

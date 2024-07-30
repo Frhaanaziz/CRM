@@ -1,17 +1,14 @@
-import type { Database } from '~/types/supabase';
-import { serverSupabaseClient } from '#supabase/server';
+import type { Size } from '~/types';
+import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
+    try {
+        const fetchApi = await backendApi(event);
+        const { data } = await fetchApi<{ data: Size[] }>('/sizes');
 
-    const res = await supabase.from('Sizes').select().order('created_at', { ascending: false });
-    if (res.error) {
-        console.error('Error fetching sizes', res.error);
-        throw createError({
-            status: 500,
-            statusMessage: res.error.message,
-        });
+        return data;
+    } catch (error) {
+        console.error('Error getting sizes (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
-
-    return res.data;
 });

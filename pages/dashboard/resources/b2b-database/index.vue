@@ -18,7 +18,7 @@ const { data: dataSummary } = await useAsyncData(async () => {
         <div class="mt-5 grid gap-5 sm:mt-10 sm:grid-cols-3">
             <div v-for="data in dataSummary" :key="data.title" class="border-default rounded-md border p-3">
                 <p class="text-4xl font-semibold text-brand">
-                    {{ data.value }}
+                    {{ data.value ?? 0 }}
                 </p>
                 <p class="capitalize">{{ data.title }}</p>
             </div>

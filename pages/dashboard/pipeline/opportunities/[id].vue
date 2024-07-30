@@ -242,7 +242,6 @@ function useTask() {
                             modal.open(LazyModalCloseOpportunityAsWon, {
                                 onClose: () => modal.close(),
                                 opportunity,
-                                wonStatus,
                             })
                         "
                     >
@@ -263,7 +262,6 @@ function useTask() {
                             modal.open(LazyModalCloseOpportunityAsLost, {
                                 onClose: () => modal.close(),
                                 opportunity,
-                                lostStatus,
                             })
                         "
                     >
@@ -590,7 +588,7 @@ function useTask() {
                     </div>
 
                     <div v-if="!!opportunity.tasks?.length" class="divide-y">
-                        <LazyCardTask v-for="task in opportunity.tasks" :key="task.id" :task="task" />
+                        <LazyCardTask v-for="task in opportunity.tasks" :key="task.id" :task="task" :opportunity_id="id" />
                     </div>
                     <UButton
                         v-else

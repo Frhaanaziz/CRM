@@ -1,28 +1,21 @@
-import { serverSupabaseClient } from '#supabase/server';
-import { addTaskSchema, getZodErrorMessage } from '~/utils';
-import type { Database } from '~/types/supabase';
+import { addTaskSchema, getErrorCode, getNestErrorMessage, getZodErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
-
     const zodResult = await readValidatedBody(event, addTaskSchema.safeParse);
     if (!zodResult.success) {
         console.error('Error validating body:', zodResult.error);
         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
 
-    const { data, error } = await supabase
-        .from('Tasks')
-        .insert({
-            ...zodResult.data,
-            date: zodResult.data.date.toISOString(),
-        })
-        .select('*')
-        .single();
-    if (error) {
-        console.error('Error inserting task:', error);
-        throw createError({ status: 400, statusMessage: error.message });
+    try {
+        const fetchApi = await backendApi(event);
+        console.log('Creating task:', zodResult.data);
+        await fetchApi(`/tasks`, {
+            method: 'POST',
+            body: JSON.stringify(zodResult.data),
+        });
+    } catch (error) {
+        console.error('Error creating task (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
-
-    return data;
 });

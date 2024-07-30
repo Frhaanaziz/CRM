@@ -56,6 +56,7 @@ export const updateOpportunitySchema = opportunitySchema
         current_situation: true,
         customer_need: true,
         proposed_solution: true,
+        topic: true,
     })
     .partial()
     .extend({ id: z.coerce.number().int() });
@@ -101,7 +102,6 @@ export const updateOpportunityAsWonSchema = opportunitySchema
 export const updateOpportunityAsLostSchema = opportunitySchema
     .pick({
         id: true,
-        opportunity_status_id: true,
     })
     .extend({
         close_reason_id: z.coerce.number({ message: 'Close reason is required' }).int(),

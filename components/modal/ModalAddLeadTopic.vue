@@ -20,7 +20,7 @@ async function handleSubmit(event: FormSubmitEvent<UpdateLeadTopic>) {
     try {
         isSubmitting.value = true;
 
-        await $fetch(`/api/leads/${props.lead.id}/topic`, {
+        await $fetch(`/api/leads/${props.lead.id}`, {
             method: 'PATCH',
             body: JSON.stringify(event.data),
         });

@@ -75,7 +75,6 @@ async function qualifyLead() {
 
         await fetch(`/api/leads/${id}/qualify`, {
             method: 'POST',
-            body: JSON.stringify({ id }),
         });
 
         modal.close();
@@ -474,7 +473,7 @@ function useTask() {
                     </div>
 
                     <div v-if="!!lead.tasks?.length" class="divide-y">
-                        <LazyCardTask v-for="task in lead.tasks" :key="task.id" :task="task" />
+                        <LazyCardTask v-for="task in lead.tasks" :key="task.id" :task="task" :lead_id="id" />
                     </div>
                     <UButton
                         v-else

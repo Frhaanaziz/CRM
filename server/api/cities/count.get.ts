@@ -1,17 +1,13 @@
-import type { Database } from '~/types/supabase';
-import { serverSupabaseClient } from '#supabase/server';
+import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
+    try {
+        const fetchApi = await backendApi(event);
+        const { data } = await fetchApi<{ data: number | null }>('/cities/count');
 
-    const countRes = await supabase.from('Cities').select('*', { count: 'exact', head: true });
-    if (countRes.error) {
-        console.error('Failed to get Cities count', countRes.error);
-        throw createError({
-            status: 500,
-            statusMessage: 'Failed to get Cities count',
-        });
+        return data;
+    } catch (error) {
+        console.error('Error getting cities count (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
-
-    return countRes.count;
 });

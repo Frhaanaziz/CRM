@@ -18,7 +18,6 @@ export const companiesSchema = z.object({
     street_1: z.string().optional().nullable(),
     street_2: z.string().optional().nullable(),
     street_3: z.string().optional().nullable(),
-    state_id: z.coerce.number().optional(),
     updated_at: z.coerce.date(),
     user_id: z.string().trim(),
     organization_id: z.coerce.number().int(),
@@ -32,12 +31,12 @@ export const updateCompanySchema = companiesSchema.pick({
     industry_id: true,
     size_id: true,
     country_id: true,
-    state_id: true,
     city_id: true,
     street_1: true,
     street_2: true,
     street_3: true,
     postal_code: true,
+    primary_contact_id: true,
 });
 
 export const addCompanySchema = companiesSchema.pick({

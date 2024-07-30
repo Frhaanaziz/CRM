@@ -37,6 +37,7 @@ export type ActivityParticipant = Tables<'Activity_Participants'>;
 export type Invitation = Tables<'Invitations'>;
 export type TwilioSetting = Tables<'Twilio_Settings'>;
 export type TwilioAgent = Tables<'Twilio_Agents'>;
+export type CloseReason = Tables<'Close_Reasons'>;
 
 export type PaginationUtils = {
     current_page: number;

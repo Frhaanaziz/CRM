@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
-import type { Opportunity, OpportunityStatus } from '~/types';
+import type { Opportunity } from '~/types';
 
 const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
 
 const props = defineProps<{
     opportunity: Pick<Opportunity, 'id' | 'act_close_date' | 'act_revenue'>;
-    lostStatus: OpportunityStatus;
 }>();
 
 const { user } = storeToRefs(userSessionStore());
@@ -26,7 +25,6 @@ const state = ref({
     close_reason_id: undefined,
     act_revenue: props.opportunity.act_revenue ?? 0,
     act_close_date: props.opportunity.act_close_date ?? undefined,
-    opportunity_status_id: props.lostStatus.id,
 });
 async function handleSubmit(event: FormSubmitEvent<CloseOpportunityAsLostType>) {
     try {

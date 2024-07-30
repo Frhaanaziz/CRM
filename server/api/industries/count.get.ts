@@ -1,17 +1,13 @@
-import type { Database } from '~/types/supabase';
-import { serverSupabaseClient } from '#supabase/server';
+import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
+    try {
+        const fetchApi = await backendApi(event);
+        const { data } = await fetchApi<{ data: number | null }>('/industries/count');
 
-    const countRes = await supabase.from('Industries').select('*', { count: 'exact', head: true });
-    if (countRes.error) {
-        console.error('Failed to get Industries count', countRes.error);
-        throw createError({
-            status: 500,
-            statusMessage: 'Failed to get Industries count',
-        });
+        return data;
+    } catch (error) {
+        console.error('Error getting industries count (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
-
-    return countRes.count;
 });

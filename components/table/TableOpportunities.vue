@@ -67,7 +67,7 @@ const pageCount = defineModel('pageCount', { type: Number, required: true });
         </template>
 
         <template #actCloseDate-data="{ row }">
-            {{ useDateFormat(row.act_close_date, 'YYYY-MM-DD HH:mm:ss').value.replace('"', '') }}
+            {{ row.act_close_date && useDateFormat(row.act_close_date, 'YYYY-MM-DD HH:mm:ss').value.replace('"', '') }}
         </template>
 
         <template #contactName-data="{ row }">

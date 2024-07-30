@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const contactSchema = z.object({
     id: z.coerce.number().int(),
     city_id: z.coerce.number().int().optional().nullable(),
-    company_id: z.coerce.number(),
+    company_id: z.coerce.number({ message: 'Company is required' }).int(),
     contact_status_id: z.coerce.number(),
     country_id: z.coerce.number().int().optional().nullable(),
     created_at: z.coerce.date(),

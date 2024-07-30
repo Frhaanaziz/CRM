@@ -1,10 +1,6 @@
-import { serverSupabaseClient } from '#supabase/server';
-import { addLeadSchema, getZodErrorMessage } from '~/utils';
-import type { Database } from '~/types/supabase';
+import { addLeadSchema, getErrorCode, getNestErrorMessage, getZodErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
-
     const zodResult = await readValidatedBody(
         event,
         addLeadSchema.omit({ email: true, first_name: true, last_name: true, mobile_phone: true }).safeParse
@@ -14,48 +10,14 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
 
-    // eslint-disable-next-line prefer-const
-    let { data: source, error: sourceError } = await supabase.from('Sources').select('id').eq('name', 'manual').single();
-    if (sourceError) {
-        console.error('Error fetching source:', sourceError);
-        throw createError({ status: 500, statusMessage: sourceError.message });
-    }
-
-    if (!source) {
-        const { data: newSource, error } = await supabase.from('Sources').insert({ name: 'manual' }).select('id').single();
-        if (error) {
-            console.error('Error inserting new source:', error);
-            throw createError({ status: 500, statusMessage: error.message });
-        }
-
-        source = newSource;
-    }
-
-    // eslint-disable-next-line prefer-const
-    let { data: rating, error: ratingError } = await supabase.from('Ratings').select('id').eq('name', 'cool').single();
-    if (ratingError) {
-        console.error('Error fetching rating:', ratingError);
-        throw createError({ status: 500, statusMessage: ratingError.message });
-    }
-
-    if (!rating) {
-        const { data: newRating, error } = await supabase.from('Ratings').insert({ name: 'cool' }).select('id').single();
-        if (error) {
-            console.error('Error inserting new rating:', error);
-            throw createError({ status: 500, statusMessage: error.message });
-        }
-
-        rating = newRating;
-    }
-
-    const { error: insertError } = await supabase.from('Leads').insert({
-        ...zodResult.data,
-        status: 'new',
-        source_id: source.id,
-        rating_id: rating.id,
-    });
-    if (insertError) {
-        console.error('Error inserting lead:', insertError);
-        throw createError({ status: 400, statusMessage: insertError.message });
+    try {
+        const fetchApi = await backendApi(event);
+        await fetchApi(`/leads`, {
+            method: 'POST',
+            body: JSON.stringify(zodResult.data),
+        });
+    } catch (error) {
+        console.error('Error creating lead (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
 });

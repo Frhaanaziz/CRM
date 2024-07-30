@@ -1,17 +1,14 @@
-import type { Database } from '~/types/supabase';
-import { serverSupabaseClient } from '#supabase/server';
+import type { CloseReason } from '~/types';
+import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
+    try {
+        const fetchApi = await backendApi(event);
+        const { data } = await fetchApi<{ data: CloseReason[] }>('/close-reasons');
 
-    const res = await supabase.from('Close_Reasons').select('*').order('created_at', { ascending: false });
-    if (res.error) {
-        console.error('Error fetching Close_Reasons', res.error);
-        throw createError({
-            status: 500,
-            statusMessage: res.error.message,
-        });
+        return data;
+    } catch (error) {
+        console.error('Error getting close reasons (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
-
-    return res.data;
 });

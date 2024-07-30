@@ -6,20 +6,27 @@ import type { z } from 'zod';
 
 const props = defineProps<{
     task: Pick<Task, 'id' | 'description' | 'date' | 'is_completed'> & { user: User | null };
+    opportunity_id?: number;
+    lead_id?: number;
 }>();
 
 const isEditingMode = ref(false);
 const isUpdating = ref(false);
 
-const { taskState, createTask } = useUpdateTask();
+const { taskState, updateTask } = useUpdateTask();
 
 async function completeTask() {
     try {
         isUpdating.value = true;
 
-        await $fetch(`/api/tasks/${props.task.id}/is-completed`, {
-            method: 'PATCH',
-            body: JSON.stringify({ id: props.task.id, is_completed: true }),
+        await $fetch(`/api/tasks/${props.task.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                id: props.task.id,
+                is_completed: true,
+                opportunity_id: props.opportunity_id,
+                lead_id: props.lead_id,
+            }),
         });
 
         toast.success('Task completed successfully');
@@ -57,7 +64,7 @@ function useUpdateTask() {
         date: props.task.date,
     });
 
-    async function createTask(event: FormSubmitEvent<UpdateTaskType>) {
+    async function updateTask(event: FormSubmitEvent<UpdateTaskType>) {
         try {
             isUpdating.value = true;
 
@@ -77,7 +84,7 @@ function useUpdateTask() {
         }
     }
 
-    return { taskState, createTask };
+    return { taskState, updateTask };
 }
 </script>
 
@@ -147,7 +154,7 @@ function useUpdateTask() {
             :schema="updateTaskSchema"
             :state="taskState"
             class="my-4 space-y-3"
-            @submit="createTask"
+            @submit="updateTask"
             @error="console.error"
         >
             <UFormGroup label="Task Description" name="description" required>

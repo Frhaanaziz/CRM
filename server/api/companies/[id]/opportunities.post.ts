@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
         .order('index_number', { ascending: false })
         .limit(1)
         .single();
-    if (error) {
+    if (error && error.code !== 'PGRST116') {
         console.error('Error fetching max index opportunity statuses (SERVER)', error);
         throw createError({
             status: 500,

@@ -20,13 +20,13 @@ export const createOrganizationSchema = organizationSchema
     .pick({
         name: true,
         website: true,
-        size_id: true,
-        industry_id: true,
-        sales_size: true,
-        lead_source: true,
     })
     .extend({
         user_id: z.string().trim(),
+        size_id: z.coerce.number({ message: 'Size is required' }).int(),
+        industry_id: z.coerce.number({ message: 'Industry is required' }).int(),
+        sales_size: z.string().trim().min(1, { message: 'Sales size is required' }),
+        lead_source: z.string().trim().min(1, { message: 'Lead source is required' }),
     });
 
 export const joinOrganizationSchema = z.object({

@@ -20,8 +20,8 @@ async function handleSubmit(event: FormSubmitEvent<UpdateOpportunityTopic>) {
     try {
         isSubmitting.value = true;
 
-        await $fetch(`/api/opportunities/${props.opportunity.id}/topic`, {
-            method: 'PATCH',
+        await $fetch(`/api/opportunities/${props.opportunity.id}`, {
+            method: 'PUT',
             body: JSON.stringify(event.data),
         });
 

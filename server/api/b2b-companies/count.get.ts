@@ -1,17 +1,13 @@
-import type { Database } from '~/types/supabase';
-import { serverSupabaseClient } from '#supabase/server';
+import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
+    try {
+        const fetchApi = await backendApi(event);
+        const { data } = await fetchApi<{ data: number | null }>('/b2b-companies/count');
 
-    const countRes = await supabase.from('B2B_Companies').select('*', { count: 'exact', head: true });
-    if (countRes.error) {
-        console.error('Failed to get B2B Companies count', countRes.error);
-        throw createError({
-            status: 500,
-            statusMessage: 'Failed to get B2B Companies count',
-        });
+        return data;
+    } catch (error) {
+        console.error('Error getting b2b-companies count (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
-
-    return countRes.count;
 });

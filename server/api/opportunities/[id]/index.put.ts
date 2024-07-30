@@ -1,27 +1,22 @@
-import { serverSupabaseClient } from '#supabase/server';
-import type { Database } from '~/types/supabase';
-import { getZodErrorMessage, updateOpportunitySchema } from '~/utils';
+import { getErrorCode, getNestErrorMessage, getZodErrorMessage, updateOpportunitySchema } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
-
     const zodResult = await readValidatedBody(event, updateOpportunitySchema.safeParse);
     if (!zodResult.success) {
         console.error('Error validating request body', zodResult.error);
         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
 
-    const { id, act_close_date, ...restData } = zodResult.data;
+    const { id, ...restData } = zodResult.data;
 
-    const { error } = await supabase
-        .from('Opportunities')
-        .update({
-            ...restData,
-            act_close_date: act_close_date && act_close_date.toISOString(),
-        })
-        .eq('id', id);
-    if (error) {
-        console.error('Error updating opportunity', error);
-        throw createError({ status: 500, statusMessage: error.message });
+    try {
+        const fetchApi = await backendApi(event);
+        await fetchApi(`/opportunities/${id}`, {
+            method: 'PATCH',
+            body: JSON.stringify(restData),
+        });
+    } catch (error) {
+        console.error(`Error updating opportunity with id (${id}) (SERVER):`, error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
 });
