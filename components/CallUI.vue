@@ -12,6 +12,7 @@ if (!user.value) throw createError({ status: 401, message: 'Unauthorized' });
 const { data: twilioSetting } = await useFetch(`/api/twilio-settings/${user.value?.user_metadata.twilio_setting_id}`, {
     key: 'twilio-setting',
     headers: useRequestHeaders(['cookie']),
+    immediate: !!user.value?.user_metadata.twilio_setting_id,
 });
 
 let device: Device | undefined;
@@ -292,7 +293,10 @@ function toggleCallWindow() {
 
 onMounted(async () => {
     const enabled = twilioSetting.value?.enabled;
-    if (enabled === undefined) throw createError({ status: 500, message: 'Twilio setting is undefined' });
+    if (enabled === undefined) {
+        toast.error('Please contact administrator to enable Twilio integration.');
+        return;
+    }
 
     setTwilioEnabled(enabled);
     // enabled && startupClient();
