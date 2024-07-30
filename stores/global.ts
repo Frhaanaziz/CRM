@@ -1,3 +1,8 @@
+interface CallMethodInput {
+    full_name: string;
+    number: string;
+}
+
 export const globalStore = defineStore('global', () => {
     const twilioEnabled = ref(false);
     let callMethod: any = () => {};
@@ -6,12 +11,12 @@ export const globalStore = defineStore('global', () => {
         twilioEnabled.value = value;
     }
 
-    function setMakeCall(value: any) {
+    function setMakeCall(value: (value: CallMethodInput) => any) {
         callMethod = value;
     }
 
-    function makeCall(number: string) {
-        callMethod(number);
+    function makeCall(value: CallMethodInput) {
+        callMethod(value);
     }
 
     return {

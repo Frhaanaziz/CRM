@@ -221,7 +221,18 @@ async function verifyEmail() {
                             variant="ghost"
                             icon="i-heroicons-phone-solid"
                             size="xs"
-                            @click="store.makeCall(contact.mobile_phone)"
+                            @click="
+                                () => {
+                                    if (!contact.mobile_phone) {
+                                        toast.error('Please fill in the mobile phone number to make a call');
+                                        return;
+                                    }
+                                    store.makeCall({
+                                        full_name: getUserFullName(contact),
+                                        number: contact.mobile_phone,
+                                    });
+                                }
+                            "
                         />
                     </div>
                 </UFormGroup>

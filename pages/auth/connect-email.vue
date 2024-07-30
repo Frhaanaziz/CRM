@@ -54,7 +54,7 @@ function openConnectEmailModal() {
                 </p>
             </section>
 
-            <section class="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t pb-[60px] pt-10">
+            <footer class="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t pb-[60px] pt-10">
                 <div class="flex items-center gap-5">
                     <UButton to="/auth/signin" color="gray" size="2xs" class="px-8" @click="handleSignout">Logout</UButton>
                     <NuxtLink :href="`mailto:${supportEmail}`" external class="text-sm text-slate-700"
@@ -64,7 +64,7 @@ function openConnectEmailModal() {
                 <UButton color="gray" size="2xs" class="px-5" icon="i-heroicons-chevron-right" trailing to="/auth/onboarding"
                     >Skip this</UButton
                 >
-            </section>
+            </footer>
         </main>
     </div>
 </template>

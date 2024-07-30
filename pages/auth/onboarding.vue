@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { useStepper } from '@vueuse/core';
+import LazyModalConnectEmailManual from '~/components/modal/ModalConnectEmailManual.vue';
 
 const supabase = useSupabaseClient();
 const sessionStore = userSessionStore();
-const { user } = storeToRefs(sessionStore);
+const { user, session } = storeToRefs(sessionStore);
 
 const { data } = await useLazyAsyncData(
     () => {
@@ -57,15 +58,24 @@ const leadSourcesOption = [
     'Other',
 ];
 
-const stepper = useStepper(['profile-setup', 'create-organization', 'join-organization']);
+const initialStep = session.value?.provider_token ? 'profile-setup' : 'connect-email';
+const stepper = useStepper(['connect-email', 'profile-setup', 'create-organization', 'join-organization'], initialStep);
 
 const isSubmitting = ref(false);
 
+const modal = useModal();
+const { connectGmail } = useAuthorizeWithGoogle();
 const { profileForm, profileState, submitProfile } = useProfileSetup();
 const { createOrganizationForm, organizationState, submitOrganization } = useCreateOrganization();
 const { joinOrganizationForm, joinOrganizationState, submitJoinOrganization } = useJoinOrganization();
 
-const nextStep = () => profileForm.value?.validate(['phone', 'expectation']).then(stepper.goToNext);
+const nextStep = () => {
+    if (stepper.isCurrent('connect-email')) {
+        stepper.goToNext();
+    } else if (stepper.isCurrent('profile-setup')) {
+        profileForm.value?.validate(['phone', 'expectation']).then(stepper.goToNext);
+    }
+};
 async function submitForm() {
     try {
         if (joinOrganizationState.value.code) {
@@ -208,13 +218,15 @@ async function handleSignout() {
         </NuxtLink>
 
         <main class="relative mx-auto min-h-screen w-[800px]">
-            <section class="py-20">
+            <section class="pt-20">
                 <div class="space-y-10">
-                    <UProgress :value="stepper.isCurrent('profile-setup') ? 66 : 99" class="pt-10" color="green" />
+                    <UProgress v-if="stepper.isCurrent('connect-email')" :value="33" class="pt-10" color="green" />
+                    <UProgress v-else-if="stepper.isCurrent('profile-setup')" :value="66" class="pt-10" color="green" />
+                    <UProgress v-else :value="99" class="pt-10" color="green" />
 
-                    <div v-if="stepper.isCurrent('profile-setup')" class="not-sr-only h-8" />
+                    <!-- <div v-if="stepper.isCurrent('profile-setup')" class="not-sr-only h-8" /> -->
                     <UButton
-                        v-else
+                        v-if="stepper.isCurrent('connect-email') || stepper.isCurrent('profile-setup')"
                         icon="i-heroicons-chevron-left"
                         size="sm"
                         variant="ghost"
@@ -225,7 +237,10 @@ async function handleSignout() {
                     </UButton>
 
                     <div class="space-y-5 text-slate-700">
-                        <h1 v-if="stepper.isCurrent('profile-setup')" class="text-4xl font-semibold">
+                        <h1 v-if="stepper.isCurrent('connect-email')" class="text-4xl font-semibold">
+                            All sales activity in one place.
+                        </h1>
+                        <h1 v-else-if="stepper.isCurrent('profile-setup')" class="text-4xl font-semibold">
                             Tell us about yourself, {{ user?.user_metadata?.first_name }}.
                         </h1>
                         <h1 v-else-if="stepper.isCurrent('create-organization')" class="text-4xl font-semibold">
@@ -235,11 +250,50 @@ async function handleSignout() {
                             Enter Invite Code
                         </h1>
 
-                        <p v-if="stepper.isCurrent('profile-setup')">Let's set up your profile</p>
+                        <p v-if="stepper.isCurrent('connect-email')">Connect your email and your calendar</p>
+                        <p v-else-if="stepper.isCurrent('profile-setup')">Let's set up your profile</p>
                         <p v-else-if="stepper.isCurrent('create-organization')">Help us personalize your experience</p>
                         <p v-else-if="stepper.isCurrent('join-organization')">Get the invite code from organization owner.</p>
+
+                        <p v-if="stepper.isCurrent('connect-email')" class="text-slate-500">
+                            We'll sync email and meetings with Leads you add in Pipeline
+                        </p>
                     </div>
                 </div>
+
+                <template v-if="stepper.isCurrent('connect-email')">
+                    <NuxtImg src="/images/undraw-mail-opened.svg" alt="" height="247" width="280" class="my-10" />
+
+                    <!-- <UButton @click="connectGmail"> -->
+                    <UButton @click="async () => await connectGmail()">
+                        <NuxtImg src="/icons/google.svg" width="16" height="16" />
+                        Connect with Google
+                    </UButton>
+                    <!-- <UButton
+                        icon="i-heroicons-envelope"
+                        @click="
+                            modal.open(LazyModalConnectEmailManual, {
+                                onClose: () => modal.close(),
+                            })
+                        "
+                    >
+                        Connect email
+                    </UButton> -->
+
+                    <p class="mt-4 text-slate-500">
+                        Or,
+                        <button
+                            class="underline"
+                            @click="
+                                modal.open(LazyModalConnectEmailManual, {
+                                    onClose: () => modal.close(),
+                                })
+                            "
+                        >
+                            use another email provider
+                        </button>
+                    </p>
+                </template>
 
                 <div class="mt-20">
                     <UForm
@@ -321,7 +375,7 @@ async function handleSignout() {
                                 />
                             </UFormGroup>
 
-                            <UFormGroup label="How big is your company?" name="size_id">
+                            <UFormGroup label="How big is your company?" name="size_id" required>
                                 <USelectMenu
                                     v-model="organizationState.size_id"
                                     value-attribute="value"
@@ -333,7 +387,7 @@ async function handleSignout() {
                                 />
                             </UFormGroup>
 
-                            <UFormGroup label="How big is your sales team?" name="sales_size">
+                            <UFormGroup label="How big is your sales team?" name="sales_size" required>
                                 <USelectMenu
                                     v-model="organizationState.sales_size"
                                     :options="salesSizesOption"
@@ -343,7 +397,7 @@ async function handleSignout() {
                                 />
                             </UFormGroup>
 
-                            <UFormGroup label="Industry" name="industry_id">
+                            <UFormGroup label="Industry" name="industry_id" required>
                                 <USelectMenu
                                     v-model="organizationState.industry_id"
                                     value-attribute="value"
@@ -357,7 +411,7 @@ async function handleSignout() {
                                 />
                             </UFormGroup>
 
-                            <UFormGroup label="Where are your Leads today?" name="lead_source">
+                            <UFormGroup label="Where are your Leads today?" name="lead_source" required>
                                 <USelectMenu
                                     v-model="organizationState.lead_source"
                                     :options="leadSourcesOption"
@@ -399,7 +453,13 @@ async function handleSignout() {
                     </NuxtLink>
                 </div>
 
-                <UButton v-if="stepper.isCurrent('profile-setup')" size="2xs" class="px-8" @click="nextStep">Next</UButton>
+                <UButton
+                    v-if="stepper.isCurrent('connect-email') || stepper.isCurrent('profile-setup')"
+                    size="2xs"
+                    class="px-8"
+                    @click="nextStep"
+                    >Next</UButton
+                >
                 <UButton v-else size="2xs" class="px-8" :loading="isSubmitting" :disabled="isSubmitting" @click="submitForm"
                     >Confirm</UButton
                 >

@@ -33,9 +33,8 @@ const counterUp = ref<{ stop: () => string; start: () => void; updatedTime: Ref<
 const callStatus = ref('');
 
 const { width, height } = useWindowSize();
-
 const { style } = useDraggable(callPopup, {
-    initialValue: { x: width.value - 280, y: height.value - 310 },
+    initialValue: { x: width.value - 280, y: height.value - 300 },
     preventDefault: true,
 });
 
@@ -44,7 +43,6 @@ async function startupClient() {
 
     try {
         const data = await $fetch('/api/integrations/twilio/generate-access-token', { method: 'POST' });
-        console.log('token', data);
 
         log.value = 'Got a token.';
         intitializeDevice(data.token);
@@ -116,7 +114,7 @@ function handleIncomingCall(call: any) {
     _call = call;
 
     _call.on('accept', (conn: any) => {
-        console.log('conn', conn);
+        console.info('conn', conn);
     });
 
     // add event listener to call object
@@ -172,7 +170,7 @@ function handleDisconnectedIncomingCall() {
     counterUp.value?.stop();
 }
 
-async function makeOutgoingCall(number: string) {
+async function makeOutgoingCall({ full_name, number }: { full_name: string; number: string }) {
     //   // check if number has a country code
     //   // if (number?.replace(/[^0-9+]/g, '').length == 10) {
     //   //   $dialog({
@@ -186,14 +184,10 @@ async function makeOutgoingCall(number: string) {
     // if (!contact.value) {
     //     contact.value = getLeadContact(number);
     // }
-
-    // TEMPORARY CODE
-    if (!contact.value) {
-        contact.value = {
-            full_name: 'Unknown',
-            mobile_no: number,
-        };
-    }
+    contact.value = {
+        full_name,
+        mobile_no: number,
+    };
 
     if (device) {
         log.value = `Attempting to call ${number} ...`;
@@ -383,14 +377,15 @@ watch(
             </div>
         </div>
     </div>
+    <!-- class=" ml-2 flex cursor-pointer select-none items-center justify-between gap-3 rounded-lg bg-gray-900 px-2 py-[7px] text-base text-gray-300" -->
     <div
         v-show="showSmallCallWindow"
-        class="ml-2 flex cursor-pointer select-none items-center justify-between gap-3 rounded-lg bg-gray-900 px-2 py-[7px] text-base text-gray-300"
+        class="absolute right-4 top-4 z-[99999] ml-2 flex cursor-pointer select-none items-center justify-between gap-3 rounded-lg bg-gray-900 px-2 py-[7px] text-base text-gray-300"
         v-bind="$attrs"
         @click="toggleCallWindow"
     >
         <div class="flex items-center gap-2">
-            <UAvatar :src="getFallbackAvatarUrl('FA')" size="2xs" />
+            <UAvatar :src="getFallbackAvatarUrl('FA')" size="xs" />
             <div class="max-w-[120px] truncate">
                 {{ contact.full_name }}
             </div>
@@ -412,24 +407,10 @@ watch(
             </UButton>
         </div>
         <div v-else class="flex items-center gap-2">
-            <UButton
-                color="green"
-                :ui="{ rounded: 'rounded-full' }"
-                class="pulse"
-                square
-                size="2xs"
-                @click.stop="acceptIncomingCall"
-            >
+            <UButton color="green" :ui="{ rounded: 'rounded-full' }" square size="2xs" @click.stop="acceptIncomingCall">
                 <UIcon name="i-heroicons-phone-solid" class="h-4 w-4 animate-pulse" />
             </UButton>
-            <UButton
-                color="red"
-                :ui="{ rounded: 'rounded-full' }"
-                class="pulse"
-                square
-                size="2xs"
-                @click.stop="rejectIncomingCall"
-            >
+            <UButton color="red" :ui="{ rounded: 'rounded-full' }" square size="2xs" @click.stop="rejectIncomingCall">
                 <UIcon name="i-heroicons-phone-solid" class="h-4 w-4 rotate-[135deg]" />
             </UButton>
         </div>
