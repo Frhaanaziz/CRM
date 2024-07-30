@@ -45,6 +45,7 @@ if (import.meta.server) {
         <NuxtRouteAnnouncer />
         <NuxtLoadingIndicator color="#0265DC" />
         <UNotifications />
+        <CallUI />
 
         <NuxtPage class="text-default" />
         <UModals />
