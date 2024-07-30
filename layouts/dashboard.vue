@@ -19,11 +19,17 @@ const navigations = computed(() => {
             name: 'My Work',
             links: [
                 {
-                    name: 'Dashboard',
-                    href: '/dashboard/',
-                    icon: 'i-heroicons-home',
-                    current: isCurrent('/dashboard/'),
+                    name: 'Inbox',
+                    href: '/dashboard/inbox',
+                    icon: 'i-heroicons-inbox',
+                    current: isCurrentNested('/dashboard/inbox'),
                 },
+                // {
+                //     name: 'Dashboard',
+                //     href: '/dashboard/',
+                //     icon: 'i-heroicons-home',
+                //     current: isCurrent('/dashboard/'),
+                // },
             ],
         },
         {
