@@ -12,10 +12,10 @@ export default defineAppConfig({
 
         card: {
             body: {
-                padding: 'px-4 py-2 sm:px-4 sm:py-2 ',
+                padding: 'px-2 py-2 sm:px-2 sm:py-2 ',
             },
             header: {
-                padding: 'py-2 px-4 sm:px-4',
+                padding: 'py-2 px-2 sm:px-2 ',
             },
         },
     },

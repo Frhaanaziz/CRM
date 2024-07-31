@@ -24,7 +24,7 @@ const state = ref({
     first_name: '',
     last_name: '',
     email: '',
-    job_title: '',
+    job_title: undefined,
     company_id: undefined,
 });
 async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
@@ -86,7 +86,6 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
                 <USelectMenu
                     v-model="state.company_id"
                     value-attribute="value"
-                    option-attribute="label"
                     :options="companiesOption"
                     searchable
                     searchable-placeholder="Search a companies..."

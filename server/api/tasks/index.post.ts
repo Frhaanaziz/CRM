@@ -9,7 +9,6 @@ export default defineEventHandler(async (event) => {
 
     try {
         const fetchApi = await backendApi(event);
-        console.log('Creating task:', zodResult.data);
         await fetchApi(`/tasks`, {
             method: 'POST',
             body: JSON.stringify(zodResult.data),

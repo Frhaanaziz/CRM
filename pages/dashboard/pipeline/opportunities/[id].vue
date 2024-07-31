@@ -18,7 +18,6 @@ if (!user.value || !organization_id) throw createError({ status: 401, message: '
 
 const isUpdatingStatus = ref(false);
 const isUpdatingPriority = ref(false);
-const isCreatingTask = ref(false);
 
 const { data: opportunityStatuses } = await useLazyFetch(`/api/opportunity-statuses`, {
     key: `opportunity-statuses`,
@@ -33,7 +32,6 @@ if (!opportunity.value) throw createError({ status: 404, message: 'Opportunity n
 const wonStatus = computed(() => opportunityStatuses.value?.find((s) => s.name.toLowerCase() === 'won'));
 const lostStatus = computed(() => opportunityStatuses.value?.find((s) => s.name.toLowerCase() === 'lost'));
 
-const { taskState, isSubmittingTask, handleSubmitTask } = useTask();
 const {
     moreInfoState,
     formRef: moreInfoForm,
@@ -178,44 +176,6 @@ function useUpdateMoreInfo() {
         submitForm: submit,
         isFormDirty: isDirty,
         resetForm,
-    };
-}
-function useTask() {
-    type AddTaskType = z.infer<typeof addTaskSchema>;
-    const isSubmitting = ref(false);
-    const state = ref({
-        description: '',
-        date: new Date().toISOString(),
-        opportunity_id: id,
-        user_id: user.value!.id,
-        organization_id,
-    });
-
-    async function createTask(event: FormSubmitEvent<AddTaskType>) {
-        try {
-            isSubmitting.value = true;
-
-            await $fetch('/api/tasks', {
-                method: 'POST',
-                body: JSON.stringify(event.data),
-            });
-
-            toast.success('Task added successfully.');
-            await refreshNuxtData(`opportunities-${id}`);
-            state.value = { ...state.value, description: '', date: new Date().toISOString() };
-            isCreatingTask.value = false;
-        } catch (e) {
-            console.error('Failed to add task', e);
-            toast.error('Failed to add task, please try again later.');
-        } finally {
-            isSubmitting.value = false;
-        }
-    }
-
-    return {
-        taskState: state,
-        isSubmittingTask: isSubmitting,
-        handleSubmitTask: createTask,
     };
 }
 </script>
@@ -532,75 +492,7 @@ function useTask() {
                     </UButton>
                 </UCard>
 
-                <UCard :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">
-                    <template #header>
-                        <div class="flex items-center justify-between">
-                            <h2 class="text-xl font-semibold">
-                                TASK <span class="text-weak">({{ opportunity?.tasks.length }})</span>
-                            </h2>
-                            <UButton
-                                icon="i-heroicons-plus"
-                                variant="ghost"
-                                square
-                                color="black"
-                                @click="isCreatingTask = !isCreatingTask"
-                            />
-                        </div>
-                    </template>
-
-                    <div v-if="isCreatingTask" class="bg-brand-50 p-4">
-                        <LazyUForm
-                            :schema="addTaskSchema"
-                            :state="taskState"
-                            class="space-y-3"
-                            @submit="handleSubmitTask"
-                            @error="console.error"
-                        >
-                            <UFormGroup label="Task Description" name="description" required>
-                                <UInput
-                                    v-model="taskState.description"
-                                    :disabled="isSubmittingTask"
-                                    :loading="isSubmittingTask"
-                                    placeholder="Enter company name"
-                                />
-                            </UFormGroup>
-
-                            <UFormGroup label="Date" name="date" required>
-                                <UInput
-                                    v-model.date="taskState.date"
-                                    type="datetime-local"
-                                    :disabled="isSubmittingTask"
-                                    :loading="isSubmittingTask"
-                                />
-                            </UFormGroup>
-
-                            <div class="flex items-center justify-end gap-2">
-                                <UButton
-                                    type="button"
-                                    variant="outline"
-                                    :disabled="isSubmittingTask"
-                                    @click="isCreatingTask = false"
-                                    >Cancel</UButton
-                                >
-                                <UButton type="submit" :disabled="isSubmittingTask" :loading="isSubmittingTask">Save</UButton>
-                            </div>
-                        </LazyUForm>
-                    </div>
-
-                    <div v-if="!!opportunity.tasks?.length" class="divide-y">
-                        <LazyCardTask v-for="task in opportunity.tasks" :key="task.id" :task="task" :opportunity_id="id" />
-                    </div>
-                    <UButton
-                        v-else
-                        variant="ghost"
-                        color="black"
-                        block
-                        class="text-weak mx-2 mb-4 mt-1 justify-start"
-                        @click="isCreatingTask = true"
-                    >
-                        Add New Task
-                    </UButton>
-                </UCard>
+                <CardTasks v-if="opportunity.tasks" :tasks="opportunity.tasks" :oportunity_id="id" />
 
                 <CardOpportunityDetails ref="opportunityForm" :opportunity />
 

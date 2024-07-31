@@ -37,6 +37,7 @@ export const updateCompanySchema = companiesSchema.pick({
     street_3: true,
     postal_code: true,
     primary_contact_id: true,
+    website: true,
 });
 
 export const addCompanySchema = companiesSchema.pick({
