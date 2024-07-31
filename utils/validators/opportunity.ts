@@ -65,8 +65,6 @@ export const addOpportunitySchema = opportunitySchema
     .pick({
         topic: true,
         company_id: true,
-        organization_id: true,
-        user_id: true,
     })
     .extend({
         first_name: z.string().trim().min(1, { message: 'First name is required' }),

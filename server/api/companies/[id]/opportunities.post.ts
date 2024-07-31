@@ -1,9 +1,10 @@
-import { serverSupabaseClient } from '#supabase/server';
+import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import { addCompanyOpportunitySchema, getZodErrorMessage } from '~/utils';
 import type { Database } from '~/types/supabase';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
+    const user = await serverSupabaseUser(event);
+    if (!user || !user.user_metadata.organization_id) throw createError({ status: 401, statusMessage: 'Unauthorized' });
 
     const zodResult = await readValidatedBody(event, addCompanyOpportunitySchema.safeParse);
     if (!zodResult.success) {
@@ -11,17 +12,9 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
 
-    const {
-        company_id,
-        contact_id,
-        opportunity_status_id,
-        organization_id,
-        payment_plan_id,
-        topic,
-        user_id,
-        confidence,
-        est_revenue,
-    } = zodResult.data;
+    const supabase = await serverSupabaseClient<Database>(event);
+
+    const { company_id, contact_id, opportunity_status_id, payment_plan_id, topic, confidence, est_revenue } = zodResult.data;
 
     const [ratingHotRes, ratingCoolRes, sourceRes] = await Promise.all([
         supabase.from('Ratings').select('id').eq('name', 'hot').single(),
@@ -47,10 +40,10 @@ export default defineEventHandler(async (event) => {
             company_id,
             contact_id,
             status: 'qualified',
-            organization_id,
             rating_id: ratingHotRes.data.id,
             source_id: sourceRes.data.id,
-            user_id,
+            organization_id: user.user_metadata.organization_id,
+            user_id: user.id,
         })
         .select('*')
         .single();
@@ -63,8 +56,8 @@ export default defineEventHandler(async (event) => {
         .from('Opportunities')
         .select('index_number')
         .match({
-            organization_id,
             opportunity_status_id,
+            organization_id: user.user_metadata.organization_id,
         })
         .order('index_number', { ascending: false })
         .limit(1)
@@ -81,15 +74,15 @@ export default defineEventHandler(async (event) => {
         company_id,
         contact_id,
         opportunity_status_id,
-        organization_id,
         payment_plan_id,
         topic,
-        user_id,
         confidence,
         est_revenue,
         lead_id: lead.id,
         rating_id: ratingCoolRes.data.id,
         index_number: maxIndexOpportunity ? maxIndexOpportunity.index_number + 1 : 1,
+        organization_id: user.user_metadata.organization_id,
+        user_id: user.id,
     });
     if (res.error) {
         console.error('Error inserting opportunity:', res.error);

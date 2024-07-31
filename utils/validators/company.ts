@@ -57,11 +57,9 @@ export const updateCompanyUserIdSchema = companiesSchema.pick({
 
 export const addCompanyOpportunitySchema = opportunitySchema
     .pick({
-        organization_id: true,
         company_id: true,
         topic: true,
         opportunity_status_id: true,
-        user_id: true,
         confidence: true,
         est_revenue: true,
         contact_id: true,

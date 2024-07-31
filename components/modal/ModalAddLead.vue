@@ -52,8 +52,6 @@ function useAddLead() {
         mobile_phone: undefined,
         company: [],
         company_id: undefined as unknown as number,
-        user_id: user.value!.id,
-        organization_id: user.value!.user_metadata.organization_id,
     });
     const company = computed({
         get: () => state.value.company,
@@ -65,8 +63,6 @@ function useAddLead() {
                     method: 'POST',
                     body: JSON.stringify({
                         name: company.name,
-                        organization_id: user.value!.user_metadata.organization_id,
-                        user_id: user.value!.id,
                     }),
                 });
 
@@ -88,12 +84,9 @@ function useAddLead() {
         try {
             const contacts = await $fetch('/api/contacts/check', {
                 params: {
-                    organization_id: event.data.organization_id,
-                    user_id: event.data.user_id,
+                    user_id: user.value?.id,
                     email: event.data.email,
                     company_id: event.data.company_id,
-                    first_name: event.data.first_name,
-                    last_name: event.data.last_name,
                 },
             });
 
@@ -106,8 +99,6 @@ function useAddLead() {
                         first_name: event.data.first_name,
                         last_name: event.data.last_name,
                         email: event.data.email,
-                        organization_id: event.data.organization_id,
-                        user_id: event.data.user_id,
                         company_id: event.data.company_id,
                     }),
                 });
@@ -233,8 +224,6 @@ function useConfirmLead() {
                     first_name: state.value.first_name,
                     last_name: state.value.last_name,
                     email: state.value.email,
-                    organization_id: state.value.organization_id,
-                    user_id: state.value.user_id,
                     company_id: state.value.company_id,
                 }),
             });

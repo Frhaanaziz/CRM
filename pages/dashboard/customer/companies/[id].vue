@@ -70,9 +70,7 @@ function useOpportunity() {
     type AddOpportunityType = z.infer<typeof addCompanyOpportunitySchema>;
     const isSubmitting = ref(false);
     const initialState = {
-        organization_id,
         company_id: id,
-        user_id: user.value!.id,
         topic: '',
         act_close_date: new Date(),
         confidence: 0,
@@ -128,7 +126,7 @@ function useOpportunity() {
                         modal.open(LazyModalAssignCompany, {
                             onClose: () => modal.close(),
                             company: { id: company!.id },
-                            userId: company!.user_id ?? undefined,
+                            userId: company.user_id ?? undefined,
                         })
                     "
                 >

@@ -22,8 +22,6 @@ export const leadSchema = z.object({
 export const addLeadSchema = leadSchema
     .pick({
         company_id: true,
-        user_id: true,
-        organization_id: true,
         contact_id: true,
     })
     .extend({

@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
 
-    const { company_id, email, first_name, last_name, organization_id, topic, user_id, phone } = zodResult.data;
+    const { company_id, email, first_name, last_name, topic, phone } = zodResult.data;
 
     const [contactStatusRes, ratingRes, sourceRes, opportunityStatusRes] = await Promise.all([
         supabase.from('Contact_Statuses').select('id').eq('name', 'new').single(),
@@ -44,12 +44,12 @@ export default defineEventHandler(async (event) => {
         .insert({
             company_id,
             contact_status_id: contactStatusRes.data.id,
-            organization_id,
-            user_id,
             first_name,
             last_name,
             email,
             mobile_phone: phone,
+            organization_id: user.user_metadata.organization_id,
+            user_id: user.id,
         })
         .select('id')
         .single();
@@ -64,11 +64,11 @@ export default defineEventHandler(async (event) => {
             company_id,
             contact_id: contactRes.data.id,
             status: 'new',
-            organization_id,
             rating_id: ratingRes.data.id,
             source_id: sourceRes.data.id,
-            user_id,
             topic,
+            organization_id: user.user_metadata.organization_id,
+            user_id: user.id,
         })
         .select()
         .single();
@@ -82,8 +82,8 @@ export default defineEventHandler(async (event) => {
         .from('Opportunities')
         .select('index_number')
         .match({
-            organization_id,
             opportunity_status_id: opportunityStatusRes.data.id,
+            organization_id: user.user_metadata.organization_id,
         })
         .order('index_number', { ascending: false })
         .limit(1)
@@ -101,11 +101,11 @@ export default defineEventHandler(async (event) => {
         contact_id: contactRes.data.id,
         lead_id: leadRes.data.id,
         opportunity_status_id: opportunityStatusRes.data.id,
-        organization_id,
         rating_id: ratingRes.data.id,
-        user_id,
         topic,
         index_number: maxIndexOpportunity ? maxIndexOpportunity.index_number + 1 : 1,
+        organization_id: user.user_metadata.organization_id,
+        user_id: user.id,
     });
     if (opportunityRes.error) {
         console.error('Error creating opportunity:', opportunityRes.error);
