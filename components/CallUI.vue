@@ -284,21 +284,21 @@ function toggleCallWindow() {
     }
 }
 
-onMounted(async () => {
-    if (!twilioSetting.value) return;
+// onMounted(async () => {
+//     if (!twilioSetting.value) return;
 
-    const enabled = twilioSetting.value.enabled;
-    if (enabled === undefined) {
-        toast.error('Please contact administrator to enable Twilio integration.');
-        return;
-    }
+//     const enabled = twilioSetting.value.enabled;
+//     if (enabled === undefined) {
+//         toast.error('Please contact administrator to enable Twilio integration.');
+//         return;
+//     }
 
-    setTwilioEnabled(enabled);
-    // enabled && startupClient();
-    enabled && (await startupClient());
+//     setTwilioEnabled(enabled);
+//     // enabled && startupClient();
+//     enabled && (await startupClient());
 
-    setMakeCall(makeOutgoingCall);
-});
+//     setMakeCall(makeOutgoingCall);
+// });
 
 watch(
     () => log.value,
