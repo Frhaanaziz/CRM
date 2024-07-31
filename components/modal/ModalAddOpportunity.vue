@@ -93,7 +93,6 @@ async function handleSubmit(event: FormSubmitEvent<AddOpportunityType>) {
                 <USelectMenu
                     v-model="state.company_id"
                     value-attribute="value"
-                    option-attribute="label"
                     :options="companiesOption"
                     searchable
                     searchable-placeholder="Search a companies..."

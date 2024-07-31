@@ -379,7 +379,6 @@ async function handleSignout() {
                                 <USelectMenu
                                     v-model="organizationState.size_id"
                                     value-attribute="value"
-                                    option-attribute="label"
                                     :options="sizesOption ?? []"
                                     placeholder="Select your company size"
                                     :loading="isSubmitting"
@@ -401,7 +400,6 @@ async function handleSignout() {
                                 <USelectMenu
                                     v-model="organizationState.industry_id"
                                     value-attribute="value"
-                                    option-attribute="label"
                                     :options="industriesOption ?? []"
                                     searchable
                                     searchable-placeholder="Search a industries..."

@@ -60,7 +60,6 @@ async function handleSubmit(event: FormSubmitEvent<UpdateUserOrganizationType>) 
                 <USelectMenu
                     v-model="state.role_id"
                     value-attribute="value"
-                    option-attribute="label"
                     :options="rolesOption"
                     :loading="isSubmitting"
                     :disabled="isSubmitting"
@@ -72,7 +71,6 @@ async function handleSubmit(event: FormSubmitEvent<UpdateUserOrganizationType>) 
                 <USelectMenu
                     v-model="state.status"
                     value-attribute="value"
-                    option-attribute="label"
                     :options="statusOption"
                     :loading="isSubmitting"
                     :disabled="isSubmitting"

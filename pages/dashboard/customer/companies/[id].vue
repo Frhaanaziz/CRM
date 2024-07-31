@@ -244,7 +244,6 @@ function useOpportunity() {
                                 <USelectMenu
                                     v-model="opportunityState.opportunity_status_id"
                                     value-attribute="value"
-                                    option-attribute="label"
                                     :options="opportunityStatusesOption ?? []"
                                     :loading="isCreatingOpportunity"
                                     :disabled="isCreatingOpportunity"
@@ -288,7 +287,6 @@ function useOpportunity() {
                                     <USelectMenu
                                         v-model="opportunityState.payment_plan_id"
                                         value-attribute="value"
-                                        option-attribute="label"
                                         :options="paymentPlansOption ?? []"
                                         :loading="isCreatingOpportunity"
                                         :disabled="isCreatingOpportunity"
@@ -301,7 +299,6 @@ function useOpportunity() {
                                 <USelectMenu
                                     v-model="opportunityState.contact_id"
                                     value-attribute="value"
-                                    option-attribute="label"
                                     :options="contactsOption ?? []"
                                     :loading="isCreatingOpportunity"
                                     :disabled="isCreatingOpportunity"

@@ -62,7 +62,6 @@ async function handleSubmit(event: FormSubmitEvent<AddCompanyPrimaryContactType>
                     <USelectMenu
                         v-model="state.primary_contact_id"
                         value-attribute="value"
-                        option-attribute="label"
                         :options="contactsOption"
                         searchable
                         searchable-placeholder="Search a contacts..."

@@ -60,7 +60,6 @@ async function handleSubmit(event: FormSubmitEvent<CloseOpportunityAsLostType>) 
                 <USelect
                     v-model="state.close_reason_id"
                     :options="closeReasonsOption ?? []"
-                    option-attribute="label"
                     value-attribute="value"
                     :disabled="isSubmitting"
                     :loading="isSubmitting"

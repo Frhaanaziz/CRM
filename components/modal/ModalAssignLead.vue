@@ -71,7 +71,6 @@ async function handleSubmit(event: FormSubmitEvent<UpdateLeadUserId>) {
                     <USelectMenu
                         v-model="state.user_id"
                         value-attribute="value"
-                        option-attribute="label"
                         :options="usersOption"
                         searchable
                         searchable-placeholder="Search a user..."

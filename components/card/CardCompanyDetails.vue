@@ -173,7 +173,6 @@ function useUpdateB2BCompany() {
                     <USelectMenu
                         v-model="updateState.industry_id"
                         value-attribute="value"
-                        option-attribute="label"
                         :options="industriesOption ?? []"
                         placeholder="---"
                         :disabled="isUpdating"
@@ -191,7 +190,6 @@ function useUpdateB2BCompany() {
                     <USelectMenu
                         v-model="updateState.size_id"
                         value-attribute="value"
-                        option-attribute="label"
                         :options="sizesOption ?? []"
                         placeholder="---"
                         :disabled="isUpdating"
@@ -209,7 +207,6 @@ function useUpdateB2BCompany() {
                     <USelectMenu
                         v-model="updateState.country_id"
                         value-attribute="value"
-                        option-attribute="label"
                         :options="countriesOption ?? []"
                         placeholder="---"
                         :disabled="isUpdating"
@@ -227,7 +224,6 @@ function useUpdateB2BCompany() {
                     <USelectMenu
                         v-model="updateState.province_id"
                         value-attribute="value"
-                        option-attribute="label"
                         :options="provincesOption ?? []"
                         searchable
                         searchable-placeholder="Search a provinces..."
@@ -247,7 +243,6 @@ function useUpdateB2BCompany() {
                     <USelectMenu
                         v-model="updateState.city_id"
                         value-attribute="value"
-                        option-attribute="label"
                         :options="citiesOption ?? []"
                         searchable
                         searchable-placeholder="Search a cities..."

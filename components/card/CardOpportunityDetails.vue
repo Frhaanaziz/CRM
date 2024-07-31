@@ -158,7 +158,6 @@ function useUpdateOpportunity() {
                     <USelectMenu
                         v-model="updateState.currency_id"
                         value-attribute="value"
-                        option-attribute="label"
                         :options="currenciesOption ?? []"
                         :disabled="isUpdating"
                         placeholder="---"
@@ -217,7 +216,6 @@ function useUpdateOpportunity() {
                     <USelectMenu
                         v-model="updateState.payment_plan_id"
                         value-attribute="value"
-                        option-attribute="label"
                         :options="paymentPlansOption ?? []"
                         :disabled="isUpdating"
                         placeholder="---"
