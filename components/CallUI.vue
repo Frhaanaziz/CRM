@@ -6,7 +6,6 @@ import { onMounted, ref, watch } from 'vue';
 // const { getContact, getLeadContact } = contactsStore();
 const { setMakeCall, setTwilioEnabled } = globalStore();
 const { user } = storeToRefs(userSessionStore());
-if (!user.value) throw createError({ status: 401, message: 'Unauthorized' });
 
 // pastikan data fetch ini tidak mengganggu performa aplikasi ketika dijalankan karena ada kemungkinan untuk terus menerus melakukan fetch
 const { data: twilioSetting } = await useFetch(`/api/twilio-settings/${user.value?.user_metadata.twilio_setting_id}`, {
@@ -286,7 +285,9 @@ function toggleCallWindow() {
 }
 
 onMounted(async () => {
-    const enabled = twilioSetting.value?.enabled;
+    if (!twilioSetting.value) return;
+
+    const enabled = twilioSetting.value.enabled;
     if (enabled === undefined) {
         toast.error('Please contact administrator to enable Twilio integration.');
         return;
