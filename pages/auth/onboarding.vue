@@ -2,9 +2,8 @@
 import { useStepper } from '@vueuse/core';
 import LazyModalConnectEmailManual from '~/components/modal/ModalConnectEmailManual.vue';
 
-const supabase = useSupabaseClient();
-const sessionStore = userSessionStore();
-const { user, session } = storeToRefs(sessionStore);
+const google_refresh_token = useRoute().query.google_refresh_token;
+const { user } = storeToRefs(userSessionStore());
 
 const { data } = await useLazyAsyncData(
     () => {
@@ -22,43 +21,7 @@ const { data } = await useLazyAsyncData(
 const industriesOption = computed(() => data.value[0]);
 const sizesOption = computed(() => data.value[1]);
 
-const salesSizesOption = ['Just me', '2-10', '11-25', '26-50', '51-200', '201+'];
-const leadSourcesOption = [
-    "i don't have any leads yet",
-    'My email inbox',
-    'CSV/Spreadsheet',
-    'Act!',
-    'ActiveCampaign',
-    'Agile CRM',
-    'Attio',
-    'Capsule CRN',
-    'Copper',
-    'Firmao',
-    'FowCRM',
-    'GoHighLevel',
-    'Google Sheets',
-    'Highrise',
-    'HubSpot',
-    'Insightly',
-    'Keap',
-    'Less Annoying CRM',
-    'MS Dynamics',
-    'Nimble',
-    'Nutshell',
-    'OnePage CRM',
-    'Pipedrive',
-    'PipelineDeals',
-    'Redtail CRM',
-    'Salesforce',
-    'Streak',
-    'SugarCRM',
-    'SuiteCRM',
-    'Wealthbox',
-    'Zoho CRM',
-    'Other',
-];
-
-const initialStep = session.value?.provider_token ? 'profile-setup' : 'connect-email';
+const initialStep = google_refresh_token ? 'profile-setup' : 'connect-email';
 const stepper = useStepper(['connect-email', 'profile-setup', 'create-organization', 'join-organization'], initialStep);
 
 const isSubmitting = ref(false);
@@ -102,7 +65,7 @@ async function submitForm() {
             await navigateTo('/dashboard');
         }
     } catch (error) {
-        // console.error('error', error);
+        console.error('onboarding submitForm: ', error);
     }
 }
 function useProfileSetup() {
@@ -110,6 +73,7 @@ function useProfileSetup() {
     const state = ref({
         phone: user.value?.user_metadata?.phone ?? '',
         expectation: [],
+        google_refresh_token,
     });
 
     async function onSubmit() {
@@ -197,18 +161,6 @@ function useJoinOrganization() {
         submitJoinOrganization: onSubmit,
     };
 }
-async function handleSignout() {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-        console.error('Sign out error:', error);
-        toast.error('Failed to sign out, please try again.');
-    }
-
-    sessionStore.session = null;
-    sessionStore.user = null;
-
-    await navigateTo('/auth/signin');
-}
 </script>
 
 <template>
@@ -226,7 +178,7 @@ async function handleSignout() {
 
                     <!-- <div v-if="stepper.isCurrent('profile-setup')" class="not-sr-only h-8" /> -->
                     <UButton
-                        v-if="stepper.isCurrent('connect-email') || stepper.isCurrent('profile-setup')"
+                        v-if="!stepper.isFirst"
                         icon="i-heroicons-chevron-left"
                         size="sm"
                         variant="ghost"
@@ -264,21 +216,18 @@ async function handleSignout() {
                 <template v-if="stepper.isCurrent('connect-email')">
                     <NuxtImg src="/images/undraw-mail-opened.svg" alt="" height="247" width="280" class="my-10" />
 
-                    <!-- <UButton @click="connectGmail"> -->
-                    <UButton @click="async () => await connectGmail()">
+                    <!-- <UButton @click="async () => await connectGmail()"> -->
+                    <UButton
+                        @click="
+                            () => {
+                                console.log('conneect email');
+                                connectGmail();
+                            }
+                        "
+                    >
                         <NuxtImg src="/icons/google.svg" width="16" height="16" />
                         Connect with Google
                     </UButton>
-                    <!-- <UButton
-                        icon="i-heroicons-envelope"
-                        @click="
-                            modal.open(LazyModalConnectEmailManual, {
-                                onClose: () => modal.close(),
-                            })
-                        "
-                    >
-                        Connect email
-                    </UButton> -->
 
                     <p class="mt-4 text-slate-500">
                         Or,
@@ -445,7 +394,7 @@ async function handleSignout() {
 
             <section class="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t pb-[60px] pt-10">
                 <div class="flex items-center gap-5">
-                    <UButton color="gray" size="2xs" class="px-8" @click="handleSignout">Log Out</UButton>
+                    <UButton color="gray" size="2xs" class="px-8" @click="signOutUser">Log Out</UButton>
                     <NuxtLink :href="`mailto:${supportEmail}`" external class="text-sm text-slate-700">
                         Need help or have a question?
                     </NuxtLink>

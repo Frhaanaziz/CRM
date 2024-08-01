@@ -1,24 +1,6 @@
 <script setup lang="ts">
 const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
-
-const supabase = useSupabaseClient();
-
-async function handleSignout() {
-    closeModal();
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-        console.error('Sign out error:', error);
-        toast.error('Failed to sign out, please try again.');
-        return;
-    }
-
-    const sessionStore = userSessionStore();
-    sessionStore.session = null;
-    sessionStore.user = null;
-
-    await navigateTo('/auth/signin');
-}
 </script>
 
 <template>
@@ -41,7 +23,7 @@ async function handleSignout() {
             <div class="flex items-center justify-end gap-x-2">
                 <UButton color="red" variant="outline" @click="closeModal"> Cancel </UButton>
 
-                <UButton color="red" @click="handleSignout"> Sign Out </UButton>
+                <UButton color="red" @click="signOutUser"> Sign Out </UButton>
             </div>
         </div>
     </UModal>

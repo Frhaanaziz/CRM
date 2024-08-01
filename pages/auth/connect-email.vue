@@ -2,19 +2,6 @@
 import LazyModalConnectEmailManual from '~/components/modal/ModalConnectEmailManual.vue';
 
 const supabase = useSupabaseClient();
-async function handleSignout() {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-        console.error('Sign out error:', error);
-        toast.error('Failed to sign out, please try again.');
-    }
-
-    const sessionStore = userSessionStore();
-    sessionStore.session = null;
-    sessionStore.user = null;
-
-    await navigateTo('/auth/signin');
-}
 
 const modal = useModal();
 function openConnectEmailModal() {
@@ -56,7 +43,7 @@ function openConnectEmailModal() {
 
             <footer class="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t pb-[60px] pt-10">
                 <div class="flex items-center gap-5">
-                    <UButton to="/auth/signin" color="gray" size="2xs" class="px-8" @click="handleSignout">Logout</UButton>
+                    <UButton to="/auth/signin" color="gray" size="2xs" class="px-8" @click="signOutUser">Logout</UButton>
                     <NuxtLink :href="`mailto:${supportEmail}`" external class="text-sm text-slate-700"
                         >Need help or have a question?</NuxtLink
                     >

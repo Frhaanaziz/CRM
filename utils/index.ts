@@ -186,13 +186,13 @@ export function formatToRupiah(amount: number) {
  * @returns The generated fallback avatar URL.
  */
 export function getFallbackAvatarUrl(name: string) {
-    if (!name) return 'https://ui-avatars.com/api/?name=FA&background=3892F3&color=fff&bold=true';
+    if (!name) return 'https://ui-avatars.com/api/?name=FA&background=F1F5F9&color=000&bold=true';
 
     const baseUrl = 'https://ui-avatars.com/api/';
     const params = new URLSearchParams({
         name: name,
-        background: '3892F3',
-        color: 'fff',
+        background: 'F1F5F9',
+        color: '000',
         bold: 'true',
     });
 
@@ -201,13 +201,13 @@ export function getFallbackAvatarUrl(name: string) {
 
 export function getUserFallbackAvatarUrl(user?: Pick<User, 'first_name' | 'last_name'> | { [key: string]: any } | null): string {
     if (!user || !user.first_name || !user.last_name)
-        return 'https://ui-avatars.com/api/?name=FA&background=3892F3&color=fff&bold=true';
+        return 'https://ui-avatars.com/api/?name=FA&background=F1F5F9&color=000&bold=true';
 
     const baseUrl = 'https://ui-avatars.com/api/';
     const params = new URLSearchParams({
         name: getUserFullName(user),
-        background: '3892F3',
-        color: 'fff',
+        background: 'F1F5F9',
+        color: '000',
         bold: 'true',
     });
 
@@ -223,4 +223,17 @@ export function getUserFallbackAvatarUrl(user?: Pick<User, 'first_name' | 'last_
 export function getUserFullName(user?: Pick<User, 'first_name' | 'last_name'> | { [key: string]: any } | null): string {
     if (!user || !user.first_name || !user.last_name) return '';
     return user.first_name + ' ' + user.last_name;
+}
+
+export async function signOutUser() {
+    const supabase = useSupabaseClient();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+        console.error('Sign out error:', error);
+        toast.error('Failed to sign out, please try again.');
+    }
+    const sessionStore = userSessionStore();
+    sessionStore.session = null;
+    sessionStore.user = null;
+    await navigateTo('/auth/signin');
 }

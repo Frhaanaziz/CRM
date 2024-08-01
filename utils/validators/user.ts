@@ -33,4 +33,5 @@ export const setupUserSchema = userSchema
     })
     .extend({
         expectation: z.array(z.string()).min(1, { message: 'Please select an option' }),
+        google_refresh_token: z.string().optional().nullable(),
     });

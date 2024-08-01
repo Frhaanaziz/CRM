@@ -1,7 +1,6 @@
 export function useAuthorizeWithGoogle() {
     const supabase = useSupabaseClient();
     const runtimeConfig = useRuntimeConfig();
-    const sessionStore = userSessionStore();
 
     async function authorizeWithGoogle() {
         try {
@@ -10,10 +9,10 @@ export function useAuthorizeWithGoogle() {
                 options: {
                     redirectTo: `${runtimeConfig.public.BASE_URL}/auth/confirm`,
                     // scopes: 'email openid profile https://mail.google.com/',
-                    queryParams: {
-                        access_type: 'offline',
-                        prompt: 'consent',
-                    },
+                    // queryParams: {
+                    //     access_type: 'offline',
+                    //     prompt: 'consent',
+                    // },
                 },
             });
             if (error) {
@@ -28,28 +27,9 @@ export function useAuthorizeWithGoogle() {
 
     async function connectGmail() {
         try {
-            await supabase.auth.signOut();
-            sessionStore.session = null;
-            sessionStore.user = null;
+            const { url } = await $fetch('/api/auth/google/connect');
 
-            await supabase.auth.refreshSession();
-
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    scopes: 'email openid profile https://mail.google.com/',
-                    redirectTo: `${runtimeConfig.public.BASE_URL}/auth/confirm`,
-                    skipBrowserRedirect: true,
-                    queryParams: {
-                        access_type: 'offline',
-                        prompt: 'consent',
-                    },
-                },
-            });
-            if (error) {
-                console.error('Error connecting Gmail:', error);
-                throw new Error(error.message);
-            }
+            await navigateTo(url, { external: true });
         } catch (e) {
             console.error('Error connecting Gmail:', e);
             toast.error(getErrorMessage(e));

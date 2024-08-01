@@ -1,17 +1,18 @@
 <script lang="ts" setup>
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAssignLead from '~/components/modal/ModalAssignLead.vue';
-import LazyModalAddLeadTopic from '~/components/modal/ModalAddLeadTopic.vue';
 import type { DisqualifyReason, LeadStatuses } from '~/types';
-import type { FormSubmitEvent } from '#ui/types';
-import type { z } from 'zod';
+import type { DropdownItem } from '#ui/types';
+
+interface FormRef {
+    submitForm: () => Promise<any>;
+    resetForm: () => Promise<any>;
+    isFormDirty: boolean;
+    isUpdating: boolean;
+}
 
 const modal = useModal();
 const id = parseInt(useRoute().params.id as string);
-
-const { user } = storeToRefs(userSessionStore());
-const organization_id = user.value?.user_metadata?.organization_id;
-if (!user.value || !organization_id) throw createError({ status: 401, message: 'Unauthorized' });
 
 const { data: disqualifyReasons } = await useLazyFetch('/api/disqualify-reasons', {
     key: 'disqualify-reasons',
@@ -24,31 +25,70 @@ const { data: lead } = await useFetch(`/api/leads/${id}`, {
 if (!lead.value) throw createError({ status: 404, message: 'Lead not found' });
 
 const isUpdatingStatus = ref(false);
-const isCreatingTask = ref(false);
 
-const contactForm = ref<null | {
-    submitForm: () => Promise<any>;
-    resetForm: () => Promise<any>;
-    isFormDirty: boolean;
-    isUpdating: boolean;
-}>(null);
+const contactForm = ref<FormRef | null>(null);
 const submitContactForm = () => contactForm.value?.submitForm();
 const resetContactForm = () => contactForm.value?.resetForm();
 const isContactFormDirty = computed(() => contactForm.value?.isFormDirty);
 const isUpdatingContact = computed(() => contactForm.value?.isUpdating);
 
-const companyForm = ref<null | {
-    submitForm: () => Promise<any>;
-    resetForm: () => Promise<any>;
-    isFormDirty: boolean;
-    isUpdating: boolean;
-}>(null);
+const companyForm = ref<FormRef | null>(null);
 const submitCompanyForm = () => companyForm.value?.submitForm();
 const resetCompanyForm = () => companyForm.value?.resetForm();
 const isCompanyFormDirty = computed(() => companyForm.value?.isFormDirty);
 const isUpdatingCompany = computed(() => companyForm.value?.isUpdating);
 
-const { taskState, isSubmittingTask, handleSubmitTask } = useTask();
+const items: DropdownItem[][] = [
+    [
+        {
+            label: 'Inbound',
+            icon: 'i-heroicons-pencil-square',
+            class: 'font-semibold text-gray-700',
+            disabled: true,
+        },
+        {
+            label: 'Inbound - Trial',
+        },
+        {
+            label: 'Inbound - Trial Expired',
+        },
+        {
+            label: 'Inbound - Customer',
+        },
+        {
+            label: 'Inbound - Canceled',
+        },
+        {
+            label: 'Inbound - Bad Fit',
+        },
+    ],
+    [
+        {
+            label: 'Outboud',
+            icon: 'i-heroicons-pencil-square',
+            class: 'font-semibold text-gray-700',
+            disabled: true,
+        },
+        {
+            label: 'Outboud - Potential',
+        },
+        {
+            label: 'Outboud - Interested',
+        },
+        {
+            label: 'Outboud - Qualified',
+        },
+        {
+            label: 'Outboud - Customer',
+        },
+        {
+            label: 'Outboud - Not Interested',
+        },
+        {
+            label: 'Outboud - Bad Fit',
+        },
+    ],
+];
 
 async function reopenLead(status: LeadStatuses) {
     try {
@@ -117,44 +157,6 @@ async function handleDeleteLead() {
         console.error('Failed to delete Lead:', e);
         toast.error('Failed to delete Lead, please try again later.');
     }
-}
-function useTask() {
-    type AddTaskType = z.infer<typeof addTaskSchema>;
-    const isSubmitting = ref(false);
-    const state = ref({
-        description: '',
-        date: new Date().toISOString(),
-        lead_id: id,
-        user_id: user.value!.id,
-        organization_id,
-    });
-
-    async function createTask(event: FormSubmitEvent<AddTaskType>) {
-        try {
-            isSubmitting.value = true;
-
-            await $fetch('/api/tasks', {
-                method: 'POST',
-                body: JSON.stringify(event.data),
-            });
-
-            toast.success('Task added successfully.');
-            await refreshNuxtData(`leads-${id}`);
-            state.value = { ...state.value, description: '', date: new Date().toISOString() };
-            isCreatingTask.value = false;
-        } catch (e) {
-            console.error('Failed to add task', e);
-            toast.error('Failed to add task, please try again later.');
-        } finally {
-            isSubmitting.value = false;
-        }
-    }
-
-    return {
-        taskState: state,
-        isSubmittingTask: isSubmitting,
-        handleSubmitTask: createTask,
-    };
 }
 </script>
 
@@ -327,60 +329,35 @@ function useTask() {
 
             <div v-if="lead" class="flex items-center justify-between p-4">
                 <div class="flex items-center gap-2">
-                    <UAvatar :src="getUserFallbackAvatarUrl(lead.contact)" size="md" />
                     <div v-if="lead.contact && lead.company" class="flex flex-col gap-1">
                         <h1 class="text-xl font-semibold">
-                            {{ getUserFullName(lead.contact) }}
+                            {{ lead.company.name }}
                         </h1>
-                        <p class="text-sm">{{ lead.contact.job_title }} &#128900; {{ lead.company.name }}</p>
+                        <button class="flex items-center gap-1.5">
+                            <UIcon name="i-heroicons-plus" />
+                            <span class="text-sm text-slate-600"> Add address </span>
+                        </button>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-4">
-                    <div v-if="lead.score" class="flex flex-col">
-                        <p class="font-semibold text-green-600">{{ lead.score }}</p>
-                        <p class="text-weak text-xs">Lead Score</p>
+                <UDropdown
+                    :items="items"
+                    :ui="{ item: { disabled: 'cursor-text select-text' } }"
+                    :popper="{ placement: 'bottom-start' }"
+                >
+                    <div>
+                        <p class="text-center text-xs text-gray-500">Status</p>
+                        <div class="flex items-center gap-1">
+                            <p class="font-semibold">Inbound - Potential</p>
+                            <UIcon name="i-heroicons-chevron-down-solid" class="h-5 w-5" />
+                        </div>
                     </div>
+                    <template #item="{ item }">
+                        <span class="truncate">{{ item.label.split(' - ')?.at(1) ?? item.label }}</span>
 
-                    <template v-if="lead.source">
-                        <div class="h-10 border-r border-base-300" />
-
-                        <div class="flex flex-col">
-                            <p class="text-weak font-semibold capitalize">{{ lead.source.name }}</p>
-                            <p class="text-weak text-xs">Lead Source</p>
-                        </div>
+                        <UIcon :name="item.icon" class="ms-auto h-4 w-4 flex-shrink-0 text-gray-700" />
                     </template>
-
-                    <template v-if="lead.rating">
-                        <div class="h-10 border-r border-base-300" />
-
-                        <div class="flex flex-col">
-                            <p class="text-weak font-semibold capitalize">{{ lead.rating.name }}</p>
-                            <p class="text-weak text-xs">Rating</p>
-                        </div>
-                    </template>
-
-                    <template v-if="lead.status">
-                        <div class="h-10 border-r border-base-300" />
-
-                        <div class="flex flex-col">
-                            <p class="text-weak font-semibold capitalize">{{ lead.status }}</p>
-                            <p class="text-weak text-xs">Status</p>
-                        </div>
-                    </template>
-
-                    <template v-if="lead.user">
-                        <div class="h-10 border-r border-base-300" />
-
-                        <div class="flex items-center gap-2">
-                            <UAvatar :src="lead.user.photo ?? getUserFallbackAvatarUrl(lead.user)" />
-                            <div>
-                                <p class="font-semibold">{{ getUserFullName(lead.user) }}</p>
-                                <p class="text-xs">Owner</p>
-                            </div>
-                        </div>
-                    </template>
-                </div>
+                </UDropdown>
             </div>
         </header>
 
@@ -393,103 +370,56 @@ function useTask() {
 
                 <UCard>
                     <template #header>
-                        <h2 class="text-xl font-semibold">TOPIC</h2>
+                        <h2 class="font-semibold text-slate-700">Lead Info</h2>
                     </template>
 
-                    <UButton
-                        variant="ghost"
-                        color="black"
-                        class="flex items-center gap-[10px]"
-                        @click="
-                            modal.open(LazyModalAddLeadTopic, {
-                                onClose: () => modal.close(),
-                                lead: { id: lead!.id, topic: lead!.topic },
-                            })
-                        "
-                    >
-                        <template v-if="lead.topic">
-                            {{ lead.topic }}
-                        </template>
-                        <template v-else>
-                            <UIcon name="i-heroicons-pencil" class="h-4 w-4" />
-                            <span class="text-weak">Enter description about this lead...</span>
-                        </template>
-                    </UButton>
+                    <div class="grid grid-cols-12 text-slate-700">
+                        <ul class="col-span-4 space-y-2 font-semibold">
+                            <li>Lead Owner</li>
+                            <li>Lead Source</li>
+                            <li>Rating</li>
+                        </ul>
+                        <ul class="col-span-8 space-y-2">
+                            <li class="flex items-center gap-1.5">
+                                <UAvatar :src="lead.user?.photo ?? getFallbackAvatarUrl(getUserFullName(lead.user))" size="2xs" />
+                                <p class="truncate text-brand">{{ getUserFullName(lead.user) }}</p>
+                            </li>
+                            <li class="capitalize">{{ lead.source?.name }}</li>
+                            <li class="capitalize">{{ lead.rating?.name }}</li>
+                        </ul>
+                    </div>
                 </UCard>
 
-                <UCard :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">
+                <CardTasks v-if="lead.tasks" :tasks="lead.tasks" :lead_id="id" />
+
+                <!-- <CardContactDetails v-if="lead && lead.contact" ref="contactForm" :contact="lead.contact" /> -->
+
+                <UCard v-if="lead.contact" :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">
                     <template #header>
                         <div class="flex items-center justify-between">
-                            <h2 class="text-xl font-semibold">
-                                TASK <span class="text-weak">({{ lead.tasks.length }})</span>
-                            </h2>
-                            <UButton
-                                icon="i-heroicons-plus"
-                                variant="ghost"
-                                square
-                                color="black"
-                                @click="isCreatingTask = !isCreatingTask"
-                            />
+                            <h2 class="font-semibold text-slate-700">Contacts</h2>
+                            <!-- <UButton variant="ghost" square color="black" :padded="false" @click="isCreatingTask = !isCreatingTask"> -->
+                            <UButton variant="ghost" square color="black" :padded="false" disabled>
+                                <UIcon name="i-heroicons-plus" class="h-6 w-6" />
+                            </UButton>
                         </div>
                     </template>
 
-                    <div v-if="isCreatingTask" class="bg-brand-50 p-4">
-                        <LazyUForm
-                            :schema="addTaskSchema"
-                            :state="taskState"
-                            class="space-y-3"
-                            @submit="handleSubmitTask"
-                            @error="console.error"
-                        >
-                            <UFormGroup label="Task Description" name="description" required>
-                                <UInput
-                                    v-model="taskState.description"
-                                    :disabled="isSubmittingTask"
-                                    :loading="isSubmittingTask"
-                                    placeholder="Enter company name"
-                                />
-                            </UFormGroup>
-
-                            <UFormGroup label="Date" name="date" required>
-                                <UInput
-                                    v-model.date="taskState.date"
-                                    type="datetime-local"
-                                    :disabled="isSubmittingTask"
-                                    :loading="isSubmittingTask"
-                                />
-                            </UFormGroup>
-
-                            <div class="flex items-center justify-end gap-2">
-                                <UButton
-                                    type="button"
-                                    variant="outline"
-                                    :disabled="isSubmittingTask"
-                                    @click="isCreatingTask = false"
-                                    >Cancel</UButton
-                                >
-                                <UButton type="submit" :disabled="isSubmittingTask" :loading="isSubmittingTask">Save</UButton>
+                    <ul class="text-slate-700">
+                        <li class="flex items-center justify-between px-2 py-1 [&:not(:last-child)]:border-b">
+                            <div>
+                                <p class="font-semibold">{{ getUserFullName(lead.contact) }}</p>
+                                <p v-if="lead.contact.job_title" class="text-xs">{{ lead.contact?.job_title }}CEO</p>
                             </div>
-                        </LazyUForm>
-                    </div>
-
-                    <div v-if="!!lead.tasks?.length" class="divide-y">
-                        <LazyCardTask v-for="task in lead.tasks" :key="task.id" :task="task" :lead_id="id" />
-                    </div>
-                    <UButton
-                        v-else
-                        variant="ghost"
-                        color="black"
-                        block
-                        class="text-weak mx-2 mb-4 mt-1 justify-start"
-                        @click="isCreatingTask = true"
-                    >
-                        Add New Task
-                    </UButton>
+                            <div class="flex gap-2">
+                                <UButton square icon="i-heroicons-envelope-solid" variant="ghost" color="black" disabled />
+                                <UButton square icon="i-heroicons-phone-solid" variant="ghost" color="black" disabled />
+                            </div>
+                        </li>
+                    </ul>
                 </UCard>
 
-                <CardContactDetails v-if="lead && lead.contact" ref="contactForm" :contact="lead.contact" />
-
-                <CardCompanyDetails v-if="lead && lead.company" ref="companyForm" :company="lead.company" />
+                <CardCompany v-if="lead && lead.company" ref="companyForm" :company="lead.company" />
             </div>
 
             <div class="md:col-span-8">

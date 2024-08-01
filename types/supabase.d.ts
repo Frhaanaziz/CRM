@@ -1774,7 +1774,7 @@ export type Database = {
       priority_statuses: "urgent" | "high" | "medium" | "low"
       rating_name: "cool" | "warm" | "hot"
       role_names: "owner" | "admin" | "manager" | "sales"
-      source_name: "google" | "linkedin" | "manual" | "form"
+      source_name: "google" | "linkedin" | "manual" | "idb2b" | "workfrom"
       user_statuses: "active" | "inactive"
     }
     CompositeTypes: {
