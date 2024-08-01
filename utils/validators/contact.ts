@@ -8,7 +8,7 @@ export const contactSchema = z.object({
     country_id: z.coerce.number().int().optional().nullable(),
     created_at: z.coerce.date(),
     description: z.string().optional().nullable(),
-    email: z.string().email({ message: 'Invalid email address' }).optional().nullable(),
+    email: z.string().trim().email({ message: 'Invalid email address' }).optional().nullable(),
     facebook: z.string().optional().nullable(),
     first_name: z.string().optional().nullable(),
     instagram: z.string().optional().nullable(),
@@ -55,7 +55,7 @@ export const addContactSchema = contactSchema
     .extend({
         first_name: z.string().trim().min(1, { message: 'First name is required' }),
         last_name: z.string().trim().min(1, { message: 'Last name is required' }),
-        email: z.string().email({ message: 'Invalid email address' }),
+        email: z.string().trim().email({ message: 'Invalid email address' }),
     });
 
 export const updateContactUserIdSchema = contactSchema.pick({

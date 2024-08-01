@@ -217,14 +217,7 @@ function useJoinOrganization() {
                     <NuxtImg src="/images/undraw-mail-opened.svg" alt="" height="247" width="280" class="my-10" />
 
                     <!-- <UButton @click="async () => await connectGmail()"> -->
-                    <UButton
-                        @click="
-                            () => {
-                                console.log('conneect email');
-                                connectGmail();
-                            }
-                        "
-                    >
+                    <UButton @click="connectGmail">
                         <NuxtImg src="/icons/google.svg" width="16" height="16" />
                         Connect with Google
                     </UButton>

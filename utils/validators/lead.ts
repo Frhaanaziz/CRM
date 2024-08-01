@@ -27,7 +27,7 @@ export const addLeadSchema = leadSchema
     .extend({
         first_name: z.string().trim().min(1, { message: 'First name is required' }),
         last_name: z.string().trim().min(1, { message: 'Last name is required' }),
-        email: z.string().email({ message: 'Invalid email address' }),
+        email: z.string().trim().email({ message: 'Invalid email address' }),
         mobile_phone: phone(z.string()).optional().nullable(),
     });
 

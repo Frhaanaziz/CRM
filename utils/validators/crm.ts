@@ -21,7 +21,7 @@ const addContactLeadSchema = z.object({
     first_name: z.string().trim(),
     last_name: z.string().trim(),
     job_title: z.string().optional().nullable(),
-    email: z.string().email().optional().nullable(),
+    email: z.string().trim().email().optional().nullable(),
     main_phone: z.string().optional().nullable(),
     mobile_phone: z.string().optional().nullable(),
     whatsapp: z.string().optional().nullable(),

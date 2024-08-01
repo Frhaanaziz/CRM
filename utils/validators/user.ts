@@ -5,7 +5,7 @@ import { userStatuses } from '../constants';
 export const userSchema = z.object({
     id: z.string(),
     created_at: z.coerce.date(),
-    email: z.string().email(),
+    email: z.string().trim().email(),
     first_name: z.string().trim().min(1, { message: 'First name is required' }),
     last_name: z.string().trim().min(1, { message: 'Last name is required' }),
     linkedin: z.string().nullable().optional(),

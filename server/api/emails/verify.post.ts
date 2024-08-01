@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { getErrorCode, getNestErrorMessage, getZodErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const zodResult = await readValidatedBody(event, z.object({ email: z.string().email() }).safeParse);
+    const zodResult = await readValidatedBody(event, z.object({ email: z.string().trim().email() }).safeParse);
     if (!zodResult.success) {
         console.error('Error validating body:', zodResult.error);
         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });

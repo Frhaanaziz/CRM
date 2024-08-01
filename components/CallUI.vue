@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Device } from '@twilio/voice-sdk';
+import { Call, Device, TwilioError } from '@twilio/voice-sdk';
 import { useDraggable, useWindowSize } from '@vueuse/core';
 import { onMounted, ref, watch } from 'vue';
 
@@ -15,7 +15,7 @@ const { data: twilioSetting } = await useFetch(`/api/twilio-settings/${user.valu
 });
 
 let device: Device | undefined;
-const log = ref('Connecting...');
+const log = ref('');
 let _call: any = null;
 const contact = ref({
     full_name: '',
@@ -49,12 +49,10 @@ async function startupClient() {
         log.value = 'An error occurred. ' + getErrorMessage(err);
     }
 }
-
 function intitializeDevice(token: string) {
     device = new Device(token, {
-        // codecPreferences: ['opus', 'pcmu'],
-        // fakeLocalDTMF: true,
-        // enableRingingState: true,
+        closeProtection: true,
+        codecPreferences: [Call.Codec.Opus, Call.Codec.PCMU],
     });
 
     addDeviceListeners();
@@ -71,7 +69,7 @@ function addDeviceListeners() {
         log.value = 'Logged out';
     });
 
-    device?.on('error', (error: any) => {
+    device?.on('error', (error) => {
         log.value = 'Twilio.Device Error: ' + error.message;
     });
 
@@ -170,19 +168,20 @@ function handleDisconnectedIncomingCall() {
 }
 
 async function makeOutgoingCall({ full_name, number }: { full_name: string; number: string }) {
-    //   // check if number has a country code
-    //   // if (number?.replace(/[^0-9+]/g, '').length == 10) {
-    //   //   $dialog({
-    //   //     title: 'Invalid Mobile Number',
-    //   //     message: `${number} is not a valid mobile number. Either add a country code or check the number again.`,
-    //   //   })
-    //   //   return
-    //   // }
+    if (!Device.isSupported) {
+        toast.error('Sorry, your browser does not support the required features. Please use a different browser.');
+        return;
+    }
 
-    // contact.value = getContact(number);
-    // if (!contact.value) {
-    //     contact.value = getLeadContact(number);
+    // check if number has a country code
+    // if (number?.replace(/[^0-9+]/g, '').length == 10) {
+    //   $dialog({
+    //     title: 'Invalid Mobile Number',
+    //     message: `${number} is not a valid mobile number. Either add a country code or check the number again.`,
+    //   })
+    //   return
     // }
+
     contact.value = {
         full_name,
         mobile_no: number,
@@ -193,6 +192,7 @@ async function makeOutgoingCall({ full_name, number }: { full_name: string; numb
 
         try {
             _call = await device.connect({
+                // explore this more to send additional data to backend
                 params: { To: number },
             });
 
@@ -304,8 +304,8 @@ watch(
     () => log.value,
     (value) => {
         console.log(value);
-    },
-    { immediate: true }
+    }
+    // { immediate: true }
 );
 </script>
 

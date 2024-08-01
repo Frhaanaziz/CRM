@@ -4,7 +4,6 @@ export default defineEventHandler(async (event) => {
     try {
         const fetchApi = await backendApi(event);
         const { data } = await fetchApi<{ data: { url: string } }>('/auth/google/connect');
-        console.log('data', data);
 
         return data;
     } catch (error) {

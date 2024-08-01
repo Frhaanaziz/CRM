@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient<Database>(event);
     const runtimeConfig = useRuntimeConfig();
 
-    const body = await readValidatedBody(event, z.object({ email: z.string().email() }).safeParse);
+    const body = await readValidatedBody(event, z.object({ email: z.string().trim().email() }).safeParse);
     if (!body.success) {
         console.error('Error validating body:', body.error);
         throw createError({ status: 400, statusMessage: getZodErrorMessage(body) });
