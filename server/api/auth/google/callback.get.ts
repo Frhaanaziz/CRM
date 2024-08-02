@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
         await supabase.auth.refreshSession();
 
-        return sendRedirect(event, `/auth/onboarding?google_refresh_token=${data.refresh_token}`);
+        return data;
     } catch (error) {
         console.error('Error getting access_token and refresh_token (SERVER):', error);
         throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
