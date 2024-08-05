@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Call, Device, TwilioError } from '@twilio/voice-sdk';
+import { Call, Device } from '@twilio/voice-sdk';
 import { useDraggable, useWindowSize } from '@vueuse/core';
 import { onMounted, ref, watch } from 'vue';
+import type { Contact } from '~/types';
 
-// const { getContact, getLeadContact } = contactsStore();
 const { setMakeCall, setTwilioEnabled } = globalStore();
 const { user } = storeToRefs(userSessionStore());
 
@@ -16,11 +16,8 @@ const { data: twilioSetting } = await useFetch(`/api/twilio-settings/${user.valu
 
 let device: Device | undefined;
 const log = ref('');
-let _call: any = null;
-const contact = ref({
-    full_name: '',
-    mobile_no: '',
-});
+let _call: Call | null = null;
+const contact = ref<Partial<Contact> | null>(null);
 
 const showCallPopup = ref(false);
 const showSmallCallWindow = ref(false);
@@ -82,6 +79,8 @@ function addDeviceListeners() {
 }
 
 function toggleMute() {
+    if (!_call) return;
+
     if (_call.isMuted()) {
         _call.mute(false);
         muted.value = false;
@@ -91,7 +90,7 @@ function toggleMute() {
     }
 }
 
-function handleIncomingCall(call: any) {
+function handleIncomingCall(call: Call) {
     log.value = `Incoming call from ${call.parameters.From}`;
 
     // get name of the caller from the phone number
@@ -102,8 +101,8 @@ function handleIncomingCall(call: any) {
 
     if (!contact.value) {
         contact.value = {
-            full_name: 'Unknown',
-            mobile_no: call.parameters.From,
+            first_name: 'Unknown',
+            mobile_phone: call.parameters.From,
         };
     }
 
@@ -120,14 +119,18 @@ function handleIncomingCall(call: any) {
     call.on('reject', handleDisconnectedIncomingCall);
 }
 
-async function acceptIncomingCall() {
+function acceptIncomingCall() {
+    if (!_call) return;
+
     log.value = 'Accepted incoming call.';
     onCall.value = true;
-    await _call.accept();
+    _call.accept();
     counterUp.value?.start();
 }
 
 function rejectIncomingCall() {
+    if (!_call) return;
+
     _call.reject();
     log.value = 'Rejected incoming call';
     showCallPopup.value = false;
@@ -141,6 +144,8 @@ function rejectIncomingCall() {
 }
 
 function hangUpCall() {
+    if (!_call) return;
+
     _call.disconnect();
     log.value = 'Hanging up incoming call';
     onCall.value = false;
@@ -167,9 +172,14 @@ function handleDisconnectedIncomingCall() {
     counterUp.value?.stop();
 }
 
-async function makeOutgoingCall({ full_name, number }: { full_name: string; number: string }) {
+async function makeOutgoingCall(caller: Contact) {
     if (!Device.isSupported) {
         toast.error('Sorry, your browser does not support the required features. Please use a different browser.');
+        return;
+    }
+
+    if (!caller.mobile_phone) {
+        toast.error('Mobile phone number is required to make a call.');
         return;
     }
 
@@ -182,18 +192,14 @@ async function makeOutgoingCall({ full_name, number }: { full_name: string; numb
     //   return
     // }
 
-    contact.value = {
-        full_name,
-        mobile_no: number,
-    };
+    contact.value = caller;
 
     if (device) {
-        log.value = `Attempting to call ${number} ...`;
+        log.value = `Attempting to call ${caller.mobile_phone} ...`;
 
         try {
             _call = await device.connect({
-                // explore this more to send additional data to backend
-                params: { To: number },
+                params: { To: caller.mobile_phone, contact_id: caller.id.toString(), user_id: user.value?.id ?? '' },
             });
 
             showCallPopup.value = true;
@@ -258,6 +264,8 @@ async function makeOutgoingCall({ full_name, number }: { full_name: string; numb
 }
 
 function cancelCall() {
+    if (!_call) return;
+
     _call.disconnect();
     showCallPopup.value = false;
     if (showSmallCallWindow.value == undefined) {
@@ -285,7 +293,7 @@ function toggleCallWindow() {
 }
 
 // onMounted(async () => {
-//     if (!twilioSetting.value) return;
+//     if (!twilioSetting.value || !user.value) return;
 
 //     const enabled = twilioSetting.value.enabled;
 //     if (enabled === undefined) {
@@ -300,13 +308,7 @@ function toggleCallWindow() {
 //     setMakeCall(makeOutgoingCall);
 // });
 
-watch(
-    () => log.value,
-    (value) => {
-        console.log(value);
-    }
-    // { immediate: true }
-);
+watch(log, console.info);
 </script>
 
 <template>
@@ -328,10 +330,10 @@ watch(
                 />
                 <div class="flex flex-col items-center justify-center gap-1">
                     <div class="text-xl font-medium">
-                        {{ contact.full_name }}
+                        {{ getUserFullName(contact) }}
                     </div>
                     <div class="text-sm text-gray-600">
-                        {{ contact.mobile_no }}
+                        {{ contact?.mobile_phone }}
                     </div>
                 </div>
                 <CountUpTimer ref="counterUp">
@@ -360,7 +362,7 @@ watch(
                     </UButton>
                 </div>
                 <div v-else-if="calling || callStatus == 'initiating'">
-                    <UButton color="red" :label="'Cancel'" :disabled="callStatus == 'initiating'" @click="cancelCall">
+                    <UButton color="red" :disabled="callStatus == 'initiating'" @click="cancelCall">
                         <UIcon name="i-heroicons-phone-solid" class="mt-1 h-4 w-4 rotate-[135deg]" />
                         Cancel
                     </UButton>
@@ -388,7 +390,7 @@ watch(
         <div class="flex items-center gap-2">
             <UAvatar :src="getFallbackAvatarUrl('FA')" size="xs" />
             <div class="max-w-[120px] truncate">
-                {{ contact.full_name }}
+                {{ getUserFullName(contact) }}
             </div>
         </div>
         <div v-if="onCall" class="flex items-center gap-2">
