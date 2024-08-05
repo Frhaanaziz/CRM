@@ -5,7 +5,7 @@ import type { FormSubmitEvent } from '#ui/types';
 import type { z } from 'zod';
 
 const props = defineProps<{
-    task: Pick<Task, 'id' | 'description' | 'date' | 'is_completed'> & { user: User | null };
+    task: Pick<Task, 'id' | 'description' | 'date' | 'is_completed'> & { user?: User | null };
     opportunity_id?: number;
     lead_id?: number;
 }>();
@@ -29,7 +29,6 @@ async function completeTask() {
             }),
         });
 
-        toast.success('Task completed successfully');
         await refreshNuxtData();
     } catch (error) {
         console.error('Error updating task status', error);
@@ -47,7 +46,6 @@ async function deleteTask() {
             body: JSON.stringify({ id: props.task.id }),
         });
 
-        toast.success('Task deleted successfully');
         await refreshNuxtData();
     } catch (error) {
         console.error('Error deleting task', error);
@@ -96,7 +94,7 @@ function useUpdateTask() {
 
                 <div class="flex flex-col">
                     <span class="font-semibold" :class="{ 'line-through': props.task.is_completed }">{{ task.description }}</span>
-                    <span class="text-weak text-xs">
+                    <span class="text-weak line-clamp-1 text-xs">
                         {{ task.user?.email }} &#128900;
                         {{ useDateFormat(task.date, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
                     </span>

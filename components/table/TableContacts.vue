@@ -156,9 +156,7 @@ async function handleDeleteContacts() {
         </template>
 
         <template #company(name)-data="{ row }">
-            <NuxtLink :href="`/dashboard/customer/companies/${row.company.id}`" class="text-brand hover:underline">
-                {{ row.company?.name }}
-            </NuxtLink>
+            {{ row.company?.name }}
         </template>
 
         <template #isValidEmail-data="{ row }">
@@ -168,7 +166,7 @@ async function handleDeleteContacts() {
         </template>
 
         <template #created_at-data="{ row }">
-            {{ useDateFormat(row.created_at, 'YYYY-MM-DD HH:mm:ss').value.replace('"', '') }}
+            {{ useDateFormat(row.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
         </template>
 
         <template #empty-state>

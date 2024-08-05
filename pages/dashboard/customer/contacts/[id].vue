@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import LazyModalDelete from '~/components/modal/ModalDelete.vue';
-import LazyModalAssignContact from '~/components/modal/ModalAssignContact.vue';
 
 const modal = useModal();
 const id = parseInt(useRoute().params.id as string);
@@ -39,21 +38,6 @@ async function handleDeleteContact() {
                 <NuxtLink href="/dashboard/customer/contacts" class="flex h-10 w-10 items-center justify-center border">
                     <UIcon name="i-heroicons-arrow-left-20-solid" class="h-[18px] w-[18px]" />
                 </NuxtLink>
-                <UButton
-                    variant="ghost"
-                    icon="i-heroicons-user"
-                    color="black"
-                    class="font-semibold"
-                    @click="
-                        modal.open(LazyModalAssignContact, {
-                            onClose: () => modal.close(),
-                            contact: { id: contact!.id },
-                            userId: contact!.user_id ?? undefined,
-                        })
-                    "
-                >
-                    Assign
-                </UButton>
                 <UButton
                     variant="ghost"
                     icon="i-heroicons-trash"
@@ -122,10 +106,6 @@ async function handleDeleteContact() {
         <section class="m-4 grid gap-4 md:grid-cols-12">
             <div class="flex flex-col gap-4 md:col-span-4">
                 <CardContactDetails ref="contactForm" :contact />
-            </div>
-
-            <div class="md:col-span-8">
-                <CardTimeline :contact_id="id" />
             </div>
         </section>
     </div>

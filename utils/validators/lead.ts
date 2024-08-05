@@ -1,43 +1,27 @@
 import { z } from 'zod';
 import { phone } from '.';
-import { leadStatuses } from '../constants';
+import { leadSources } from '../constants';
 
 export const leadSchema = z.object({
     company_id: z.coerce.number().int(),
-    contact_id: z.coerce.number().int(),
     created_at: z.coerce.date().optional().nullable(),
-    disqualify_reason_id: z.coerce.number().int().optional().nullable(),
     id: z.coerce.number().int(),
-    status: z.enum(leadStatuses),
-    message: z.string().optional().nullable(),
+    status: z.string().optional().nullable(),
     rating_id: z.coerce.number().int(),
-    score: z.coerce.number().int().optional().nullable(),
-    source_id: z.coerce.number().int(),
-    topic: z.string().optional().nullable(),
     updated_at: z.coerce.date().optional().nullable(),
+    source: z.enum(leadSources),
     user_id: z.string().trim(),
     organization_id: z.coerce.number().int(),
 });
 
-export const addLeadSchema = leadSchema
-    .pick({
-        company_id: true,
-        contact_id: true,
-    })
-    .extend({
-        first_name: z.string().trim().min(1, { message: 'First name is required' }),
-        last_name: z.string().trim().min(1, { message: 'Last name is required' }),
-        email: z.string().trim().email({ message: 'Invalid email address' }),
-        mobile_phone: phone(z.string()).optional().nullable(),
-    });
+export const addLeadSchema = z.object({
+    company_name: z.string().trim().min(1, { message: 'Company name must be at least 1 character long' }),
+    email: z.string().trim().email().optional().nullable(),
+    mobile_phone: phone(z.string().trim()).optional().nullable(),
+});
 
 export const updateLeadUserIdSchema = leadSchema.pick({
     user_id: true,
-    id: true,
-});
-
-export const updateLeadTopicSchema = leadSchema.pick({
-    topic: true,
     id: true,
 });
 

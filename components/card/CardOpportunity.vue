@@ -1,16 +1,20 @@
 <script lang="ts" setup>
 import { useDateFormat } from '@vueuse/core';
-import type { Opportunity, OpportunityStatus } from '~/types';
+import type { Company, Lead, Opportunity, OpportunityStatus, User } from '~/types';
 
 const props = defineProps<{
-    opportunity: Opportunity & { status?: OpportunityStatus | null };
+    opportunity: Opportunity & {
+        status?: OpportunityStatus | null;
+        user?: User | null;
+        lead?: (Lead & { company?: Company | null }) | null;
+    };
 }>();
 </script>
 
 <template>
     <div class="space-y-2 border-l-4 border-l-brand p-4">
         <div class="flex items-center justify-between">
-            <p class="truncate font-semibold text-brand">{{ props.opportunity.topic }}</p>
+            <p class="truncate font-semibold text-brand">{{ props.opportunity.lead?.company?.name }}</p>
             <UButton variant="ghost" square color="black" icon="i-heroicons-ellipsis-vertical" disabled />
         </div>
         <div class="flex items-end justify-between">

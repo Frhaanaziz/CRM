@@ -4,10 +4,8 @@ export const contactSchema = z.object({
     id: z.coerce.number().int(),
     city_id: z.coerce.number().int().optional().nullable(),
     company_id: z.coerce.number({ message: 'Company is required' }).int(),
-    contact_status_id: z.coerce.number(),
     country_id: z.coerce.number().int().optional().nullable(),
     created_at: z.coerce.date(),
-    description: z.string().optional().nullable(),
     email: z.string().trim().email({ message: 'Invalid email address' }).optional().nullable(),
     facebook: z.string().optional().nullable(),
     first_name: z.string().optional().nullable(),
@@ -20,14 +18,11 @@ export const contactSchema = z.object({
     mobile_phone: z.string().optional().nullable(),
     postal_code: z.string().optional().nullable(),
     province_id: z.coerce.number().int().optional().nullable(),
-    street_1: z.string().optional().nullable(),
-    street_2: z.string().optional().nullable(),
-    street_3: z.string().optional().nullable(),
     updated_at: z.coerce.date(),
-    user_id: z.string().trim(),
     organization_id: z.coerce.number().int(),
     website: z.string().url().optional().nullable(),
     whatsapp: z.string().optional().nullable(),
+    address: z.string().optional().nullable(),
 });
 
 export const updateContactSchema = contactSchema
@@ -57,8 +52,3 @@ export const addContactSchema = contactSchema
         last_name: z.string().trim().min(1, { message: 'Last name is required' }),
         email: z.string().trim().email({ message: 'Invalid email address' }),
     });
-
-export const updateContactUserIdSchema = contactSchema.pick({
-    id: true,
-    user_id: true,
-});

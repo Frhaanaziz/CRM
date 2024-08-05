@@ -13,12 +13,10 @@ export default defineEventHandler(async (event) => {
                 `
                 *,
                 status: Opportunity_Statuses(*),
-                company: Companies(*),
                 user: Users(*),
-                close_reason: Close_Reasons(*),
                 contact: Contacts(*),
                 currency: Currencies(*),
-                payment_plan: Payment_Plans(*)
+                lead: Leads(*, company: Companies(*))
                 `
             )
             .eq('id', id)

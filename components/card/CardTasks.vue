@@ -6,7 +6,7 @@ import type { Task, User } from '~/types';
 const props = defineProps<{
     lead_id?: number;
     opportunity_id?: number;
-    tasks: (Pick<Task, 'id' | 'description' | 'date' | 'is_completed'> & { user: User | null })[];
+    tasks: (Pick<Task, 'id' | 'description' | 'date' | 'is_completed'> & { user?: User | null })[];
 }>();
 
 const { user: currentUser } = storeToRefs(userSessionStore());
@@ -107,12 +107,20 @@ async function handleSubmit(event: FormSubmitEvent<AddTaskType>) {
                 </div>
             </LazyUForm>
         </div>
-        <UButton v-else variant="ghost" color="black" block class="justify-start text-slate-700" @click="isCreatingTask = true">
-            Add New Task
-        </UButton>
 
         <div v-if="!!tasks?.length" class="divide-y">
             <LazyCardTask v-for="task in tasks" :key="task.id" :task="task" :lead_id="lead_id" :opportunity_id="opportunity_id" />
         </div>
+
+        <UButton
+            v-if="!(isCreatingTask || tasks?.length > 0)"
+            variant="ghost"
+            color="black"
+            block
+            class="justify-start text-slate-700"
+            @click="isCreatingTask = true"
+        >
+            Add New Task
+        </UButton>
     </UCard>
 </template>

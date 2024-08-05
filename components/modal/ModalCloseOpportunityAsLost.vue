@@ -13,11 +13,6 @@ const props = defineProps<{
 const { user } = storeToRefs(userSessionStore());
 if (!user.value) throw createError({ status: 401, message: 'Unauthorized' });
 
-const { data: closeReasonsOption } = await useLazyFetch('/api/close-reasons', {
-    key: 'close-reasons',
-    transform: (data) => data.map((item) => ({ value: item.id, label: capitalize(item.name) })),
-});
-
 type CloseOpportunityAsLostType = z.infer<typeof updateOpportunityAsLostSchema>;
 const isSubmitting = ref(false);
 const state = ref({
@@ -59,7 +54,7 @@ async function handleSubmit(event: FormSubmitEvent<CloseOpportunityAsLostType>) 
             <UFormGroup label="Status Reason" name="close_reason_id" required>
                 <USelect
                     v-model="state.close_reason_id"
-                    :options="closeReasonsOption ?? []"
+                    :options="opportunityCloseReasons.map((reason) => ({ label: capitalize(reason), value: reason }))"
                     value-attribute="value"
                     :disabled="isSubmitting"
                     :loading="isSubmitting"

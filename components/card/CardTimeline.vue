@@ -5,8 +5,6 @@ import type { FormSubmitEvent } from '#ui/types';
 import type { Activity, ActivityParticipant, ActivityParticipantRoles, User } from '~/types';
 
 const props = defineProps<{
-    company_id?: number;
-    contact_id?: number;
     lead_id?: number;
     opportunity_id?: number;
 }>();
@@ -251,54 +249,6 @@ function useCreateNote() {
                                 <p>{{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}</p>
                             </div>
                             <p class="text-weak mt-2">Reason: Pricing</p>
-                        </div>
-                    </li>
-
-                    <!-- Reopened // -->
-                    <li v-if="activity.type === 'reopened'" :key="activity.id" class="flex items-start gap-2 p-4">
-                        <UAvatar :src="getUserFallbackAvatarUrl({ first_name: 'Farhan', last_name: 'Aziz' })" size="md" />
-                        <div class="w-full rounded border p-2">
-                            <p class="mb-1 flex items-center gap-2 font-semibold">
-                                <UIcon name="i-heroicons-arrow-top-right-on-square" class="h-5 w-5 -scale-x-[1] text-black" />
-                                <span>Reopened by {{ getUserFullName(getParticipantByRole(activity, 'author')?.user) }}</span>
-                            </p>
-                            <div class="text-weak flex items-center gap-1 text-xs">
-                                <p>{{ getUserFullName(activity.user) }}</p>
-                                &middot;
-                                <p>{{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}</p>
-                            </div>
-                        </div>
-                    </li>
-
-                    <!-- Qualified // -->
-                    <li v-if="activity.type === 'qualified'" :key="activity.id" class="flex items-start gap-2 p-4">
-                        <UAvatar :src="getUserFallbackAvatarUrl({ first_name: 'Farhan', last_name: 'Aziz' })" size="md" />
-                        <div class="w-full rounded border p-2">
-                            <p class="mb-1 flex items-center gap-2 font-semibold">
-                                <UIcon name="i-heroicons-check" class="h-5 w-5 text-black" />
-                                <span>Qualified by {{ getUserFullName(getParticipantByRole(activity, 'author')?.user) }}</span>
-                            </p>
-                            <div class="text-weak flex items-center gap-1 text-xs">
-                                <p>{{ getUserFullName(activity.user) }}</p>
-                                &middot;
-                                <p>{{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}</p>
-                            </div>
-                        </div>
-                    </li>
-
-                    <!-- Disqualified -->
-                    <li v-if="activity.type === 'disqualified'" :key="activity.id" class="flex items-start gap-2 p-4">
-                        <UAvatar :src="getUserFallbackAvatarUrl({ first_name: 'Farhan', last_name: 'Aziz' })" size="md" />
-                        <div class="w-full rounded border p-2">
-                            <p class="mb-1 flex items-center gap-2 font-semibold">
-                                <UIcon name="i-heroicons-x-mark" class="h-5 w-5 text-black" />
-                                <span>Disqualified by {{ getUserFullName(getParticipantByRole(activity, 'author')?.user) }}</span>
-                            </p>
-                            <div class="text-weak flex items-center gap-1 text-xs">
-                                <p>{{ getUserFullName(activity.user) }}</p>
-                                &middot;
-                                <p>{{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}</p>
-                            </div>
                         </div>
                     </li>
 

@@ -1,7 +1,4 @@
-interface CallMethodInput {
-    full_name: string;
-    number: string;
-}
+import type { Contact } from '~/types';
 
 export const globalStore = defineStore('global', () => {
     const twilioEnabled = ref(false);
@@ -11,11 +8,11 @@ export const globalStore = defineStore('global', () => {
         twilioEnabled.value = value;
     }
 
-    function setMakeCall(value: (value: CallMethodInput) => any) {
+    function setMakeCall(value: (value: Contact) => any) {
         callMethod = value;
     }
 
-    function makeCall(value: CallMethodInput) {
+    function makeCall(value: Contact) {
         callMethod(value);
     }
 

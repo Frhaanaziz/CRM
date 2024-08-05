@@ -55,11 +55,6 @@ function useTable() {
             sortable: true,
         },
         {
-            key: 'updated_at',
-            label: 'Updated At',
-            sortable: true,
-        },
-        {
             key: 'actions',
             label: 'Actions',
             sortable: false,
@@ -174,10 +169,7 @@ function useTable() {
         </template>
 
         <template #created_at-data="{ row }">
-            {{ useDateFormat(row.created_at, 'YYYY-MM-DD HH:mm:ss').value.replace('"', '') }}
-        </template>
-        <template #updated_at-data="{ row }">
-            {{ useDateFormat(row.created_at, 'YYYY-MM-DD HH:mm:ss').value.replace('"', '') }}
+            {{ useDateFormat(row.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
         </template>
 
         <template #actions-data="{ row }">

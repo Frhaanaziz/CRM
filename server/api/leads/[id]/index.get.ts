@@ -1,61 +1,32 @@
-import { serverSupabaseClient } from '#supabase/server';
-import type { Database } from '~/types/supabase';
+import type { City, Company, Contact, Country, Industry, Lead, Province, Rating, Size, Task, User } from '~/types';
+import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
-
     const id = event.context.params!.id;
 
-    const [leadResponse, tasksResponse] = await Promise.all([
-        supabase
-            .from('Leads')
-            .select(
-                `
-                *,
-                contact: Contacts(*),
-                company: Companies(
-                                    *,
-                                    industry: Industries(id, name),
-                                    size: Sizes(id, size_range),
-                                    country: Countries(id, name),
-                                    province: Provinces(id, name),
-                                    city: Cities(id, name)
-                                ),
-                source: Sources(*),
-                rating: Ratings(*),
-                user: Users(*),
-                disqualify_reason: Disqualify_Reasons(*)
-                `
-            )
-            .eq('id', id)
-            .single(),
-        supabase
-            .from('Tasks')
-            .select(
-                `
-                id,
-                date,
-                description,
-                is_completed,
-                user: Users(*)
-                `
-            )
-            .eq('lead_id', id)
-            .order('created_at', { ascending: false }),
-    ]);
-
-    if (leadResponse.error) {
-        console.error('Error getting lead:', leadResponse.error);
-        throw createError({ status: 400, statusMessage: leadResponse.error.message });
+    interface ILead extends Lead {
+        company:
+            | (Company & {
+                  industry?: Pick<Industry, 'id' | 'name'> | null;
+                  size?: Pick<Size, 'id' | 'size_range'> | null;
+                  country?: Pick<Country, 'id' | 'name'> | null;
+                  province?: Pick<Province, 'id' | 'name'> | null;
+                  city?: Pick<City, 'id' | 'name'> | null;
+                  contacts?: Contact[] | null;
+              })
+            | null;
+        rating?: Rating | null;
+        user?: User | null;
+        tasks?: (Task & { user?: User | null })[] | null;
     }
 
-    if (tasksResponse.error) {
-        console.error('Error getting tasks:', tasksResponse.error);
-        throw createError({ status: 400, statusMessage: tasksResponse.error.message });
+    try {
+        const fetchApi = await backendApi(event);
+        const { data } = await fetchApi<{ data: ILead }>(`/leads/${id}`);
+
+        return data;
+    } catch (error) {
+        console.error('Error getting lead (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
-
-    const { data: leadData } = leadResponse;
-    const { data: tasksData } = tasksResponse;
-
-    return { ...leadData, tasks: tasksData };
 });

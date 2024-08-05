@@ -17,10 +17,11 @@ export default defineEventHandler(async (event) => {
         .select(
             `
             *,
-            company: Companies(*),
+            user: Users(*),
             contact: Contacts(*),
             rating: Ratings(*),
-            status: Opportunity_Statuses(*)
+            status: Opportunity_Statuses(*),
+            lead: Leads(*, company: Companies(*))
             `
         )
         .eq('organization_id', user.user_metadata.organization_id);

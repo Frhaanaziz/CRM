@@ -1,14 +1,12 @@
 <script lang="ts" setup>
 import { useDateFormat, useRefHistory } from '@vueuse/core';
 import type { z } from 'zod';
-import type { Company, Contact, Currency, Opportunity, PaymentPlan } from '~/types';
+import type { Contact, Currency, Opportunity } from '~/types';
 import type { FormSubmitEvent } from '#ui/types';
 
 interface IOpportunity extends Opportunity {
-    company: Pick<Company, 'name' | 'id'> | null;
     contact: Pick<Contact, 'first_name' | 'last_name' | 'id'> | null;
     currency: Pick<Currency, 'name'> | null;
-    payment_plan: Pick<PaymentPlan, 'name'> | null;
 }
 const props = defineProps<{
     opportunity: IOpportunity;
@@ -18,21 +16,11 @@ const { opportunity } = toRefs(props);
 const { updateState, isUpdating, updateOpportunity, formRef, submitForm, isFormDirty, resetForm } = useUpdateOpportunity();
 defineExpose({ submitForm, resetForm, isFormDirty, isUpdating });
 
-const { data } = await useLazyAsyncData(
-    () => {
-        const headers = useRequestHeaders(['cookie']);
-        return Promise.all([$fetch('/api/payment-plans', { headers }), $fetch('/api/currencies', { headers })]);
-    },
-    {
-        transform: ([plans, currencies]) => [
-            plans.map((plan) => ({ label: capitalize(plan.name), value: plan.id })),
-            currencies.map((currency) => ({ label: currency.name, value: currency.id })),
-        ],
-        default: () => [[], []],
-    }
-);
-const paymentPlansOption = computed(() => data.value[0]);
-const currenciesOption = computed(() => data.value[1]);
+const { data: currenciesOption } = await useLazyFetch('/api/currencies', {
+    headers: useRequestHeaders(['cookie']),
+    transform: (currencies) => currencies.map((currency) => ({ label: currency.name, value: currency.id })),
+    default: () => [],
+});
 
 onBeforeRouteLeave(() => {
     if (isFormDirty.value) {
@@ -53,7 +41,7 @@ function useUpdateOpportunity() {
         currency_id: opportunity.value!.currency_id ?? undefined,
         act_budget: opportunity.value!.act_budget ?? undefined,
         est_revenue: opportunity.value!.est_revenue ?? undefined,
-        payment_plan_id: opportunity.value!.payment_plan_id ?? undefined,
+        payment_plan: opportunity.value!.payment_plan ?? undefined,
         confidence: opportunity.value!.confidence ?? undefined,
     };
     const updateState = ref({ ...initialState });
@@ -102,8 +90,7 @@ function useUpdateOpportunity() {
         </template>
 
         <div v-if="opportunity" class="flex gap-6 text-sm sm:text-base">
-            <div class="text-weak grid shrink-0 grid-rows-8 gap-y-8">
-                <p>Company</p>
+            <div class="text-weak grid shrink-0 grid-rows-7 gap-y-8">
                 <p>Contact</p>
                 <p>Est. Close Date</p>
                 <p>Currency</p>
@@ -117,20 +104,11 @@ function useUpdateOpportunity() {
                 ref="formRef"
                 :schema="updateOpportunitySchema"
                 :state="updateState"
-                class="grid grow grid-rows-8 gap-y-6 font-semibold"
+                class="grid grow grid-rows-7 gap-y-6 font-semibold"
                 :disabled="isUpdating"
                 @submit="updateOpportunity"
                 @error="console.error"
             >
-                <NuxtLink
-                    v-if="opportunity.company"
-                    :href="`/dashboard/customer/companies/${opportunity.company.id}`"
-                    class="ml-4 line-clamp-1 text-brand"
-                >
-                    {{ opportunity.company.name }}
-                </NuxtLink>
-                <p v-else class="ml-4">---</p>
-
                 <NuxtLink
                     v-if="opportunity.contact"
                     :href="`/dashboard/customer/contacts/${opportunity.contact.id}`"
@@ -214,9 +192,8 @@ function useUpdateOpportunity() {
                 </UFormGroup>
                 <UFormGroup name="payment_plan_id">
                     <USelectMenu
-                        v-model="updateState.payment_plan_id"
-                        value-attribute="value"
-                        :options="paymentPlansOption ?? []"
+                        v-model="updateState.payment_plan"
+                        :options="[...opportunityPaymentPlans]"
                         :disabled="isUpdating"
                         placeholder="---"
                         :ui="{

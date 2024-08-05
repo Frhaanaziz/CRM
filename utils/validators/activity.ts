@@ -5,8 +5,6 @@ export const activitySchema = z.object({
     created_at: z.coerce.date(),
     description: z.string().optional().nullable(),
     id: z.coerce.number().int(),
-    company_id: z.coerce.number().int().optional().nullable(),
-    contact_id: z.coerce.number().int().optional().nullable(),
     lead_id: z.coerce.number().int().optional().nullable(),
     opportunity_id: z.coerce.number().int().optional().nullable(),
     organization_id: z.coerce.number().int(),

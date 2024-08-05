@@ -11,8 +11,6 @@ export type Database = {
     Tables: {
       Activities: {
         Row: {
-          company_id: number | null
-          contact_id: number | null
           created_at: string
           description: string | null
           id: number
@@ -25,8 +23,6 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          company_id?: number | null
-          contact_id?: number | null
           created_at?: string
           description?: string | null
           id?: number
@@ -39,8 +35,6 @@ export type Database = {
           user_id: string
         }
         Update: {
-          company_id?: number | null
-          contact_id?: number | null
           created_at?: string
           description?: string | null
           id?: number
@@ -53,20 +47,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "Activities_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "Companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Activities_contact_id_fkey"
-            columns: ["contact_id"]
-            isOneToOne: false
-            referencedRelation: "Contacts"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "Activities_lead_id_fkey"
             columns: ["lead_id"]
@@ -354,6 +334,74 @@ export type Database = {
           },
         ]
       }
+      Call_Logs: {
+        Row: {
+          call_sid: string
+          caller: string | null
+          contact_id: number | null
+          created_at: string
+          duration: string | null
+          end_time: string | null
+          from: string
+          id: number
+          price: string | null
+          price_unit: string | null
+          receiver: string | null
+          recording_url: string | null
+          start_time: string | null
+          status: string | null
+          to: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          call_sid: string
+          caller?: string | null
+          contact_id?: number | null
+          created_at?: string
+          duration?: string | null
+          end_time?: string | null
+          from: string
+          id?: number
+          price?: string | null
+          price_unit?: string | null
+          receiver?: string | null
+          recording_url?: string | null
+          start_time?: string | null
+          status?: string | null
+          to: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          call_sid?: string
+          caller?: string | null
+          contact_id?: number | null
+          created_at?: string
+          duration?: string | null
+          end_time?: string | null
+          from?: string
+          id?: number
+          price?: string | null
+          price_unit?: string | null
+          receiver?: string | null
+          recording_url?: string | null
+          start_time?: string | null
+          status?: string | null
+          to?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Call_Logs_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "Contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Cities: {
         Row: {
           country_id: number
@@ -396,31 +444,10 @@ export type Database = {
           },
         ]
       }
-      Close_Reasons: {
-        Row: {
-          created_at: string
-          id: number
-          name: Database["public"]["Enums"]["close_reasons"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          name: Database["public"]["Enums"]["close_reasons"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          name?: Database["public"]["Enums"]["close_reasons"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
       Companies: {
         Row: {
+          address: string | null
           city_id: number | null
-          company_status_id: number
           country_id: number | null
           created_at: string
           id: number
@@ -428,21 +455,15 @@ export type Database = {
           linkedin: string | null
           name: string
           organization_id: number
-          phone: string | null
           postal_code: string | null
-          primary_contact_id: number | null
           province_id: number | null
           size_id: number | null
-          street_1: string | null
-          street_2: string | null
-          street_3: string | null
           updated_at: string
-          user_id: string
           website: string | null
         }
         Insert: {
+          address?: string | null
           city_id?: number | null
-          company_status_id: number
           country_id?: number | null
           created_at?: string
           id?: number
@@ -450,21 +471,15 @@ export type Database = {
           linkedin?: string | null
           name: string
           organization_id: number
-          phone?: string | null
           postal_code?: string | null
-          primary_contact_id?: number | null
           province_id?: number | null
           size_id?: number | null
-          street_1?: string | null
-          street_2?: string | null
-          street_3?: string | null
           updated_at?: string
-          user_id: string
           website?: string | null
         }
         Update: {
+          address?: string | null
           city_id?: number | null
-          company_status_id?: number
           country_id?: number | null
           created_at?: string
           id?: number
@@ -472,38 +487,18 @@ export type Database = {
           linkedin?: string | null
           name?: string
           organization_id?: number
-          phone?: string | null
           postal_code?: string | null
-          primary_contact_id?: number | null
           province_id?: number | null
           size_id?: number | null
-          street_1?: string | null
-          street_2?: string | null
-          street_3?: string | null
           updated_at?: string
-          user_id?: string
           website?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "Companies_company_status_id_fkey"
-            columns: ["company_status_id"]
-            isOneToOne: false
-            referencedRelation: "Company_Statuses"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "Companies_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "Organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Companies_primary_contact_id_fkey"
-            columns: ["primary_contact_id"]
-            isOneToOne: false
-            referencedRelation: "Contacts"
             referencedColumns: ["id"]
           },
           {
@@ -541,65 +536,15 @@ export type Database = {
             referencedRelation: "Sizes"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "Companiesass_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "Users"
-            referencedColumns: ["id"]
-          },
         ]
-      }
-      Company_Statuses: {
-        Row: {
-          created_at: string
-          id: number
-          name: Database["public"]["Enums"]["company_statuses"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          name: Database["public"]["Enums"]["company_statuses"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          name?: Database["public"]["Enums"]["company_statuses"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      Contact_Statuses: {
-        Row: {
-          created_at: string
-          id: number
-          name: Database["public"]["Enums"]["contact_statuses"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          name: Database["public"]["Enums"]["contact_statuses"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          name?: Database["public"]["Enums"]["contact_statuses"]
-          updated_at?: string
-        }
-        Relationships: []
       }
       Contacts: {
         Row: {
+          address: string | null
           city_id: number | null
           company_id: number
-          contact_status_id: number
           country_id: number | null
           created_at: string
-          description: string | null
           email: string | null
           facebook: string | null
           first_name: string | null
@@ -614,21 +559,16 @@ export type Database = {
           organization_id: number
           postal_code: string | null
           province_id: number | null
-          street_1: string | null
-          street_2: string | null
-          street_3: string | null
           updated_at: string
-          user_id: string
           website: string | null
           whatsapp: string | null
         }
         Insert: {
+          address?: string | null
           city_id?: number | null
           company_id: number
-          contact_status_id: number
           country_id?: number | null
           created_at?: string
-          description?: string | null
           email?: string | null
           facebook?: string | null
           first_name?: string | null
@@ -643,21 +583,16 @@ export type Database = {
           organization_id: number
           postal_code?: string | null
           province_id?: number | null
-          street_1?: string | null
-          street_2?: string | null
-          street_3?: string | null
           updated_at?: string
-          user_id: string
           website?: string | null
           whatsapp?: string | null
         }
         Update: {
+          address?: string | null
           city_id?: number | null
           company_id?: number
-          contact_status_id?: number
           country_id?: number | null
           created_at?: string
-          description?: string | null
           email?: string | null
           facebook?: string | null
           first_name?: string | null
@@ -672,11 +607,7 @@ export type Database = {
           organization_id?: number
           postal_code?: string | null
           province_id?: number | null
-          street_1?: string | null
-          street_2?: string | null
-          street_3?: string | null
           updated_at?: string
-          user_id?: string
           website?: string | null
           whatsapp?: string | null
         }
@@ -693,13 +624,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "Companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Contacts_contact_status_id_fkey"
-            columns: ["contact_status_id"]
-            isOneToOne: false
-            referencedRelation: "Contact_Statuses"
             referencedColumns: ["id"]
           },
           {
@@ -721,13 +645,6 @@ export type Database = {
             columns: ["province_id"]
             isOneToOne: false
             referencedRelation: "Provinces"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Contacts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "Users"
             referencedColumns: ["id"]
           },
         ]
@@ -770,27 +687,6 @@ export type Database = {
           created_at?: string
           id?: number
           name?: Database["public"]["Enums"]["currencies"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      Disqualify_Reasons: {
-        Row: {
-          created_at: string
-          id: number
-          name: Database["public"]["Enums"]["disqualify_reasons"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          name: Database["public"]["Enums"]["disqualify_reasons"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          name?: Database["public"]["Enums"]["disqualify_reasons"]
           updated_at?: string
         }
         Relationships: []
@@ -877,49 +773,34 @@ export type Database = {
       Leads: {
         Row: {
           company_id: number
-          contact_id: number
           created_at: string | null
-          disqualify_reason_id: number | null
           id: number
-          message: string | null
           organization_id: number
           rating_id: number
-          score: number | null
-          source_id: number
-          status: Database["public"]["Enums"]["lead_statuses"] | null
-          topic: string | null
+          source: Database["public"]["Enums"]["source_name"] | null
+          status: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           company_id: number
-          contact_id: number
           created_at?: string | null
-          disqualify_reason_id?: number | null
           id?: number
-          message?: string | null
           organization_id: number
           rating_id: number
-          score?: number | null
-          source_id: number
-          status?: Database["public"]["Enums"]["lead_statuses"] | null
-          topic?: string | null
+          source?: Database["public"]["Enums"]["source_name"] | null
+          status?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           company_id?: number
-          contact_id?: number
           created_at?: string | null
-          disqualify_reason_id?: number | null
           id?: number
-          message?: string | null
           organization_id?: number
           rating_id?: number
-          score?: number | null
-          source_id?: number
-          status?: Database["public"]["Enums"]["lead_statuses"] | null
-          topic?: string | null
+          source?: Database["public"]["Enums"]["source_name"] | null
+          status?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -929,20 +810,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "Companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Leads_contact_id_fkey"
-            columns: ["contact_id"]
-            isOneToOne: false
-            referencedRelation: "Contacts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Leads_disqualify_reason_id_fkey"
-            columns: ["disqualify_reason_id"]
-            isOneToOne: false
-            referencedRelation: "Disqualify_Reasons"
             referencedColumns: ["id"]
           },
           {
@@ -960,13 +827,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Leads_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "Sources"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "Leads_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -975,41 +835,19 @@ export type Database = {
           },
         ]
       }
-      Methods: {
-        Row: {
-          created_at: string
-          id: number
-          name: Database["public"]["Enums"]["method_name"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          name: Database["public"]["Enums"]["method_name"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          name?: Database["public"]["Enums"]["method_name"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
       Opportunities: {
         Row: {
           act_budget: number | null
           act_close_date: string | null
           act_revenue: number | null
-          close_reason_id: number | null
+          close_reason: Database["public"]["Enums"]["close_reasons"] | null
           company_id: number
           confidence: number | null
-          contact_id: number
+          contact_id: number | null
           created_at: string | null
           currency_id: number | null
           current_situation: string | null
           customer_need: string | null
-          description: string | null
           est_budget: number | null
           est_revenue: number | null
           id: number
@@ -1017,11 +855,10 @@ export type Database = {
           lead_id: number
           opportunity_status_id: number
           organization_id: number
-          payment_plan_id: number | null
+          payment_plan: Database["public"]["Enums"]["payment_plans"] | null
           priority: Database["public"]["Enums"]["priority_statuses"]
           proposed_solution: string | null
           rating_id: number
-          topic: string
           updated_at: string | null
           user_id: string
         }
@@ -1029,15 +866,14 @@ export type Database = {
           act_budget?: number | null
           act_close_date?: string | null
           act_revenue?: number | null
-          close_reason_id?: number | null
+          close_reason?: Database["public"]["Enums"]["close_reasons"] | null
           company_id: number
           confidence?: number | null
-          contact_id: number
+          contact_id?: number | null
           created_at?: string | null
           currency_id?: number | null
           current_situation?: string | null
           customer_need?: string | null
-          description?: string | null
           est_budget?: number | null
           est_revenue?: number | null
           id?: number
@@ -1045,11 +881,10 @@ export type Database = {
           lead_id: number
           opportunity_status_id: number
           organization_id: number
-          payment_plan_id?: number | null
+          payment_plan?: Database["public"]["Enums"]["payment_plans"] | null
           priority?: Database["public"]["Enums"]["priority_statuses"]
           proposed_solution?: string | null
           rating_id: number
-          topic: string
           updated_at?: string | null
           user_id: string
         }
@@ -1057,15 +892,14 @@ export type Database = {
           act_budget?: number | null
           act_close_date?: string | null
           act_revenue?: number | null
-          close_reason_id?: number | null
+          close_reason?: Database["public"]["Enums"]["close_reasons"] | null
           company_id?: number
           confidence?: number | null
-          contact_id?: number
+          contact_id?: number | null
           created_at?: string | null
           currency_id?: number | null
           current_situation?: string | null
           customer_need?: string | null
-          description?: string | null
           est_budget?: number | null
           est_revenue?: number | null
           id?: number
@@ -1073,22 +907,14 @@ export type Database = {
           lead_id?: number
           opportunity_status_id?: number
           organization_id?: number
-          payment_plan_id?: number | null
+          payment_plan?: Database["public"]["Enums"]["payment_plans"] | null
           priority?: Database["public"]["Enums"]["priority_statuses"]
           proposed_solution?: string | null
           rating_id?: number
-          topic?: string
           updated_at?: string | null
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "Opportunities_close_reason_id_fkey"
-            columns: ["close_reason_id"]
-            isOneToOne: false
-            referencedRelation: "Close_Reasons"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "Opportunities_company_id_fkey"
             columns: ["company_id"]
@@ -1122,13 +948,6 @@ export type Database = {
             columns: ["opportunity_status_id"]
             isOneToOne: false
             referencedRelation: "Opportunity_Statuses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Opportunities_payment_plan_id_fkey"
-            columns: ["payment_plan_id"]
-            isOneToOne: false
-            referencedRelation: "Payment_Plans"
             referencedColumns: ["id"]
           },
           {
@@ -1266,59 +1085,6 @@ export type Database = {
           },
         ]
       }
-      Payment_Plans: {
-        Row: {
-          created_at: string
-          id: number
-          name: Database["public"]["Enums"]["payment_plans"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          name: Database["public"]["Enums"]["payment_plans"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          name?: Database["public"]["Enums"]["payment_plans"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      Photos: {
-        Row: {
-          company_id: number
-          created_at: string
-          file: string
-          id: number
-          updated_at: string
-        }
-        Insert: {
-          company_id: number
-          created_at?: string
-          file: string
-          id?: number
-          updated_at?: string
-        }
-        Update: {
-          company_id?: number
-          created_at?: string
-          file?: string
-          id?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "photos_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "B2B_Companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       Priority: {
         Row: {
           created_at: string
@@ -1431,27 +1197,6 @@ export type Database = {
           created_at?: string
           id?: number
           size_range?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      Sources: {
-        Row: {
-          created_at: string
-          id: number
-          name: Database["public"]["Enums"]["source_name"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          name: Database["public"]["Enums"]["source_name"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          name?: Database["public"]["Enums"]["source_name"]
           updated_at?: string
         }
         Relationships: []
@@ -1592,7 +1337,8 @@ export type Database = {
           created_at: string
           email: string
           expectation: string[] | null
-          first_name: string | null
+          first_name: string
+          google_refresh_token: string | null
           id: string
           last_name: string | null
           linkedin: string | null
@@ -1609,7 +1355,8 @@ export type Database = {
           created_at?: string
           email: string
           expectation?: string[] | null
-          first_name?: string | null
+          first_name: string
+          google_refresh_token?: string | null
           id: string
           last_name?: string | null
           linkedin?: string | null
@@ -1626,7 +1373,8 @@ export type Database = {
           created_at?: string
           email?: string
           expectation?: string[] | null
-          first_name?: string | null
+          first_name?: string
+          google_refresh_token?: string | null
           id?: string
           last_name?: string | null
           linkedin?: string | null
@@ -1747,6 +1495,8 @@ export type Database = {
         | "calling"
         | "email"
         | "assigned"
+        | "lead created"
+        | "opportunity created"
       close_reasons:
         | "pricing"
         | "competition"

@@ -6,8 +6,8 @@ import type { Company, Industry, Size } from '~/types';
 
 const props = defineProps<{
     company: Company & {
-        industry: Pick<Industry, 'id'> | null;
-        size: Pick<Size, 'id'> | null;
+        industry?: Pick<Industry, 'id'> | null;
+        size?: Pick<Size, 'id'> | null;
     };
 }>();
 const { company } = toRefs(props);
@@ -37,12 +37,11 @@ const industriesOption = computed(() => data.value[0]);
 const sizesOption = computed(() => data.value[1]);
 
 function useUpdateCompany() {
-    type UpdateB2BCompanyType = z.infer<typeof updateCompanySchema>;
+    type UpdateB2BCompanyType = z.infer<typeof companiesSchema>;
     const formRef = ref();
     const isUpdating = ref(false);
 
     const initialState = {
-        id: company.value.id,
         name: company.value.name,
         industry_id: company.value.industry?.id || undefined,
         size_id: company.value.size?.id || undefined,
@@ -92,7 +91,7 @@ function useUpdateCompany() {
 
         <UForm
             ref="formRef"
-            :schema="updateCompanySchema"
+            :schema="companiesSchema"
             :state="updateState"
             class="col-span-8 space-y-2"
             :disabled="isUpdating"

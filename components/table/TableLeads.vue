@@ -9,23 +9,8 @@ const { columns, selectedColumns, tableColumns, selectedRows, selectRow, search,
     useDataTable({
         columns: [
             {
-                key: 'contact(first_name)',
-                label: 'Name',
-                sortable: true,
-            },
-            {
                 key: 'company(name)',
                 label: 'Company',
-                sortable: true,
-            },
-            {
-                key: 'user(first_name)',
-                label: 'Assigned To',
-                sortable: true,
-            },
-            {
-                key: 'score',
-                label: 'Lead Score',
                 sortable: true,
             },
             {
@@ -34,8 +19,8 @@ const { columns, selectedColumns, tableColumns, selectedRows, selectRow, search,
                 sortable: true,
             },
             {
-                key: 'disqualify_reason(name)',
-                label: 'Disqualify Reason',
+                key: 'user(first_name)',
+                label: 'Lead Owner',
                 sortable: true,
             },
             {
@@ -44,7 +29,7 @@ const { columns, selectedColumns, tableColumns, selectedRows, selectRow, search,
                 sortable: true,
             },
             {
-                key: 'source(name)',
+                key: 'source',
                 label: 'Lead Source',
                 sortable: true,
             },
@@ -54,7 +39,7 @@ const { columns, selectedColumns, tableColumns, selectedRows, selectRow, search,
                 sortable: true,
             },
         ],
-        initialColumnKeys: ['contact(first_name)', 'company(name)', 'score', 'status', 'rating(name)', 'created_at'],
+        initialColumnKeys: ['company(name)', 'status', 'user(first_name)', 'created_at'],
     });
 
 const { data: leadsPaginated, status } = await useLazyFetch('/api/leads', {
@@ -148,20 +133,14 @@ async function handleDeleteLeads() {
         }"
         @select="selectRow"
     >
-        <template #contact(first_name)-data="{ row }">
-            <NuxtLink :href="`/dashboard/pipeline/leads/${row.id}`" class="text-brand hover:underline">
-                {{ getUserFullName(row.contact) }}
+        <template #company(name)-data="{ row }">
+            <NuxtLink v-if="row.company" :href="`/dashboard/pipeline/leads/${row.id}`" class="text-brand hover:underline">
+                {{ row.company?.name }}
             </NuxtLink>
         </template>
 
-        <template #company(name)-data="{ row }">
-            <NuxtLink
-                v-if="row.company"
-                :href="`/dashboard/customer/companies/${row.company.id}`"
-                class="text-brand hover:underline"
-            >
-                {{ row.company?.name }}
-            </NuxtLink>
+        <template #source-data="{ row }">
+            {{ row.source }}
         </template>
 
         <template #user(first_name)-data="{ row }">
@@ -172,19 +151,8 @@ async function handleDeleteLeads() {
             {{ row.rating?.name ?? '' }}
         </template>
 
-        <template #disqualify_reason(name)-data="{ row }">
-            {{ row.disqualify_reason?.name ?? '' }}
-        </template>
-
-        <template #source(name)-data="{ row }">
-            {{ row.source?.name ?? '' }}
-        </template>
-
         <template #created_at-data="{ row }">
-            {{ useDateFormat(row.created_at, 'YYYY-MM-DD HH:mm:ss').value.replace('"', '') }}
-        </template>
-        <template #updated_at-data="{ row }">
-            {{ useDateFormat(row.updated_at, 'YYYY-MM-DD HH:mm:ss').value.replace('"', '') }}
+            {{ useDateFormat(row.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
         </template>
 
         <template #empty-state>

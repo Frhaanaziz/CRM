@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue';
+import type { VerticalNavigationLink } from '#ui/types';
 
 const { user } = storeToRefs(userSessionStore());
 
@@ -10,85 +11,47 @@ watchEffect(() => (pathname.value = route.path));
 
 const sidebarOpen = ref(false);
 
-const navigations = computed(() => {
-    const isCurrent = (path: string) => pathname.value === path;
+const links = computed(() => {
     const isCurrentNested = (path: string) => pathname.value.startsWith(path);
 
     return [
         {
-            name: 'My Work',
-            links: [
-                {
-                    name: 'Inbox',
-                    href: '/dashboard/inbox',
-                    icon: 'i-heroicons-inbox',
-                    current: isCurrentNested('/dashboard/inbox'),
-                },
-                // {
-                //     name: 'Dashboard',
-                //     href: '/dashboard/',
-                //     icon: 'i-heroicons-home',
-                //     current: isCurrent('/dashboard/'),
-                // },
-            ],
+            label: 'Inbox',
+            to: '/dashboard/inbox',
+            icon: 'i-heroicons-inbox',
+            active: isCurrentNested('/dashboard/inbox'),
         },
         {
-            name: 'Activity',
-            links: [
-                {
-                    name: 'Reports',
-                    href: '/dashboard/activity/reports',
-                    icon: 'i-heroicons-document-chart-bar',
-                    current: isCurrentNested('/dashboard/activity/reports'),
-                },
-            ],
+            label: 'Leads',
+            to: '/dashboard/pipeline/leads',
+            icon: 'i-heroicons-building-office',
+            active: isCurrentNested('/dashboard/pipeline/leads'),
         },
         {
-            name: 'Pipeline',
-            links: [
-                {
-                    name: 'Leads',
-                    href: '/dashboard/pipeline/leads',
-                    icon: 'i-heroicons-users',
-                    current: isCurrentNested('/dashboard/pipeline/leads'),
-                },
-                {
-                    name: 'Opportunities',
-                    href: '/dashboard/pipeline/opportunities',
-                    icon: 'i-heroicons-user-plus',
-                    current: isCurrentNested('/dashboard/pipeline/opportunities'),
-                },
-            ],
+            label: 'Opportunities',
+            to: '/dashboard/pipeline/opportunities',
+            icon: 'i-heroicons-trophy',
+            active: isCurrentNested('/dashboard/pipeline/opportunities'),
         },
         {
-            name: 'Customer',
-            links: [
-                {
-                    name: 'Contacts',
-                    href: '/dashboard/customer/contacts',
-                    icon: 'i-heroicons-user-circle',
-                    current: isCurrentNested('/dashboard/customer/contacts'),
-                },
-                {
-                    name: 'Companies',
-                    href: '/dashboard/customer/companies',
-                    icon: 'i-heroicons-user',
-                    current: isCurrentNested('/dashboard/customer/companies'),
-                },
-            ],
+            label: 'Contacts',
+            to: '/dashboard/customer/contacts',
+            icon: 'i-heroicons-user-circle',
+            active: isCurrentNested('/dashboard/customer/contacts'),
         },
         {
-            name: 'Resources',
-            links: [
-                {
-                    name: 'B2B Database',
-                    href: '/dashboard/resources/b2b-database',
-                    icon: 'i-heroicons-circle-stack',
-                    current: isCurrentNested('/dashboard/resources/b2b-database'),
-                },
-            ],
+            label: 'Reports',
+            to: '/dashboard/activity/reports',
+            icon: 'i-heroicons-document-chart-bar',
+            active: isCurrentNested('/dashboard/activity/reports'),
         },
-    ];
+        {
+            label: 'Company Database',
+            to: '/dashboard/resources/b2b-database',
+            icon: 'i-heroicons-magnifying-glass-plus',
+            active: isCurrentNested('/dashboard/resources/b2b-database'),
+        },
+    ] satisfies VerticalNavigationLink[];
 });
 </script>
 
@@ -137,8 +100,8 @@ const navigations = computed(() => {
                             </TransitionChild>
 
                             <!-- Sidebar component, swap this element with another sidebar if you like -->
-                            <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-base-200 px-6 pb-2">
-                                <DashboardSidebar :navigations="navigations" @close="sidebarOpen = false" />
+                            <div class="flex grow flex-col overflow-y-auto bg-base-100 px-3 py-2">
+                                <DashboardSidebar :links @close="sidebarOpen = false" />
                             </div>
                         </DialogPanel>
                     </TransitionChild>
@@ -147,8 +110,8 @@ const navigations = computed(() => {
         </TransitionRoot>
 
         <!-- Static sidebar for desktop -->
-        <div class="hidden gap-y-5 bg-base-200 px-6 lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-48 lg:flex-col">
-            <DashboardSidebar :navigations="navigations" />
+        <div class="hidden border-r px-3 py-2 lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-48 lg:flex-col">
+            <DashboardSidebar :links />
         </div>
 
         <div class="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden">

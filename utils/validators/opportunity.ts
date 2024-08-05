@@ -1,12 +1,11 @@
 import { z } from 'zod';
 import { phone } from '.';
-import { priorityStatuses } from '../constants';
+import { priorityStatuses, opportunityCloseReasons, opportunityPaymentPlans } from '../constants';
 
 export const opportunitySchema = z.object({
     act_budget: z.coerce.number().optional().nullable(),
     act_close_date: z.coerce.date().optional().nullable(),
     act_revenue: z.coerce.number().optional().nullable(),
-    close_reason_id: z.coerce.number().int().optional().nullable(),
     company_id: z.coerce.number({ message: 'Please select a company' }).int(),
     confidence: z.coerce
         .number()
@@ -15,16 +14,10 @@ export const opportunitySchema = z.object({
         .max(100, { message: 'Confidence must be less than 100' })
         .optional()
         .nullable(),
-    contact_id: z.coerce
-        .number({
-            message: 'Please select a contact',
-        })
-        .int(),
     created_at: z.coerce.date().optional().nullable(),
     currency_id: z.coerce.number().int().optional().nullable(),
     current_situation: z.string().optional().nullable(),
     customer_need: z.string().optional().nullable(),
-    description: z.string().optional().nullable(),
     est_budget: z.coerce.number().optional().nullable(),
     est_revenue: z.coerce.number().int().min(0, { message: 'Revenue must be greater than 0' }).optional().nullable(),
     id: z.coerce.number().int(),
@@ -34,13 +27,13 @@ export const opportunitySchema = z.object({
             message: 'Please select an opportunity status',
         })
         .int(),
-    payment_plan_id: z.coerce.number().int().optional().nullable(),
+    payment_plan: z.enum(opportunityPaymentPlans),
     proposed_solution: z.string().optional().nullable(),
-    topic: z.string().trim().min(1, { message: 'Topic is required' }),
     updated_at: z.coerce.date().optional().nullable(),
     user_id: z.string().trim(),
     organization_id: z.coerce.number().int(),
     priority: z.enum(priorityStatuses),
+    close_reason: z.enum(opportunityCloseReasons),
 });
 
 export const updateOpportunitySchema = opportunitySchema
@@ -49,21 +42,19 @@ export const updateOpportunitySchema = opportunitySchema
         currency_id: true,
         act_budget: true,
         est_revenue: true,
-        payment_plan_id: true,
+        payment_plan: true,
         confidence: true,
         priority: true,
         opportunity_status_id: true,
         current_situation: true,
         customer_need: true,
         proposed_solution: true,
-        topic: true,
     })
     .partial()
     .extend({ id: z.coerce.number().int() });
 
 export const addOpportunitySchema = opportunitySchema
     .pick({
-        topic: true,
         company_id: true,
     })
     .extend({
@@ -75,11 +66,6 @@ export const addOpportunitySchema = opportunitySchema
 
 export const updateOpportunityUserIdSchema = opportunitySchema.pick({
     user_id: true,
-    id: true,
-});
-
-export const updateOpportunityTopicSchema = opportunitySchema.pick({
-    topic: true,
     id: true,
 });
 
@@ -102,7 +88,6 @@ export const updateOpportunityAsLostSchema = opportunitySchema
         id: true,
     })
     .extend({
-        close_reason_id: z.coerce.number({ message: 'Close reason is required' }).int(),
         act_revenue: z.coerce.number().int().min(0, { message: 'Revenue must be greater than 0' }),
         act_close_date: z.coerce.date({ message: 'Close date is required' }),
     });

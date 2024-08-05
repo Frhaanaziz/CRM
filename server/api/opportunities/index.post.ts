@@ -14,25 +14,15 @@ export default defineEventHandler(async (event) => {
         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
     }
 
-    const { company_id, email, first_name, last_name, topic, phone } = zodResult.data;
+    const { company_id, email, first_name, last_name, phone } = zodResult.data;
 
-    const [contactStatusRes, ratingRes, sourceRes, opportunityStatusRes] = await Promise.all([
-        supabase.from('Contact_Statuses').select('id').eq('name', 'new').single(),
+    const [ratingRes, opportunityStatusRes] = await Promise.all([
         supabase.from('Ratings').select('id').eq('name', 'cool').single(),
-        supabase.from('Sources').select('id').eq('name', 'manual').single(),
         supabase.from('Opportunity_Statuses').select('id').order('index_number', { ascending: false }).limit(1).single(),
     ]);
-    if (contactStatusRes.error) {
-        console.error('Error fetching contact status:', contactStatusRes.error);
-        throw createError({ status: 500, statusMessage: contactStatusRes.error.message });
-    }
     if (ratingRes.error) {
         console.error('Error fetching rating:', ratingRes.error);
         throw createError({ status: 500, statusMessage: ratingRes.error.message });
-    }
-    if (sourceRes.error) {
-        console.error('Error fetching source:', sourceRes.error);
-        throw createError({ status: 500, statusMessage: sourceRes.error.message });
     }
     if (opportunityStatusRes.error) {
         console.error('Error fetching opportunity status:', opportunityStatusRes.error);
@@ -43,7 +33,6 @@ export default defineEventHandler(async (event) => {
         .from('Contacts')
         .insert({
             company_id,
-            contact_status_id: contactStatusRes.data.id,
             first_name,
             last_name,
             email,
@@ -65,8 +54,7 @@ export default defineEventHandler(async (event) => {
             contact_id: contactRes.data.id,
             status: 'new',
             rating_id: ratingRes.data.id,
-            source_id: sourceRes.data.id,
-            topic,
+            source: 'manual',
             organization_id: user.user_metadata.organization_id,
             user_id: user.id,
         })
@@ -102,7 +90,6 @@ export default defineEventHandler(async (event) => {
         lead_id: leadRes.data.id,
         opportunity_status_id: opportunityStatusRes.data.id,
         rating_id: ratingRes.data.id,
-        topic,
         index_number: maxIndexOpportunity ? maxIndexOpportunity.index_number + 1 : 1,
         organization_id: user.user_metadata.organization_id,
         user_id: user.id,

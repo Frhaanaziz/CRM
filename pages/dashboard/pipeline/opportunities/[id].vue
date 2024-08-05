@@ -7,7 +7,6 @@ import LazyModalDelete from '~/components/modal/ModalDelete.vue';
 import LazyModalAssignOpportunity from '~/components/modal/ModalAssignOpportunity.vue';
 import LazyModalCloseOpportunityAsWon from '~/components/modal/ModalCloseOpportunityAsWon.vue';
 import LazyModalCloseOpportunityAsLost from '~/components/modal/ModalCloseOpportunityAsLost.vue';
-import LazyModalAddOpportunityTopic from '~/components/modal/ModalAddOpportunityTopic.vue';
 
 const modal = useModal();
 const id = parseInt(useRoute().params.id as string);
@@ -343,12 +342,9 @@ function useUpdateMoreInfo() {
             </div>
 
             <div class="flex items-center justify-between p-4">
-                <div v-if="opportunity.company" class="flex flex-col gap-1">
-                    <h1 class="text-xl font-semibold">
-                        {{ opportunity.topic }}
-                    </h1>
-                    <p class="text-sm">Opportunity &#128900; {{ opportunity.company.name }}</p>
-                </div>
+                <h1 class="text-xl font-semibold">
+                    {{ opportunity.lead?.company?.name }}
+                </h1>
 
                 <div class="flex items-center gap-4">
                     <div v-if="opportunity.act_close_date" class="flex flex-col">
@@ -469,28 +465,8 @@ function useUpdateMoreInfo() {
                     class="text-weak rounded-lg bg-red-100 p-4"
                 >
                     This opportunity is lost because
-                    <span class="font-semibold capitalize">{{ opportunity.close_reason.name }}.</span>
+                    <span class="font-semibold capitalize">{{ opportunity.close_reason }}.</span>
                 </p>
-
-                <UCard>
-                    <template #header>
-                        <h2 class="text-xl font-semibold">TOPIC</h2>
-                    </template>
-
-                    <UButton
-                        variant="ghost"
-                        color="black"
-                        class="flex items-center gap-[10px]"
-                        @click="
-                            modal.open(LazyModalAddOpportunityTopic, {
-                                onClose: () => modal.close(),
-                                opportunity,
-                            })
-                        "
-                    >
-                        {{ opportunity.topic }}
-                    </UButton>
-                </UCard>
 
                 <CardTasks v-if="opportunity.tasks" :tasks="opportunity.tasks" :oportunity_id="id" />
 

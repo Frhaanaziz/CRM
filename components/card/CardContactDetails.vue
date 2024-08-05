@@ -227,10 +227,7 @@ async function verifyEmail() {
                                         toast.error('Please fill in the mobile phone number to make a call');
                                         return;
                                     }
-                                    store.makeCall({
-                                        full_name: getUserFullName(contact),
-                                        number: contact.mobile_phone,
-                                    });
+                                    store.makeCall(contact);
                                 }
                             "
                         />

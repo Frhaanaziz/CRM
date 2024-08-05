@@ -153,43 +153,48 @@ async function handleDeleteOpportunities() {
 function useTable() {
     const columns = [
         {
-            key: 'topic',
-            label: 'Topic',
+            key: 'lead(company(name))',
+            label: 'Company',
             sortable: true,
         },
         {
-            key: 'companyName',
-            label: 'Potential Cust.',
+            key: 'contact(first_name)',
+            label: 'Contact',
             sortable: true,
         },
         {
-            key: 'estBudget',
+            key: 'status(name)',
+            label: 'Status',
+            sortable: true,
+        },
+        {
+            key: 'user(first_name)',
+            label: 'Lead Owner',
+            sortable: true,
+        },
+        {
+            key: 'est_budget',
             label: 'Est. Budget',
             sortable: true,
         },
         {
-            key: 'estRevenue',
+            key: 'est_revenue',
             label: 'Est. Revenue',
             sortable: true,
         },
         {
-            key: 'actBudget',
+            key: 'act_budget',
             label: 'Act. Budget',
             sortable: true,
         },
         {
-            key: 'actRevenue',
+            key: 'act_revenue',
             label: 'Act. Revenue',
             sortable: true,
         },
         {
-            key: 'actCloseDate',
+            key: 'act_close_date',
             label: 'Act. Close Date',
-            sortable: true,
-        },
-        {
-            key: 'contactName',
-            label: 'Contact',
             sortable: true,
         },
         {
@@ -198,13 +203,8 @@ function useTable() {
             sortable: true,
         },
         {
-            key: 'rating',
+            key: 'rating(name)',
             label: 'Rating',
-            sortable: true,
-        },
-        {
-            key: 'status',
-            label: 'Status',
             sortable: true,
         },
         {
@@ -213,7 +213,7 @@ function useTable() {
             sortable: true,
         },
     ];
-    const initialColumnKeys = ['topic', 'companyName', 'estRevenue', 'actCloseDate', 'contactName', 'confidence', 'rating'];
+    const initialColumnKeys = ['lead(company(name))', 'contact(first_name)', 'status(name)', 'user(first_name)', 'created_at'];
     const selectedColumns = ref(columns.filter((column) => initialColumnKeys.includes(column.key)));
     const tableColumns = computed(() =>
         columns.filter((column) => selectedColumns.value.some((selected) => selected.key === column.key))
@@ -380,18 +380,16 @@ function useTable() {
         </section>
 
         <section v-else class="min-h-[calc(100vh-96px)] bg-base-200">
-            <div class="flex items-start gap-4 overflow-x-auto p-4">
-                <div
-                    v-for="opportunityStatus in opportunityStatuses"
-                    :key="opportunityStatus.id"
-                    class="min-w-[392px] rounded bg-base-100 shadow"
-                >
-                    <div class="space-y-2 p-4">
-                        <h2 class="text-xl font-semibold capitalize">{{ opportunityStatus.name }}</h2>
-                        <p class="text-weak text-sm">3 OPPORTUNITIES</p>
+            <ul class="flex items-start gap-4 overflow-x-auto p-4">
+                <li v-for="opportunityStatus in opportunityStatuses" :key="opportunityStatus.id" class="min-w-[392px]">
+                    <div class="flex items-center justify-between rounded bg-base-100 px-4 py-2 shadow">
+                        <h2 class="font-semibold capitalize">{{ opportunityStatus.name }}</h2>
+                        <p class="text-xs text-slate-500">
+                            {{ sortedOpportunitiesByStatus[opportunityStatus.id].length }} Result
+                        </p>
                     </div>
-                    <div class="flex items-center justify-between bg-brand-600 p-4 text-sm font-semibold text-white">
-                        <p>Est. Annualized Value</p>
+                    <div class="flex items-center justify-between rounded-b bg-brand-800 px-4 py-2 text-xs text-white">
+                        <p>Est. Value</p>
                         <p>
                             {{
                                 formatToRupiah(
@@ -416,40 +414,61 @@ function useTable() {
                         v-bind="dragOptions"
                         group="opportunities"
                         filter=".ignore-element"
-                        class="space-y-4 p-4"
                         @start="drag = true"
                         @end="drag = false"
                         @update="onUpdate"
                         @add="onAdd"
                     >
                         <template #item="{ element: opportunity }">
-                            <li class="list-none rounded border" :class="[isReordering ? 'cursor-not-allowed' : 'cursor-move']">
-                                <div class="flex items-center justify-between gap-4 border-b p-4">
-                                    <NuxtLink
-                                        :href="`/dashboard/pipeline/opportunities/${opportunity.id}`"
-                                        class="ignore-element truncate font-semibold text-brand"
-                                        >{{ opportunity.topic }}</NuxtLink
-                                    >
-                                    <UAvatar :src="`/icons/priority-${opportunity.priority}.png`" size="xs" />
-                                </div>
-                                <div class="flex items-center gap-4 p-4">
-                                    <UAvatar :src="getFallbackAvatarUrl('FA')" size="md" />
-                                    <div>
-                                        <p class="text-weak">{{ getUserFullName(opportunity.contact) }}</p>
-                                        <p v-if="opportunity.est_revenue" class="font-semibold">
-                                            {{ formatToRupiah(opportunity.est_revenue) }}
-                                        </p>
-                                        <p v-if="opportunity.confidence || opportunity.act_close_date" class="text-weak">
-                                            {{ opportunity.confidence }}% on
-                                            {{ useDateFormat(opportunity.act_close_date!, 'YYYY-MM-DD').value }}
-                                        </p>
+                            <li
+                                class="mt-2 list-none rounded border bg-base-100 px-4 py-2"
+                                :class="[isReordering ? 'cursor-not-allowed' : 'cursor-move']"
+                            >
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="space-y-0.5">
+                                        <NuxtLink
+                                            :href="`/dashboard/pipeline/opportunities/${opportunity.id}`"
+                                            class="ignore-element truncate font-semibold text-brand"
+                                        >
+                                            {{ opportunity.lead?.company?.name }}
+                                        </NuxtLink>
+                                        <p class="text-xs text-slate-600">{{ getUserFullName(opportunity.contact) }}</p>
                                     </div>
+                                    <div class="ignore-element flex items-center gap-2">
+                                        <UButton
+                                            variant="ghost"
+                                            color="black"
+                                            square
+                                            icon="i-heroicons-pencil"
+                                            size="xs"
+                                            :padded="false"
+                                        />
+                                        <UButton
+                                            variant="ghost"
+                                            color="black"
+                                            square
+                                            icon="i-heroicons-trash"
+                                            size="xs"
+                                            :padded="false"
+                                        />
+                                    </div>
+                                </div>
+                                <div class="py-2">
+                                    <p class="text-sm font-semibold text-gray-900">
+                                        {{ opportunity.est_revenue ? formatToRupiah(opportunity.est_revenue) : '---' }}
+                                    </p>
+                                    <p class="text-xs text-gray-700">70% on 30/08/2024</p>
+                                    <p v-if="opportunity.confidence || opportunity.act_close_date" class="text-xs text-gray-700">
+                                        {{ opportunity.confidence }}% on
+                                        <!-- {{ useDateFormat(opportunity.act_close_date, 'YYYY-MM-DD') }} -->
+                                        {{ useDateFormat(new Date(), 'YYYY-MM-DD') }}
+                                    </p>
                                 </div>
                             </li>
                         </template>
                     </Draggable>
-                </div>
-            </div>
+                </li>
+            </ul>
         </section>
     </div>
 </template>

@@ -269,7 +269,7 @@ const { data: companiesPaginated, status } = await useLazyFetch(`/api/b2b-compan
         </template>
 
         <template #created_at-data="{ row }">
-            {{ useDateFormat(row.created_at, 'YYYY-MM-DD HH:mm:ss').value.replace('"', '') }}
+            {{ useDateFormat(row.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
         </template>
 
         <template #empty-state>
