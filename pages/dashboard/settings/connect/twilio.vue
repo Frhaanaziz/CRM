@@ -19,14 +19,18 @@ const selectedTab = ref(tabItems[0]);
 const { user } = storeToRefs(userSessionStore());
 if (!user.value) throw createError({ status: 401, message: 'Unauthorized' });
 
-const { data: twilioSetting } = await useFetch(`/api/twilio-settings/${user.value?.user_metadata.twilio_setting_id}`, {
-    key: 'twilio-setting',
-    headers: useRequestHeaders(['cookie']),
+const { data } = await useAsyncData(async () => {
+    return Promise.all([
+        $fetch(`/api/twilio-settings/${user.value?.user_metadata.twilio_setting_id}`, {
+            headers: useRequestHeaders(['cookie']),
+        }),
+        $fetch(`/api/twilio-agents/${user.value?.user_metadata.twilio_agent_id}`, {
+            headers: useRequestHeaders(['cookie']),
+        }),
+    ]);
 });
-const { data: twilioAgent } = await useLazyFetch(`/api/twilio-agents/${user.value?.user_metadata.twilio_agent_id}`, {
-    key: 'twilio-agent',
-    headers: useRequestHeaders(['cookie']),
-});
+const twilioSetting = ref(data.value ? data.value[0] : null);
+const twilioAgent = ref(data.value ? data.value[1] : null);
 
 const { isUpdatingSetting, settingState, updateSetting } = useUpdateSetting();
 const { isUpdatingAgent, agentState, updateAgent } = useUpdateAgent();
