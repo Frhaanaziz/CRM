@@ -1,42 +1,8 @@
 import { z } from 'zod';
-
-const addCompanyLeadSchema = z.object({
-    industry_id: z.coerce.number().optional().nullable(),
-    size_id: z.coerce.number().optional().nullable(),
-    country_id: z.coerce.number().optional().nullable(),
-    province_id: z.coerce.number().optional().nullable(),
-    city_id: z.coerce.number().optional().nullable(),
-    name: z.string().trim(),
-    website: z.string().optional().nullable(),
-    linkedin: z.string().optional().nullable(),
-    phone: z.string().optional().nullable(),
-    street_1: z.string().optional().nullable(),
-    postal_code: z.string().optional().nullable(),
-});
-
-const addContactLeadSchema = z.object({
-    country_id: z.coerce.number().optional().nullable(),
-    province_id: z.coerce.number().optional().nullable(),
-    city_id: z.coerce.number().optional().nullable(),
-    first_name: z.string().trim(),
-    last_name: z.string().trim(),
-    job_title: z.string().optional().nullable(),
-    email: z.string().trim().email().optional().nullable(),
-    main_phone: z.string().optional().nullable(),
-    mobile_phone: z.string().optional().nullable(),
-    whatsapp: z.string().optional().nullable(),
-    street_1: z.string().optional().nullable(),
-    street_2: z.string().optional().nullable(),
-    street_3: z.string().optional().nullable(),
-    postal_code: z.string().optional().nullable(),
-    linkedin: z.string().optional().nullable(),
-    instagram: z.string().optional().nullable(),
-    facebook: z.string().optional().nullable(),
-    website: z.string().optional().nullable(),
-    description: z.string().optional().nullable(),
-});
+import { companySchema } from './company';
+import { contactSchema } from './contact';
 
 export const addToLeadSchema = z.object({
-    company: addCompanyLeadSchema,
-    contact: addContactLeadSchema,
+    company: companySchema,
+    contact: z.array(contactSchema),
 });

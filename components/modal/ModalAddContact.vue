@@ -22,9 +22,9 @@ type AddContactType = z.infer<typeof addContactSchema>;
 const isSubmitting = ref(false);
 const state = ref({
     first_name: '',
-    last_name: '',
+    last_name: undefined,
     email: '',
-    job_title: undefined,
+    mobile_phone: undefined,
     company_id: undefined,
 });
 async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
@@ -60,7 +60,7 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
                 />
             </UFormGroup>
 
-            <UFormGroup label="Last Name" name="last_name" required>
+            <UFormGroup label="Last Name" name="last_name">
                 <UInput
                     v-model="state.last_name"
                     :disabled="isSubmitting"
@@ -73,9 +73,9 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
                 <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter email" />
             </UFormGroup>
 
-            <UFormGroup label="Job Title" name="job_title">
+            <UFormGroup label="Phone" name="mobile_phone">
                 <UInput
-                    v-model="state.job_title"
+                    v-model="state.mobile_phone"
                     :disabled="isSubmitting"
                     :loading="isSubmitting"
                     placeholder="Enter job title"

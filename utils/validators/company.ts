@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const companiesSchema = z.object({
+export const companySchema = z.object({
     id: z.coerce.number().int(),
     city_id: z.coerce.number().int().optional().nullable(),
     country_id: z.coerce.number().int().optional().nullable(),
@@ -17,7 +17,7 @@ export const companiesSchema = z.object({
     address: z.string().optional().nullable(),
 });
 
-export const updateCompanySchema = companiesSchema.pick({
+export const updateCompanySchema = companySchema.pick({
     name: true,
     industry_id: true,
     size_id: true,

@@ -10,15 +10,20 @@ interface FormRef {
     isUpdating: boolean;
 }
 
+const store = globalStore();
 const modal = useModal();
 const id = parseInt(useRoute().params.id as string);
 
 const { data: lead } = await useFetch(`/api/leads/${id}`, {
     key: `leads-${id}`,
     headers: useRequestHeaders(['cookie']),
+    // sort opportunities by created_at in descending order
+    transform: (lead) => ({
+        ...lead,
+        opportunities: lead.opportunities?.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+    }),
 });
 if (!lead.value) throw createError({ status: 404, message: 'Lead not found' });
-console.log('lead', lead.value);
 
 const companyForm = ref<FormRef | null>(null);
 const submitCompanyForm = () => companyForm.value?.submitForm();
@@ -273,19 +278,32 @@ async function handleDeleteLead() {
                             :key="contact.id"
                             class="flex items-center justify-between px-2 py-1 [&:not(:last-child)]:border-b"
                         >
-                            <div>
+                            <div class="text-slate-700">
                                 <p class="font-semibold">{{ getUserFullName(contact) }}</p>
-                                <p v-if="contact.job_title" class="text-xs">{{ contact?.job_title }}CEO</p>
+                                <p v-if="contact.job_title" class="text-xs">{{ contact?.job_title }}</p>
                             </div>
                             <div class="flex gap-2">
                                 <UButton square icon="i-heroicons-envelope-solid" variant="ghost" color="black" disabled />
-                                <UButton square icon="i-heroicons-phone-solid" variant="ghost" color="black" disabled />
+                                <UButton
+                                    square
+                                    icon="i-heroicons-phone-solid"
+                                    variant="ghost"
+                                    color="black"
+                                    :disabled="!contact.mobile_phone"
+                                    @click="store.makeCall({ contact, lead_id: id })"
+                                />
                             </div>
                         </li>
                     </ul>
                 </UCard>
 
                 <CardCompany v-if="lead && lead.company" ref="companyForm" :company="lead.company" />
+                <CardOpportunities
+                    v-if="lead.opportunities"
+                    :opportunities="lead.opportunities"
+                    :contacts="lead.company?.contacts"
+                    :leadId="id"
+                />
             </div>
 
             <div class="md:col-span-8">

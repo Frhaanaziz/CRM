@@ -2,7 +2,7 @@
 import { useDateFormat } from '@vueuse/core';
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
-import type { Activity, ActivityParticipant, ActivityParticipantRoles, User } from '~/types';
+import type { Activity, ActivityParticipant, ActivityParticipantRoles, Contact, User } from '~/types';
 
 const props = defineProps<{
     lead_id?: number;
@@ -12,7 +12,7 @@ const createMode = ref<'call' | 'note' | 'email' | undefined>();
 const { user } = storeToRefs(userSessionStore());
 
 interface IActivity extends Activity {
-    participants: (ActivityParticipant & { user: User | null })[];
+    participants?: (ActivityParticipant & { user?: User | null; contact?: Contact | null })[] | null;
 }
 const { data: activities } = await useFetch('/api/activities', {
     query: props,
@@ -27,7 +27,7 @@ const { data: activities } = await useFetch('/api/activities', {
 const { noteState, createNote, isCreatingNote } = useCreateNote();
 
 function getParticipantByRole(activity: IActivity, roleName: ActivityParticipantRoles) {
-    return activity.participants.find((participant) => participant.role === roleName);
+    return activity.participants?.find((participant) => participant.role === roleName);
 }
 function useCreateNote() {
     type CreateNoteType = z.infer<typeof createActivitySchema>;
@@ -289,20 +289,69 @@ function useCreateNote() {
                         <p v-if="activity.description" class="text-slate-500">{{ activity.description }}</p>
                     </li>
 
-                    <!-- Call Activity -->
-                    <li v-if="activity.type === 'calling'" :key="activity.id" class="flex items-start gap-2 bg-base-100 p-4">
-                        <UAvatar :src="getUserFallbackAvatarUrl()" size="md" />
-                        <div class="w-full rounded border p-2">
-                            <p class="mb-1 flex items-center gap-2 font-semibold">
-                                <UIcon name="i-heroicons-phone" class="h-5 w-5 text-black" />
-                                <span>Subject: {{ activity.subject }}</span>
-                            </p>
-                            <div class="text-weak flex items-center gap-1 text-xs">
-                                <p>{{ getUserFullName(activity.user) }}</p>
-                                &middot;
-                                <p>{{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}</p>
+                    <!-- Called Activity -->
+                    <li v-if="activity.type === 'called'" :key="activity.id" class="space-y-1 border-b bg-base-100 p-4">
+                        <UBadge variant="subtle" size="xs" color="green" :ui="{ rounded: 'rounded-full' }" class="gap-1">
+                            Call
+                            <UIcon name="i-heroicons-phone-solid" />
+                        </UBadge>
+
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2">
+                                <UIcon name="i-heroicons-arrow-up-right" class="text-emerald-500" />
+                                <p>
+                                    Called
+                                    <NuxtLink
+                                        :href="`/dashboard/customer/contacts/${getParticipantByRole(activity, 'called')?.contact?.id}`"
+                                        class="font-semibold text-brand"
+                                    >
+                                        {{ getUserFullName(getParticipantByRole(activity, 'called')?.contact) }}
+                                    </NuxtLink>
+                                </p>
                             </div>
-                            <p class="text-weak mt-2">Discuss our services</p>
+                            <p class="text-slate-400">
+                                {{ useDateFormat(activity.created_at, 'DD/MM/YY hh:mm A').value.replace('"', '') }}
+                            </p>
+
+                            <div class="ml-auto flex items-center gap-1">
+                                <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
+                                <UAvatar :src="getUserFallbackAvatarUrl()" size="3xs" />
+                            </div>
+                        </div>
+                    </li>
+
+                    <!-- Attempted to call Activity -->
+                    <li
+                        v-if="activity.type === 'attempted to call'"
+                        :key="activity.id"
+                        class="space-y-1 border-b bg-base-100 p-4"
+                    >
+                        <UBadge variant="subtle" size="xs" color="red" :ui="{ rounded: 'rounded-full' }" class="gap-1">
+                            Call
+                            <UIcon name="i-heroicons-phone-solid" />
+                        </UBadge>
+
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2">
+                                <UIcon name="i-heroicons-arrow-up-right" class="text-red-500" />
+                                <p>
+                                    Attempted to call
+                                    <NuxtLink
+                                        :href="`/dashboard/customer/contacts/${getParticipantByRole(activity, 'called')?.contact?.id}`"
+                                        class="font-semibold text-brand"
+                                    >
+                                        {{ getUserFullName(getParticipantByRole(activity, 'called')?.contact) }}
+                                    </NuxtLink>
+                                </p>
+                            </div>
+                            <p class="text-slate-400">
+                                {{ useDateFormat(activity.created_at, 'DD/MM/YY hh:mm A').value.replace('"', '') }}
+                            </p>
+
+                            <div class="ml-auto flex items-center gap-1">
+                                <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
+                                <UAvatar :src="getUserFallbackAvatarUrl()" size="3xs" />
+                            </div>
                         </div>
                     </li>
 

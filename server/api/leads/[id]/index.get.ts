@@ -1,4 +1,18 @@
-import type { City, Company, Contact, Country, Industry, Lead, Province, Rating, Size, Task, User } from '~/types';
+import type {
+    City,
+    Company,
+    Contact,
+    Country,
+    Industry,
+    Lead,
+    Opportunity,
+    OpportunityStatus,
+    Province,
+    Rating,
+    Size,
+    Task,
+    User,
+} from '~/types';
 import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
@@ -18,6 +32,7 @@ export default defineEventHandler(async (event) => {
         rating?: Rating | null;
         user?: User | null;
         tasks?: (Task & { user?: User | null })[] | null;
+        opportunities?: (Opportunity & { contact?: Contact | null; status?: OpportunityStatus | null })[] | null;
     }
 
     try {

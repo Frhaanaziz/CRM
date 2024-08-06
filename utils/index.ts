@@ -221,8 +221,8 @@ export function getUserFallbackAvatarUrl(user?: Pick<User, 'first_name' | 'last_
  * @returns The full name of the user.
  */
 export function getUserFullName(user?: Pick<User, 'first_name' | 'last_name'> | { [key: string]: any } | null): string {
-    if (!user || !user.first_name || !user.last_name) return '';
-    return user.first_name + ' ' + user.last_name;
+    if (!user || (!user.first_name && !user.last_name)) return '';
+    return (user.first_name ?? '') + ' ' + (user.last_name ?? '');
 }
 
 export async function signOutUser() {

@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
             `
             *,
             user: Users(*),
-            participants: Activity_Participants(*, user: Users(*))
+            participants: Activity_Participants(*, user: Users(*), contact: Contacts(*))
             `
         )
         .match({

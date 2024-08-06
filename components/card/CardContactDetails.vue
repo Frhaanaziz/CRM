@@ -8,7 +8,6 @@ const props = defineProps<{
     contact: Contact;
 }>();
 const { contact } = toRefs(props);
-const store = globalStore();
 
 const isVerifyingEmail = ref(false);
 
@@ -202,36 +201,17 @@ async function verifyEmail() {
                 </UFormGroup>
 
                 <UFormGroup name="mobile_phone">
-                    <div class="flex items-center gap-2">
-                        <UInput
-                            v-model="updateState.mobile_phone"
-                            placeholder="---"
-                            class="flex-1"
-                            :ui="{
-                                color: {
-                                    white: {
-                                        outline: 'ring-0 shadow-none hover:ring-1 ',
-                                    },
+                    <UInput
+                        v-model="updateState.mobile_phone"
+                        placeholder="---"
+                        :ui="{
+                            color: {
+                                white: {
+                                    outline: 'ring-0 shadow-none hover:ring-1 ',
                                 },
-                            }"
-                        />
-                        <UButton
-                            v-if="contact.mobile_phone"
-                            square
-                            variant="ghost"
-                            icon="i-heroicons-phone-solid"
-                            size="xs"
-                            @click="
-                                () => {
-                                    if (!contact.mobile_phone) {
-                                        toast.error('Please fill in the mobile phone number to make a call');
-                                        return;
-                                    }
-                                    store.makeCall(contact);
-                                }
-                            "
-                        />
-                    </div>
+                            },
+                        }"
+                    />
                 </UFormGroup>
 
                 <UFormGroup name="whatsapp">

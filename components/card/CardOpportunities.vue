@@ -6,7 +6,7 @@ import type { Contact, Opportunity } from '~/types';
 const props = defineProps<{
     leadId: number;
     opportunities: (Opportunity & { contact?: Contact | null })[];
-    contacts: Contact[];
+    contacts?: Contact[] | null;
 }>();
 
 const { data: opportunityStatusesOption } = await useLazyFetch('/api/opportunity-statuses', {
@@ -18,10 +18,10 @@ const { data: opportunityStatusesOption } = await useLazyFetch('/api/opportunity
 const isCreating = ref(false);
 
 const initialState = {
-    confidence: undefined,
+    confidence: 50,
     contact_id: undefined,
     est_close_date: undefined,
-    est_revenua: undefined,
+    est_revenue: 0,
     opportunity_status_id: undefined,
     payment_plan: undefined,
     notes: undefined,
@@ -72,7 +72,7 @@ async function handleSubmit(event: FormSubmitEvent<AddLeadOpportunityType>) {
                 @submit="handleSubmit"
                 @error="console.error"
             >
-                <UFormGroup label="Status" name="description" required>
+                <UFormGroup label="Status" name="opportunity_status_id" required>
                     <USelectMenu
                         v-model="state.opportunity_status_id"
                         value-attribute="value"
@@ -82,7 +82,7 @@ async function handleSubmit(event: FormSubmitEvent<AddLeadOpportunityType>) {
                     />
                 </UFormGroup>
 
-                <div>
+                <div class="grid grid-cols-2 gap-2">
                     <UFormGroup label="Estimated Close" name="est_close_date" required>
                         <UInput
                             v-model.date="state.est_close_date"
@@ -92,9 +92,64 @@ async function handleSubmit(event: FormSubmitEvent<AddLeadOpportunityType>) {
                         />
                     </UFormGroup>
                     <UFormGroup label="Confidence" name="confidence" required>
-                        <UInput v-model="state.confidence" type="number" placeholder="50" :disabled="isSubmitting" />
+                        <UInput
+                            v-model.number="state.confidence"
+                            type="number"
+                            min="0"
+                            max="100"
+                            placeholder="---"
+                            :disabled="isSubmitting"
+                            :ui="{
+                                form: '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+                            }"
+                        >
+                            <template #trailing>
+                                <span class="text-sm"> % </span>
+                            </template>
+                        </UInput>
                     </UFormGroup>
                 </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <UFormGroup label="Value" name="est_revenue" required>
+                        <UInput
+                            v-model.number="state.est_revenue"
+                            type="number"
+                            min="0"
+                            placeholder="999999"
+                            :disabled="isSubmitting"
+                            :ui="{
+                                form: '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+                            }"
+                        >
+                            <template #leading>
+                                <span class="text-sm"> Rp </span>
+                            </template>
+                        </UInput>
+                    </UFormGroup>
+                    <UFormGroup label="Payment Plan" name="payment_plan" required>
+                        <USelectMenu
+                            v-model="state.payment_plan"
+                            :options="[...opportunityPaymentPlans]"
+                            :disabled="isSubmitting"
+                            placeholder="Select plan"
+                        />
+                    </UFormGroup>
+                </div>
+
+                <UFormGroup label="Contact" name="contact_id" required>
+                    <USelectMenu
+                        v-model="state.contact_id"
+                        value-attribute="value"
+                        :options="contacts?.map((contact) => ({ value: contact.id, label: getUserFullName(contact) }))"
+                        :disabled="isSubmitting"
+                        placeholder="Select contact"
+                    />
+                </UFormGroup>
+
+                <UFormGroup label="Notes" name="notes">
+                    <UInput v-model="state.notes" placeholder="Add notes here..." :disabled="isSubmitting" />
+                </UFormGroup>
 
                 <div class="grid grid-cols-2 gap-2">
                     <UButton
@@ -112,19 +167,19 @@ async function handleSubmit(event: FormSubmitEvent<AddLeadOpportunityType>) {
             </LazyUForm>
         </div>
 
-        <!-- <div v-if="!!opportunitites?.length" class="divide-y">
-            <LazyCardOpportunity v-for="task in opportunitites" :key="task.id" :task="task" :lead_id="lead_id" :opportunity_id="opportunity_id" />
-        </div> -->
+        <ul v-if="!!opportunities?.length" class="divide-y">
+            <LazyCardOpportunity v-for="opportunity in opportunities" :key="opportunity.id" :opportunity />
+        </ul>
 
-        <!-- <UButton
-            v-if="!(isCreating || opportunitites?.length > 0)"
+        <UButton
+            v-if="!(isCreating || opportunities?.length > 0)"
             variant="ghost"
             color="black"
             block
             class="justify-start text-slate-700"
             @click="isCreating = true"
         >
-            Add New Task
-        </UButton> -->
+            Add New Opportunity
+        </UButton>
     </UCard>
 </template>

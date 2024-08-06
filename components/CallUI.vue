@@ -2,7 +2,7 @@
 import { Call, Device } from '@twilio/voice-sdk';
 import { useDraggable, useWindowSize } from '@vueuse/core';
 import { onMounted, ref, watch } from 'vue';
-import type { Contact } from '~/types';
+import type { Contact, Lead, Opportunity } from '~/types';
 
 const { setMakeCall, setTwilioEnabled } = globalStore();
 const { user } = storeToRefs(userSessionStore());
@@ -172,7 +172,15 @@ function handleDisconnectedIncomingCall() {
     counterUp.value?.stop();
 }
 
-async function makeOutgoingCall(caller: Contact) {
+async function makeOutgoingCall({
+    contact: caller,
+    lead_id,
+    opportunity_id,
+}: {
+    contact: Contact;
+    lead_id?: Lead['id'];
+    opportunity_id?: Opportunity['id'];
+}) {
     if (!Device.isSupported) {
         toast.error('Sorry, your browser does not support the required features. Please use a different browser.');
         return;
@@ -199,7 +207,14 @@ async function makeOutgoingCall(caller: Contact) {
 
         try {
             _call = await device.connect({
-                params: { To: caller.mobile_phone, contact_id: caller.id.toString(), user_id: user.value?.id ?? '' },
+                params: {
+                    To: caller.mobile_phone,
+                    contact_id: caller.id.toString(),
+                    user_id: user.value!.id,
+                    organization_id: user.value!.user_metadata.organization_id,
+                    ...(lead_id && { lead_id: lead_id.toString() }),
+                    ...(opportunity_id && { opportunity_id: opportunity_id.toString() }),
+                },
             });
 
             showCallPopup.value = true;

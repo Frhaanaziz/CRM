@@ -13,7 +13,7 @@ export const opportunitySchema = z.object({
         .max(100, { message: 'Confidence must be less than 100' })
         .optional()
         .nullable(),
-    created_at: z.coerce.date().optional().nullable(),
+    created_at: z.coerce.date(),
     currency_id: z.coerce.number().int().optional().nullable(),
     current_situation: z.string().optional().nullable(),
     customer_need: z.string().optional().nullable(),
@@ -28,7 +28,7 @@ export const opportunitySchema = z.object({
         .int(),
     payment_plan: z.enum(opportunityPaymentPlans).optional().nullable(),
     proposed_solution: z.string().optional().nullable(),
-    updated_at: z.coerce.date().optional().nullable(),
+    updated_at: z.coerce.date(),
     user_id: z.string().trim(),
     organization_id: z.coerce.number().int(),
     priority: z.enum(priorityStatuses),
@@ -40,6 +40,8 @@ export const opportunitySchema = z.object({
 
 export const addOpportunitySchema = z.object({
     company_name: z.string().trim().min(1, { message: 'Company name must be at least 1 character long' }),
+    first_name: z.string().trim().min(1, { message: 'First name must be at least 1 character long' }),
+    last_name: z.string().optional().nullable(),
     email: z.string().trim().email().optional().nullable(),
     mobile_phone: phone(z.string().trim()).optional().nullable(),
 });
@@ -50,8 +52,8 @@ export const addLeadOpportunitySchema = opportunitySchema
         notes: true,
     })
     .extend({
-        est_revenua: z.coerce.number().int().min(0, { message: 'Revenue must be greater than 0' }),
-        payment_plan: z.enum(opportunityPaymentPlans),
+        est_revenue: z.coerce.number().int().min(0, { message: 'Revenue must be greater than 0' }),
+        payment_plan: z.enum(opportunityPaymentPlans, { message: 'Please select a payment plan' }),
         contact_id: z.coerce.number({ message: 'Please select a contact' }).int(),
         confidence: z.coerce
             .number()

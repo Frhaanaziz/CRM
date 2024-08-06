@@ -1,4 +1,10 @@
-import type { Contact } from '~/types';
+import type { Contact, Lead, Opportunity } from '~/types';
+
+interface IMakeCall {
+    contact: Contact;
+    lead_id?: Lead['id'];
+    opportunity_id?: Opportunity['id'];
+}
 
 export const globalStore = defineStore('global', () => {
     const twilioEnabled = ref(false);
@@ -8,11 +14,11 @@ export const globalStore = defineStore('global', () => {
         twilioEnabled.value = value;
     }
 
-    function setMakeCall(value: (value: Contact) => any) {
+    function setMakeCall(value: (value: IMakeCall) => any) {
         callMethod = value;
     }
 
-    function makeCall(value: Contact) {
+    function makeCall(value: IMakeCall) {
         callMethod(value);
     }
 

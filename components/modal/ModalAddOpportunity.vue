@@ -10,6 +10,8 @@ const isSubmitting = ref(false);
 const state = ref({
     company_name: '',
     email: undefined,
+    first_name: '',
+    last_name: undefined,
     mobile_phone: undefined,
 });
 async function handleSubmit(event: FormSubmitEvent<AddOpportunityType>) {
@@ -47,6 +49,24 @@ async function handleSubmit(event: FormSubmitEvent<AddOpportunityType>) {
 
             <UFormGroup label="Email" name="email">
                 <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter Email" />
+            </UFormGroup>
+
+            <UFormGroup label="First Name" name="first_name">
+                <UInput
+                    v-model="state.first_name"
+                    :disabled="isSubmitting"
+                    :loading="isSubmitting"
+                    placeholder="Enter First Name"
+                />
+            </UFormGroup>
+
+            <UFormGroup label="Last Name" name="last_name">
+                <UInput
+                    v-model="state.last_name"
+                    :disabled="isSubmitting"
+                    :loading="isSubmitting"
+                    placeholder="Enter Last Name"
+                />
             </UFormGroup>
 
             <UFormGroup label="Mobile Phone" name="mobile_phone">

@@ -2,7 +2,7 @@
 import type { B2BCompany, B2BContact } from '~/types';
 
 const props = defineProps<{
-    contact: B2BContact;
+    contact?: B2BContact[] | null;
     company: B2BCompany;
 }>();
 

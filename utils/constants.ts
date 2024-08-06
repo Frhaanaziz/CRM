@@ -19,7 +19,9 @@ export const activityTypes = [
     'closed as won',
     'closed as lost',
     'reopened',
-    'calling',
+    'called',
+    'missed call',
+    'attempted to call',
     'assigned',
 ] as const;
 export const salesSizesOption = ['Just me', '2-10', '11-25', '26-50', '51-200', '201+'];

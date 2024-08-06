@@ -69,14 +69,9 @@ function getB2BContact(id: number) {
 const { updateState, isUpdating, updateCompany, formRef, submitForm, isFormDirty, resetForm } = useUpdateB2BCompany();
 
 function openAddToCRMModal() {
-    const firstContact = company.value?.contacts?.at(0);
-    if (!firstContact) {
-        toast.error('Please add a contact to this company first.');
-        return;
-    }
     modal.open(LazyModalAddCompanyToCRM, {
         onClose: () => modal.close(),
-        contact: firstContact,
+        contact: company.value!.contacts,
         company: company.value!,
     });
 }
@@ -468,7 +463,7 @@ function useUpdateB2BCompany() {
                                 <div class="flex gap-4">
                                     <UAvatar :src="getUserFallbackAvatarUrl(getB2BContact(parseInt(item.content)))" size="md" />
                                     <div>
-                                        <p class="font-semibold">
+                                        <p class="text-start font-semibold">
                                             {{ getUserFullName(getB2BContact(parseInt(item.content))) }}
                                         </p>
                                         <p class="text-start text-xs">
