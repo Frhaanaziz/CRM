@@ -5,28 +5,12 @@ import type { FormSubmitEvent } from '#ui/types';
 const emit = defineEmits(['close']);
 const closeModal = () => emit('close');
 
-const { user } = storeToRefs(userSessionStore());
-if (!user.value || !user.value.user_metadata.organization_id) throw createError({ status: 401, message: 'Unauthorized' });
-
-const { data: companiesOption } = await useLazyFetch(`/api/organizations/${user.value.user_metadata.organization_id}/companies`, {
-    key: `organizations-${user.value.user_metadata.organization_id}-companies`,
-    transform: (companies) =>
-        companies.map((company) => ({
-            value: company.id,
-            label: company.name,
-        })),
-    default: () => [],
-});
-
 type AddOpportunityType = z.infer<typeof addOpportunitySchema>;
 const isSubmitting = ref(false);
 const state = ref({
-    topic: '',
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: undefined,
-    company_id: undefined,
+    company_name: '',
+    email: undefined,
+    mobile_phone: undefined,
 });
 async function handleSubmit(event: FormSubmitEvent<AddOpportunityType>) {
     try {
@@ -52,51 +36,25 @@ async function handleSubmit(event: FormSubmitEvent<AddOpportunityType>) {
 <template>
     <ModalCommon title="Add New Opportunity" @close="closeModal">
         <UForm :schema="addOpportunitySchema" :state="state" class="space-y-4" @submit="handleSubmit" @error="console.error">
-            <UFormGroup label="Topic" name="topic" required>
-                <UInput v-model="state.topic" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter topic" />
-            </UFormGroup>
-
-            <UFormGroup label="First Name" name="first_name" required>
+            <UFormGroup label="Company Name" name="company_name" required>
                 <UInput
-                    v-model="state.first_name"
+                    v-model="state.company_name"
                     :disabled="isSubmitting"
                     :loading="isSubmitting"
-                    placeholder="Enter first name"
+                    placeholder="Enter First Name"
                 />
             </UFormGroup>
 
-            <UFormGroup label="Last Name" name="last_name" required>
+            <UFormGroup label="Email" name="email">
+                <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter Email" />
+            </UFormGroup>
+
+            <UFormGroup label="Mobile Phone" name="mobile_phone">
                 <UInput
-                    v-model="state.last_name"
+                    v-model="state.mobile_phone"
                     :disabled="isSubmitting"
                     :loading="isSubmitting"
-                    placeholder="Enter last name"
-                />
-            </UFormGroup>
-
-            <UFormGroup label="Email" name="email" required>
-                <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter email" />
-            </UFormGroup>
-
-            <UFormGroup label="Business Phone" name="phone">
-                <UInput
-                    v-model="state.phone"
-                    :disabled="isSubmitting"
-                    :loading="isSubmitting"
-                    placeholder="Enter business phone"
-                />
-            </UFormGroup>
-
-            <UFormGroup label="Company Name" name="company_id" required>
-                <USelectMenu
-                    v-model="state.company_id"
-                    value-attribute="value"
-                    :options="companiesOption"
-                    searchable
-                    searchable-placeholder="Search a companies..."
-                    :loading="isSubmitting"
-                    :disabled="isSubmitting"
-                    placeholder="Select company"
+                    placeholder="Enter Mobile Phone"
                 />
             </UFormGroup>
 

@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { phone } from '.';
 import { leadSources } from '../constants';
 
 export const leadSchema = z.object({
@@ -16,8 +15,6 @@ export const leadSchema = z.object({
 
 export const addLeadSchema = z.object({
     company_name: z.string().trim().min(1, { message: 'Company name must be at least 1 character long' }),
-    email: z.string().trim().email().optional().nullable(),
-    mobile_phone: phone(z.string().trim()).optional().nullable(),
 });
 
 export const updateLeadUserIdSchema = leadSchema.pick({

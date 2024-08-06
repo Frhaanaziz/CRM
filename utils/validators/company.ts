@@ -18,7 +18,6 @@ export const companiesSchema = z.object({
 });
 
 export const updateCompanySchema = companiesSchema.pick({
-    id: true,
     name: true,
     industry_id: true,
     size_id: true,

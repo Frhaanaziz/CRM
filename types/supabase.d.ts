@@ -841,7 +841,6 @@ export type Database = {
           act_close_date: string | null
           act_revenue: number | null
           close_reason: Database["public"]["Enums"]["close_reasons"] | null
-          company_id: number
           confidence: number | null
           contact_id: number | null
           created_at: string | null
@@ -849,10 +848,12 @@ export type Database = {
           current_situation: string | null
           customer_need: string | null
           est_budget: number | null
+          est_close_date: string | null
           est_revenue: number | null
           id: number
           index_number: number
           lead_id: number
+          notes: string | null
           opportunity_status_id: number
           organization_id: number
           payment_plan: Database["public"]["Enums"]["payment_plans"] | null
@@ -867,7 +868,6 @@ export type Database = {
           act_close_date?: string | null
           act_revenue?: number | null
           close_reason?: Database["public"]["Enums"]["close_reasons"] | null
-          company_id: number
           confidence?: number | null
           contact_id?: number | null
           created_at?: string | null
@@ -875,10 +875,12 @@ export type Database = {
           current_situation?: string | null
           customer_need?: string | null
           est_budget?: number | null
+          est_close_date?: string | null
           est_revenue?: number | null
           id?: number
           index_number: number
           lead_id: number
+          notes?: string | null
           opportunity_status_id: number
           organization_id: number
           payment_plan?: Database["public"]["Enums"]["payment_plans"] | null
@@ -893,7 +895,6 @@ export type Database = {
           act_close_date?: string | null
           act_revenue?: number | null
           close_reason?: Database["public"]["Enums"]["close_reasons"] | null
-          company_id?: number
           confidence?: number | null
           contact_id?: number | null
           created_at?: string | null
@@ -901,10 +902,12 @@ export type Database = {
           current_situation?: string | null
           customer_need?: string | null
           est_budget?: number | null
+          est_close_date?: string | null
           est_revenue?: number | null
           id?: number
           index_number?: number
           lead_id?: number
+          notes?: string | null
           opportunity_status_id?: number
           organization_id?: number
           payment_plan?: Database["public"]["Enums"]["payment_plans"] | null
@@ -915,13 +918,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "Opportunities_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "Companies"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "Opportunities_contact_id_fkey"
             columns: ["contact_id"]
@@ -948,6 +944,13 @@ export type Database = {
             columns: ["opportunity_status_id"]
             isOneToOne: false
             referencedRelation: "Opportunity_Statuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Opportunities_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "Organizations"
             referencedColumns: ["id"]
           },
           {
@@ -1520,11 +1523,17 @@ export type Database = {
         | "contract send"
         | "won"
         | "lost"
-      payment_plans: "one-time" | "weekly" | "monthly" | "yearly"
+      payment_plans: "one-time" | "weekly" | "monthly" | "annually"
       priority_statuses: "urgent" | "high" | "medium" | "low"
       rating_name: "cool" | "warm" | "hot"
       role_names: "owner" | "admin" | "manager" | "sales"
-      source_name: "google" | "linkedin" | "manual" | "idb2b" | "workfrom"
+      source_name:
+        | "google"
+        | "linkedin"
+        | "manual"
+        | "idb2b"
+        | "workfrom"
+        | "b2b database"
       user_statuses: "active" | "inactive"
     }
     CompositeTypes: {

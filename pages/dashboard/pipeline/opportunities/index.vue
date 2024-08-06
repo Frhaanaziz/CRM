@@ -47,7 +47,6 @@ const {
     pageCount,
     sort,
     pageTotal,
-    resetFilters,
 } = useTable();
 
 const sortedOpportunitiesByStatus = computed(() => {
@@ -137,10 +136,10 @@ async function onUpdate({ newIndex, to }: { newIndex: number; to: { id: string }
         isReordering.value = false;
     }
 }
-async function handleDeleteOpportunities() {
+async function handleDeleteOpportunities(opportunities: Pick<Opportunity, 'id'>[]) {
     try {
         await Promise.all(
-            selectedRows.value.map((opportunity) => $fetch(`/api/opportunities/${opportunity.id}`, { method: 'DELETE' }))
+            opportunities.map((opportunity) => $fetch(`/api/opportunities/${opportunity.id}`, { method: 'DELETE' }))
         );
 
         toast.success('Opportunity has been deleted successfully.');
@@ -259,113 +258,106 @@ function useTable() {
 
 <template>
     <div>
-        <header class="m-4 flex items-center justify-between gap-x-3 p-4">
-            <h1 class="text-2xl font-semibold">All Opportunities</h1>
+        <header>
+            <div class="flex items-center justify-between gap-x-3 p-4">
+                <div class="space-y-1">
+                    <h1 class="text-xl font-semibold text-slate-900">Opportunities</h1>
+                    <p class="text-sm text-slate-500">{{ opportunities.length }} Result</p>
+                </div>
 
-            <div class="hidden sm:flex sm:items-center sm:gap-1.5">
-                <LazyUButton
-                    v-if="!!selectedRows.length"
-                    icon="i-heroicons-trash"
-                    color="black"
-                    size="xs"
-                    variant="ghost"
-                    @click="
-                        modal.open(LazyModalDelete, {
-                            onClose: () => modal.close(),
-                            title: 'Opportunities',
-                            description: 'Are you sure you want to delete this opportunity? This action cannot be undone.',
-                            onConfirm: handleDeleteOpportunities,
-                        })
-                    "
-                >
-                    Delete
-                </LazyUButton>
+                <div class="hidden sm:flex sm:items-center sm:gap-1.5">
+                    <UButton
+                        icon="i-heroicons-plus"
+                        color="white"
+                        @click="
+                            modal.open(LazyModalAddOpportunity, {
+                                onClose: () => modal.close(),
+                            })
+                        "
+                    >
+                        Add New Opportunity
+                    </UButton>
 
-                <UButton
-                    icon="i-heroicons-plus"
-                    color="black"
-                    size="xs"
-                    variant="ghost"
-                    @click="
-                        modal.open(LazyModalAddOpportunity, {
-                            onClose: () => modal.close(),
-                        })
-                    "
-                >
-                    New
-                </UButton>
+                    <UInput v-model="search" placeholder="Search..." />
+                </div>
+            </div>
+            <div class="flex items-center justify-between border px-4 py-2">
+                <div class="flex items-center gap-4">
+                    <UButtonGroup size="sm" orientation="horizontal">
+                        <UButton
+                            color="white"
+                            square
+                            icon="i-heroicons-bars-3"
+                            :class="{ 'text-brand': viewMode === 'table' }"
+                            @click="viewMode = 'table'"
+                        />
+                        <UButton
+                            color="white"
+                            square
+                            icon="i-heroicons-squares-2x2"
+                            :class="{ 'text-brand': viewMode === 'kanban' }"
+                            @click="viewMode = 'kanban'"
+                        />
+                    </UButtonGroup>
+                    <UButton
+                        color="white"
+                        leading-icon="i-heroicons-calendar-days"
+                        trailing-icon="i-heroicons-chevron-down"
+                        disabled
+                    >
+                        <span class="font-semibold">Expected:</span> All time
+                    </UButton>
+                    <UButton color="white" leading-icon="i-heroicons-user" trailing-icon="i-heroicons-chevron-down" disabled>
+                        All User
+                    </UButton>
+                </div>
 
-                <LazyUButton
-                    v-if="viewMode === 'table'"
-                    icon="i-heroicons-chart-bar-square"
-                    color="black"
-                    size="xs"
-                    variant="ghost"
-                    @click="viewMode = 'kanban'"
-                >
-                    See Sales Pipelines
-                </LazyUButton>
-                <UButton
-                    v-else
-                    icon="i-heroicons-list-bullet"
-                    color="black"
-                    size="xs"
-                    variant="ghost"
-                    @click="viewMode = 'table'"
-                >
-                    See Opportunity List
-                </UButton>
+                <div class="flex items-center gap-4">
+                    <LazyUButton
+                        v-if="!!selectedRows.length"
+                        icon="i-heroicons-trash"
+                        color="white"
+                        size="xs"
+                        @click="
+                            modal.open(LazyModalDelete, {
+                                onClose: () => modal.close(),
+                                title: 'Opportunities',
+                                description: 'Are you sure you want to delete this opportunity? This action cannot be undone.',
+                                onConfirm: () => handleDeleteOpportunities(selectedRows),
+                            })
+                        "
+                    >
+                        Delete
+                    </LazyUButton>
 
-                <!-- Edit Column Button -->
-                <UButton
-                    v-if="viewMode === 'kanban'"
-                    icon="i-heroicons-adjustments-vertical"
-                    color="black"
-                    size="xs"
-                    variant="ghost"
-                    @click="
-                        modal.open(LazyModalOpportunityPipelines, {
-                            onClose: () => modal.close(),
-                        })
-                    "
-                >
-                    Edit Columns
-                </UButton>
+                    <UButton
+                        v-if="viewMode === 'kanban'"
+                        icon="i-heroicons-adjustments-vertical"
+                        color="white"
+                        size="xs"
+                        @click="
+                            modal.open(LazyModalOpportunityPipelines, {
+                                onClose: () => modal.close(),
+                            })
+                        "
+                    >
+                        Edit Columns
+                    </UButton>
 
-                <!-- Columns Selector -->
-                <LazyUSelectMenu
-                    v-if="viewMode === 'table'"
-                    v-model="selectedColumns"
-                    :options="columns"
-                    multiple
-                    :uiMenu="{ width: 'min-w-32' }"
-                >
-                    <UButton icon="i-heroicons-view-columns" color="black" size="xs" variant="ghost"> Columns </UButton>
-                </LazyUSelectMenu>
-
-                <!-- Reset Filters Button -->
-                <LazyUButton
-                    v-if="viewMode === 'table'"
-                    icon="i-heroicons-funnel"
-                    color="black"
-                    size="xs"
-                    :disabled="!!!search.length"
-                    variant="ghost"
-                    @click="resetFilters"
-                >
-                    Reset
-                </LazyUButton>
-
-                <LazyUInput
-                    v-if="viewMode === 'table'"
-                    v-model="search"
-                    icon="i-heroicons-magnifying-glass-20-solid"
-                    placeholder="Search..."
-                />
+                    <LazyUSelectMenu
+                        v-if="viewMode === 'table'"
+                        v-model="selectedColumns"
+                        :options="columns"
+                        multiple
+                        :uiMenu="{ width: 'min-w-32' }"
+                    >
+                        <UButton icon="i-heroicons-view-columns" color="white" size="xs"> Edit Columns </UButton>
+                    </LazyUSelectMenu>
+                </div>
             </div>
         </header>
 
-        <section v-if="viewMode === 'table'" class="m-4">
+        <section v-if="viewMode === 'table'">
             <LazyTableOpportunities
                 v-model:page="page"
                 v-model:pageCount="pageCount"
@@ -450,6 +442,15 @@ function useTable() {
                                             icon="i-heroicons-trash"
                                             size="xs"
                                             :padded="false"
+                                            @click="
+                                                modal.open(LazyModalDelete, {
+                                                    onClose: () => modal.close(),
+                                                    title: 'Opportunities',
+                                                    description:
+                                                        'Are you sure you want to delete this opportunity? This action cannot be undone.',
+                                                    onConfirm: () => handleDeleteOpportunities([opportunity]),
+                                                })
+                                            "
                                         />
                                     </div>
                                 </div>
@@ -457,11 +458,9 @@ function useTable() {
                                     <p class="text-sm font-semibold text-gray-900">
                                         {{ opportunity.est_revenue ? formatToRupiah(opportunity.est_revenue) : '---' }}
                                     </p>
-                                    <p class="text-xs text-gray-700">70% on 30/08/2024</p>
                                     <p v-if="opportunity.confidence || opportunity.act_close_date" class="text-xs text-gray-700">
                                         {{ opportunity.confidence }}% on
-                                        <!-- {{ useDateFormat(opportunity.act_close_date, 'YYYY-MM-DD') }} -->
-                                        {{ useDateFormat(new Date(), 'YYYY-MM-DD') }}
+                                        {{ useDateFormat(opportunity.act_close_date, 'DD-MM-YYYY').value.replace('"', '') }}
                                     </p>
                                 </div>
                             </li>

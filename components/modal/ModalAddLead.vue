@@ -12,8 +12,6 @@ function useAddLead() {
     const isSubmitting = ref(false);
     const state = ref({
         company_name: '',
-        email: undefined,
-        mobile_phone: undefined,
     });
 
     async function handleSubmit(event: FormSubmitEvent<AddLeadType>) {
@@ -47,19 +45,6 @@ function useAddLead() {
                     :disabled="isSubmitting"
                     :loading="isSubmitting"
                     placeholder="Enter First Name"
-                />
-            </UFormGroup>
-
-            <UFormGroup label="Email" name="email">
-                <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter Email" />
-            </UFormGroup>
-
-            <UFormGroup label="Mobile Phone" name="mobile_phone">
-                <UInput
-                    v-model="state.mobile_phone"
-                    :disabled="isSubmitting"
-                    :loading="isSubmitting"
-                    placeholder="Enter Mobile Phone"
                 />
             </UFormGroup>
 

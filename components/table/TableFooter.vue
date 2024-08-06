@@ -11,7 +11,7 @@ const pageTo = computed(() => Math.min(page.value * pageSize.value, props.totalR
 </script>
 
 <template>
-    <div class="mt-5 flex flex-wrap items-center justify-between">
+    <div class="mx-4 mt-5 flex flex-wrap items-center justify-between">
         <div class="hidden md:block">
             <span class="text-sm leading-5">
                 Showing

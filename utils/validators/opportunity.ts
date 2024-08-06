@@ -6,7 +6,6 @@ export const opportunitySchema = z.object({
     act_budget: z.coerce.number().optional().nullable(),
     act_close_date: z.coerce.date().optional().nullable(),
     act_revenue: z.coerce.number().optional().nullable(),
-    company_id: z.coerce.number({ message: 'Please select a company' }).int(),
     confidence: z.coerce
         .number()
         .int()
@@ -27,14 +26,40 @@ export const opportunitySchema = z.object({
             message: 'Please select an opportunity status',
         })
         .int(),
-    payment_plan: z.enum(opportunityPaymentPlans),
+    payment_plan: z.enum(opportunityPaymentPlans).optional().nullable(),
     proposed_solution: z.string().optional().nullable(),
     updated_at: z.coerce.date().optional().nullable(),
     user_id: z.string().trim(),
     organization_id: z.coerce.number().int(),
     priority: z.enum(priorityStatuses),
     close_reason: z.enum(opportunityCloseReasons),
+    est_close_date: z.coerce.date().optional().nullable(),
+    notes: z.string().optional().nullable(),
+    contact_id: z.coerce.number().int().optional().nullable(),
 });
+
+export const addOpportunitySchema = z.object({
+    company_name: z.string().trim().min(1, { message: 'Company name must be at least 1 character long' }),
+    email: z.string().trim().email().optional().nullable(),
+    mobile_phone: phone(z.string().trim()).optional().nullable(),
+});
+
+export const addLeadOpportunitySchema = opportunitySchema
+    .pick({
+        opportunity_status_id: true,
+        notes: true,
+    })
+    .extend({
+        est_revenua: z.coerce.number().int().min(0, { message: 'Revenue must be greater than 0' }),
+        payment_plan: z.enum(opportunityPaymentPlans),
+        contact_id: z.coerce.number({ message: 'Please select a contact' }).int(),
+        confidence: z.coerce
+            .number()
+            .int()
+            .min(0, { message: 'Confidence must be greater than 0' })
+            .max(100, { message: 'Confidence must be less than 100' }),
+        est_close_date: z.coerce.date(),
+    });
 
 export const updateOpportunitySchema = opportunitySchema
     .pick({
@@ -52,17 +77,6 @@ export const updateOpportunitySchema = opportunitySchema
     })
     .partial()
     .extend({ id: z.coerce.number().int() });
-
-export const addOpportunitySchema = opportunitySchema
-    .pick({
-        company_id: true,
-    })
-    .extend({
-        first_name: z.string().trim().min(1, { message: 'First name is required' }),
-        last_name: z.string().trim().min(1, { message: 'Last name is required' }),
-        email: z.string().trim().email({ message: 'Invalid email address' }),
-        phone: phone(z.string()).optional().nullable(),
-    });
 
 export const updateOpportunityUserIdSchema = opportunitySchema.pick({
     user_id: true,

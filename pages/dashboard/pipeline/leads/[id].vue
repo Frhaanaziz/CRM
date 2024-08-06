@@ -18,6 +18,7 @@ const { data: lead } = await useFetch(`/api/leads/${id}`, {
     headers: useRequestHeaders(['cookie']),
 });
 if (!lead.value) throw createError({ status: 404, message: 'Lead not found' });
+console.log('lead', lead.value);
 
 const companyForm = ref<FormRef | null>(null);
 const submitCompanyForm = () => companyForm.value?.submitForm();
@@ -185,7 +186,7 @@ async function handleDeleteLead() {
                             {{ lead.company.name }}
                         </h1>
                         <button
-                            v-if="!lead.company.address && !isEditingAddressMode"
+                            v-if="!(lead.company.address || isEditingAddressMode)"
                             class="flex items-center gap-1.5"
                             @click="isEditingAddressMode = true"
                         >

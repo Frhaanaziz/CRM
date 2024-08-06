@@ -37,7 +37,7 @@ const industriesOption = computed(() => data.value[0]);
 const sizesOption = computed(() => data.value[1]);
 
 function useUpdateCompany() {
-    type UpdateB2BCompanyType = z.infer<typeof companiesSchema>;
+    type UpdateB2BCompanyType = z.infer<typeof updateCompanySchema>;
     const formRef = ref();
     const isUpdating = ref(false);
 
@@ -91,7 +91,7 @@ function useUpdateCompany() {
 
         <UForm
             ref="formRef"
-            :schema="companiesSchema"
+            :schema="updateCompanySchema"
             :state="updateState"
             class="col-span-8 space-y-2"
             :disabled="isUpdating"

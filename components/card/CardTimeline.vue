@@ -68,11 +68,16 @@ function useCreateNote() {
 <template>
     <UCard
         :ui="{
-            // divide: 'divide-y-0',
+            divide: 'divide-y-0',
+            background: 'bg-transparent',
+            ring: 'ring-0',
+            shadow: 'shadow-none',
             body: {
-                padding: 'px-0 py-0 sm:px-0 sm:py-0 ',
+                padding: 'px-0 py-0 sm:px-0 sm:py-0',
             },
             header: {
+                base: 'rounded-t-lg',
+                background: 'bg-base-100 shadow-sm',
                 padding: 'py-4 px-4 sm:px-4 ',
             },
         }"
@@ -84,7 +89,7 @@ function useCreateNote() {
                 <UButton
                     label="Note"
                     color="white"
-                    class="ring-gray-400"
+                    size="xs"
                     :ui="{ rounded: 'rounded-full' }"
                     @click="createMode === 'note' ? (createMode = undefined) : (createMode = 'note')"
                 >
@@ -95,7 +100,7 @@ function useCreateNote() {
                 <UButton
                     label="Email"
                     color="white"
-                    class="ring-gray-400"
+                    size="xs"
                     :ui="{ rounded: 'rounded-full' }"
                     disabled
                     @click="createMode = 'email'"
@@ -107,9 +112,9 @@ function useCreateNote() {
                 <UButton
                     label="Call"
                     color="white"
-                    class="ring-gray-400"
+                    size="xs"
                     :ui="{ rounded: 'rounded-full' }"
-                    @click="createMode = 'call'"
+                    @click="createMode === 'call' ? (createMode = undefined) : (createMode = 'call')"
                 >
                     <template #trailing>
                         <UIcon name="i-heroicons-phone-solid" class="h-4 w-4" />
@@ -118,11 +123,11 @@ function useCreateNote() {
             </div>
         </template>
 
-        <div class="space-y-4">
+        <div class="mt-4 space-y-4">
             <!-- Note Create Mode -->
             <UForm
                 v-if="createMode === 'note'"
-                class="w-full divide-y rounded border"
+                class="w-full divide-y rounded border bg-base-100"
                 :schema="createActivitySchema"
                 :state="noteState"
                 @submit="createNote"
@@ -176,7 +181,7 @@ function useCreateNote() {
             </UForm>
 
             <!-- Call Create Mode -->
-            <div v-if="createMode === 'call'" class="w-full divide-y rounded border">
+            <div v-if="createMode === 'call'" class="w-full divide-y rounded border bg-base-100">
                 <p class="m-2 flex items-center gap-2 font-semibold">
                     <UIcon name="i-heroicons-phone" class="h-5 w-5 text-black" />
                     <span>New Call</span>
@@ -215,7 +220,11 @@ function useCreateNote() {
             <ul>
                 <template v-for="activity in activities">
                     <!-- Closed As Won -->
-                    <li v-if="activity.type === 'closed as won'" :key="activity.id" class="flex items-start gap-2 p-4">
+                    <li
+                        v-if="activity.type === 'closed as won'"
+                        :key="activity.id"
+                        class="flex items-start gap-2 bg-base-100 p-4"
+                    >
                         <UAvatar :src="getUserFallbackAvatarUrl({ first_name: 'Farhan', last_name: 'Aziz' })" size="md" />
                         <div class="w-full rounded border p-2">
                             <p class="mb-1 flex items-center gap-2 font-semibold">
@@ -234,7 +243,11 @@ function useCreateNote() {
                     </li>
 
                     <!-- Closed As Lost // -->
-                    <li v-if="activity.type === 'closed as lost'" :key="activity.id" class="flex items-start gap-2 p-4">
+                    <li
+                        v-if="activity.type === 'closed as lost'"
+                        :key="activity.id"
+                        class="flex items-start gap-2 bg-base-100 p-4"
+                    >
                         <UAvatar :src="getUserFallbackAvatarUrl({ first_name: 'Farhan', last_name: 'Aziz' })" size="md" />
                         <div class="w-full rounded border p-2">
                             <p class="mb-1 flex items-center gap-2 font-semibold">
@@ -253,7 +266,7 @@ function useCreateNote() {
                     </li>
 
                     <!-- Note Activity // -->
-                    <li v-if="activity.type === 'note'" :key="activity.id" class="space-y-1 border-b p-4">
+                    <li v-if="activity.type === 'note'" :key="activity.id" class="space-y-1 border-b bg-base-100 p-4">
                         <UBadge variant="subtle" size="xs" :ui="{ rounded: 'rounded-full' }" class="gap-1">
                             Note
                             <UIcon name="i-heroicons-document-solid" />
@@ -277,7 +290,7 @@ function useCreateNote() {
                     </li>
 
                     <!-- Call Activity -->
-                    <li v-if="activity.type === 'calling'" :key="activity.id" class="flex items-start gap-2 p-4">
+                    <li v-if="activity.type === 'calling'" :key="activity.id" class="flex items-start gap-2 bg-base-100 p-4">
                         <UAvatar :src="getUserFallbackAvatarUrl()" size="md" />
                         <div class="w-full rounded border p-2">
                             <p class="mb-1 flex items-center gap-2 font-semibold">
@@ -294,7 +307,7 @@ function useCreateNote() {
                     </li>
 
                     <!-- Mail Activity -->
-                    <li v-if="activity.type === 'email'" :key="activity.id" class="flex items-start gap-2 p-4">
+                    <!-- <li v-if="activity.type === 'email'" :key="activity.id" class="flex items-start gap-2 p-4 bg-base-100">
                         <UAvatar :src="getUserFallbackAvatarUrl()" size="md" />
                         <div class="w-full rounded border p-2">
                             <p class="mb-1 flex items-center gap-2 font-semibold">
@@ -312,10 +325,10 @@ function useCreateNote() {
                                 to...
                             </p>
                         </div>
-                    </li>
+                    </li> -->
 
                     <!-- Assigned Activity // -->
-                    <li v-if="activity.type === 'assigned'" :key="activity.id" class="flex items-start gap-2 p-4">
+                    <!-- <li v-if="activity.type === 'assigned'" :key="activity.id" class="flex items-start gap-2 p-4 bg-base-100">
                         <UAvatar :src="getUserFallbackAvatarUrl()" size="md" />
                         <div class="w-full rounded border p-2">
                             <p class="mb-1 flex items-center gap-2 font-semibold">
@@ -330,19 +343,24 @@ function useCreateNote() {
                                 <p>{{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}</p>
                             </div>
                         </div>
-                    </li>
+                    </li> -->
 
                     <!-- Lead Source -->
-                    <!-- <div  v-if="activity.type === 'closed as won'" :key="activity.id" class="flex items-start gap-2">
-                    <UAvatar :src="'/icons/pipeline-rounded-blue-logo.svg'" size="md" :ui="{ rounded: 'rounded-none' }" />
-                    <div class="">
-                        <div class="text-weak flex w-full items-center gap-1 rounded border p-2">
-                            <p class="text-sm">Lead Source - <span class="font-semibold">Manual Input</span></p>
-                            &middot;
-                            <p class="text-xs">2/12/2024 3:33 AM</p>
+                    <li
+                        v-if="activity.type === 'lead created'"
+                        :key="activity.id"
+                        class="flex items-center justify-between rounded-lg bg-base-100 p-4"
+                    >
+                        <div class="item-center flex gap-2">
+                            <p class="text-slate-600">Lead created - Source</p>
+                            <UBadge variant="soft" :ui="{ rounded: 'rounded-full' }" class="capitalize">
+                                {{ activity.subject.toLowerCase().split('source ')?.at(1) ?? '---' }}
+                            </UBadge>
+                            <p class="text-slate-400">
+                                {{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
+                            </p>
                         </div>
-                    </div>
-                </div> -->
+                    </li>
                 </template>
             </ul>
         </div>
