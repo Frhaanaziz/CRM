@@ -229,6 +229,41 @@ function useCreateNote() {
                         </div>
                     </li>
 
+                    <!-- Incoming Call Activity -->
+                    <li
+                        v-if="activity.type === 'incoming call'"
+                        :key="activity.id"
+                        class="space-y-1 rounded-lg bg-base-100 p-4 shadow-sm"
+                    >
+                        <UBadge variant="subtle" size="xs" color="green" :ui="{ rounded: 'rounded-full' }" class="gap-1">
+                            Call
+                            <UIcon name="i-heroicons-phone-solid" />
+                        </UBadge>
+
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2">
+                                <UIcon name="i-heroicons-arrow-down-right" class="text-emerald-500" />
+                                <p>
+                                    Incoming call from
+                                    <NuxtLink
+                                        :href="`/dashboard/customer/contacts/${getParticipantByRole(activity, 'caller')?.contact?.id}`"
+                                        class="font-semibold text-brand"
+                                    >
+                                        {{ getUserFullName(getParticipantByRole(activity, 'caller')?.contact) }}
+                                    </NuxtLink>
+                                </p>
+                            </div>
+                            <p class="text-slate-400">
+                                {{ useDateFormat(activity.created_at, 'DD/MM/YY hh:mm A').value.replace('"', '') }}
+                            </p>
+
+                            <div class="ml-auto flex items-center gap-1">
+                                <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
+                                <UAvatar :src="getUserFallbackAvatarUrl()" size="3xs" />
+                            </div>
+                        </div>
+                    </li>
+
                     <!-- Attempted to call Activity -->
                     <li
                         v-if="activity.type === 'attempted to call'"
@@ -242,7 +277,7 @@ function useCreateNote() {
 
                         <div class="flex items-center gap-2">
                             <div class="flex items-center gap-2">
-                                <UIcon name="i-heroicons-arrow-up-right" class="text-red-500" />
+                                <UIcon name="i-heroicons-arrow-down-right" class="text-red-500" />
                                 <p>
                                     Attempted to call
                                     <NuxtLink
@@ -250,6 +285,41 @@ function useCreateNote() {
                                         class="font-semibold text-brand"
                                     >
                                         {{ getUserFullName(getParticipantByRole(activity, 'called')?.contact) }}
+                                    </NuxtLink>
+                                </p>
+                            </div>
+                            <p class="text-slate-400">
+                                {{ useDateFormat(activity.created_at, 'DD/MM/YY hh:mm A').value.replace('"', '') }}
+                            </p>
+
+                            <div class="ml-auto flex items-center gap-1">
+                                <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
+                                <UAvatar :src="getUserFallbackAvatarUrl()" size="3xs" />
+                            </div>
+                        </div>
+                    </li>
+
+                    <!-- Missed call Activity -->
+                    <li
+                        v-if="activity.type === 'missed call'"
+                        :key="activity.id"
+                        class="space-y-1 rounded-lg bg-base-100 p-4 shadow-sm"
+                    >
+                        <UBadge variant="subtle" size="xs" color="red" :ui="{ rounded: 'rounded-full' }" class="gap-1">
+                            Call
+                            <UIcon name="i-heroicons-phone-solid" />
+                        </UBadge>
+
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2">
+                                <UIcon name="i-heroicons-arrow-up-right" class="text-red-500" />
+                                <p>
+                                    Missed call from
+                                    <NuxtLink
+                                        :href="`/dashboard/customer/contacts/${getParticipantByRole(activity, 'caller')?.contact?.id}`"
+                                        class="font-semibold text-brand"
+                                    >
+                                        {{ getUserFullName(getParticipantByRole(activity, 'caller')?.contact) }}
                                     </NuxtLink>
                                 </p>
                             </div>
