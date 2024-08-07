@@ -10,7 +10,6 @@ interface FormRef {
     isUpdating: boolean;
 }
 
-const store = globalStore();
 const modal = useModal();
 const id = parseInt(useRoute().params.id as string);
 
@@ -262,40 +261,12 @@ async function handleDeleteLead() {
 
                 <CardTasks v-if="lead.tasks" :tasks="lead.tasks" :lead_id="id" />
 
-                <UCard v-if="lead.company?.contacts" :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">
-                    <template #header>
-                        <div class="flex items-center justify-between">
-                            <h2 class="font-semibold text-slate-700">Contacts</h2>
-                            <UButton variant="ghost" square color="black" :padded="false" disabled>
-                                <UIcon name="i-heroicons-plus" class="h-6 w-6" />
-                            </UButton>
-                        </div>
-                    </template>
-
-                    <ul class="text-slate-700">
-                        <li
-                            v-for="contact in lead.company.contacts"
-                            :key="contact.id"
-                            class="flex items-center justify-between px-2 py-1 [&:not(:last-child)]:border-b"
-                        >
-                            <div class="text-slate-700">
-                                <p class="font-semibold">{{ getUserFullName(contact) }}</p>
-                                <p v-if="contact.job_title" class="text-xs">{{ contact?.job_title }}</p>
-                            </div>
-                            <div class="flex gap-2">
-                                <UButton square icon="i-heroicons-envelope-solid" variant="ghost" color="black" disabled />
-                                <UButton
-                                    square
-                                    icon="i-heroicons-phone-solid"
-                                    variant="ghost"
-                                    color="black"
-                                    :disabled="!contact.mobile_phone"
-                                    @click="store.makeCall({ contact, lead_id: id })"
-                                />
-                            </div>
-                        </li>
-                    </ul>
-                </UCard>
+                <CardContacts
+                    v-if="lead.company?.contacts"
+                    :contacts="lead.company.contacts"
+                    :lead_id="id"
+                    :company_id="lead.company.id"
+                />
 
                 <CardCompany v-if="lead && lead.company" ref="companyForm" :company="lead.company" />
                 <CardOpportunities

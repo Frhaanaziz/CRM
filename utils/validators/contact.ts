@@ -28,6 +28,7 @@ export const contactSchema = z.object({
 
 export const updateContactSchema = contactSchema
     .pick({
+        id: true,
         email: true,
         first_name: true,
         last_name: true,
@@ -46,10 +47,12 @@ export const updateContactSchema = contactSchema
 export const addContactSchema = contactSchema
     .pick({
         company_id: true,
+        email: true,
+        last_name: true,
+        first_name: true,
+        mobile_phone: true,
     })
     .extend({
         first_name: z.string().trim().min(1, { message: 'First name is required' }),
-        last_name: z.string().optional().nullable(),
-        email: z.string().trim().email({ message: 'Invalid email address' }),
         mobile_phone: phone(z.string().trim()).optional().nullable(),
     });
