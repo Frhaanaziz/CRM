@@ -51,7 +51,7 @@ async function handleSubmit(event: FormSubmitEvent<AddOpportunityType>) {
                 <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter Email" />
             </UFormGroup>
 
-            <UFormGroup label="First Name" name="first_name">
+            <UFormGroup label="First Name" name="first_name" required>
                 <UInput
                     v-model="state.first_name"
                     :disabled="isSubmitting"
