@@ -426,7 +426,7 @@ function useTable() {
                                         </NuxtLink>
                                         <p class="text-xs text-slate-600">{{ getUserFullName(opportunity.contact) }}</p>
                                     </div>
-                                    <div class="ignore-element flex items-center gap-2">
+                                    <div class="flex items-center gap-2">
                                         <UButton
                                             variant="ghost"
                                             color="black"
@@ -434,6 +434,8 @@ function useTable() {
                                             icon="i-heroicons-pencil"
                                             size="xs"
                                             :padded="false"
+                                            class="ignore-element"
+                                            disabled
                                         />
                                         <UButton
                                             variant="ghost"
@@ -442,6 +444,7 @@ function useTable() {
                                             icon="i-heroicons-trash"
                                             size="xs"
                                             :padded="false"
+                                            class="ignore-element"
                                             @click="
                                                 modal.open(LazyModalDelete, {
                                                     onClose: () => modal.close(),
@@ -460,9 +463,10 @@ function useTable() {
                                     </p>
                                     <p v-if="opportunity.confidence || opportunity.act_close_date" class="text-xs text-gray-700">
                                         {{ opportunity.confidence }}% on
-                                        {{ useDateFormat(opportunity.act_close_date, 'DD-MM-YYYY').value.replace('"', '') }}
+                                        {{ useDateFormat(opportunity.est_close_date, 'DD-MM-YYYY').value.replace('"', '') }}
                                     </p>
                                 </div>
+                                <p v-if="opportunity.notes" class="py-2 text-sm text-gray-700">{{ opportunity.notes }}</p>
                             </li>
                         </template>
                     </Draggable>
