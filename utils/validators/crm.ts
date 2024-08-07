@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { companySchema } from './company';
-import { contactSchema } from './contact';
+import { B2BCompanySchema } from './b2b-company';
+import { B2BContactSchema } from './b2b-contact';
 
 export const addToLeadSchema = z.object({
-    company: companySchema,
-    contact: z.array(contactSchema),
+    company: B2BCompanySchema,
+    contact: z.array(B2BContactSchema),
 });

@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const B2BContactSchema = z.object({
     city_id: z.coerce.number().int().optional().nullable(),
     company_id: z.coerce.number().int(),
-    country_id: z.coerce.number().int(),
+    country_id: z.coerce.number().int().optional().nullable(),
     created_at: z.coerce.date(),
     description: z.string().optional().nullable(),
     email: z
