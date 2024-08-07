@@ -67,7 +67,7 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
                 </UFormGroup>
 
                 <UFormGroup label="Email" name="email">
-                    <UInput v-model="state.email" :disabled="isSubmitting" placeholder="e.g. CEO" />
+                    <UInput v-model="state.email" :disabled="isSubmitting" placeholder="e.g. email@domain.com" />
                 </UFormGroup>
 
                 <UFormGroup label="Mobile Phone" name="mobile_phone">
