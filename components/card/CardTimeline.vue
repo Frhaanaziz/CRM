@@ -217,56 +217,10 @@ function useCreateNote() {
                 </div>
             </div>
 
-            <ul>
+            <ul class="space-y-4">
                 <template v-for="activity in activities">
-                    <!-- Closed As Won -->
-                    <li
-                        v-if="activity.type === 'closed as won'"
-                        :key="activity.id"
-                        class="flex items-start gap-2 bg-base-100 p-4"
-                    >
-                        <UAvatar :src="getUserFallbackAvatarUrl({ first_name: 'Farhan', last_name: 'Aziz' })" size="md" />
-                        <div class="w-full rounded border p-2">
-                            <p class="mb-1 flex items-center gap-2 font-semibold">
-                                <UIcon name="i-heroicons-check-circle" class="h-5 w-5 text-black" />
-                                <span
-                                    >Closed as Won by {{ getUserFullName(getParticipantByRole(activity, 'author')?.user) }}</span
-                                >
-                            </p>
-                            <div class="text-weak flex items-center gap-1 text-xs">
-                                <p>{{ getUserFullName(activity.user) }}</p>
-                                &middot;
-                                <p>{{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}</p>
-                            </div>
-                            <!-- <p class="text-weak mt-2">Rp225.000.000 - One-time</p> -->
-                        </div>
-                    </li>
-
-                    <!-- Closed As Lost // -->
-                    <li
-                        v-if="activity.type === 'closed as lost'"
-                        :key="activity.id"
-                        class="flex items-start gap-2 bg-base-100 p-4"
-                    >
-                        <UAvatar :src="getUserFallbackAvatarUrl({ first_name: 'Farhan', last_name: 'Aziz' })" size="md" />
-                        <div class="w-full rounded border p-2">
-                            <p class="mb-1 flex items-center gap-2 font-semibold">
-                                <UIcon name="i-heroicons-x-circle" class="h-5 w-5 text-black" />
-                                <span
-                                    >Closed as Lost by {{ getUserFullName(getParticipantByRole(activity, 'author')?.user) }}</span
-                                >
-                            </p>
-                            <div class="text-weak flex items-center gap-1 text-xs">
-                                <p>{{ getUserFullName(activity.user) }}</p>
-                                &middot;
-                                <p>{{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}</p>
-                            </div>
-                            <p class="text-weak mt-2">Reason: Pricing</p>
-                        </div>
-                    </li>
-
-                    <!-- Note Activity // -->
-                    <li v-if="activity.type === 'note'" :key="activity.id" class="space-y-1 border-b bg-base-100 p-4">
+                    <!-- Note Activity -->
+                    <li v-if="activity.type === 'note'" :key="activity.id" class="space-y-1 rounded-lg bg-base-100 p-4 shadow-sm">
                         <UBadge variant="subtle" size="xs" :ui="{ rounded: 'rounded-full' }" class="gap-1">
                             Note
                             <UIcon name="i-heroicons-document-solid" />
@@ -290,7 +244,11 @@ function useCreateNote() {
                     </li>
 
                     <!-- Called Activity -->
-                    <li v-if="activity.type === 'called'" :key="activity.id" class="space-y-1 border-b bg-base-100 p-4">
+                    <li
+                        v-if="activity.type === 'called'"
+                        :key="activity.id"
+                        class="space-y-1 rounded-lg bg-base-100 p-4 shadow-sm"
+                    >
                         <UBadge variant="subtle" size="xs" color="green" :ui="{ rounded: 'rounded-full' }" class="gap-1">
                             Call
                             <UIcon name="i-heroicons-phone-solid" />
@@ -324,7 +282,7 @@ function useCreateNote() {
                     <li
                         v-if="activity.type === 'attempted to call'"
                         :key="activity.id"
-                        class="space-y-1 border-b bg-base-100 p-4"
+                        class="space-y-1 rounded-lg bg-base-100 p-4 shadow-sm"
                     >
                         <UBadge variant="subtle" size="xs" color="red" :ui="{ rounded: 'rounded-full' }" class="gap-1">
                             Call
@@ -355,50 +313,11 @@ function useCreateNote() {
                         </div>
                     </li>
 
-                    <!-- Mail Activity -->
-                    <!-- <li v-if="activity.type === 'email'" :key="activity.id" class="flex items-start gap-2 p-4 bg-base-100">
-                        <UAvatar :src="getUserFallbackAvatarUrl()" size="md" />
-                        <div class="w-full rounded border p-2">
-                            <p class="mb-1 flex items-center gap-2 font-semibold">
-                                <UIcon name="i-heroicons-envelope" class="h-5 w-5 text-black" />
-                                <span>Subject: {{ activity.subject }}</span>
-                            </p>
-                            <div class="text-weak flex items-center gap-1 text-xs">
-                                <p>{{ getUserFullName(activity.user) }}</p>
-                                &middot;
-                                <p>{{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}</p>
-                            </div>
-                            <p class="text-weak mt-2">Dear Lilly Pyles,</p>
-                            <p class="text-weak">
-                                Thank you for visiting our Web site. We have forwarded your request for additional information
-                                to...
-                            </p>
-                        </div>
-                    </li> -->
-
-                    <!-- Assigned Activity // -->
-                    <!-- <li v-if="activity.type === 'assigned'" :key="activity.id" class="flex items-start gap-2 p-4 bg-base-100">
-                        <UAvatar :src="getUserFallbackAvatarUrl()" size="md" />
-                        <div class="w-full rounded border p-2">
-                            <p class="mb-1 flex items-center gap-2 font-semibold">
-                                <UIcon name="i-heroicons-user" class="h-5 w-5 text-black" />
-                                <span>{{ getUserFullName(getParticipantByRole(activity, 'author')?.user) }}</span>
-                                Assigned this lead to
-                                <span>{{ getUserFullName(getParticipantByRole(activity, 'assignee')?.user) }}</span>
-                            </p>
-                            <div class="text-weak flex items-center gap-1 text-xs">
-                                <p>{{ getUserFullName(activity.user) }}</p>
-                                &middot;
-                                <p>{{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}</p>
-                            </div>
-                        </div>
-                    </li> -->
-
                     <!-- Lead Source -->
                     <li
                         v-if="activity.type === 'lead created'"
                         :key="activity.id"
-                        class="flex items-center justify-between rounded-lg bg-base-100 p-4"
+                        class="flex items-center justify-between rounded-lg bg-base-100 p-4 shadow-sm"
                     >
                         <div class="item-center flex gap-2">
                             <p class="text-slate-600">Lead created - Source</p>
