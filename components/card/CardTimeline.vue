@@ -8,8 +8,7 @@ const props = defineProps<{
     lead_id?: number;
     opportunity_id?: number;
 }>();
-const createMode = ref<'call' | 'note' | 'email' | undefined>();
-const { user } = storeToRefs(userSessionStore());
+const createMode = ref<'note' | 'email' | undefined>();
 
 interface IActivity extends Activity {
     participants?: (ActivityParticipant & { user?: User | null; contact?: Contact | null })[] | null;
@@ -109,17 +108,6 @@ function useCreateNote() {
                         <UIcon name="i-heroicons-envelope-solid" class="h-4 w-4" />
                     </template>
                 </UButton>
-                <UButton
-                    label="Call"
-                    color="white"
-                    size="xs"
-                    :ui="{ rounded: 'rounded-full' }"
-                    @click="createMode === 'call' ? (createMode = undefined) : (createMode = 'call')"
-                >
-                    <template #trailing>
-                        <UIcon name="i-heroicons-phone-solid" class="h-4 w-4" />
-                    </template>
-                </UButton>
             </div>
         </template>
 
@@ -179,43 +167,6 @@ function useCreateNote() {
                     </UButton>
                 </div>
             </UForm>
-
-            <!-- Call Create Mode -->
-            <div v-if="createMode === 'call'" class="w-full divide-y rounded border bg-base-100">
-                <p class="m-2 flex items-center gap-2 font-semibold">
-                    <UIcon name="i-heroicons-phone" class="h-5 w-5 text-black" />
-                    <span>New Call</span>
-                </p>
-                <p class="flex items-center gap-2 bg-base-300 p-2">
-                    <span class="font-semibold">From</span>
-                    <span>{{ getUserFullName(user?.user_metadata) }}</span>
-                    <span>{{ user?.user_metadata?.phone ?? '---' }}</span>
-                </p>
-                <div class="flex items-center justify-between divide-x">
-                    <p class="flex-1 p-2">To <span class="font-semibold text-brand">Lilly Pyles</span></p>
-                    <p class="w-[240px] p-2">786-555-0186</p>
-                </div>
-                <UInput variant="none" placeholder="Subject" />
-                <UTextarea variant="none" placeholder="Description" autoresize :maxrows="10" />
-                <div class="flex items-center gap-4 p-2">
-                    <UButton
-                        icon="i-heroicons-phone"
-                        trailing
-                        class="font-semibold"
-                        disabled
-                        :ui="{
-                            icon: {
-                                size: {
-                                    sm: 'h-4 w-4',
-                                },
-                            },
-                        }"
-                    >
-                        Call
-                    </UButton>
-                    <UButton variant="ghost" color="black" @click="createMode = undefined">Cancel</UButton>
-                </div>
-            </div>
 
             <ul class="space-y-4">
                 <template v-for="activity in activities">
