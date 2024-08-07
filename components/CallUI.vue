@@ -90,7 +90,7 @@ function toggleMute() {
     }
 }
 
-function handleIncomingCall(call: Call) {
+async function handleIncomingCall(call: Call) {
     log.value = `Incoming call from ${call.parameters.From}`;
 
     // get name of the caller from the phone number
@@ -99,7 +99,10 @@ function handleIncomingCall(call: Call) {
     //     contact.value = getLeadContact(call.parameters.From);
     // }
 
-    if (!contact.value) {
+    const contacts = await $fetch('/api/contacts/check', { body: JSON.stringify({ mobile_phone: call.parameters.From }) });
+    if (contacts.length > 0) {
+        contact.value = contacts[0];
+    } else {
         contact.value = {
             first_name: 'Unknown',
             mobile_phone: call.parameters.From,
