@@ -26,4 +26,5 @@ export const updateCompanySchema = companySchema.pick({
     postal_code: true,
     website: true,
     address: true,
+    linkedin: true,
 });

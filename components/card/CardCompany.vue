@@ -46,6 +46,7 @@ function useUpdateCompany() {
         industry_id: company.value.industry?.id || undefined,
         size_id: company.value.size?.id || undefined,
         website: company.value.website || undefined,
+        linkedin: company.value.linkedin || undefined,
     };
     const updateState = ref({ ...initialState });
     const { history, clear } = useRefHistory(updateState, { deep: true });
@@ -158,6 +159,36 @@ function useUpdateCompany() {
                             },
                         }"
                     />
+                </div>
+            </UFormGroup>
+
+            <UFormGroup name="linkedin">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="grid flex-1 grid-cols-4 items-center">
+                        <p class="text-start font-semibold">Linkedin</p>
+                        <UInput
+                            v-model="updateState.linkedin"
+                            placeholder="---"
+                            :disabled="isUpdating"
+                            class="col-span-3"
+                            :ui="{
+                                color: {
+                                    white: {
+                                        outline: 'ring-0 shadow-none hover:ring-1',
+                                    },
+                                },
+                            }"
+                        />
+                    </div>
+                    <NuxtLink
+                        v-if="company.linkedin"
+                        :href="company.linkedin"
+                        target="_blank"
+                        external
+                        class="grid content-center"
+                    >
+                        <UIcon name="i-heroicons-arrow-top-right-on-square" color="black" class="h-5 w-5 text-brand" />
+                    </NuxtLink>
                 </div>
             </UFormGroup>
 
