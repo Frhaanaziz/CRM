@@ -17,6 +17,10 @@ export const userSchema = z.object({
     role_id: z.coerce.number().int(),
     updated_at: z.coerce.date(),
     expectation: z.array(z.string()).min(1, { message: 'Please select an option' }).optional().nullable(),
+    google_refresh_token: z.string().optional().nullable(),
+    organization_id: z.coerce.number().optional().nullable(),
+    twilio_agent_id: z.coerce.number().optional().nullable(),
+    twilio_setting_id: z.coerce.number().optional().nullable(),
 });
 
 export const updateUserSchema = userSchema
