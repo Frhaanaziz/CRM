@@ -99,10 +99,11 @@ async function handleIncomingCall(call: Call) {
     //     contact.value = getLeadContact(call.parameters.From);
     // }
 
-    const contacts = await $fetch('/api/contacts/check', { body: JSON.stringify({ mobile_phone: call.parameters.From }) });
+    const contacts = await $fetch('/api/contacts/check', { query: { mobile_phone: call.parameters.From } });
     if (contacts.length > 0) {
         contact.value = contacts[0];
-    } else {
+    }
+    if (!contact.value) {
         contact.value = {
             first_name: 'Unknown',
             mobile_phone: call.parameters.From,

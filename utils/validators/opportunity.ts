@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { phone } from '.';
 import { priorityStatuses, opportunityCloseReasons, opportunityPaymentPlans } from '../constants';
 
 export const opportunitySchema = z.object({
@@ -20,7 +19,7 @@ export const opportunitySchema = z.object({
     est_budget: z.coerce.number().optional().nullable(),
     est_revenue: z.coerce.number().int().min(0, { message: 'Revenue must be greater than 0' }).optional().nullable(),
     id: z.coerce.number().int(),
-    lead_id: z.coerce.number().int(),
+    lead_id: z.coerce.number({ message: 'Please select a lead' }).int(),
     opportunity_status_id: z.coerce
         .number({
             message: 'Please select an opportunity status',
@@ -38,13 +37,28 @@ export const opportunitySchema = z.object({
     contact_id: z.coerce.number().int().optional().nullable(),
 });
 
-export const addOpportunitySchema = z.object({
-    company_name: z.string().trim().min(1, { message: 'Company name must be at least 1 character long' }),
-    first_name: z.string().trim().min(1, { message: 'First name must be at least 1 character long' }),
-    last_name: z.string().optional().nullable(),
-    email: z.string().trim().email().optional().nullable(),
-    mobile_phone: phone(z.string().trim()).optional().nullable(),
-});
+export const addOpportunitySchema = opportunitySchema
+    .pick({
+        lead_id: true,
+        contact_id: true,
+        opportunity_status_id: true,
+        payment_plan: true,
+        confidence: true,
+        est_revenue: true,
+        est_close_date: true,
+        notes: true,
+    })
+    .extend({
+        contact_id: z.coerce.number({ message: 'Please select a contact' }).int(),
+        payment_plan: z.enum(opportunityPaymentPlans, { message: 'Please select a payment plan' }),
+        confidence: z.coerce
+            .number()
+            .int()
+            .min(0, { message: 'Confidence must be greater than 0' })
+            .max(100, { message: 'Confidence must be less than 100' }),
+        est_revenue: z.coerce.number().int().min(0, { message: 'Revenue must be greater than 0' }),
+        est_close_date: z.coerce.date(),
+    });
 
 export const addLeadOpportunitySchema = opportunitySchema
     .pick({
