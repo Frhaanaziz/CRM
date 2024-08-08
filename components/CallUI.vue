@@ -327,116 +327,118 @@ onMounted(async () => {
     setMakeCall(makeOutgoingCall);
 });
 
-watch(log, console.info);
+watch(log, (v) => console.log(v));
 </script>
 
 <template>
-    <div v-show="showCallPopup" v-bind="$attrs">
+    <ClientOnly>
+        <div v-show="showCallPopup" v-bind="$attrs">
+            <div
+                ref="callPopup"
+                class="fixed z-20 flex w-60 cursor-move select-none flex-col rounded-lg bg-gray-900 p-4 text-gray-300 shadow-2xl"
+                :style="style"
+            >
+                <div class="flex flex-row-reverse items-center gap-1">
+                    <UIcon name="i-heroicons-arrows-pointing-in" class="h-5 w-5 cursor-pointer" @click="toggleCallWindow" />
+                </div>
+                <div class="flex flex-col items-center justify-center gap-3">
+                    <UAvatar
+                        :src="getFallbackAvatarUrl('FA')"
+                        size="3xl"
+                        :ui="{ size: { ['3xl']: 'h-24 w-24 text-3xl' } }"
+                        :class="onCall || calling ? '' : 'pulse'"
+                    />
+                    <div class="flex flex-col items-center justify-center gap-1">
+                        <div class="text-xl font-medium">
+                            {{ getUserFullName(contact) }}
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            {{ contact?.mobile_phone }}
+                        </div>
+                    </div>
+                    <CountUpTimer ref="counterUp">
+                        <div v-if="onCall" class="my-1 text-base">
+                            {{ counterUp?.updatedTime }}
+                        </div>
+                    </CountUpTimer>
+                    <div v-if="!onCall" class="my-1 text-base">
+                        {{
+                            callStatus == 'initiating'
+                                ? 'Initiating call...'
+                                : callStatus == 'ringing'
+                                  ? 'Ringing...'
+                                  : calling
+                                    ? 'Calling...'
+                                    : 'Incoming call...'
+                        }}
+                    </div>
+                    <div v-if="onCall" class="flex gap-2">
+                        <UButton color="white" square :ui="{ rounded: 'rounded-full' }" @click="toggleMute">
+                            <img v-if="muted" src="/icons/microphone-slash-solid.svg" width="16" heigt="16" />
+                            <UIcon v-else name="i-heroicons-microphone-solid" class="h-4 w-4" />
+                        </UButton>
+                        <UButton color="red" square :ui="{ rounded: 'rounded-full' }" @click="hangUpCall">
+                            <UIcon name="i-heroicons-phone-solid" class="h-4 w-4 rotate-[135deg]" />
+                        </UButton>
+                    </div>
+                    <div v-else-if="calling || callStatus == 'initiating'">
+                        <UButton color="red" :disabled="callStatus == 'initiating'" @click="cancelCall">
+                            <UIcon name="i-heroicons-phone-solid" class="mt-1 h-4 w-4 rotate-[135deg]" />
+                            Cancel
+                        </UButton>
+                    </div>
+                    <div v-else class="flex gap-2">
+                        <UButton color="green" :ui="{ rounded: 'rounded-lg' }" @click="acceptIncomingCall">
+                            <UIcon name="i-heroicons-phone-solid" class="h-4 w-4" />
+                            Accept
+                        </UButton>
+                        <UButton color="red" :ui="{ rounded: 'rounded-lg' }" @click="rejectIncomingCall">
+                            <UIcon name="i-heroicons-phone-solid" class="mt-1 h-4 w-4 rotate-[135deg]" />
+                            Reject
+                        </UButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- class=" ml-2 flex cursor-pointer select-none items-center justify-between gap-3 rounded-lg bg-gray-900 px-2 py-[7px] text-base text-gray-300" -->
         <div
-            ref="callPopup"
-            class="fixed z-20 flex w-60 cursor-move select-none flex-col rounded-lg bg-gray-900 p-4 text-gray-300 shadow-2xl"
-            :style="style"
+            v-show="showSmallCallWindow"
+            class="absolute right-4 top-4 z-[99999] ml-2 flex cursor-pointer select-none items-center justify-between gap-3 rounded-lg bg-gray-900 px-2 py-[7px] text-base text-gray-300"
+            v-bind="$attrs"
+            @click="toggleCallWindow"
         >
-            <div class="flex flex-row-reverse items-center gap-1">
-                <UIcon name="i-heroicons-arrows-pointing-in" class="h-5 w-5 cursor-pointer" @click="toggleCallWindow" />
-            </div>
-            <div class="flex flex-col items-center justify-center gap-3">
-                <UAvatar
-                    :src="getFallbackAvatarUrl('FA')"
-                    size="3xl"
-                    :ui="{ size: { ['3xl']: 'h-24 w-24 text-3xl' } }"
-                    :class="onCall || calling ? '' : 'pulse'"
-                />
-                <div class="flex flex-col items-center justify-center gap-1">
-                    <div class="text-xl font-medium">
-                        {{ getUserFullName(contact) }}
-                    </div>
-                    <div class="text-sm text-gray-600">
-                        {{ contact?.mobile_phone }}
-                    </div>
-                </div>
-                <CountUpTimer ref="counterUp">
-                    <div v-if="onCall" class="my-1 text-base">
-                        {{ counterUp?.updatedTime }}
-                    </div>
-                </CountUpTimer>
-                <div v-if="!onCall" class="my-1 text-base">
-                    {{
-                        callStatus == 'initiating'
-                            ? 'Initiating call...'
-                            : callStatus == 'ringing'
-                              ? 'Ringing...'
-                              : calling
-                                ? 'Calling...'
-                                : 'Incoming call...'
-                    }}
-                </div>
-                <div v-if="onCall" class="flex gap-2">
-                    <UButton color="white" square :ui="{ rounded: 'rounded-full' }" @click="toggleMute">
-                        <img v-if="muted" src="/icons/microphone-slash-solid.svg" width="16" heigt="16" />
-                        <UIcon v-else name="i-heroicons-microphone-solid" class="h-4 w-4" />
-                    </UButton>
-                    <UButton color="red" square :ui="{ rounded: 'rounded-full' }" @click="hangUpCall">
-                        <UIcon name="i-heroicons-phone-solid" class="h-4 w-4 rotate-[135deg]" />
-                    </UButton>
-                </div>
-                <div v-else-if="calling || callStatus == 'initiating'">
-                    <UButton color="red" :disabled="callStatus == 'initiating'" @click="cancelCall">
-                        <UIcon name="i-heroicons-phone-solid" class="mt-1 h-4 w-4 rotate-[135deg]" />
-                        Cancel
-                    </UButton>
-                </div>
-                <div v-else class="flex gap-2">
-                    <UButton color="green" :ui="{ rounded: 'rounded-lg' }" @click="acceptIncomingCall">
-                        <UIcon name="i-heroicons-phone-solid" class="h-4 w-4" />
-                        Accept
-                    </UButton>
-                    <UButton color="red" :ui="{ rounded: 'rounded-lg' }" @click="rejectIncomingCall">
-                        <UIcon name="i-heroicons-phone-solid" class="mt-1 h-4 w-4 rotate-[135deg]" />
-                        Reject
-                    </UButton>
+            <div class="flex items-center gap-2">
+                <UAvatar :src="getFallbackAvatarUrl('FA')" size="xs" />
+                <div class="max-w-[120px] truncate">
+                    {{ getUserFullName(contact) }}
                 </div>
             </div>
-        </div>
-    </div>
-    <!-- class=" ml-2 flex cursor-pointer select-none items-center justify-between gap-3 rounded-lg bg-gray-900 px-2 py-[7px] text-base text-gray-300" -->
-    <div
-        v-show="showSmallCallWindow"
-        class="absolute right-4 top-4 z-[99999] ml-2 flex cursor-pointer select-none items-center justify-between gap-3 rounded-lg bg-gray-900 px-2 py-[7px] text-base text-gray-300"
-        v-bind="$attrs"
-        @click="toggleCallWindow"
-    >
-        <div class="flex items-center gap-2">
-            <UAvatar :src="getFallbackAvatarUrl('FA')" size="xs" />
-            <div class="max-w-[120px] truncate">
-                {{ getUserFullName(contact) }}
+            <div v-if="onCall" class="flex items-center gap-2">
+                <div class="my-1 min-w-[40px] text-center">
+                    {{ counterUp?.updatedTime }}
+                </div>
+                <UButton color="red" square :ui="{ rounded: 'rounded-full' }" @click.stop="hangUpCall">
+                    <UIcon name="i-heroicons-phone-solid" class="mt-1 h-4 w-4 rotate-[135deg]" />
+                </UButton>
+            </div>
+            <div v-else-if="calling" class="flex items-center gap-3">
+                <div class="my-1">
+                    {{ callStatus == 'ringing' ? 'Ringing...' : 'Calling...' }}
+                </div>
+                <UButton color="red" :ui="{ rounded: 'rounded-full' }" square size="sm" @click.stop="cancelCall">
+                    <UIcon name="i-heroicons-phone-solid" class="mt-1 h-4 w-4 rotate-[135deg]" />
+                </UButton>
+            </div>
+            <div v-else class="flex items-center gap-2">
+                <UButton color="green" :ui="{ rounded: 'rounded-full' }" square size="2xs" @click.stop="acceptIncomingCall">
+                    <UIcon name="i-heroicons-phone-solid" class="h-4 w-4 animate-pulse" />
+                </UButton>
+                <UButton color="red" :ui="{ rounded: 'rounded-full' }" square size="2xs" @click.stop="rejectIncomingCall">
+                    <UIcon name="i-heroicons-phone-solid" class="h-4 w-4 rotate-[135deg]" />
+                </UButton>
             </div>
         </div>
-        <div v-if="onCall" class="flex items-center gap-2">
-            <div class="my-1 min-w-[40px] text-center">
-                {{ counterUp?.updatedTime }}
-            </div>
-            <UButton color="red" square :ui="{ rounded: 'rounded-full' }" @click.stop="hangUpCall">
-                <UIcon name="i-heroicons-phone-solid" class="mt-1 h-4 w-4 rotate-[135deg]" />
-            </UButton>
-        </div>
-        <div v-else-if="calling" class="flex items-center gap-3">
-            <div class="my-1">
-                {{ callStatus == 'ringing' ? 'Ringing...' : 'Calling...' }}
-            </div>
-            <UButton color="red" :ui="{ rounded: 'rounded-full' }" square size="sm" @click.stop="cancelCall">
-                <UIcon name="i-heroicons-phone-solid" class="mt-1 h-4 w-4 rotate-[135deg]" />
-            </UButton>
-        </div>
-        <div v-else class="flex items-center gap-2">
-            <UButton color="green" :ui="{ rounded: 'rounded-full' }" square size="2xs" @click.stop="acceptIncomingCall">
-                <UIcon name="i-heroicons-phone-solid" class="h-4 w-4 animate-pulse" />
-            </UButton>
-            <UButton color="red" :ui="{ rounded: 'rounded-full' }" square size="2xs" @click.stop="rejectIncomingCall">
-                <UIcon name="i-heroicons-phone-solid" class="h-4 w-4 rotate-[135deg]" />
-            </UButton>
-        </div>
-    </div>
+    </ClientOnly>
 </template>
 
 <style scoped>
