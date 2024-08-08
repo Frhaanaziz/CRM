@@ -10,7 +10,6 @@ export default defineEventHandler(async (event) => {
 
     const supabase = await serverSupabaseClient<Database>(event);
 
-    console.log('query:', query);
     const { data, error } = await supabase
         .from('Contacts')
         .select('*, company: Companies(*)')
