@@ -59,7 +59,7 @@ function useUpdateTask() {
     const taskState = ref({
         id: props.task.id,
         description: props.task.description,
-        date: props.task.date,
+        date: useDateFormat(props.task.date, 'YYYY-MM-DDThh:mm').value.replace('"', ''),
     });
 
     async function updateTask(event: FormSubmitEvent<UpdateTaskType>) {
