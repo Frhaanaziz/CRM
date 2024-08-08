@@ -25,6 +25,7 @@ const state = ref({
     last_name: undefined,
     email: '',
     mobile_phone: undefined,
+    job_title: undefined,
     company_id: undefined,
 });
 async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
@@ -69,20 +70,7 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
                 />
             </UFormGroup>
 
-            <UFormGroup label="Email" name="email" required>
-                <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="Enter email" />
-            </UFormGroup>
-
-            <UFormGroup label="Phone" name="mobile_phone">
-                <UInput
-                    v-model="state.mobile_phone"
-                    :disabled="isSubmitting"
-                    :loading="isSubmitting"
-                    placeholder="Enter job title"
-                />
-            </UFormGroup>
-
-            <UFormGroup label="Company" name="company_id">
+            <UFormGroup label="Lead" name="company_id">
                 <USelectMenu
                     v-model="state.company_id"
                     value-attribute="value"
@@ -91,8 +79,25 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
                     searchable-placeholder="Search a companies..."
                     :loading="isSubmitting"
                     :disabled="isSubmitting"
-                    placeholder="Select company"
+                    placeholder="Select lead"
                 />
+            </UFormGroup>
+
+            <UFormGroup label="Title" name="job_title">
+                <UInput v-model="state.job_title" :disabled="isSubmitting" placeholder="e.g. CEO" />
+            </UFormGroup>
+
+            <UFormGroup label="Mobile Phone" name="mobile_phone">
+                <UInput
+                    v-model="state.mobile_phone"
+                    :disabled="isSubmitting"
+                    :loading="isSubmitting"
+                    placeholder="e.g. +6281255558888"
+                />
+            </UFormGroup>
+
+            <UFormGroup label="Email" name="email">
+                <UInput v-model="state.email" :disabled="isSubmitting" :loading="isSubmitting" placeholder="user@domain.com" />
             </UFormGroup>
 
             <div class="flex items-center justify-end gap-2 pt-4">

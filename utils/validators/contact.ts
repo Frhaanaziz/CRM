@@ -4,7 +4,7 @@ import { phone } from '.';
 export const contactSchema = z.object({
     id: z.coerce.number().int(),
     city_id: z.coerce.number().int().optional().nullable(),
-    company_id: z.coerce.number({ message: 'Company is required' }).int(),
+    company_id: z.coerce.number({ message: 'Lead is required' }).int(),
     country_id: z.coerce.number().int().optional().nullable(),
     created_at: z.coerce.date(),
     email: z.string().trim().email({ message: 'Invalid email address' }).optional().nullable(),
@@ -46,11 +46,12 @@ export const updateContactSchema = contactSchema
 
 export const addContactSchema = contactSchema
     .pick({
-        company_id: true,
-        email: true,
-        last_name: true,
         first_name: true,
+        last_name: true,
+        email: true,
         mobile_phone: true,
+        job_title: true,
+        company_id: true,
     })
     .extend({
         first_name: z.string().trim().min(1, { message: 'First name is required' }),

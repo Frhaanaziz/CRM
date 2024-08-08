@@ -19,6 +19,7 @@ const initialState = {
     email: undefined,
     last_name: undefined,
     mobile_phone: undefined,
+    job_title: undefined,
 };
 const state = ref({ ...initialState });
 const isSubmitting = ref(false);
@@ -66,12 +67,16 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
                     <UInput v-model="state.last_name" :disabled="isSubmitting" placeholder="e.g. Pipeline.co.id" />
                 </UFormGroup>
 
-                <UFormGroup label="Email" name="email">
-                    <UInput v-model="state.email" :disabled="isSubmitting" placeholder="e.g. email@domain.com" />
+                <UFormGroup label="Title" name="job_title">
+                    <UInput v-model="state.job_title" :disabled="isSubmitting" placeholder="e.g. CEO" />
                 </UFormGroup>
 
                 <UFormGroup label="Mobile Phone" name="mobile_phone">
                     <UInput v-model="state.mobile_phone" :disabled="isSubmitting" placeholder="e.g. +62 812 5555 8888" />
+                </UFormGroup>
+
+                <UFormGroup label="Email" name="email">
+                    <UInput v-model="state.email" :disabled="isSubmitting" placeholder="e.g. email@domain.com" />
                 </UFormGroup>
 
                 <div class="grid grid-cols-2 gap-2">
