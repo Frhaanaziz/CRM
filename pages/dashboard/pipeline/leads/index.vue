@@ -1,3 +1,5 @@
 <template>
-    <TableLeads />
+    <section>
+        <TableLeads />
+    </section>
 </template>

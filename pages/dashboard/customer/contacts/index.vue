@@ -1,3 +1,5 @@
 <template>
-    <TableContacts />
+    <section>
+        <TableContacts />
+    </section>
 </template>
