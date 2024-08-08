@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { HorizontalNavigationLink, TabItem } from '#ui/types';
-import { useDateFormat } from '@vueuse/core';
 const tabItems: TabItem[] = [
     {
         label: 'All',
@@ -51,7 +50,7 @@ const inboxes = [
         subject: 'Need sales Services',
         message:
             "I've attached the new proposal for our next project. It outlines all the objectives, timelines, and resource allocations. I'm particularly excited about the innovative approach we're taking this time. Please have a look and let me know your thoughts.",
-        created_at: '2021-09-01T12:00:00Z',
+        created_at: new Date().toISOString(),
     },
     {
         id: 2,
@@ -59,7 +58,7 @@ const inboxes = [
         type: 'missed-call',
         subject: 'Missed Call',
         message: '+62 812 1234 5678 78',
-        created_at: '2021-09-01T12:00:00Z',
+        created_at: new Date().toISOString(),
     },
     {
         id: 3,
@@ -67,7 +66,7 @@ const inboxes = [
         type: 'task',
         from: 'Pipeline',
         subject: 'Follow up Anthony',
-        created_at: '2021-09-01T12:00:00Z',
+        created_at: new Date().toISOString(),
     },
 ];
 const filteredInboxes = computed(() => {
@@ -129,9 +128,14 @@ const filteredInboxes = computed(() => {
                     >
                 </p>
 
-                <p class="text-right text-sm" :class="{ 'font-semibold': inbox.status !== 'readed' }">
-                    {{ useDateFormat(inbox.created_at, 'DD MMM YY').value.replace('"', '') }}
-                </p>
+                <NuxtTime
+                    class="text-right text-sm"
+                    :class="{ 'font-semibold': inbox.status !== 'readed' }"
+                    :datetime="inbox.created_at"
+                    month="short"
+                    day="2-digit"
+                    year="2-digit"
+                />
             </li>
         </ul>
     </div>
