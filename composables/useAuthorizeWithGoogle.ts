@@ -26,14 +26,7 @@ export function useAuthorizeWithGoogle() {
     }
 
     async function connectGmail() {
-        try {
-            const { url } = await $fetch('/api/auth/google/connect');
-
-            await navigateTo(url, { external: true });
-        } catch (e) {
-            console.error('Error connecting Gmail:', e);
-            toast.error(getErrorMessage(e));
-        }
+        await navigateTo(`${backendUrl}/auth/google/connect`, { external: true });
     }
 
     return {

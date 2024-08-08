@@ -2,7 +2,7 @@
 import { useStepper } from '@vueuse/core';
 import LazyModalConnectEmailManual from '~/components/modal/ModalConnectEmailManual.vue';
 
-const google_refresh_token = useRoute().query.google_refresh_token;
+const google_refresh_token = useRoute().query.refresh_token;
 const { user } = storeToRefs(userSessionStore());
 
 const { data } = await useLazyAsyncData(
