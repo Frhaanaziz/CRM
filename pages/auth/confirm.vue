@@ -1,10 +1,12 @@
 <script setup lang="ts">
-const session = useSupabaseSession();
+import { useTimeoutFn } from '@vueuse/core';
 
+const session = useSupabaseSession();
 watch(
     session,
     () => {
         if (session.value) {
+            console.log('session value', session.value);
             const sessionStore = userSessionStore();
             sessionStore.session = session.value;
             sessionStore.user = session.value.user;
@@ -12,11 +14,14 @@ watch(
             // Redirect to protected page
             return navigateTo('/dashboard');
         }
-
-        return navigateTo('/auth/signin');
     },
     { immediate: true }
 );
+
+useTimeoutFn(() => {
+    toast.error('Failed to login. Please try again.');
+    return navigateTo('/auth/signin');
+}, 5000);
 </script>
 
 <template>
