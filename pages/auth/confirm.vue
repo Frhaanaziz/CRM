@@ -13,7 +13,7 @@ watch(
             return navigateTo('/dashboard');
         }
 
-        return navigateTo('/auth/login');
+        return navigateTo('/auth/signin');
     },
     { immediate: true }
 );
