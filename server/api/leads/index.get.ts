@@ -1,11 +1,7 @@
 import type { Company, Lead, User, Rating, PaginationUtils, Contact } from '~/types';
-import { serverSupabaseUser } from '#supabase/server';
 import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const user = await serverSupabaseUser(event);
-    if (!user || !user.user_metadata.organization_id) throw createError({ status: 401, statusMessage: 'Unauthorized' });
-
     interface ILead extends Lead {
         company: (Pick<Company, 'id' | 'name'> & { contacts?: Contact[] | null }) | null;
         rating: Pick<Rating, 'name'> | null;
