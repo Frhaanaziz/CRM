@@ -27,9 +27,8 @@ const state = ref({
 });
 const company_id = computed(() => leads.value.find((lead) => lead.id === state.value.lead_id)?.company_id);
 
-const { data: opportunityStatusesOption } = await useLazyFetch('/api/opportunity-statuses', {
+const { data: opportunityStatuses } = await useLazyFetch('/api/opportunity-statuses', {
     key: 'opportunity-statuses',
-    transform: (data) => data.map((status) => ({ value: status.id, label: capitalize(status.name) })),
     default: () => [],
 });
 
@@ -116,7 +115,7 @@ async function searchLeads(query: string) {
                 <USelectMenu
                     v-model="state.opportunity_status_id"
                     value-attribute="value"
-                    :options="opportunityStatusesOption"
+                    :options="opportunityStatuses.map((status) => ({ value: status.id, label: capitalize(status.name) }))"
                     :disabled="isSubmitting"
                     placeholder="Select status"
                 />
