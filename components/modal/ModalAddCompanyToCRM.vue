@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import type { B2BCompany, B2BContact } from '~/types';
+import type { B2BCompany } from '~/types';
 
 const props = defineProps<{
-    contact?: B2BContact[] | null;
-    company: B2BCompany;
+    b2b_company_id: B2BCompany['id'];
 }>();
 
 const emit = defineEmits(['close']);

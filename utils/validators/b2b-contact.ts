@@ -24,12 +24,10 @@ export const B2BContactSchema = z.object({
     mobile_phone: z.string().optional().nullable(),
     postal_code: z.string().optional().nullable(),
     province_id: z.coerce.number().int().optional().nullable(),
-    street_1: z.string().optional().nullable(),
-    street_2: z.string().optional().nullable(),
-    street_3: z.string().optional().nullable(),
     updated_at: z.coerce.date(),
     website: z.string().optional().nullable(),
     whatsapp: z.string().optional().nullable(),
+    address: z.string().optional().nullable(),
 });
 
 export const addB2BContactSchema = B2BContactSchema.pick({

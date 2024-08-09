@@ -56,3 +56,7 @@ export const updateB2BCompanySchema = B2BCompanySchema.pick({
     location: true,
     zip_code: true,
 });
+
+export const addB2BCompanyToLeadSchema = z.object({
+    b2b_company_id: z.coerce.number().int(),
+})

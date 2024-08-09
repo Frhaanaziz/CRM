@@ -10,11 +10,11 @@ const modal = useModal();
 const id = useRoute().params.id;
 
 interface IB2BCompany extends B2BCompany {
-    industry: Industry | null;
-    size: Size | null;
-    province: Province | null;
-    city: City | null;
-    contacts: B2BContact[] | null;
+    industry?: Industry | null;
+    size?: Size | null;
+    province?: Province | null;
+    city?: City | null;
+    contacts?: B2BContact[] | null;
 }
 const { data: companyData, refresh: refreshCompany } = await useFetch<{ data: IB2BCompany; similar_companies: B2BCompany[] }>(
     `/api/b2b-companies/${id}`,
@@ -68,13 +68,6 @@ function getB2BContact(id: number) {
 
 const { updateState, isUpdating, updateCompany, formRef, submitForm, isFormDirty, resetForm } = useUpdateB2BCompany();
 
-function openAddToCRMModal() {
-    modal.open(LazyModalAddCompanyToCRM, {
-        onClose: () => modal.close(),
-        contact: company.value!.contacts,
-        company: company.value!,
-    });
-}
 function openAddContactModal() {
     modal.open(LazyModalAddB2BContact, {
         onClose: () => modal.close(),
@@ -184,7 +177,12 @@ function useUpdateB2BCompany() {
                     icon="i-heroicons-plus"
                     :trailing="false"
                     class="hidden sm:flex"
-                    @click="openAddToCRMModal"
+                    @click="
+                        modal.open(LazyModalAddCompanyToCRM, {
+                            onClose: () => modal.close(),
+                            b2b_company_id: company.id,
+                        })
+                    "
                 >
                     Add to leads
                 </UButton>
