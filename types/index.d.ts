@@ -32,6 +32,7 @@ export type ActivityParticipant = Tables<'Activity_Participants'>;
 export type Invitation = Tables<'Invitations'>;
 export type CompanyOverview = Tables<'Company_Overviews'>;
 export type Inbox = Tables<'Inboxes'>;
+export type CallLog = Tables<'Call_Logs'>;
 export type TwilioSetting = Tables<'Twilio_Settings'>;
 export type TwilioAgent = Tables<'Twilio_Agents'>;
 

@@ -41,45 +41,19 @@ const links = computed<HorizontalNavigationLink[]>(() => [
     },
 ]);
 
-const inboxes = [
-    {
-        id: 1,
-        status: 'readed',
-        type: 'email',
-        from: 'Alex Smith',
-        subject: 'Need sales Services',
-        message:
-            "I've attached the new proposal for our next project. It outlines all the objectives, timelines, and resource allocations. I'm particularly excited about the innovative approach we're taking this time. Please have a look and let me know your thoughts.",
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: 2,
-        status: 'unread',
-        type: 'missed-call',
-        subject: 'Missed Call',
-        message: '+62 812 1234 5678 78',
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: 3,
-        status: 'unread',
-        type: 'task',
-        from: 'Pipeline',
-        subject: 'Follow up Anthony',
-        created_at: new Date().toISOString(),
-    },
-];
+const { data: inboxes } = await useFetch('/api/inboxes', { key: 'inboxes', headers: useRequestHeaders(['cookie']) });
+
 const filteredInboxes = computed(() => {
-    const selectedInboxes = inboxes.filter((inbox) => {
+    const selectedInboxes = inboxes.value?.filter((inbox) => {
         if (selectedTab.value.slot === 'all') return true;
-        if (selectedTab.value.slot === 'unread') return inbox.status === 'unread';
+        if (selectedTab.value.slot === 'unread') return inbox.is_read;
         return true;
     });
 
     if (activeFilter.value === 'all') return selectedInboxes;
-    if (activeFilter.value === 'emails') return selectedInboxes.filter((inbox) => inbox.type === 'email');
-    if (activeFilter.value === 'calls') return selectedInboxes.filter((inbox) => inbox.type === 'missed-call');
-    if (activeFilter.value === 'tasks') return selectedInboxes.filter((inbox) => inbox.type === 'task');
+    if (activeFilter.value === 'emails') return selectedInboxes?.filter((inbox) => inbox.type === 'email');
+    if (activeFilter.value === 'calls') return selectedInboxes?.filter((inbox) => inbox.type === 'call');
+    if (activeFilter.value === 'tasks') return selectedInboxes?.filter((inbox) => inbox.type === 'task');
     return selectedInboxes;
 });
 </script>
@@ -102,39 +76,57 @@ const filteredInboxes = computed(() => {
                     <UIcon v-if="inbox.type === 'email'" name="i-heroicons-envelope" class="h-5 w-5 shrink-0 text-brand" />
                     <UIcon v-else-if="inbox.type === 'task'" name="i-heroicons-calendar" class="h-5 w-5 shrink-0 text-brand" />
                     <UIcon
-                        v-else-if="inbox.type === 'missed-call'"
+                        v-else-if="inbox.type === 'call'"
                         name="i-heroicons-phone-x-mark"
                         class="h-5 w-5 shrink-0 text-red-500"
                     />
 
-                    <UButton
-                        v-if="inbox.type === 'missed-call'"
-                        icon="i-heroicons-plus"
-                        color="white"
-                        size="2xs"
-                        class="shrink-0"
-                    >
+                    <UButton v-if="inbox.type === 'call'" icon="i-heroicons-plus" color="white" size="2xs" class="shrink-0">
                         Create Lead
                     </UButton>
-                    <p class="shrink-0 text-sm" :class="{ 'font-semibold': inbox.status !== 'readed' }">{{ inbox.from }}</p>
+
+                    <NuxtLink
+                        v-if="inbox.type === 'task' && inbox.task?.lead_id"
+                        :href="`/dashboard/pipeline/leads/${inbox.task.lead_id}`"
+                        class="shrink-0 text-sm text-brand"
+                        :class="{ 'font-semibold': !inbox.is_read }"
+                    >
+                        {{ inbox.title }}
+                    </NuxtLink>
+                    <p v-else class="shrink-0 text-sm" :class="{ 'font-semibold': !inbox.is_read }">{{ inbox.title }}</p>
                 </div>
 
-                <p class="col-span-9 truncate text-sm" :class="{ 'font-semibold': inbox.status !== 'readed' }">
-                    Need sales Services
-                    <span class="text-gray-400">
-                        - I've attached the new proposal for our next project. It outlines all the objectives, timelines, and
-                        resource allocations. I'm particularly excited about the innovative approach we're taking this time.
-                        Please have a look and let me know your thoughts.</span
-                    >
+                <p class="col-span-9 truncate text-sm" :class="{ 'font-semibold': !inbox.is_read }">
+                    {{ inbox.subject }}
+                    <span v-if="inbox.description" class="text-gray-400"> - {{ inbox.description }}</span>
                 </p>
 
+                <!-- isToday -->
                 <NuxtTime
+                    v-if="new Date(inbox.created_at).toDateString() === new Date().toDateString()"
                     class="text-right text-sm"
-                    :class="{ 'font-semibold': inbox.status !== 'readed' }"
+                    :class="{ 'font-semibold': !inbox.is_read }"
+                    :datetime="inbox.created_at"
+                    hour="numeric"
+                    minute="2-digit"
+                />
+                <!-- isThisYear -->
+                <NuxtTime
+                    v-else-if="new Date(inbox.created_at).getFullYear() === new Date().getFullYear()"
+                    class="text-right text-sm"
+                    :class="{ 'font-semibold': !inbox.is_read }"
                     :datetime="inbox.created_at"
                     month="short"
-                    day="2-digit"
-                    year="2-digit"
+                    day="numeric"
+                />
+                <NuxtTime
+                    v-else
+                    class="text-right text-sm"
+                    :class="{ 'font-semibold': !inbox.is_read }"
+                    :datetime="inbox.created_at"
+                    month="short"
+                    day="numeric"
+                    year="numeric"
                 />
             </li>
         </ul>
