@@ -97,7 +97,7 @@ function useUpdateAgent() {
             await refreshNuxtData('twilio-agent');
         } catch (e) {
             console.error('Failed to update Twilio agent', e);
-            toast.error('Failed to update Twilio agent, please try again later.');
+            toast.error(getErrorMessage(e) || 'Failed to update Twilio agent, please try again later.');
         } finally {
             isUpdating.value = false;
         }
