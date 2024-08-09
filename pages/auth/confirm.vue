@@ -12,6 +12,8 @@ watch(
             // Redirect to protected page
             return navigateTo('/dashboard');
         }
+
+        return navigateTo('/auth/login');
     },
     { immediate: true }
 );
