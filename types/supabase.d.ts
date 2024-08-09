@@ -740,7 +740,7 @@ export type Database = {
           description: string | null
           email_id: string | null
           id: number
-          is_read: boolean | null
+          is_read: boolean
           organization_id: number
           subject: string
           task_id: number | null
@@ -755,7 +755,7 @@ export type Database = {
           description?: string | null
           email_id?: string | null
           id?: number
-          is_read?: boolean | null
+          is_read?: boolean
           organization_id: number
           subject: string
           task_id?: number | null
@@ -770,7 +770,7 @@ export type Database = {
           description?: string | null
           email_id?: string | null
           id?: number
-          is_read?: boolean | null
+          is_read?: boolean
           organization_id?: number
           subject?: string
           task_id?: number | null
