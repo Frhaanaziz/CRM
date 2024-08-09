@@ -64,8 +64,18 @@ export const toast = {
 export function getErrorMessage(error: unknown): string {
     let message: string;
 
-    if (error && typeof error === 'object' && 'statusMessage' in error) {
-        message = String(error.statusMessage);
+    if (error && typeof error === 'object' && 'response' in error) {
+        const response = (error as any).response;
+        if (response && typeof response === 'object' && '_data' in response) {
+            const data = response._data;
+            if (data && typeof data === 'object' && 'statusMessage' in data) {
+                message = String(data.statusMessage);
+            } else {
+                message = 'Error response structure is not as expected.';
+            }
+        } else {
+            message = 'Error response does not contain expected data structure.';
+        }
     } else if (error instanceof Error) {
         message = error.message;
     } else if (typeof error === 'string') {
