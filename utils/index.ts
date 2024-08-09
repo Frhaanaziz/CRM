@@ -15,6 +15,7 @@ export * from './validators/b2b-company';
 export * from './validators/activity';
 export * from './validators/twilio-setting';
 export * from './validators/twilio-agent';
+export * from './validators/company-overview';
 export * from './constants';
 
 /**

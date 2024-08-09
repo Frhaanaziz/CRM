@@ -30,6 +30,8 @@ export type Currency = Tables<'Currencies'>;
 export type Activity = Tables<'Activities'>;
 export type ActivityParticipant = Tables<'Activity_Participants'>;
 export type Invitation = Tables<'Invitations'>;
+export type CompanyOverview = Tables<'Company_Overviews'>;
+export type Inbox = Tables<'Inboxes'>;
 export type TwilioSetting = Tables<'Twilio_Settings'>;
 export type TwilioAgent = Tables<'Twilio_Agents'>;
 

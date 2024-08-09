@@ -1,6 +1,7 @@
 import type {
     City,
     Company,
+    CompanyOverview,
     Contact,
     Country,
     Industry,
@@ -27,6 +28,7 @@ export default defineEventHandler(async (event) => {
                   province?: Pick<Province, 'id' | 'name'> | null;
                   city?: Pick<City, 'id' | 'name'> | null;
                   contacts?: Contact[] | null;
+                  overviews?: CompanyOverview[] | null;
               })
             | null;
         rating?: Rating | null;

@@ -269,11 +269,18 @@ async function handleDeleteLead() {
                 />
 
                 <CardCompany v-if="lead && lead.company" ref="companyForm" :company="lead.company" />
+
                 <CardOpportunities
                     v-if="lead.opportunities"
                     :opportunities="lead.opportunities"
                     :contacts="lead.company?.contacts"
                     :leadId="id"
+                />
+
+                <CardCompanyOverviews
+                    v-if="lead.company?.overviews"
+                    :company_id="lead.company.id"
+                    :overviews="lead.company.overviews"
                 />
             </div>
 

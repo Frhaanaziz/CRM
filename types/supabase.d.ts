@@ -242,6 +242,7 @@ export type Database = {
       }
       B2B_Contacts: {
         Row: {
+          address: string | null
           city_id: number | null
           company_id: number
           country_id: number | null
@@ -259,14 +260,12 @@ export type Database = {
           mobile_phone: string | null
           postal_code: string | null
           province_id: number | null
-          street_1: string | null
-          street_2: string | null
-          street_3: string | null
           updated_at: string
           website: string | null
           whatsapp: string | null
         }
         Insert: {
+          address?: string | null
           city_id?: number | null
           company_id: number
           country_id?: number | null
@@ -284,14 +283,12 @@ export type Database = {
           mobile_phone?: string | null
           postal_code?: string | null
           province_id?: number | null
-          street_1?: string | null
-          street_2?: string | null
-          street_3?: string | null
           updated_at?: string
           website?: string | null
           whatsapp?: string | null
         }
         Update: {
+          address?: string | null
           city_id?: number | null
           company_id?: number
           country_id?: number | null
@@ -309,9 +306,6 @@ export type Database = {
           mobile_phone?: string | null
           postal_code?: string | null
           province_id?: number | null
-          street_1?: string | null
-          street_2?: string | null
-          street_3?: string | null
           updated_at?: string
           website?: string | null
           whatsapp?: string | null
@@ -551,6 +545,41 @@ export type Database = {
           },
         ]
       }
+      Company_Overviews: {
+        Row: {
+          company_id: number
+          created_at: string
+          description: string
+          id: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: number
+          created_at?: string
+          description: string
+          id?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: number
+          created_at?: string
+          description?: string
+          id?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Company_Overviews_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "Companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Contacts: {
         Row: {
           address: string | null
@@ -703,6 +732,83 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      Inboxes: {
+        Row: {
+          call_log_id: number | null
+          created_at: string
+          description: string | null
+          email_id: string | null
+          id: number
+          is_read: boolean | null
+          organization_id: number
+          subject: string
+          task_id: number | null
+          title: string
+          type: Database["public"]["Enums"]["inbox_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          call_log_id?: number | null
+          created_at?: string
+          description?: string | null
+          email_id?: string | null
+          id?: number
+          is_read?: boolean | null
+          organization_id: number
+          subject: string
+          task_id?: number | null
+          title: string
+          type: Database["public"]["Enums"]["inbox_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          call_log_id?: number | null
+          created_at?: string
+          description?: string | null
+          email_id?: string | null
+          id?: number
+          is_read?: boolean | null
+          organization_id?: number
+          subject?: string
+          task_id?: number | null
+          title?: string
+          type?: Database["public"]["Enums"]["inbox_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Inboxes_call_log_id_fkey"
+            columns: ["call_log_id"]
+            isOneToOne: false
+            referencedRelation: "Call_Logs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Inboxes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "Organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Inboxes_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "Tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Inboxes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       Industries: {
         Row: {
@@ -1532,6 +1638,7 @@ export type Database = {
         | "cannot contact"
         | "no longer interested"
         | "canceled"
+      inbox_type: "email" | "call" | "task"
       lead_statuses: "new" | "contacted" | "qualified" | "disqualified"
       method_name: "email" | "note" | "call"
       opportunity_statuses:
