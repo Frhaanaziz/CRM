@@ -371,107 +371,112 @@ function useTable() {
             />
         </section>
 
-        <section v-else class="min-h-[calc(100vh-96px)] bg-base-200">
-            <ul class="flex items-start gap-4 overflow-x-auto p-4">
-                <li v-for="opportunityStatus in opportunityStatuses" :key="opportunityStatus.id" class="min-w-[392px]">
-                    <div class="flex items-center justify-between rounded bg-base-100 px-4 py-2 shadow">
-                        <h2 class="font-semibold capitalize">{{ opportunityStatus.name }}</h2>
-                        <p class="text-xs text-slate-500">
-                            {{ sortedOpportunitiesByStatus[opportunityStatus.id].length }} Result
-                        </p>
-                    </div>
-                    <div class="flex items-center justify-between rounded-b bg-brand-800 px-4 py-2 text-xs text-white">
-                        <p>Est. Value</p>
-                        <p>
-                            {{
-                                formatToRupiah(
-                                    sortedOpportunitiesByStatus[opportunityStatus.id].reduce(
-                                        (acc, opportunity) => acc + (opportunity.est_revenue ?? 0),
-                                        0
+        <ClientOnly v-else fallback-tag="span" fallback="Loading opportunities...">
+            <section class="min-h-[calc(100vh-96px)] bg-base-200">
+                <ul class="flex items-start gap-4 overflow-x-auto p-4">
+                    <li v-for="opportunityStatus in opportunityStatuses" :key="opportunityStatus.id" class="min-w-[392px]">
+                        <div class="flex items-center justify-between rounded bg-base-100 px-4 py-2 shadow">
+                            <h2 class="font-semibold capitalize">{{ opportunityStatus.name }}</h2>
+                            <p class="text-xs text-slate-500">
+                                {{ sortedOpportunitiesByStatus[opportunityStatus.id].length }} Result
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-between rounded-b bg-brand-800 px-4 py-2 text-xs text-white">
+                            <p>Est. Value</p>
+                            <p>
+                                {{
+                                    formatToRupiah(
+                                        sortedOpportunitiesByStatus[opportunityStatus.id].reduce(
+                                            (acc, opportunity) => acc + (opportunity.est_revenue ?? 0),
+                                            0
+                                        )
                                     )
-                                )
-                            }}
-                        </p>
-                    </div>
+                                }}
+                            </p>
+                        </div>
 
-                    <Draggable
-                        :id="opportunityStatus.id"
-                        :list="sortedOpportunitiesByStatus[opportunityStatus.id]"
-                        :component-data="{
-                            tag: 'ul',
-                            type: 'transition-group',
-                            name: !drag ? 'flip-list' : null,
-                        }"
-                        item-key="id"
-                        v-bind="dragOptions"
-                        group="opportunities"
-                        filter=".ignore-element"
-                        @start="drag = true"
-                        @end="drag = false"
-                        @update="onUpdate"
-                        @add="onAdd"
-                    >
-                        <template #item="{ element: opportunity }">
-                            <li
-                                class="mt-2 list-none rounded border bg-base-100 px-4 py-2"
-                                :class="[isReordering ? 'cursor-not-allowed' : 'cursor-move']"
-                            >
-                                <div class="flex items-start justify-between gap-4">
-                                    <div class="space-y-0.5">
-                                        <NuxtLink
-                                            :href="`/dashboard/pipeline/opportunities/${opportunity.id}`"
-                                            class="ignore-element truncate font-semibold text-brand"
+                        <Draggable
+                            :id="opportunityStatus.id"
+                            :list="sortedOpportunitiesByStatus[opportunityStatus.id]"
+                            :component-data="{
+                                tag: 'ul',
+                                type: 'transition-group',
+                                name: !drag ? 'flip-list' : null,
+                            }"
+                            item-key="id"
+                            v-bind="dragOptions"
+                            group="opportunities"
+                            filter=".ignore-element"
+                            @start="drag = true"
+                            @end="drag = false"
+                            @update="onUpdate"
+                            @add="onAdd"
+                        >
+                            <template #item="{ element: opportunity }">
+                                <li
+                                    class="mt-2 list-none rounded border bg-base-100 px-4 py-2"
+                                    :class="[isReordering ? 'cursor-not-allowed' : 'cursor-move']"
+                                >
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div class="space-y-0.5">
+                                            <NuxtLink
+                                                :href="`/dashboard/pipeline/opportunities/${opportunity.id}`"
+                                                class="ignore-element truncate font-semibold text-brand"
+                                            >
+                                                {{ opportunity.lead?.company?.name }}
+                                            </NuxtLink>
+                                            <p class="text-xs text-slate-600">{{ getUserFullName(opportunity.contact) }}</p>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <UButton
+                                                variant="ghost"
+                                                color="black"
+                                                square
+                                                icon="i-heroicons-pencil"
+                                                size="xs"
+                                                :padded="false"
+                                                class="ignore-element"
+                                                disabled
+                                            />
+                                            <UButton
+                                                variant="ghost"
+                                                color="black"
+                                                square
+                                                icon="i-heroicons-trash"
+                                                size="xs"
+                                                :padded="false"
+                                                class="ignore-element"
+                                                @click="
+                                                    modal.open(LazyModalDelete, {
+                                                        onClose: () => modal.close(),
+                                                        title: 'Opportunities',
+                                                        description:
+                                                            'Are you sure you want to delete this opportunity? This action cannot be undone.',
+                                                        onConfirm: () => handleDeleteOpportunities([opportunity]),
+                                                    })
+                                                "
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="py-2">
+                                        <p class="text-sm font-semibold text-gray-900">
+                                            {{ opportunity.est_revenue ? formatToRupiah(opportunity.est_revenue) : '---' }}
+                                        </p>
+                                        <p
+                                            v-if="opportunity.confidence || opportunity.act_close_date"
+                                            class="text-xs text-gray-700"
                                         >
-                                            {{ opportunity.lead?.company?.name }}
-                                        </NuxtLink>
-                                        <p class="text-xs text-slate-600">{{ getUserFullName(opportunity.contact) }}</p>
+                                            {{ opportunity.confidence }}% on
+                                            {{ useDateFormat(opportunity.est_close_date, 'DD-MM-YYYY').value.replace('"', '') }}
+                                        </p>
                                     </div>
-                                    <div class="flex items-center gap-2">
-                                        <UButton
-                                            variant="ghost"
-                                            color="black"
-                                            square
-                                            icon="i-heroicons-pencil"
-                                            size="xs"
-                                            :padded="false"
-                                            class="ignore-element"
-                                            disabled
-                                        />
-                                        <UButton
-                                            variant="ghost"
-                                            color="black"
-                                            square
-                                            icon="i-heroicons-trash"
-                                            size="xs"
-                                            :padded="false"
-                                            class="ignore-element"
-                                            @click="
-                                                modal.open(LazyModalDelete, {
-                                                    onClose: () => modal.close(),
-                                                    title: 'Opportunities',
-                                                    description:
-                                                        'Are you sure you want to delete this opportunity? This action cannot be undone.',
-                                                    onConfirm: () => handleDeleteOpportunities([opportunity]),
-                                                })
-                                            "
-                                        />
-                                    </div>
-                                </div>
-                                <div class="py-2">
-                                    <p class="text-sm font-semibold text-gray-900">
-                                        {{ opportunity.est_revenue ? formatToRupiah(opportunity.est_revenue) : '---' }}
-                                    </p>
-                                    <p v-if="opportunity.confidence || opportunity.act_close_date" class="text-xs text-gray-700">
-                                        {{ opportunity.confidence }}% on
-                                        {{ useDateFormat(opportunity.est_close_date, 'DD-MM-YYYY').value.replace('"', '') }}
-                                    </p>
-                                </div>
-                                <p v-if="opportunity.notes" class="py-2 text-sm text-gray-700">{{ opportunity.notes }}</p>
-                            </li>
-                        </template>
-                    </Draggable>
-                </li>
-            </ul>
-        </section>
+                                    <p v-if="opportunity.notes" class="py-2 text-sm text-gray-700">{{ opportunity.notes }}</p>
+                                </li>
+                            </template>
+                        </Draggable>
+                    </li>
+                </ul>
+            </section>
+        </ClientOnly>
     </div>
 </template>
