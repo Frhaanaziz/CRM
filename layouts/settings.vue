@@ -60,7 +60,7 @@ const navigations = computed(() => {
 
 <template>
     <div>
-        <nav class="fixed inset-y-0 left-48 hidden w-48 overflow-y-auto border-l bg-base-200 py-14 lg:block lg:px-3">
+        <nav class="fixed inset-y-0 left-48 hidden w-48 overflow-y-auto border-x py-14 lg:block lg:px-3">
             <ul class="divide-y-2 text-sm">
                 <li v-for="navigationLinks in navigations" :key="navigationLinks.id" class="py-5">
                     <p v-if="navigationLinks.name" class="text-xs font-semibold">{{ navigationLinks.name }}</p>
