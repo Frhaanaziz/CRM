@@ -19,7 +19,7 @@ watch(
 );
 
 useTimeoutFn(() => {
-    toast.error('Failed to login. Please try again.');
+    // toast.error('Failed to login. Please try again.');
     return navigateTo('/auth/signin');
 }, 5000);
 </script>
