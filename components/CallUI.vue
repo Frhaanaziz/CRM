@@ -7,11 +7,11 @@ import type { Contact, Lead, Opportunity } from '~/types';
 const { setMakeCall, setTwilioEnabled } = globalStore();
 const { user } = storeToRefs(userSessionStore());
 
-// pastikan data fetch ini tidak mengganggu performa aplikasi ketika dijalankan karena ada kemungkinan untuk terus menerus melakukan fetch
-const { data: twilioSetting } = await useFetch(`/api/twilio-settings/${user.value?.user_metadata.twilio_setting_id}`, {
+const { data: twilioSetting } = await useLazyFetch(`/api/twilio-settings/${user.value?.user_metadata.twilio_setting_id}`, {
     key: 'twilio-setting',
     headers: useRequestHeaders(['cookie']),
     immediate: !!user.value?.user_metadata.twilio_setting_id,
+    server: false,
 });
 
 let device: Device | undefined;
