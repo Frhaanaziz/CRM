@@ -34,17 +34,6 @@ function useSignIn() {
             state.value = initialState;
             isSubmitting.value = true;
 
-            const { data: user, error: userError } = await supabase.from('Users').select().eq('email', event.data.email).single();
-            if (userError) {
-                console.error('Error fetching user:', userError);
-                throw new Error('Invalid email or password');
-            }
-
-            if (user.status !== 'active') {
-                console.error('User is not active:', user);
-                throw new Error('Your account has been disabled. Please contact your administrator.');
-            }
-
             const { data, error } = await supabase.auth.signInWithPassword(event.data);
             if (error) {
                 console.error('Error signing in:', error);
