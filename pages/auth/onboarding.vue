@@ -362,7 +362,7 @@ function useJoinOrganization() {
                             </UFormGroup>
                         </LazyUForm>
 
-                        <button class="mt-20 text-sm text-brand" @click="stepper.goToNext">Or Join an Organization</button>
+                        <!-- <button class="mt-20 text-sm text-brand" @click="stepper.goToNext">Or Join an Organization</button> -->
                     </template>
 
                     <LazyUForm
