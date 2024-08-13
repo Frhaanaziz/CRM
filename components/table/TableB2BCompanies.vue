@@ -96,14 +96,14 @@ const { data: companiesPaginated, status } = await useLazyFetch(`/api/b2b-compan
 
 <template>
     <!-- Header and Action buttons -->
-    <div class="mt-3 flex items-center justify-between gap-x-3 rounded bg-base-200 p-3">
+    <div class="flex items-center justify-between gap-x-3 rounded p-3">
         <div class="flex items-center gap-4">
             <UInput v-model="search" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search..." />
 
             <div class="hidden sm:flex sm:items-center sm:gap-2">
                 <p>Filter:</p>
                 <!-- Industries Popover -->
-                <UPopover mode="hover">
+                <UPopover>
                     <UButton
                         variant="outline"
                         color="gray"
@@ -132,7 +132,7 @@ const { data: companiesPaginated, status } = await useLazyFetch(`/api/b2b-compan
                 </UPopover>
 
                 <!-- Size Popover -->
-                <UPopover mode="hover">
+                <UPopover>
                     <UButton
                         variant="outline"
                         color="gray"
@@ -161,39 +161,6 @@ const { data: companiesPaginated, status } = await useLazyFetch(`/api/b2b-compan
                         </div>
                     </template>
                 </UPopover>
-
-                <!-- Location Popover -->
-                <!-- <UPopover mode="hover">
-                    <UButton
-                        variant="outline"
-                        color="gray"
-                        class="hover:text-brand"
-                        size="xs"
-                        :ui="{
-                            rounded: 'rounded-xl',
-                            base: 'bg-base-100',
-                        }"
-                        >Location</UButton
-                    >
-                    <template #panel>
-                        <div class="min-w-72">
-                            <p class="border-b p-3 font-semibold">Filter by Location</p>
-                            <div class="max-h-52 space-y-3 overflow-x-auto bg-base-200 p-3">
-                                <UFormGroup label="Province" name="province">
-                                    <UInputMenu v-model="selectedProvinces" :options="provinces?.map(({ name }) => name ?? [])" />
-                                </UFormGroup>
-
-                                <UFormGroup label="City" name="city">
-                                    <UInputMenu v-model="selectedCities" :options="cities?.map(({ name }) => name ?? [])" />
-                                </UFormGroup>
-                            </div>
-                            <div class="flex justify-end gap-2 bg-base-200 p-3">
-                                <UButton variant="outline" size="sm">Cancel</UButton>
-                                <UButton size="sm">Apply</UButton>
-                            </div>
-                        </div>
-                    </template>
-                </UPopover> -->
             </div>
         </div>
 
