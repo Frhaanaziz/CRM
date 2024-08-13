@@ -93,7 +93,9 @@ const filteredInboxes = computed(() => {
                     >
                         {{ inbox.title }}
                     </NuxtLink>
-                    <p v-else class="shrink-0 text-sm" :class="{ 'font-semibold': !inbox.is_read }">{{ inbox.title }}</p>
+                    <p v-else class="shrink-0 text-sm" :class="{ 'font-semibold': !inbox.is_read }">
+                        {{ inbox.title.split(' <')?.at(0) }}
+                    </p>
                 </div>
 
                 <p class="col-span-9 truncate text-sm" :class="{ 'font-semibold': !inbox.is_read }">
