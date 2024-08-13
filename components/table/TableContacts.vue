@@ -24,12 +24,12 @@ const { columns, selectedColumns, tableColumns, selectedRows, selectRow, search,
                 sortable: true,
             },
             {
-                key: 'mainPhone',
+                key: 'main_phone',
                 label: 'Main Phone',
                 sortable: true,
             },
             {
-                key: 'mobilePhone',
+                key: 'mobile_phone',
                 label: 'Mobile Phone',
                 sortable: true,
             },
@@ -39,12 +39,12 @@ const { columns, selectedColumns, tableColumns, selectedRows, selectRow, search,
                 sortable: true,
             },
             {
-                key: 'isValidEmail',
+                key: 'is_valid_email',
                 label: 'Valid Email',
                 sortable: true,
             },
         ],
-        initialColumnKeys: ['first_name', 'email', 'company(name)', 'mobilePhone'],
+        initialColumnKeys: ['first_name', 'email', 'company(name)', 'mobile_phone'],
     });
 
 const { data: contactsPaginated, status } = await useLazyFetch('/api/contacts', {
@@ -55,16 +55,6 @@ const { data: contactsPaginated, status } = await useLazyFetch('/api/contacts', 
         sort: computed(() => sort.value.column),
         order: computed(() => sort.value.direction),
     },
-    transform: (data) => ({
-        ...data,
-        result: data.result.map((contact) => ({
-            ...contact,
-            fullName: getUserFullName(contact),
-            mainPhone: contact.main_phone,
-            mobilePhone: contact.mobile_phone,
-            isValidEmail: contact.is_valid_email,
-        })),
-    }),
     headers: useRequestHeaders(['cookie']),
 });
 
@@ -151,7 +141,7 @@ async function handleDeleteContacts() {
     >
         <template #first_name-data="{ row }">
             <NuxtLink :href="`/dashboard/customer/contacts/${row.id}`" class="text-brand hover:underline">
-                {{ row.fullName }}
+                {{ getUserFullName(row) }}
             </NuxtLink>
         </template>
 
@@ -159,7 +149,7 @@ async function handleDeleteContacts() {
             {{ row.company?.name }}
         </template>
 
-        <template #isValidEmail-data="{ row }">
+        <template #is_valid_email-data="{ row }">
             <UBadge variant="outline" :color="row.is_valid_email ? 'green' : 'red'">
                 {{ row.is_valid_email ? 'Yes' : 'No' }}
             </UBadge>
