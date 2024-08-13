@@ -44,6 +44,10 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
         isSubmitting.value = false;
     }
 }
+
+function getContact(id: string) {
+    return props.contacts.find((contact) => contact.id === parseInt(id));
+}
 </script>
 
 <template>
@@ -95,7 +99,71 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
             </LazyUForm>
         </div>
 
-        <ul v-if="!!contacts.length" class="text-slate-700">
+        <UAccordion
+            variant="outline"
+            multiple
+            :items="
+                contacts.map((contact) => ({
+                    content: contact.id.toString(),
+                    slot: contact.id.toString(),
+                }))
+            "
+            :ui="{
+                wrapper: 'w-full flex flex-col gap-2',
+            }"
+        >
+            <template #default="{ item, open }">
+                <button class="flex items-center justify-between px-2 py-1" :class="{ '[&:not(:last-child)]:border-b': !open }">
+                    <div class="text-start text-slate-700">
+                        <NuxtLink
+                            :href="`/dashboard/customer/contacts/${getContact(item.content)?.id}`"
+                            class="font-semibold text-brand"
+                        >
+                            {{ getUserFullName(getContact(item.content)) }}
+                        </NuxtLink>
+                        <p v-if="getContact(item.content)?.job_title" class="text-xs">
+                            {{ getContact(item.content)?.job_title }}
+                        </p>
+                    </div>
+                    <div class="flex gap-2">
+                        <UButton square icon="i-heroicons-envelope-solid" variant="ghost" color="black" disabled />
+                        <UButton
+                            square
+                            icon="i-heroicons-phone-solid"
+                            variant="ghost"
+                            color="black"
+                            :disabled="!getContact(item.content)?.mobile_phone"
+                            @click.stop="store.makeCall({ contact: getContact(item.content)!, lead_id })"
+                        />
+                    </div>
+                </button>
+            </template>
+
+            <template v-for="contact in contacts" :key="contact.id" #[contact.id.toString()]>
+                <ul class="space-y-2 px-2">
+                    <li class="grid grid-cols-12 items-center text-slate-700">
+                        <p class="col-span-4 font-semibold">Mobile Phone</p>
+                        <p class="col-span-8">{{ contact.mobile_phone ?? '---' }}</p>
+                    </li>
+                    <li class="grid grid-cols-12 items-center text-slate-700">
+                        <p class="col-span-4 font-semibold">Email</p>
+                        <p class="col-span-8">{{ contact.email ?? '---' }}</p>
+                    </li>
+                    <li class="grid grid-cols-12 items-center text-slate-700">
+                        <p class="col-span-4 font-semibold">LinkedIn</p>
+                        <p class="col-span-8 flex items-center justify-between gap-2">
+                            <span class="truncate">
+                                {{ contact.linkedin ?? '---' }}
+                            </span>
+                            <NuxtLink v-if="contact.linkedin" :href="contact.linkedin" external target="_blank">
+                                <UIcon name="i-heroicons-arrow-top-right-on-square" class="h-5 w-5 text-brand" />
+                            </NuxtLink>
+                        </p>
+                    </li>
+                </ul>
+            </template>
+        </UAccordion>
+        <!-- <ul v-if="!!contacts.length" class="text-slate-700">
             <li
                 v-for="contact in contacts"
                 :key="contact.id"
@@ -117,7 +185,7 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
                     />
                 </div>
             </li>
-        </ul>
+        </ul> -->
 
         <UButton
             v-if="!(isCreatingContact || contacts?.length > 0)"
