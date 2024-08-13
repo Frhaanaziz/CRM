@@ -251,7 +251,7 @@ async function handleDeleteLead() {
                         <ul class="col-span-8 space-y-2">
                             <li class="flex items-center gap-1.5">
                                 <UAvatar :src="lead.user?.photo ?? getFallbackAvatarUrl(getUserFullName(lead.user))" size="2xs" />
-                                <p class="truncate text-brand">{{ getUserFullName(lead.user) }}</p>
+                                <p class="truncate">{{ getUserFullName(lead.user) }}</p>
                             </li>
                             <li class="capitalize">{{ lead.source }}</li>
                             <li class="capitalize">{{ lead.rating?.name }}</li>
