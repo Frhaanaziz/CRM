@@ -6,7 +6,6 @@ watch(
     session,
     () => {
         if (session.value) {
-            console.log('session value', session.value);
             const sessionStore = userSessionStore();
             sessionStore.session = session.value;
             sessionStore.user = session.value.user;

@@ -120,7 +120,7 @@ function useCreateOrganization() {
             });
         } catch (e) {
             console.error('Error setup organization:', e);
-            toast.error(getErrorMessage(e));
+            // toast.error(getErrorMessage(e));
         } finally {
             isSubmitting.value = false;
         }
@@ -149,7 +149,7 @@ function useJoinOrganization() {
             });
         } catch (e) {
             console.error('Error join organization:', e);
-            toast.error(getErrorMessage(e));
+            // toast.error(getErrorMessage(e));
         } finally {
             isSubmitting.value = false;
         }

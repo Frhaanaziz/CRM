@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import { userSessionStore } from './stores/userSession';
-import { Chart as ChartJS, Filler, Tooltip, LineElement, PointElement, CategoryScale, LinearScale, ArcElement } from 'chart.js';
+import {
+    Chart as ChartJS,
+    Filler,
+    Tooltip,
+    LineElement,
+    PointElement,
+    CategoryScale,
+    LinearScale,
+    ArcElement,
+    BarElement,
+} from 'chart.js';
 import gradient from 'chartjs-plugin-gradient';
 
 /**
@@ -18,7 +28,10 @@ ChartJS.register(
     Filler,
 
     // Doughnut CHART
-    ArcElement
+    ArcElement,
+
+    // Bar CHART
+    BarElement
 );
 
 /**

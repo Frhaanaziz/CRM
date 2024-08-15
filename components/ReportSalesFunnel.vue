@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Bar } from 'vue-chartjs';
 defineProps<{
     range: {
         start_date: string;
@@ -35,12 +36,66 @@ const stats = ref([
             </li>
         </ul>
 
+        <div class="grid grid-cols-12">
+            <ul class="col-span-1 grid grid-cols-1 py-2">
+                <li class="space-y-1 px-2">
+                    <p class="rounded bg-blue-800 px-2 py-1 text-center font-semibold text-white">Qualified</p>
+                    <p class="px-2 py-1 text-center font-semibold text-gray-500">70 Days</p>
+                </li>
+                <li class="space-y-1 px-2">
+                    <p class="rounded bg-blue-800 px-2 py-1 text-center font-semibold text-white">Proposal Sent</p>
+                    <p class="px-2 py-1 text-center font-semibold text-gray-500">70 Days</p>
+                </li>
+                <li class="space-y-1 px-2">
+                    <p class="rounded bg-blue-800 px-2 py-1 text-center font-semibold text-white">Contract Sent</p>
+                    <p class="px-2 py-1 text-center font-semibold text-gray-500">70 Days</p>
+                </li>
+                <li class="space-y-1 px-2">
+                    <p class="rounded bg-blue-800 px-2 py-1 text-center font-semibold text-white">Won</p>
+                    <!-- <p class="px-2 py-1 text-center font-semibold text-gray-500">70 Days</p> -->
+                </li>
+            </ul>
+            <div class="col-span-11 h-[345px]">
+                <Bar
+                    :data="{
+                        labels: ['Qualified', 'Proposal Sent', 'Contract Sent', 'Won'],
+                        datasets: [
+                            {
+                                data: [65, 59, 80, 81],
+                                backgroundColor: [
+                                    'rgba(37, 99, 235, 1)',
+                                    'rgba(37, 99, 235, 1)',
+                                    'rgba(37, 99, 235, 1)',
+                                    'rgba(0, 161, 85, 1)',
+                                ],
+                                borderWidth: 0,
+                                borderRadius: 10,
+                                borderSkipped: false,
+
+                                barPercentage: 1,
+                                categoryPercentage: 0.9,
+                            },
+                        ],
+                    }"
+                    :options="{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        scales: {
+                            x: {
+                                display: false,
+                            },
+                            y: {
+                                display: false,
+                            },
+                        },
+                    }"
+                />
+            </div>
+        </div>
+
         <UTable
-            :rows="// opportunitiesData?.opportunity_leaderboard.map(({ name, total }) => ({
-            //     user: name,
-            //     revenue: total,
-            // })) ?? []
-            [
+            :rows="[
                 {
                     stage: 'Qualififed',
                     count: 20,
