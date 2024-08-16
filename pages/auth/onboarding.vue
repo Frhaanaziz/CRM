@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useStepper } from '@vueuse/core';
-import LazyModalConnectEmailManual from '~/components/modal/ModalConnectEmailManual.vue';
 
 const google_refresh_token = useRoute().query.refresh_token;
 const { user } = storeToRefs(userSessionStore());
@@ -21,53 +20,54 @@ const { data } = await useLazyAsyncData(
 const industriesOption = computed(() => data.value[0]);
 const sizesOption = computed(() => data.value[1]);
 
-const initialStep = google_refresh_token ? 'profile-setup' : 'connect-email';
-const stepper = useStepper(['connect-email', 'profile-setup', 'create-organization', 'join-organization'], initialStep);
+const firstStep = 'profile-setup';
+const stepper = useStepper(['profile-setup', 'create-organization', 'join-organization'], firstStep);
 
 const isSubmitting = ref(false);
 
-const modal = useModal();
-const { connectGmail } = useAuthorizeWithGoogle();
 const { profileForm, profileState, submitProfile } = useProfileSetup();
-const { createOrganizationForm, organizationState, submitOrganization } = useCreateOrganization();
-const { joinOrganizationForm, joinOrganizationState, submitJoinOrganization } = useJoinOrganization();
+const { createOrganizationForm, organizationState, createOrganization } = useCreateOrganization();
+const { joinOrganizationForm, joinOrganizationState, joinOrganization } = useJoinOrganization();
 
 const nextStep = () => {
-    if (stepper.isCurrent('connect-email')) {
-        stepper.goToNext();
-    } else if (stepper.isCurrent('profile-setup')) {
+    if (stepper.isCurrent('profile-setup')) {
         profileForm.value?.validate(['phone', 'expectation']).then(stepper.goToNext);
+    } else {
+        stepper.goToNext();
     }
 };
-async function submitForm() {
+
+async function submitJoinOrganization() {
     try {
-        if (joinOrganizationState.value.code) {
-            await profileForm.value?.validate();
-            await submitProfile();
+        await joinOrganizationForm.value?.validate();
 
-            await joinOrganizationForm.value?.validate();
-            await submitJoinOrganization();
+        await submitProfile();
+        await joinOrganization();
 
-            await useRefreshAuthSession();
+        await useRefreshAuthSession();
 
-            toast.success('You have successfully joined the organization.');
-            await navigateTo('/dashboard');
-        } else {
-            await profileForm.value?.validate();
-            await submitProfile();
-
-            await createOrganizationForm.value?.validate();
-            await submitOrganization();
-
-            await useRefreshAuthSession();
-
-            toast.success('You have successfully created an organization.');
-            await navigateTo('/dashboard');
-        }
+        toast.success('You have successfully joined the organization.');
+        await navigateTo('/dashboard');
     } catch (error) {
-        console.error('onboarding submitForm: ', error);
+        console.error('onboarding submitJoinOrganization: ', error);
     }
 }
+async function submitCreateOrganization() {
+    try {
+        await createOrganizationForm.value?.validate();
+
+        await submitProfile();
+        await createOrganization();
+
+        await useRefreshAuthSession();
+
+        toast.success('You have successfully created an organization.');
+        await navigateTo('/dashboard');
+    } catch (error) {
+        console.error('onboarding submitCreateOrganization: ', error);
+    }
+}
+
 function useProfileSetup() {
     const profileForm = ref();
     const state = ref({
@@ -110,7 +110,7 @@ function useCreateOrganization() {
         lead_source: '',
     });
 
-    async function onSubmit() {
+    async function createOrganization() {
         try {
             isSubmitting.value = true;
 
@@ -129,7 +129,7 @@ function useCreateOrganization() {
     return {
         createOrganizationForm,
         organizationState: state,
-        submitOrganization: onSubmit,
+        createOrganization,
     };
 }
 function useJoinOrganization() {
@@ -139,7 +139,7 @@ function useJoinOrganization() {
         email: user.value?.email,
     });
 
-    async function onSubmit() {
+    async function joinOrganization() {
         try {
             isSubmitting.value = true;
 
@@ -158,7 +158,7 @@ function useJoinOrganization() {
     return {
         joinOrganizationForm,
         joinOrganizationState: state,
-        submitJoinOrganization: onSubmit,
+        joinOrganization,
     };
 }
 </script>
@@ -169,16 +169,14 @@ function useJoinOrganization() {
             <NuxtImg src="/images/pipeline-logo.png" alt="pipeline" height="32" class="absolute left-0 top-0 p-10" />
         </NuxtLink>
 
-        <main class="relative mx-auto min-h-screen w-[800px]">
-            <section class="pt-20">
+        <main class="mx-auto flex min-h-screen w-[800px] flex-col">
+            <section class="my-10 pt-20">
                 <div class="space-y-10">
-                    <UProgress v-if="stepper.isCurrent('connect-email')" :value="33" class="pt-10" color="green" />
-                    <UProgress v-else-if="stepper.isCurrent('profile-setup')" :value="66" class="pt-10" color="green" />
+                    <UProgress v-if="stepper.isCurrent('profile-setup')" :value="66" class="pt-10" color="green" />
                     <UProgress v-else :value="99" class="pt-10" color="green" />
 
-                    <!-- <div v-if="stepper.isCurrent('profile-setup')" class="not-sr-only h-8" /> -->
                     <UButton
-                        v-if="!stepper.isFirst"
+                        v-if="!stepper.isCurrent(firstStep)"
                         icon="i-heroicons-chevron-left"
                         size="sm"
                         variant="ghost"
@@ -189,10 +187,7 @@ function useJoinOrganization() {
                     </UButton>
 
                     <div class="space-y-5 text-slate-700">
-                        <h1 v-if="stepper.isCurrent('connect-email')" class="text-4xl font-semibold">
-                            All sales activity in one place.
-                        </h1>
-                        <h1 v-else-if="stepper.isCurrent('profile-setup')" class="text-4xl font-semibold">
+                        <h1 v-if="stepper.isCurrent('profile-setup')" class="text-4xl font-semibold">
                             Tell us about yourself, {{ user?.user_metadata?.first_name }}.
                         </h1>
                         <h1 v-else-if="stepper.isCurrent('create-organization')" class="text-4xl font-semibold">
@@ -202,40 +197,11 @@ function useJoinOrganization() {
                             Enter Invite Code
                         </h1>
 
-                        <p v-if="stepper.isCurrent('connect-email')">Connect your email and your calendar</p>
-                        <p v-else-if="stepper.isCurrent('profile-setup')">Let's set up your profile</p>
+                        <p v-if="stepper.isCurrent('profile-setup')">Let's set up your profile</p>
                         <p v-else-if="stepper.isCurrent('create-organization')">Help us personalize your experience</p>
                         <p v-else-if="stepper.isCurrent('join-organization')">Get the invite code from organization owner.</p>
-
-                        <p v-if="stepper.isCurrent('connect-email')" class="text-slate-500">
-                            We'll sync email and meetings with Leads you add in Pipeline
-                        </p>
                     </div>
                 </div>
-
-                <template v-if="stepper.isCurrent('connect-email')">
-                    <NuxtImg src="/images/undraw-mail-opened.svg" alt="" height="247" width="280" class="my-10" />
-
-                    <!-- <UButton @click="async () => await connectGmail()"> -->
-                    <UButton @click="connectGmail">
-                        <NuxtImg src="/icons/google.svg" width="16" height="16" />
-                        Connect with Google
-                    </UButton>
-
-                    <p class="mt-4 text-slate-500">
-                        Or,
-                        <button
-                            class="underline"
-                            @click="
-                                modal.open(LazyModalConnectEmailManual, {
-                                    onClose: () => modal.close(),
-                                })
-                            "
-                        >
-                            use another email provider
-                        </button>
-                    </p>
-                </template>
 
                 <div class="mt-20">
                     <UForm
@@ -297,7 +263,6 @@ function useJoinOrganization() {
                             :schema="createOrganizationSchema"
                             :state="organizationState"
                             class="grid grid-cols-2 gap-4"
-                            @submit="submitOrganization"
                         >
                             <UFormGroup label="Company Name" name="name" required>
                                 <UInput
@@ -370,7 +335,6 @@ function useJoinOrganization() {
                         ref="joinOrganizationForm"
                         :schema="joinOrganizationSchema"
                         :state="joinOrganizationState"
-                        @submit="submitJoinOrganization"
                     >
                         <UFormGroup label="Invite Code" name="code" required>
                             <UInput
@@ -385,7 +349,7 @@ function useJoinOrganization() {
                 </div>
             </section>
 
-            <section class="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t pb-[60px] pt-10">
+            <section class="mt-auto flex items-center justify-between border-t pb-[60px] pt-10">
                 <div class="flex items-center gap-5">
                     <UButton color="gray" size="2xs" class="px-8" @click="signOutUser">Log Out</UButton>
                     <NuxtLink :href="`mailto:${supportEmail}`" external class="text-sm text-slate-700">
@@ -393,16 +357,23 @@ function useJoinOrganization() {
                     </NuxtLink>
                 </div>
 
+                <UButton v-if="stepper.isCurrent(firstStep)" size="2xs" class="px-8" @click="nextStep"> Next </UButton>
                 <UButton
-                    v-if="stepper.isCurrent('connect-email') || stepper.isCurrent('profile-setup')"
+                    v-else
                     size="2xs"
                     class="px-8"
-                    @click="nextStep"
-                    >Next</UButton
+                    :loading="isSubmitting"
+                    :disabled="isSubmitting"
+                    @click="
+                        () => {
+                            if (stepper.isCurrent('create-organization')) submitCreateOrganization();
+                            else if (stepper.isCurrent('join-organization')) submitJoinOrganization();
+                            else toast.error('Failed to submit form, please try again later.');
+                        }
+                    "
                 >
-                <UButton v-else size="2xs" class="px-8" :loading="isSubmitting" :disabled="isSubmitting" @click="submitForm"
-                    >Confirm</UButton
-                >
+                    Confirm
+                </UButton>
             </section>
         </main>
     </div>

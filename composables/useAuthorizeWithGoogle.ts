@@ -25,12 +25,7 @@ export function useAuthorizeWithGoogle() {
         }
     }
 
-    async function connectGmail() {
-        await navigateTo(`${backendUrl}/auth/google/connect`, { external: true });
-    }
-
     return {
         authorizeWithGoogle,
-        connectGmail,
     };
 }

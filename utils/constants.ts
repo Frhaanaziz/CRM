@@ -1,5 +1,3 @@
-export const backendUrl = 'https://api.idb2b.com';
-
 export const userStatuses = ['active', 'inactive'] as const;
 export const roleNames = ['owner', 'admin', 'manager', 'sales'] as const;
 export const priorityStatuses = ['urgent', 'high', 'medium', 'low'] as const;
