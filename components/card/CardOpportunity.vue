@@ -2,14 +2,42 @@
 import { useDateFormat } from '@vueuse/core';
 import type { Contact, Opportunity, OpportunityStatus } from '~/types';
 
-defineProps<{
+const props = defineProps<{
     opportunity: Opportunity & {
         status?: OpportunityStatus | null;
         contact?: Contact | null;
     };
 }>();
-
 const store = globalStore();
+
+const isUpdating = ref(false);
+
+const items = [
+    [
+        {
+            label: 'Delete',
+            icon: 'i-heroicons-trash-20-solid',
+            click: deleteOpportunity,
+        },
+    ],
+];
+
+async function deleteOpportunity() {
+    try {
+        isUpdating.value = true;
+
+        await $fetch(`/api/opportunities/${props.opportunity.id}`, {
+            method: 'DELETE',
+        });
+
+        await refreshNuxtData();
+    } catch (error) {
+        console.error('Error deleting opportunity', error);
+        toast.error('Failed to delete opportunity, please try again later.');
+    } finally {
+        isUpdating.value = false;
+    }
+}
 </script>
 
 <template>
@@ -18,7 +46,17 @@ const store = globalStore();
             <UBadge variant="subtle" size="xs" class="capitalize">
                 {{ opportunity.status?.name || '---' }}
             </UBadge>
-            <UButton variant="ghost" square color="black" icon="i-heroicons-ellipsis-vertical" disabled />
+
+            <UDropdown :items="items" :popper="{ placement: 'bottom-start' }">
+                <UButton
+                    :padded="false"
+                    icon="i-heroicons-ellipsis-vertical"
+                    square
+                    variant="ghost"
+                    color="black"
+                    :disabled="isUpdating"
+                />
+            </UDropdown>
         </div>
         <p class="font-semibold text-slate-900">
             {{ opportunity.est_revenue ? formatToRupiah(opportunity.est_revenue) : '---' }}
