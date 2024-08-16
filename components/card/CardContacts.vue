@@ -113,7 +113,10 @@ function getContact(id: string) {
             }"
         >
             <template #default="{ item, open }">
-                <button class="flex items-center justify-between px-2 py-1" :class="{ '[&:not(:last-child)]:border-b': !open }">
+                <div
+                    class="flex cursor-pointer items-center justify-between px-2 py-1"
+                    :class="{ '[&:not(:last-child)]:border-b': !open }"
+                >
                     <div class="text-start text-slate-700">
                         <NuxtLink
                             :href="`/dashboard/customer/contacts/${getContact(item.content)?.id}`"
@@ -136,7 +139,7 @@ function getContact(id: string) {
                             @click.stop="store.makeCall({ contact: getContact(item.content)!, lead_id })"
                         />
                     </div>
-                </button>
+                </div>
             </template>
 
             <template v-for="contact in contacts" :key="contact.id" #[contact.id.toString()]>
