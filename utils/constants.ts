@@ -11,6 +11,8 @@ export const opportunityCloseReasons = [
     'others',
 ] as const;
 export const opportunityPaymentPlans = ['one-time', 'weekly', 'monthly', 'annually'] as const;
+export const inboxTypes = ['email', 'call', 'task'] as const;
+
 export const activityTypes = [
     'qualified',
     'disqualified',
