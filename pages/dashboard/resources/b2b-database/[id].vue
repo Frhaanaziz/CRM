@@ -153,7 +153,7 @@ function getB2BContact(id: number) {
                     </ul>
                 </UCard>
 
-                <UCard :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">
+                <!-- <UCard :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">
                     <template #header>
                         <h2 class="font-semibold text-slate-700">Contacts</h2>
                     </template>
@@ -211,7 +211,7 @@ function getB2BContact(id: number) {
                             </ul>
                         </template>
                     </UAccordion>
-                </UCard>
+                </UCard> -->
             </div>
 
             <div class="col-span-8">

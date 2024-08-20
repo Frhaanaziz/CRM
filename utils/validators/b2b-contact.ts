@@ -29,13 +29,3 @@ export const B2BContactSchema = z.object({
     whatsapp: z.string().optional().nullable(),
     address: z.string().optional().nullable(),
 });
-
-export const addB2BContactSchema = B2BContactSchema.pick({
-    company_id: true,
-    email: true,
-    mobile_phone: true,
-}).extend({
-    first_name: z.string().trim().min(1, { message: 'First name is required.' }),
-    last_name: z.string().trim().min(1, { message: 'Last name is required.' }),
-    job_title: z.string().trim().min(1, { message: 'Job title is required.' }),
-});
