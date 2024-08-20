@@ -4,33 +4,35 @@ export default defineEventHandler(async (event) => {
     const fetchApi = await backendApi(event);
 
     interface IReports {
-        data: {
-            opportunity_data: {
-                total_act_revenue: number;
-                total_opportunity_won: number;
-                total_new_opportunities: number;
-                percentage_opportunity_won: number;
-                percentage_new_opportunities: number;
-                total_sales: { date: string; total: number }[];
-                opportunity_leaderboard: { name: string; total: number }[];
-                opportunity_lost_reason: Record<string, number>;
-                avg_deal_size: number;
-                avg_deal_age: number;
+        total_opportunity: number;
+        avg_deal_age: number | null;
+        avg_deal_size: number | null;
+        opportunity_status: {
+            [key: string]: {
+                count: number;
+                est_value?: number | null;
+                act_value: number;
             };
-            lead_data: {
-                total_new_leads: number;
-                percentage_new_leads: number;
-                leads_rating: Record<string, number>;
-                leads_industry: Record<string, number>;
-                leads_size: Record<string, number>;
-            };
+        };
+        opportunity_leaderboard: {
+            name: string;
+            opportunity_created: number;
+            total: number;
+            opportunity_won: number;
+        }[];
+        leads_industry: {
+            [key: string]: number;
+        };
+        leads_size: {
+            [key: string]: number;
         };
     }
 
     try {
-        const { data } = await fetchApi<IReports>(`/reports`, {
+        const { data } = await fetchApi<{ data: IReports }>(`/reports`, {
             query: getQuery(event),
         });
+
         return data;
     } catch (error) {
         console.error('Error getting reports (SERVER):', error);
