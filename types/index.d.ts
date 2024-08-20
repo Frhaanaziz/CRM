@@ -5,7 +5,6 @@ export type UserStatuses = Enums<'user_statuses'>;
 export type ActivityTypes = Enums<'activity_types'>;
 export type ActivityParticipantRoles = Enums<'activity_roles'>;
 export type PriorityStatuses = Enums<'priority_statuses'>;
-export type LeadSources = Enums<'source_name'>;
 
 export type User = Tables<'Users'>;
 export type Country = Tables<'Countries'>;

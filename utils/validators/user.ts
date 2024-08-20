@@ -21,6 +21,7 @@ export const userSchema = z.object({
     organization_id: z.coerce.number().optional().nullable(),
     twilio_agent_id: z.coerce.number().optional().nullable(),
     twilio_setting_id: z.coerce.number().optional().nullable(),
+    email_setting_id: z.coerce.number().optional().nullable(),
 });
 
 export const updateUserSchema = userSchema

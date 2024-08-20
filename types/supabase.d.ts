@@ -137,7 +137,6 @@ export type Database = {
           country_id: number | null
           created_at: string
           description: string | null
-          email: string | null
           founded: string | null
           id: number
           industry_id: number | null
@@ -145,7 +144,6 @@ export type Database = {
           location: string | null
           metadata: Json | null
           name: string
-          phone: string | null
           province_id: number | null
           size_id: number | null
           specialities: string | null
@@ -161,7 +159,6 @@ export type Database = {
           country_id?: number | null
           created_at?: string
           description?: string | null
-          email?: string | null
           founded?: string | null
           id?: number
           industry_id?: number | null
@@ -169,7 +166,6 @@ export type Database = {
           location?: string | null
           metadata?: Json | null
           name: string
-          phone?: string | null
           province_id?: number | null
           size_id?: number | null
           specialities?: string | null
@@ -185,7 +181,6 @@ export type Database = {
           country_id?: number | null
           created_at?: string
           description?: string | null
-          email?: string | null
           founded?: string | null
           id?: number
           industry_id?: number | null
@@ -193,7 +188,6 @@ export type Database = {
           location?: string | null
           metadata?: Json | null
           name?: string
-          phone?: string | null
           province_id?: number | null
           size_id?: number | null
           specialities?: string | null
@@ -580,6 +574,38 @@ export type Database = {
           },
         ]
       }
+      Contact_Notes: {
+        Row: {
+          contact_id: number
+          created_at: string
+          id: number
+          note: string
+          updated_at: string
+        }
+        Insert: {
+          contact_id: number
+          created_at?: string
+          id?: number
+          note: string
+          updated_at?: string
+        }
+        Update: {
+          contact_id?: number
+          created_at?: string
+          id?: number
+          note?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Contact_Notes_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "Contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Contacts: {
         Row: {
           address: string | null
@@ -733,17 +759,49 @@ export type Database = {
         }
         Relationships: []
       }
+      Email_Settings: {
+        Row: {
+          created_at: string
+          host: string
+          id: number
+          password: string
+          port: number
+          updated_at: string
+          user: string
+        }
+        Insert: {
+          created_at?: string
+          host: string
+          id?: number
+          password: string
+          port: number
+          updated_at?: string
+          user: string
+        }
+        Update: {
+          created_at?: string
+          host?: string
+          id?: number
+          password?: string
+          port?: number
+          updated_at?: string
+          user?: string
+        }
+        Relationships: []
+      }
       Inboxes: {
         Row: {
           call_log_id: number | null
           created_at: string
           description: string | null
+          email_body: string | null
           email_id: string | null
           id: number
           is_read: boolean
           organization_id: number
           subject: string
           task_id: number | null
+          thread_id: string | null
           title: string
           type: Database["public"]["Enums"]["inbox_type"]
           updated_at: string
@@ -753,12 +811,14 @@ export type Database = {
           call_log_id?: number | null
           created_at?: string
           description?: string | null
+          email_body?: string | null
           email_id?: string | null
           id?: number
           is_read?: boolean
           organization_id: number
           subject: string
           task_id?: number | null
+          thread_id?: string | null
           title: string
           type: Database["public"]["Enums"]["inbox_type"]
           updated_at?: string
@@ -768,12 +828,14 @@ export type Database = {
           call_log_id?: number | null
           created_at?: string
           description?: string | null
+          email_body?: string | null
           email_id?: string | null
           id?: number
           is_read?: boolean
           organization_id?: number
           subject?: string
           task_id?: number | null
+          thread_id?: string | null
           title?: string
           type?: Database["public"]["Enums"]["inbox_type"]
           updated_at?: string
@@ -896,7 +958,7 @@ export type Database = {
           id: number
           organization_id: number
           rating_id: number
-          source: Database["public"]["Enums"]["source_name"] | null
+          source: string | null
           status: string | null
           updated_at: string | null
           user_id: string
@@ -907,7 +969,7 @@ export type Database = {
           id?: number
           organization_id: number
           rating_id: number
-          source?: Database["public"]["Enums"]["source_name"] | null
+          source?: string | null
           status?: string | null
           updated_at?: string | null
           user_id: string
@@ -918,7 +980,7 @@ export type Database = {
           id?: number
           organization_id?: number
           rating_id?: number
-          source?: Database["public"]["Enums"]["source_name"] | null
+          source?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string
@@ -1458,6 +1520,7 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          email_setting_id: number | null
           expectation: string[] | null
           first_name: string
           google_refresh_token: string | null
@@ -1476,6 +1539,7 @@ export type Database = {
         Insert: {
           created_at?: string
           email: string
+          email_setting_id?: number | null
           expectation?: string[] | null
           first_name: string
           google_refresh_token?: string | null
@@ -1494,6 +1558,7 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string
+          email_setting_id?: number | null
           expectation?: string[] | null
           first_name?: string
           google_refresh_token?: string | null
@@ -1510,6 +1575,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "Users_email_setting_id_fkey"
+            columns: ["email_setting_id"]
+            isOneToOne: false
+            referencedRelation: "Email_Settings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "Users_id_fkey"
             columns: ["id"]
@@ -1630,34 +1702,12 @@ export type Database = {
         | "communication"
         | "decision making"
         | "others"
-      company_statuses: "new" | "qualified" | "disqualified"
-      contact_statuses: "new" | "qualified" | "disqualified"
       currencies: "idr" | "usd"
-      disqualify_reasons:
-        | "lost"
-        | "cannot contact"
-        | "no longer interested"
-        | "canceled"
       inbox_type: "email" | "call" | "task"
-      lead_statuses: "new" | "contacted" | "qualified" | "disqualified"
-      method_name: "email" | "note" | "call"
-      opportunity_statuses:
-        | "qualified"
-        | "proposal send"
-        | "contract send"
-        | "won"
-        | "lost"
       payment_plans: "one-time" | "weekly" | "monthly" | "annually"
       priority_statuses: "urgent" | "high" | "medium" | "low"
       rating_name: "cool" | "warm" | "hot"
       role_names: "owner" | "admin" | "manager" | "sales"
-      source_name:
-        | "google"
-        | "linkedin"
-        | "manual"
-        | "idb2b"
-        | "workfrom"
-        | "b2b database"
       user_statuses: "active" | "inactive"
     }
     CompositeTypes: {

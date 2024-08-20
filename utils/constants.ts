@@ -1,7 +1,6 @@
 export const userStatuses = ['active', 'inactive'] as const;
 export const roleNames = ['owner', 'admin', 'manager', 'sales'] as const;
 export const priorityStatuses = ['urgent', 'high', 'medium', 'low'] as const;
-export const leadSources = ['google', 'linkedin', 'manual', 'idb2b', 'workfrom'] as const;
 export const opportunityCloseReasons = [
     'pricing',
     'competition',

@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { leadSources } from '../constants';
 
 export const leadSchema = z.object({
     company_id: z.coerce.number().int(),
@@ -8,7 +7,7 @@ export const leadSchema = z.object({
     status: z.string().optional().nullable(),
     rating_id: z.coerce.number().int(),
     updated_at: z.coerce.date().optional().nullable(),
-    source: z.enum(leadSources),
+    source: z.string().optional().nullable(),
     user_id: z.string().trim(),
     organization_id: z.coerce.number().int(),
 });
