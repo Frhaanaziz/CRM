@@ -80,26 +80,10 @@ async function handleDeleteContact() {
                 </template>
             </div>
 
-            <div v-if="contact && contact.company" class="flex items-center justify-between p-4">
-                <div class="flex items-center gap-2">
-                    <UAvatar :src="getUserFallbackAvatarUrl(contact)" size="md" />
-
-                    <div class="flex flex-col gap-1">
-                        <h1 class="text-xl font-semibold">{{ getUserFullName(contact) }}</h1>
-                        <p v-if="contact.job_title" class="text-sm">
-                            {{ contact.job_title }} &middot; {{ contact.company.name }}
-                        </p>
-                        <p v-else class="text-sm">{{ contact.company.name }}</p>
-                    </div>
-                </div>
-
-                <div v-if="contact.user" class="flex items-center gap-2">
-                    <UAvatar :src="contact.user.photo ?? getUserFallbackAvatarUrl(contact.user)" />
-                    <div>
-                        <p class="font-semibold">{{ getUserFullName(contact.user) }}</p>
-                        <p class="text-xs">Owner</p>
-                    </div>
-                </div>
+            <div v-if="contact && contact.company" class="space-y-1 p-4">
+                <h1 class="text-xl font-semibold">{{ getUserFullName(contact) }}</h1>
+                <p class="text-sm">{{ contact.company?.name }}</p>
+                <!-- <NuxtLink :href="`/dashboard/pipeline/leads/${contact.company.}`" class="text-sm text-brand">{{ contact.company.name }}</NuxtLink> -->
             </div>
         </header>
 

@@ -98,46 +98,24 @@ async function verifyEmail() {
 <template>
     <UCard v-if="contact">
         <template #header>
-            <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold">CONTACT</h2>
-                <UButton
-                    v-if="!contact.is_valid_email || contact.email"
-                    variant="outline"
-                    :disabled="isVerifyingEmail"
-                    @click="verifyEmail"
-                >
-                    Verify Email
-                </UButton>
-            </div>
+            <h2 class="font-semibold text-slate-700">Contact Information</h2>
         </template>
 
-        <div class="flex gap-6 text-sm sm:text-base">
-            <div class="text-weak grid shrink-0 grid-rows-7 gap-y-8">
-                <p>Email</p>
-                <p>First Name</p>
-                <p>Last Name</p>
-                <p>Job Title</p>
-                <p>Mobile Phone</p>
-                <p>Whatsapp</p>
-                <p>LinkedIn URL</p>
-                <!-- <p>Preferred Method of Contact</p> -->
-            </div>
-
-            <UForm
-                ref="formRef"
-                :schema="updateContactSchema"
-                :state="updateState"
-                class="grid grow grid-rows-7 items-center gap-y-6 font-semibold"
-                :disabled="isUpdating"
-                @submit="updateContact"
-                @error="console.error"
-            >
-                <UFormGroup name="email">
-                    <div class="flex items-center gap-2">
+        <UForm
+            ref="formRef"
+            :schema="updateContactSchema"
+            :state="updateState"
+            :disabled="isUpdating"
+            @submit="updateContact"
+            @error="console.error"
+        >
+            <ul class="grid grid-cols-1 gap-2 text-slate-700">
+                <li class="grid grid-cols-12 items-center gap-4">
+                    <p class="col-span-3 font-semibold">First Name</p>
+                    <UFormGroup name="first_name" class="col-span-9">
                         <UInput
-                            v-model="updateState.email"
+                            v-model="updateState.first_name"
                             placeholder="---"
-                            class="flex-1"
                             :ui="{
                                 color: {
                                     white: {
@@ -145,88 +123,126 @@ async function verifyEmail() {
                                     },
                                 },
                             }"
-                        >
-                            <template v-if="contact.email" #leading>
-                                <UIcon
-                                    v-if="contact.is_valid_email"
-                                    name="i-heroicons-shield-check"
-                                    class="h-5 w-5 text-green-700"
-                                />
-                                <UIcon v-else name="i-heroicons-shield-exclamation" class="h-5 w-5 text-red-700" />
-                            </template>
-                        </UInput>
-                    </div>
-                </UFormGroup>
-
-                <UFormGroup name="first_name">
-                    <UInput
-                        v-model="updateState.first_name"
-                        placeholder="---"
-                        :ui="{
-                            color: {
-                                white: {
-                                    outline: 'ring-0 shadow-none hover:ring-1 ',
+                        />
+                    </UFormGroup>
+                </li>
+                <li class="grid grid-cols-12 items-center gap-4">
+                    <p class="col-span-3 font-semibold">Last Name</p>
+                    <UFormGroup name="last_name" class="col-span-9">
+                        <UInput
+                            v-model="updateState.last_name"
+                            placeholder="---"
+                            :ui="{
+                                color: {
+                                    white: {
+                                        outline: 'ring-0 shadow-none hover:ring-1 ',
+                                    },
                                 },
-                            },
-                        }"
-                    />
-                </UFormGroup>
-
-                <UFormGroup name="last_name">
-                    <UInput
-                        v-model="updateState.last_name"
-                        placeholder="---"
-                        :ui="{
-                            color: {
-                                white: {
-                                    outline: 'ring-0 shadow-none hover:ring-1 ',
+                            }"
+                        />
+                    </UFormGroup>
+                </li>
+                <li class="grid grid-cols-12 items-center gap-4">
+                    <p class="col-span-3 font-semibold">Title</p>
+                    <UFormGroup name="job_title" class="col-span-9">
+                        <UInput
+                            v-model="updateState.job_title"
+                            placeholder="---"
+                            :ui="{
+                                color: {
+                                    white: {
+                                        outline: 'ring-0 shadow-none hover:ring-1 ',
+                                    },
                                 },
-                            },
-                        }"
-                    />
-                </UFormGroup>
-
-                <UFormGroup name="job_title">
-                    <UInput
-                        v-model="updateState.job_title"
-                        placeholder="---"
-                        :ui="{
-                            color: {
-                                white: {
-                                    outline: 'ring-0 shadow-none hover:ring-1 ',
+                            }"
+                        />
+                    </UFormGroup>
+                </li>
+                <li class="grid grid-cols-12 items-center gap-4">
+                    <p class="col-span-3 font-semibold">Mobile Phone</p>
+                    <UFormGroup name="mobile_phone" class="col-span-9">
+                        <UInput
+                            v-model="updateState.mobile_phone"
+                            placeholder="---"
+                            :ui="{
+                                color: {
+                                    white: {
+                                        outline: 'ring-0 shadow-none hover:ring-1 ',
+                                    },
                                 },
-                            },
-                        }"
-                    />
-                </UFormGroup>
+                            }"
+                        />
+                    </UFormGroup>
+                </li>
+                <li class="grid grid-cols-12 items-center gap-4">
+                    <p class="col-span-3 font-semibold">Email</p>
+                    <UFormGroup name="email" class="col-span-9">
+                        <div class="flex items-center gap-2">
+                            <UInput
+                                v-model="updateState.email"
+                                placeholder="---"
+                                class="flex-1"
+                                :ui="{
+                                    color: {
+                                        white: {
+                                            outline: 'ring-0 shadow-none hover:ring-1 ',
+                                        },
+                                    },
+                                }"
+                            >
+                                <template v-if="contact.email" #leading>
+                                    <UIcon
+                                        v-if="contact.is_valid_email"
+                                        name="i-heroicons-shield-check"
+                                        class="h-5 w-5 text-green-700"
+                                    />
+                                    <UIcon v-else name="i-heroicons-shield-exclamation" class="h-5 w-5 text-red-700" />
+                                </template>
+                            </UInput>
 
-                <UFormGroup name="mobile_phone">
-                    <UInput
-                        v-model="updateState.mobile_phone"
-                        placeholder="---"
-                        :ui="{
-                            color: {
-                                white: {
-                                    outline: 'ring-0 shadow-none hover:ring-1 ',
-                                },
-                            },
-                        }"
-                    />
-                </UFormGroup>
-
-                <UFormGroup name="whatsapp">
-                    <UInput
-                        v-model="updateState.whatsapp"
-                        placeholder="---"
-                        :ui="{
-                            color: {
-                                white: {
-                                    outline: 'ring-0 shadow-none hover:ring-1 ',
-                                },
-                            },
-                        }"
-                    />
-                </UFormGroup>
+                            <UButton
+                                v-if="!contact.is_valid_email || contact.email"
+                                variant="outline"
+                                size="xs"
+                                :disabled="isVerifyingEmail"
+                                @click="verifyEmail"
+                            >
+                                Verify
+                            </UButton>
+                        </div>
+                    </UFormGroup>
+                </li>
+                <li class="grid grid-cols-12 items-center gap-4">
+                    <p class="col-span-3 font-semibold">Linkedin</p>
+                    <UFormGroup name="linkedin" class="col-span-9">
+                        <div class="flex items-center gap-2">
+                            <UInput
+                                v-model="updateState.linkedin"
+                                class="flex-1"
+                                placeholder="---"
+                                :ui="{
+                                    color: {
+                                        white: {
+                                            outline: 'ring-0 shadow-none hover:ring-1  text-brand',
+                                        },
+                                    },
+                                }"
+                            />
+                            <NuxtLink
+                                v-if="contact.linkedin"
+                                :href="contact.linkedin"
+                                target="_blank"
+                                external
+                                class="grid content-center"
+                            >
+                                <UIcon name="i-heroicons-arrow-top-right-on-square" color="black" class="h-5 w-5" />
+                            </NuxtLink>
+                        </div>
+                    </UFormGroup>
+                </li>
+            </ul>
+        </UForm>
+        <!-- <div class="flex gap-6 text-sm sm:text-base">
 
                 <UFormGroup name="linkedin">
                     <div class="flex items-center justify-between gap-2">
@@ -253,18 +269,6 @@ async function verifyEmail() {
                         </NuxtLink>
                     </div>
                 </UFormGroup>
-            </UForm>
-            <!-- <div class="grid grow grid-rows-7 gap-y-8 font-semibold">
-                <p class="line-clamp-1">{{ contact.email ?? '---' }}</p>
-                <p class="line-clamp-1">{{ contact.first_name ?? '---' }}</p>
-                <p class="line-clamp-1">{{ contact.last_name ?? '---' }}</p>
-                <p class="line-clamp-1">{{ contact.job_title ?? '---' }}</p>
-                <p class="line-clamp-1">{{ contact.mobile_phone ?? '---' }}</p>
-                <p class="line-clamp-1">{{ contact.whatsapp ?? '---' }}</p>
-                <NuxtLink v-if="contact.linkedin" :href="contact.linkedin" external class="line-clamp-1 text-brand">{{
-                    contact.linkedin
-                }}</NuxtLink>
-            </div> -->
-        </div>
+        </div> -->
     </UCard>
 </template>

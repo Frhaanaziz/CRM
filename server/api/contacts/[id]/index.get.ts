@@ -5,8 +5,7 @@ export default defineEventHandler(async (event) => {
     const id = event.context.params!.id;
 
     interface IContact extends Contact {
-        company: Company | null;
-        user: User | null;
+        company?: Company | null;
     }
 
     try {
