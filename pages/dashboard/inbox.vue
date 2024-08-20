@@ -69,13 +69,6 @@ const {
         is_read,
     },
     headers: useRequestHeaders(['cookie']),
-    transform: (data) => ({
-        ...data,
-        result: [
-            ...data.result,
-            { id: 0, type: 'call', subject: 'Missed Call', created_at: new Date().toISOString(), is_read: false },
-        ],
-    }),
 });
 
 const isCreatingLead = ref(false);
