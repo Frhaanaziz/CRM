@@ -9,7 +9,7 @@ async function resendEmail() {
     try {
         isSending.value = true;
 
-        await $fetch('/api/auth/resend-verification-email', {
+        await $fetch('/api/auth/resend-verification', {
             method: 'POST',
             body: JSON.stringify({ email }),
         });
