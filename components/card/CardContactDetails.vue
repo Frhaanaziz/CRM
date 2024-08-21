@@ -26,7 +26,6 @@ function useUpdateContact() {
     const isUpdating = ref(false);
 
     const initialState = {
-        id: contact.value.id,
         company_id: contact.value.company_id,
         email: contact.value.email || undefined,
         first_name: contact.value.first_name || undefined,
@@ -53,7 +52,7 @@ function useUpdateContact() {
             isUpdating.value = true;
 
             await $fetch(`/api/contacts/${contact.value.id}`, {
-                method: 'PUT',
+                method: 'PATCH',
                 body: JSON.stringify(event.data),
             });
 
@@ -80,8 +79,8 @@ async function verifyEmail() {
         });
 
         await $fetch(`/api/contacts/${contact.value.id}`, {
-            method: 'PUT',
-            body: JSON.stringify({ id: contact.value.id, is_valid_email: true }),
+            method: 'PATCH',
+            body: JSON.stringify({ is_valid_email: true }),
         });
 
         await refreshNuxtData();

@@ -39,10 +39,7 @@ export const updateContactSchema = contactSchema
         company_id: true,
         is_valid_email: true,
     })
-    .partial()
-    .extend({
-        id: z.coerce.number().int(),
-    });
+    .partial();
 
 export const addContactSchema = contactSchema
     .pick({
