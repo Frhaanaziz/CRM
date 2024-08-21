@@ -1,28 +1,21 @@
-import type { Database } from '~/types/supabase';
-import { serverSupabaseClient } from '#supabase/server';
+import type { Role, User } from '~/types';
+import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
+    const organizationId = event.context.params?.id;
+    if (!organizationId) throw createError({ status: 400, statusMessage: 'Organization id is needed' });
 
-    const organizationId = event.context.params!.id;
-
-    const res = await supabase
-        .from('Users')
-        .select(
-            `
-            *,
-            role: Roles(name)
-            `
-        )
-        .order('created_at', { ascending: false })
-        .eq('organization_id', organizationId);
-    if (res.error) {
-        console.error('Error fetching organization users', res.error);
-        throw createError({
-            status: 500,
-            statusMessage: res.error.message,
-        });
+    interface IUser extends User {
+        role?: Pick<Role, 'name'> | null;
     }
 
-    return res.data;
+    try {
+        const fetchApi = await backendApi(event);
+        const { data } = await fetchApi<{ data: IUser[] }>(`/organizations/${organizationId}/users`);
+
+        return data;
+    } catch (error) {
+        console.error('Error getting organization users (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
+    }
 });

@@ -1,24 +1,17 @@
-import type { Database } from '~/types/supabase';
-import { serverSupabaseClient } from '#supabase/server';
+import type { Company } from '~/types';
+import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
-
     const organizationId = event.context.params?.id;
     if (!organizationId) throw createError({ status: 400, statusMessage: 'Organization id is needed' });
 
-    const res = await supabase
-        .from('Companies')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .eq('organization_id', organizationId);
-    if (res.error) {
-        console.error('Error fetching organization companies', res.error);
-        throw createError({
-            status: 500,
-            statusMessage: res.error.message,
-        });
-    }
+    try {
+        const fetchApi = await backendApi(event);
+        const { data } = await fetchApi<{ data: Company[] }>(`/organizations/${organizationId}/companies`);
 
-    return res.data;
+        return data;
+    } catch (error) {
+        console.error('Error getting organization companies (SERVER):', error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
+    }
 });
