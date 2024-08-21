@@ -62,8 +62,8 @@ const accordionItems = computed(() =>
             }) satisfies AccordionItem
     )
 );
-function getB2BContact(id: number) {
-    return company.value!.contacts?.find((contact) => contact.id === id);
+function getContact(id: string) {
+    return company.value!.contacts?.find((contact) => contact.id === parseInt(id));
 }
 </script>
 
@@ -151,6 +151,75 @@ function getB2BContact(id: number) {
                             <p class="col-span-9">{{ company.zip_code ?? '---' }}</p>
                         </li>
                     </ul>
+                </UCard>
+
+                <UCard :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">
+                    <template #header>
+                        <h2 class="font-semibold text-slate-700">Contacts</h2>
+                    </template>
+
+                    <UAccordion
+                        variant="outline"
+                        multiple
+                        :items="accordionItems"
+                        :ui="{
+                            wrapper: 'w-full flex flex-col gap-2',
+                            item: { base: 'border-b' },
+                        }"
+                    >
+                        <template #default="{ item, open }">
+                            <div
+                                class="flex cursor-pointer items-center justify-between px-2 py-1 transition"
+                                :class="{ '[&:not(:last-child)]:border-b': !open }"
+                            >
+                                <div class="text-start text-slate-700">
+                                    <NuxtLink
+                                        :href="`/dashboard/customer/contacts/${getContact(item.content)?.id}`"
+                                        class="font-semibold text-brand"
+                                    >
+                                        {{ getUserFullName(getContact(item.content)) }}
+                                    </NuxtLink>
+                                    <p v-if="getContact(item.content)?.job_title" class="text-xs">
+                                        {{ getContact(item.content)?.job_title }}
+                                    </p>
+                                </div>
+                                <UButton
+                                    square
+                                    icon="i-heroicons-chevron-down"
+                                    variant="ghost"
+                                    color="black"
+                                    disabled
+                                    class="transition"
+                                    :class="{ 'rotate-180': open }"
+                                />
+                            </div>
+                        </template>
+
+                        <template v-for="b2b_contact in company.contacts" :key="b2b_contact.id" #[b2b_contact.id.toString()]>
+                            <ul class="space-y-2 px-2">
+                                <li class="grid grid-cols-12 items-center text-slate-700">
+                                    <p class="col-span-4 font-semibold">Email</p>
+                                    <p class="col-span-8">{{ b2b_contact.email ?? '---' }}</p>
+                                </li>
+                                <li class="grid grid-cols-12 items-center text-slate-700">
+                                    <p class="col-span-4 font-semibold">LinkedIn</p>
+                                    <p class="col-span-8 flex items-center justify-between gap-2">
+                                        <span class="truncate">
+                                            {{ b2b_contact.linkedin ?? '---' }}
+                                        </span>
+                                        <NuxtLink
+                                            v-if="b2b_contact.linkedin"
+                                            :href="b2b_contact.linkedin"
+                                            external
+                                            target="_blank"
+                                        >
+                                            <UIcon name="i-heroicons-arrow-top-right-on-square" class="h-5 w-5 text-brand" />
+                                        </NuxtLink>
+                                    </p>
+                                </li>
+                            </ul>
+                        </template>
+                    </UAccordion>
                 </UCard>
 
                 <!-- <UCard :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">

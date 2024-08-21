@@ -6,7 +6,7 @@ export const companySchema = z.object({
     country_id: z.coerce.number().int().optional().nullable(),
     created_at: z.coerce.date(),
     industry_id: z.coerce.number().int().optional().nullable(),
-    linkedin: z.string().optional().nullable(),
+    linkedin: z.string().url({ message: 'Invalid LinkedIn URL' }).optional().nullable(),
     name: z.string().trim().min(1, { message: 'Name is required' }),
     postal_code: z.string().optional().nullable(),
     province_id: z.coerce.number().int().optional().nullable(),
