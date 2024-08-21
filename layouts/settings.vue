@@ -36,6 +36,11 @@ const navigations = computed(() => {
                     href: '/dashboard/settings/organization/team',
                     current: isCurrent('/settings/organization/team'),
                 },
+                {
+                    name: 'Lead Settings',
+                    href: '/dashboard/settings/organization/lead-settings',
+                    current: isCurrent('/settings/organization/lead-settings'),
+                },
             ],
         },
         {
@@ -59,17 +64,15 @@ const navigations = computed(() => {
             <ul class="divide-y-2 text-sm">
                 <li v-for="navigationLinks in navigations" :key="navigationLinks.id" class="py-5">
                     <p v-if="navigationLinks.name" class="text-xs font-semibold">{{ navigationLinks.name }}</p>
-                    <div class="flex flex-col">
-                        <NuxtLink
-                            v-for="link in navigationLinks.links"
-                            :key="link.href"
-                            :href="link.href"
-                            class="py-3 transition-colors hover:text-brand"
-                            :class="[link.current ? 'text-brand' : '']"
-                        >
-                            {{ link.name }}
-                        </NuxtLink>
-                    </div>
+                    <NuxtLink
+                        v-for="link in navigationLinks.links"
+                        :key="link.href"
+                        :href="link.href"
+                        class="block py-2 transition-colors hover:text-brand"
+                        :class="[link.current ? 'text-brand' : '']"
+                    >
+                        {{ link.name }}
+                    </NuxtLink>
                 </li>
                 <li class="py-5">
                     <button
