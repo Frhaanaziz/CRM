@@ -1,14 +1,16 @@
-import { serverSupabaseClient } from '#supabase/server';
-import type { Database } from '~/types/supabase';
+import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
+    const id = event.context.params?.id;
+    if (!id) throw createError({ status: 400, statusMessage: 'No opportunity status ID provided.' });
 
-    const id = event.context.params!.id;
-
-    const { error } = await supabase.from('Opportunity_Statuses').delete().eq('id', id);
-    if (error) {
+    try {
+        const fetchApi = await backendApi(event);
+        await fetchApi(`/opportunity-statuses/${id}`, {
+            method: 'DELETE',
+        });
+    } catch (error) {
         console.error(`Error deleteing opportunity status with id: ${id}:`, error);
-        throw createError({ status: 400, statusMessage: error.message });
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
 });
