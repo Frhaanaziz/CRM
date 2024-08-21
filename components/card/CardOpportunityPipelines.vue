@@ -37,7 +37,6 @@ function useEditOpportunityStatus() {
     const isEditing = ref(false);
 
     const initialState = {
-        id: opportunityStatus.value.id,
         name: opportunityStatus.value.name,
     };
     const editState = ref<EditOpportunityStatusType>({ ...initialState });
@@ -45,8 +44,8 @@ function useEditOpportunityStatus() {
         try {
             isEditing.value = true;
 
-            await $fetch(`/api/opportunity-statuses/${event.data.id}`, {
-                method: 'PUT',
+            await $fetch(`/api/opportunity-statuses/${opportunityStatus.value.id}`, {
+                method: 'PATCH',
                 body: JSON.stringify(event.data),
             });
 
