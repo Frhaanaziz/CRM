@@ -162,7 +162,8 @@ async function readInbox(data: z.infer<typeof readInboxSchema>) {
             :rows="
                 inboxesPaginated?.result.map((inbox) => ({
                     ...inbox,
-                    created_at: { value: inbox.created_at, class: 'w-56 max-w-56' },
+                    subject: { value: inbox.subject, class: '' },
+                    // created_at: { value: inbox.created_at, class: 'w-56 max-w-56' },
                 })) ?? []
             "
             :columns
@@ -170,7 +171,8 @@ async function readInbox(data: z.infer<typeof readInboxSchema>) {
             class="w- w-full"
             :ui="{
                 tr: { base: '[&>td]:hover:bg-base-200' },
-                td: { base: 'max-w-[0] truncate text-default' },
+                td: { base: 'truncate text-default' },
+                th: { base: 'text-nowrap' },
             }"
             @select="selectRow"
         >
@@ -212,27 +214,27 @@ async function readInbox(data: z.infer<typeof readInboxSchema>) {
 
             <template #subject-data="{ row }">
                 <p class="text-sm" :class="{ 'font-semibold': !row.is_read }">
-                    {{ row.subject }}
-                    <span v-if="row.description" class="text-gray-400"> - {{ row.description }}</span>
+                    {{ row.subject.value }}
+                    <span v-if="row.description" class="text-gray-400"> - {{ truncateString(row.description, 100) }}</span>
                 </p>
             </template>
 
             <template #created_at-data="{ row }">
                 <!-- isToday  -->
                 <NuxtTime
-                    v-if="new Date(row.created_at.value).toDateString() === new Date().toDateString()"
+                    v-if="new Date(row.created_at).toDateString() === new Date().toDateString()"
                     class="text-right text-sm"
                     :class="{ 'font-semibold': !row.is_read }"
-                    :datetime="row.created_at.value"
+                    :datetime="row.created_at"
                     hour="numeric"
                     minute="2-digit"
                 />
                 <!-- isThisYear  -->
                 <NuxtTime
-                    v-else-if="new Date(row.created_at.value).getFullYear() === new Date().getFullYear()"
+                    v-else-if="new Date(row.created_at).getFullYear() === new Date().getFullYear()"
                     class="text-right text-sm"
                     :class="{ 'font-semibold': !row.is_read }"
-                    :datetime="row.created_at.value"
+                    :datetime="row.created_at"
                     month="short"
                     day="numeric"
                 />
@@ -240,7 +242,7 @@ async function readInbox(data: z.infer<typeof readInboxSchema>) {
                     v-else
                     class="text-right text-sm"
                     :class="{ 'font-semibold': !row.is_read }"
-                    :datetime="row.created_at.value"
+                    :datetime="row.created_at"
                     month="short"
                     day="numeric"
                     year="numeric"
