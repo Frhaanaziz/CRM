@@ -43,11 +43,6 @@ const navigations = computed(() => {
             name: 'Connect',
             links: [
                 {
-                    name: 'Integrations',
-                    href: '/dashboard/settings/connect/integrations',
-                    current: isCurrent('/settings/connect/integrations'),
-                },
-                {
                     name: 'Twilio',
                     href: '/dashboard/settings/connect/twilio',
                     current: isCurrent('/settings/connect/twilio'),
