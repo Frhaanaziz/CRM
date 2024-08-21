@@ -88,7 +88,7 @@ function useSignUp() {
             <template v-if="invitation">
                 <p class="text-slate-700">
                     You’ve receive an invitation from {{ getUserFullName(invitation.user) }} to join
-                    {{ invitation.organization?.name }}
+                    {{ invitation.org?.name }}
                 </p>
             </template>
             <template v-else>
