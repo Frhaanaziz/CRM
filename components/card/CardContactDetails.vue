@@ -111,8 +111,8 @@ async function verifyEmail() {
         >
             <ul class="grid grid-cols-1 gap-2 text-slate-700">
                 <li class="grid grid-cols-12 items-center gap-4">
-                    <p class="col-span-3 font-semibold">First Name</p>
-                    <UFormGroup name="first_name" class="col-span-9">
+                    <p class="col-span-4 font-semibold">First Name</p>
+                    <UFormGroup name="first_name" class="col-span-8">
                         <UInput
                             v-model="updateState.first_name"
                             placeholder="---"
@@ -127,8 +127,8 @@ async function verifyEmail() {
                     </UFormGroup>
                 </li>
                 <li class="grid grid-cols-12 items-center gap-4">
-                    <p class="col-span-3 font-semibold">Last Name</p>
-                    <UFormGroup name="last_name" class="col-span-9">
+                    <p class="col-span-4 font-semibold">Last Name</p>
+                    <UFormGroup name="last_name" class="col-span-8">
                         <UInput
                             v-model="updateState.last_name"
                             placeholder="---"
@@ -143,8 +143,8 @@ async function verifyEmail() {
                     </UFormGroup>
                 </li>
                 <li class="grid grid-cols-12 items-center gap-4">
-                    <p class="col-span-3 font-semibold">Title</p>
-                    <UFormGroup name="job_title" class="col-span-9">
+                    <p class="col-span-4 font-semibold">Title</p>
+                    <UFormGroup name="job_title" class="col-span-8">
                         <UInput
                             v-model="updateState.job_title"
                             placeholder="---"
@@ -159,8 +159,8 @@ async function verifyEmail() {
                     </UFormGroup>
                 </li>
                 <li class="grid grid-cols-12 items-center gap-4">
-                    <p class="col-span-3 font-semibold">Mobile Phone</p>
-                    <UFormGroup name="mobile_phone" class="col-span-9">
+                    <p class="col-span-4 font-semibold">Mobile Phone</p>
+                    <UFormGroup name="mobile_phone" class="col-span-8">
                         <UInput
                             v-model="updateState.mobile_phone"
                             placeholder="---"
@@ -175,8 +175,8 @@ async function verifyEmail() {
                     </UFormGroup>
                 </li>
                 <li class="grid grid-cols-12 items-center gap-4">
-                    <p class="col-span-3 font-semibold">Email</p>
-                    <UFormGroup name="email" class="col-span-9">
+                    <p class="col-span-4 font-semibold">Email</p>
+                    <UFormGroup name="email" class="col-span-8">
                         <div class="flex items-center gap-2">
                             <UInput
                                 v-model="updateState.email"
@@ -213,8 +213,8 @@ async function verifyEmail() {
                     </UFormGroup>
                 </li>
                 <li class="grid grid-cols-12 items-center gap-4">
-                    <p class="col-span-3 font-semibold">Linkedin</p>
-                    <UFormGroup name="linkedin" class="col-span-9">
+                    <p class="col-span-4 font-semibold">Linkedin</p>
+                    <UFormGroup name="linkedin" class="col-span-8">
                         <div class="flex items-center gap-2">
                             <UInput
                                 v-model="updateState.linkedin"

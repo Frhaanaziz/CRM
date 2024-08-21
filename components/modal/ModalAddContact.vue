@@ -23,7 +23,7 @@ const isSubmitting = ref(false);
 const state = ref({
     first_name: '',
     last_name: undefined,
-    email: '',
+    email: undefined,
     mobile_phone: undefined,
     job_title: undefined,
     company_id: undefined,
@@ -70,7 +70,7 @@ async function handleSubmit(event: FormSubmitEvent<AddContactType>) {
                 />
             </UFormGroup>
 
-            <UFormGroup label="Lead" name="company_id">
+            <UFormGroup label="Lead" name="company_id" required>
                 <USelectMenu
                     v-model="state.company_id"
                     value-attribute="value"
