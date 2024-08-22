@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 import type { User } from '~/types';
+import type { Notification } from '#ui/types';
 export * from './validators';
 export * from './validators/auth';
 export * from './validators/user';
@@ -27,13 +28,14 @@ export const toast = {
      * Displays a success toast message.
      * @param message - The message to be displayed.
      */
-    success(message: string): void {
+    success(message: string, options?: Partial<Notification>): void {
         useToast().add({
             title: 'Success',
             description: message,
             icon: 'i-heroicons-check-circle',
             color: 'green',
             timeout: 10000,
+            ...options,
         });
     },
 
@@ -41,13 +43,14 @@ export const toast = {
      * Displays an error toast message.
      * @param message - The message to be displayed.
      */
-    error(message: string): void {
+    error(message: string, options?: Partial<Notification>): void {
         useToast().add({
             title: 'Failed',
             description: message,
             icon: 'i-heroicons-x-circle',
             color: 'red',
             timeout: 10000,
+            ...options,
         });
     },
 };
