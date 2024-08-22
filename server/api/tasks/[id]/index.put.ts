@@ -1,13 +1,8 @@
-import { getErrorCode, getNestErrorMessage, getZodErrorMessage, updateTaskSchema } from '~/utils';
+import { getErrorCode, getNestErrorMessage, updateTaskSchema } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const zodResult = await readValidatedBody(event, updateTaskSchema.partial().safeParse);
-    if (!zodResult.success) {
-        console.error('Error validating request body', zodResult.error);
-        throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
-    }
+    const { id, ...restData } = await readValidatedBody(event, updateTaskSchema.partial().parse);
 
-    const { id, ...restData } = zodResult.data;
     try {
         const fetchApi = await backendApi(event);
         await fetchApi(`/tasks/${id}`, {

@@ -1,13 +1,7 @@
-import { getErrorCode, getNestErrorMessage, getZodErrorMessage, updateOpportunityUserIdSchema } from '~/utils';
+import { getErrorCode, getNestErrorMessage, updateOpportunityUserIdSchema } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const body = await readValidatedBody(event, updateOpportunityUserIdSchema.safeParse);
-    if (!body.success) {
-        console.error('Error validating request body', body.error);
-        throw createError({ status: 400, statusMessage: getZodErrorMessage(body) });
-    }
-
-    const { id, user_id } = body.data;
+    const { id, user_id } = await readValidatedBody(event, updateOpportunityUserIdSchema.parse);
 
     try {
         const fetchApi = await backendApi(event);

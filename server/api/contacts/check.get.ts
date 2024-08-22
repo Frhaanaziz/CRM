@@ -24,24 +24,19 @@ export default defineEventHandler(async (event) => {
 });
 // import { serverSupabaseUser } from '#supabase/server';
 // import type { Company, Contact } from '~/types';
-// import { contactSchema, getErrorCode, getNestErrorMessage, getZodErrorMessage } from '~/utils';
+// import { contactSchema, getErrorCode, getNestErrorMessage } from '~/utils';
 
 // export default defineEventHandler(async (event) => {
-//     const zodRes = await getValidatedQuery(event, contactSchema.omit({ organization_id: true }).partial().safeParse);
-//     if (!zodRes.success) {
-//         console.error('Error validating body:', zodRes.error);
-//         throw createError({ status: 400, statusMessage: getZodErrorMessage(zodRes) });
-//     }
+//     const body = await getValidatedQuery(event, contactSchema.omit({ organization_id: true }).partial().parse);
 
 //     interface IContact extends Contact {
 //         company?: Company | null;
 //     }
 
 //     try {
-//         console.log('zodRes.data:', zodRes.data);
 //         const fetchApi = await backendApi(event);
 //         const { data } = await fetchApi<{ data: IContact[] }>('/contacts/check', {
-//             body: JSON.stringify(zodRes.data),
+//             body: JSON.stringify(body),
 //         });
 
 //         return data;

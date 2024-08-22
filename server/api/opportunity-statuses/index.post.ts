@@ -1,18 +1,14 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '~/types/supabase';
-import { createOpportunityStatusSchema, getZodErrorMessage } from '~/utils';
+import { createOpportunityStatusSchema } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
-
     const user = await serverSupabaseUser(event);
     if (!user || !user.user_metadata.organization_id) throw createError({ status: 401, statusMessage: 'Unauthorized' });
 
-    const zodResult = await readValidatedBody(event, createOpportunityStatusSchema.safeParse);
-    if (!zodResult.success) {
-        console.error('Error validating body:', zodResult.error);
-        throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
-    }
+    const body = await readValidatedBody(event, createOpportunityStatusSchema.parse);
+
+    const supabase = await serverSupabaseClient<Database>(event);
 
     const { data: maxIndexStatus, error } = await supabase
         .from('Opportunity_Statuses')
@@ -30,7 +26,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const res = await supabase.from('Opportunity_Statuses').insert({
-        ...zodResult.data,
+        ...body,
         organization_id: user.user_metadata.organization_id,
         index_number: maxIndexStatus ? maxIndexStatus.index_number + 1 : 1,
     });

@@ -1,24 +1,19 @@
-import { serverSupabaseUser } from '#supabase/server';
-import { setupUserSchema, getZodErrorMessage, getErrorCode, getNestErrorMessage } from '~/utils';
+import { setupUserSchema, getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const user = await serverSupabaseUser(event);
-    if (!user) throw createError({ status: 401, statusMessage: 'Unauthorized' });
+    const id = event.context.params?.id;
+    if (!id) throw createError({ status: 400, statusMessage: 'User id is needed' });
 
-    const zodResult = await readValidatedBody(event, setupUserSchema.safeParse);
-    if (!zodResult.success) {
-        console.error('Error validating body:', zodResult.error);
-        throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
-    }
+    const body = await readValidatedBody(event, setupUserSchema.parse);
 
     try {
         const fetchApi = await backendApi(event);
-        await fetchApi(`/users/${user.id}/setup`, {
+        await fetchApi(`/users/${id}/setup`, {
             method: 'POST',
-            body: JSON.stringify(zodResult.data),
+            body: JSON.stringify(body),
         });
     } catch (error) {
-        console.error(`Error setup user with id ${user.id} (SERVER):`, error);
+        console.error(`Error setup user with id ${id} (SERVER):`, error);
         throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
 });

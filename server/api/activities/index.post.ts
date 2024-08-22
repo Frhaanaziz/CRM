@@ -1,24 +1,17 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '~/types/supabase';
-import { createActivitySchema, getZodErrorMessage } from '~/utils';
+import { createActivitySchema } from '~/utils';
 
 export default defineEventHandler(async (event) => {
     const user = await serverSupabaseUser(event);
-    if (!user || !user.user_metadata.organization_id) {
-        console.error('Unouthorized access to activities');
-        throw createError({ status: 401, statusMessage: 'Unauthorized' });
-    }
+    if (!user || !user.user_metadata.organization_id) throw createError({ status: 401, statusMessage: 'Unauthorized' });
 
-    const zodResult = await readValidatedBody(event, createActivitySchema.safeParse);
-    if (!zodResult.success) {
-        console.error('Error validating body:', zodResult.error);
-        throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
-    }
+    const body = await readValidatedBody(event, createActivitySchema.parse);
 
     const supabase = await serverSupabaseClient<Database>(event);
 
     const res = await supabase.from('Activities').insert({
-        ...zodResult.data,
+        ...body,
         organization_id: user.user_metadata.organization_id,
         user_id: user.id,
     });

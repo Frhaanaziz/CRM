@@ -1,7 +1,7 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import { calculateCurrElIndexNumber } from '~/server/utils/reorder';
 import type { Database } from '~/types/supabase';
-import { reorderSchema, getZodErrorMessage, updateOpportunityStatusId } from '~/utils';
+import { reorderSchema, updateOpportunityStatusId } from '~/utils';
 
 const schema = updateOpportunityStatusId.merge(reorderSchema);
 export default defineEventHandler(async (event) => {
@@ -10,11 +10,7 @@ export default defineEventHandler(async (event) => {
     const user = await serverSupabaseUser(event);
     if (!user || !user.user_metadata.organization_id) throw createError({ status: 401, statusMessage: 'Unauthorized' });
 
-    const zodResult = await readValidatedBody(event, schema.safeParse);
-    if (!zodResult.success) {
-        console.error('Error validating body:', zodResult.error);
-        throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
-    }
+    const body = await readValidatedBody(event, schema.parse);
 
     const {
         id,
@@ -24,7 +20,7 @@ export default defineEventHandler(async (event) => {
         prevElIndexNumber,
         // index_number of the task under the dragged and dropped task
         nextElIndexNumber,
-    } = zodResult.data;
+    } = body;
 
     if (!prevElIndexNumber && !nextElIndexNumber) {
         const { data: maxIndexOpportunity, error: maxIndexError } = await supabase

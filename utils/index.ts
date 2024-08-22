@@ -76,11 +76,13 @@ export function getErrorMessage(error: unknown): string {
                 message = String(data.statusMessage);
             } else {
                 console.log('Error data:', data);
-                message = 'Error response structure is not as expected.';
+                // message = 'Error response structure is not as expected.';
+                message = 'Something went wrong, please try again later.';
             }
         } else {
             console.log('Error response:', response);
-            message = 'Error response does not contain expected data structure.';
+            // message = 'Error response does not contain expected data structure.';
+            message = 'Something went wrong, please try again later.';
         }
     } else if (error instanceof Error) {
         message = error.message;
@@ -124,21 +126,6 @@ export function getErrorCode(error: unknown): number {
     }
 
     return code;
-}
-
-/**
- * Returns the error message from a Zod parse result.
- * @param result - The Zod parse result.
- * @returns The error message.
- */
-export function getZodErrorMessage(result: z.SafeParseError<any>): string {
-    let errorMessage = '';
-
-    result.error.issues.forEach((issue) => {
-        errorMessage = errorMessage + issue.path[0] + ': ' + issue.message + '. ';
-    });
-
-    return errorMessage;
 }
 
 /**

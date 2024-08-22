@@ -1,23 +1,17 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '~/types/supabase';
-import { getZodErrorMessage, updateOpportunityStatusId } from '~/utils';
+import { updateOpportunityStatusId } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
-
     const user = await serverSupabaseUser(event);
     if (!user || !user.user_metadata.organization_id) {
         console.error('Unauthorized access to leads');
         throw createError({ status: 401, statusMessage: 'Unauthorized' });
     }
 
-    const zodResult = await readValidatedBody(event, updateOpportunityStatusId.safeParse);
-    if (!zodResult.success) {
-        console.error('Error validating request body', zodResult.error);
-        throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
-    }
+    const { id, opportunity_status_id } = await readValidatedBody(event, updateOpportunityStatusId.parse);
 
-    const { id, opportunity_status_id } = zodResult.data;
+    const supabase = await serverSupabaseClient<Database>(event);
 
     const opportunityRes = await supabase
         .from('Opportunities')

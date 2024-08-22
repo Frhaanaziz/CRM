@@ -1,13 +1,9 @@
-import { getErrorCode, getNestErrorMessage, getZodErrorMessage, updateOpportunitySchema } from '~/utils';
+import { getErrorCode, getNestErrorMessage, updateOpportunitySchema } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const zodResult = await readValidatedBody(event, updateOpportunitySchema.safeParse);
-    if (!zodResult.success) {
-        console.error('Error validating request body', zodResult.error);
-        throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
-    }
+    const body = await readValidatedBody(event, updateOpportunitySchema.parse);
 
-    const { id, ...restData } = zodResult.data;
+    const { id, ...restData } = body;
 
     try {
         const fetchApi = await backendApi(event);

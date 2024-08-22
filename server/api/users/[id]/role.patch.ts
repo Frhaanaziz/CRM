@@ -1,18 +1,12 @@
 import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server';
 import type { Database } from '~/types/supabase';
-import { getZodErrorMessage, updateUserRoleSchema } from '~/utils';
+import { updateUserRoleSchema } from '~/utils';
 
 export default defineEventHandler(async (event) => {
+    const { id, role_id } = await readValidatedBody(event, updateUserRoleSchema.parse);
+
     const supabase = await serverSupabaseClient<Database>(event);
     const supabaseAdmin = serverSupabaseServiceRole<Database>(event);
-
-    const body = await readValidatedBody(event, updateUserRoleSchema.safeParse);
-    if (!body.success) {
-        console.error('Error validating request body', body.error);
-        throw createError({ status: 400, statusMessage: getZodErrorMessage(body) });
-    }
-
-    const { id, role_id } = body.data;
 
     const { error: errorPublicUser } = await supabase.from('Users').update({ role_id }).eq('id', id);
     if (errorPublicUser) {

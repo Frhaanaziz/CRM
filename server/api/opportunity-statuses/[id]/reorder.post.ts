@@ -1,28 +1,20 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
+import { serverSupabaseClient } from '#supabase/server';
 import { calculateCurrElIndexNumber } from '~/server/utils/reorder';
 import type { Database } from '~/types/supabase';
-import { reorderSchema, getZodErrorMessage } from '~/utils';
+import { reorderSchema } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
-
-    const user = await serverSupabaseUser(event);
-    if (!user || !user.user_metadata.organization_id) throw createError({ status: 401, statusMessage: 'Unauthorized' });
-
-    const zodResult = await readValidatedBody(event, reorderSchema.safeParse);
-    if (!zodResult.success) {
-        console.error('Error validating body:', zodResult.error);
-        throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
-    }
-
-    const id = event.context.params!.id;
+    const id = event.context.params?.id;
+    if (!id) throw createError({ status: 400, statusMessage: 'Opportunity Status ID is required' });
 
     const {
         // index_number of the task above the dragged and dropped task
         prevElIndexNumber,
         // index_number of the task under the dragged and dropped task
         nextElIndexNumber,
-    } = zodResult.data;
+    } = await readValidatedBody(event, reorderSchema.parse);
+
+    const supabase = await serverSupabaseClient<Database>(event);
 
     const currElIndexNumber = calculateCurrElIndexNumber(prevElIndexNumber, nextElIndexNumber);
 

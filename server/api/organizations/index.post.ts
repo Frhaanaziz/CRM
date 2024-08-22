@@ -1,18 +1,12 @@
 import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server';
-import { createOrganizationSchema, getZodErrorMessage } from '~/utils';
+import { createOrganizationSchema } from '~/utils';
 import type { Database } from '~/types/supabase';
 
 export default defineEventHandler(async (event) => {
+    const { user_id, ...rest } = await readValidatedBody(event, createOrganizationSchema.parse);
+
     const supabase = await serverSupabaseClient<Database>(event);
     const supabaseAdmin = serverSupabaseServiceRole<Database>(event);
-
-    const zodResult = await readValidatedBody(event, createOrganizationSchema.safeParse);
-    if (!zodResult.success) {
-        console.error('Error validating body:', zodResult.error);
-        throw createError({ status: 400, statusMessage: getZodErrorMessage(zodResult) });
-    }
-
-    const { user_id, ...rest } = zodResult.data;
 
     const { data: organization, error: organizationError } = await supabase
         .from('Organizations')
