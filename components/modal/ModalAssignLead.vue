@@ -31,7 +31,6 @@ const { data: usersOption } = await useLazyFetch(`/api/organizations/${currentUs
 type UpdateLeadUserId = z.infer<typeof updateLeadUserIdSchema>;
 const isSubmitting = ref(false);
 const state = ref({
-    id: props.lead.id,
     user_id: props.userId,
 });
 async function handleSubmit(event: FormSubmitEvent<UpdateLeadUserId>) {

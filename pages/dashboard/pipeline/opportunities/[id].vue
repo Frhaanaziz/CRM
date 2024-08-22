@@ -80,7 +80,7 @@ async function updateStatus(opportunity_status_id: OpportunityStatus['id']) {
 
         await $fetch(`/api/opportunities/${id}/opportunity-status-id`, {
             method: 'PATCH',
-            body: JSON.stringify({ id, opportunity_status_id }),
+            body: JSON.stringify({ opportunity_status_id }),
         });
 
         modal.close();
@@ -130,7 +130,6 @@ function useUpdateMoreInfo() {
     const isUpdating = ref(false);
 
     const initialState = {
-        id: opportunity.value?.id,
         current_situation: opportunity.value?.current_situation ?? '',
         customer_need: opportunity.value?.customer_need ?? '',
         proposed_solution: opportunity.value?.proposed_solution ?? '',

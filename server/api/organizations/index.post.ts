@@ -1,16 +1,19 @@
-import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server';
+import { serverSupabaseClient, serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server';
 import { createOrganizationSchema } from '~/utils';
 import type { Database } from '~/types/supabase';
 
 export default defineEventHandler(async (event) => {
-    const { user_id, ...rest } = await readValidatedBody(event, createOrganizationSchema.parse);
+    const user = await serverSupabaseUser(event);
+    if (!user) throw createError({ status: 401, statusMessage: 'Unauthorized' });
+
+    const body = await readValidatedBody(event, createOrganizationSchema.parse);
 
     const supabase = await serverSupabaseClient<Database>(event);
     const supabaseAdmin = serverSupabaseServiceRole<Database>(event);
 
     const { data: organization, error: organizationError } = await supabase
         .from('Organizations')
-        .insert(rest)
+        .insert(body)
         .select('*')
         .single();
     if (organizationError) {
@@ -56,13 +59,13 @@ export default defineEventHandler(async (event) => {
     const { error: errorPublicUser } = await supabase
         .from('Users')
         .update({ organization_id: organization.id, role_id: ownerRole.id })
-        .eq('id', user_id);
+        .eq('id', user.id);
     if (errorPublicUser) {
         console.error('Error updating user organization_id in public', errorPublicUser);
         throw createError({ status: 500, statusMessage: 'Error updating user organization_id' });
     }
 
-    const { error: errorAuthUser } = await supabaseAdmin.auth.admin.updateUserById(user_id, {
+    const { error: errorAuthUser } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
         user_metadata: { organization_id: organization.id, role_id: ownerRole.id },
     });
     if (errorAuthUser) {

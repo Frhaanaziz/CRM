@@ -22,12 +22,11 @@ export const addTaskSchema = taskSchema.pick({
 });
 
 export const updateTaskSchema = taskSchema
-    .partial()
-    .omit({ created_at: true, updated_at: true })
+    .pick({
+        description: true,
+        date: true,
+    })
     .extend({
-        id: z.number(),
         description: z.string().trim().min(1, { message: 'Description is required' }),
         date: z.coerce.date({ message: 'Date is required' }),
     });
-
-export const updateTaskIsCompletedSchema = taskSchema.pick({ id: true, is_completed: true });

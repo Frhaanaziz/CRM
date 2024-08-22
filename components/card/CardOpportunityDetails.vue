@@ -34,7 +34,6 @@ function useUpdateOpportunity() {
     const isUpdating = ref(false);
 
     const initialState = {
-        id: opportunity.value!.id,
         act_close_date: opportunity.value!.act_close_date
             ? useDateFormat(opportunity.value!.act_close_date, 'YYYY-MM-DD').value.replace('"', '')
             : undefined,

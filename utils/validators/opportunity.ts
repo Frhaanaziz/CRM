@@ -40,13 +40,14 @@ export const opportunitySchema = z.object({
 export const addOpportunitySchema = opportunitySchema
     .pick({
         lead_id: true,
-        contact_id: true,
         opportunity_status_id: true,
+        notes: true,
+
+        contact_id: true,
         payment_plan: true,
         confidence: true,
         est_revenue: true,
         est_close_date: true,
-        notes: true,
     })
     .extend({
         contact_id: z.coerce.number({ message: 'Please select a contact' }).int(),
@@ -64,6 +65,12 @@ export const addLeadOpportunitySchema = opportunitySchema
     .pick({
         opportunity_status_id: true,
         notes: true,
+
+        est_revenue: true,
+        payment_plan: true,
+        contact_id: true,
+        confidence: true,
+        est_close_date: true,
     })
     .extend({
         est_revenue: z.coerce.number().int().min(0, { message: 'Revenue must be greater than 0' }),
@@ -91,22 +98,20 @@ export const updateOpportunitySchema = opportunitySchema
         customer_need: true,
         proposed_solution: true,
     })
-    .partial()
-    .extend({ id: z.coerce.number().int() });
+    .partial();
 
 export const updateOpportunityUserIdSchema = opportunitySchema.pick({
     user_id: true,
-    id: true,
 });
 
 export const updateOpportunityStatusId = opportunitySchema.pick({
-    id: true,
     opportunity_status_id: true,
 });
 
 export const updateOpportunityAsWonSchema = opportunitySchema
     .pick({
-        id: true,
+        act_revenue: true,
+        act_close_date: true,
     })
     .extend({
         act_revenue: z.coerce.number().int().min(0, { message: 'Revenue must be greater than 0' }),
@@ -115,7 +120,8 @@ export const updateOpportunityAsWonSchema = opportunitySchema
 
 export const updateOpportunityAsLostSchema = opportunitySchema
     .pick({
-        id: true,
+        act_revenue: true,
+        act_close_date: true,
     })
     .extend({
         act_revenue: z.coerce.number().int().min(0, { message: 'Revenue must be greater than 0' }),

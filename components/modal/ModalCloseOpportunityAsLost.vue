@@ -16,7 +16,6 @@ if (!user.value) throw createError({ status: 401, message: 'Unauthorized' });
 type CloseOpportunityAsLostType = z.infer<typeof updateOpportunityAsLostSchema>;
 const isSubmitting = ref(false);
 const state = ref({
-    id: props.opportunity.id,
     close_reason_id: undefined,
     act_revenue: props.opportunity.act_revenue ?? 0,
     act_close_date: props.opportunity.act_close_date ?? undefined,

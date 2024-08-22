@@ -57,7 +57,6 @@ async function deleteTask() {
 function useUpdateTask() {
     type UpdateTaskType = z.infer<typeof updateTaskSchema>;
     const taskState = ref({
-        id: props.task.id,
         description: props.task.description,
         date: useDateFormat(props.task.date, 'YYYY-MM-DDThh:mm').value.replace('"', ''),
     });

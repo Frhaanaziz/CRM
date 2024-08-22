@@ -28,13 +28,16 @@ export const updateUserSchema = userSchema
     .pick({ first_name: true, last_name: true, phone: true, linkedin: true, expectation: true })
     .partial();
 
-export const updateUserRoleSchema = userSchema.pick({ id: true, role_id: true });
+export const updateUserRoleSchema = userSchema.pick({ role_id: true });
 
-export const updateUserStatusSchema = userSchema.pick({ id: true, status: true });
+export const updateUserStatusSchema = userSchema.pick({ status: true });
 
 export const setupUserSchema = userSchema
     .pick({
         phone: true,
+
+        expectation: true,
+        google_refresh_token: true,
     })
     .extend({
         expectation: z.array(z.string()).min(1, { message: 'Please select an option' }),

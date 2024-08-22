@@ -3,13 +3,16 @@ import type { Database } from '~/types/supabase';
 import { updateOpportunityStatusId } from '~/utils';
 
 export default defineEventHandler(async (event) => {
+    const id = event.context.params?.id;
+    if (!id) throw createError({ status: 400, statusMessage: 'Opportunity id is needed' });
+
     const user = await serverSupabaseUser(event);
     if (!user || !user.user_metadata.organization_id) {
         console.error('Unauthorized access to leads');
         throw createError({ status: 401, statusMessage: 'Unauthorized' });
     }
 
-    const { id, opportunity_status_id } = await readValidatedBody(event, updateOpportunityStatusId.parse);
+    const { opportunity_status_id } = await readValidatedBody(event, updateOpportunityStatusId.parse);
 
     const supabase = await serverSupabaseClient<Database>(event);
 
@@ -25,7 +28,7 @@ export default defineEventHandler(async (event) => {
     const activityRes = await supabase
         .from('Activities')
         .insert({
-            opportunity_id: id,
+            opportunity_id: parseInt(id),
             type: 'reopened',
             subject: 'Reopened by {{author}}',
             user_id: user.id,

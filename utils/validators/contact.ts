@@ -28,7 +28,6 @@ export const contactSchema = z.object({
 
 export const updateContactSchema = contactSchema
     .pick({
-        id: true,
         email: true,
         first_name: true,
         last_name: true,
@@ -37,16 +36,15 @@ export const updateContactSchema = contactSchema
         whatsapp: true,
         linkedin: true,
         company_id: true,
-        is_valid_email: true,
     })
     .partial();
 
 export const addContactSchema = contactSchema
     .pick({
         first_name: true,
+        mobile_phone: true,
         last_name: true,
         email: true,
-        mobile_phone: true,
         job_title: true,
         company_id: true,
     })

@@ -14,7 +14,6 @@ export const twilioSettingSchema = z.object({
 });
 
 export const updateTwilioSettingSchema = twilioSettingSchema.pick({
-    id: true,
     account_sid: true,
     api_key: true,
     api_secret: true,

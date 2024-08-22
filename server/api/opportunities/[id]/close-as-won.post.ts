@@ -1,15 +1,16 @@
 import { getErrorCode, getNestErrorMessage, updateOpportunityAsWonSchema } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const body = await readValidatedBody(event, updateOpportunityAsWonSchema.parse);
+    const id = event.context.params?.id;
+    if (!id) throw createError({ status: 400, statusMessage: 'Opportunity id is needed' });
 
-    const { id, ...rest } = body;
+    const body = await readValidatedBody(event, updateOpportunityAsWonSchema.parse);
 
     try {
         const fetchApi = await backendApi(event);
         await fetchApi(`/opportunities/${id}/close-as-won`, {
             method: 'PATCH',
-            body: JSON.stringify(rest),
+            body: JSON.stringify(body),
         });
     } catch (error) {
         console.error('Error close opportunity as won (SERVER):', error);

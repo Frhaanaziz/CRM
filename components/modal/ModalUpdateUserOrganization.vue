@@ -17,11 +17,10 @@ const { data: rolesOption } = await useLazyFetch('/api/roles', {
 });
 const statusOption = ['active', 'inactive'].map((status) => ({ value: status, label: capitalize(status) }));
 
-const schema = userSchema.pick({ id: true, role_id: true, status: true });
+const schema = updateUserRoleSchema.merge(updateUserStatusSchema);
 type UpdateUserOrganizationType = z.infer<typeof schema>;
 const isSubmitting = ref(false);
 const state = ref({
-    id: props.user.id,
     role_id: props.user.role_id || undefined,
     status: props.user.status,
 });
@@ -29,15 +28,15 @@ async function handleSubmit(event: FormSubmitEvent<UpdateUserOrganizationType>) 
     try {
         isSubmitting.value = true;
 
-        const { id, role_id, status } = event.data;
+        const { role_id, status } = event.data;
         await Promise.all([
             $fetch(`/api/users/${props.user.id}/role`, {
                 method: 'PATCH',
-                body: JSON.stringify({ id, role_id }),
+                body: JSON.stringify({ role_id }),
             }),
             $fetch(`/api/users/${props.user.id}/status`, {
                 method: 'PATCH',
-                body: JSON.stringify({ id, status }),
+                body: JSON.stringify({ status }),
             }),
         ]);
 
@@ -55,7 +54,7 @@ async function handleSubmit(event: FormSubmitEvent<UpdateUserOrganizationType>) 
 
 <template>
     <ModalCommon title="Edit Member" @close="closeModal">
-        <UForm :schema="schema" :state="state" class="space-y-4" @submit="handleSubmit" @error="console.error">
+        <UForm :schema :state="state" class="space-y-4" @submit="handleSubmit" @error="console.error">
             <UFormGroup label="Role" name="role" required>
                 <USelectMenu
                     v-model="state.role_id"

@@ -95,7 +95,6 @@ async function onAdd({ newIndex, to }: { newIndex: number; to: { id: string } })
             {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    id: sortedOpportunitiesByStatus.value[newOpportunityStatusId][newIndex].id,
                     opportunity_status_id: newOpportunityStatusId,
                     prevElIndexNumber,
                     nextElIndexNumber,

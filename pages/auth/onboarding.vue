@@ -101,7 +101,6 @@ function useProfileSetup() {
 function useCreateOrganization() {
     const createOrganizationForm = ref();
     const state = ref({
-        user_id: user.value?.id,
         name: '',
         website: '',
         industry_id: undefined,

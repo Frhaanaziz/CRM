@@ -9,7 +9,6 @@ export const twilioAgentSchema = z.object({
 });
 
 export const updateTwilioAgentSchema = twilioAgentSchema.pick({
-    id: true,
     call_receiving_device: true,
     twilio_number: true,
 });

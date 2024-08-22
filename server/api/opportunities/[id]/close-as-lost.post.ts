@@ -1,15 +1,16 @@
 import { getErrorCode, getNestErrorMessage, updateOpportunityAsLostSchema } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const body = await readValidatedBody(event, updateOpportunityAsLostSchema.parse);
+    const id = event.context.params?.id;
+    if (!id) throw createError({ status: 400, statusMessage: 'Opportunity id is needed' });
 
-    const { id, ...rest } = body;
+    const body = await readValidatedBody(event, updateOpportunityAsLostSchema.parse);
 
     try {
         const fetchApi = await backendApi(event);
         await fetchApi(`/opportunities/${id}/close-as-lost`, {
             method: 'PATCH',
-            body: JSON.stringify(rest),
+            body: JSON.stringify(body),
         });
     } catch (error) {
         console.error('Error close opportunity as lost (SERVER):', error);

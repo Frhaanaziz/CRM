@@ -18,10 +18,4 @@ export const addLeadSchema = z.object({
 
 export const updateLeadUserIdSchema = leadSchema.pick({
     user_id: true,
-    id: true,
-});
-
-export const updateLeadStatus = leadSchema.pick({
-    id: true,
-    status: true,
 });

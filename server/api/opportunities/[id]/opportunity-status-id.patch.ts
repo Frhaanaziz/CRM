@@ -5,22 +5,22 @@ import { reorderSchema, updateOpportunityStatusId } from '~/utils';
 
 const schema = updateOpportunityStatusId.merge(reorderSchema);
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
+    const id = event.context.params?.id;
+    if (!id) throw createError({ status: 400, statusMessage: 'Opportunity id is needed' });
 
     const user = await serverSupabaseUser(event);
     if (!user || !user.user_metadata.organization_id) throw createError({ status: 401, statusMessage: 'Unauthorized' });
 
-    const body = await readValidatedBody(event, schema.parse);
-
     const {
-        id,
         opportunity_status_id,
 
         // index_number of the task above the dragged and dropped task
         prevElIndexNumber,
         // index_number of the task under the dragged and dropped task
         nextElIndexNumber,
-    } = body;
+    } = await readValidatedBody(event, schema.parse);
+
+    const supabase = await serverSupabaseClient<Database>(event);
 
     if (!prevElIndexNumber && !nextElIndexNumber) {
         const { data: maxIndexOpportunity, error: maxIndexError } = await supabase

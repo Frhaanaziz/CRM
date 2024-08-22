@@ -1,4 +1,3 @@
-import type { z } from 'zod';
 import type { User } from '~/types';
 import type { Notification } from '#ui/types';
 export * from './validators';
@@ -11,7 +10,6 @@ export * from './validators/lead';
 export * from './validators/task';
 export * from './validators/opportunity';
 export * from './validators/opportunity-status';
-export * from './validators/b2b-contact';
 export * from './validators/b2b-company';
 export * from './validators/activity';
 export * from './validators/twilio-setting';

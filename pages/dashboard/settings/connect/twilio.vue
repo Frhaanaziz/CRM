@@ -39,7 +39,6 @@ function useUpdateSetting() {
     type UpdateTwilioSettingType = z.infer<typeof updateTwilioSettingSchema>;
     const isUpdating = ref(false);
     const settingState = ref({
-        id: twilioSetting.value?.id,
         account_sid: twilioSetting.value?.account_sid ?? undefined,
         api_key: twilioSetting.value?.api_key ?? undefined,
         api_secret: twilioSetting.value?.api_secret ?? undefined,
@@ -79,7 +78,6 @@ function useUpdateAgent() {
     type UpdateTwilioAgentType = z.infer<typeof updateTwilioAgentSchema>;
     const isUpdating = ref(false);
     const agentState = ref({
-        id: twilioSetting.value?.id,
         call_receiving_device: twilioAgent.value?.call_receiving_device ?? undefined,
         twilio_number: twilioAgent.value?.twilio_number ?? undefined,
     });
