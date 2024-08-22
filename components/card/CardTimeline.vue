@@ -334,21 +334,38 @@ function useCreateNote() {
                         </div>
                     </li>
 
+                    <!-- Status Change (updated) -->
+                    <li
+                        v-if="activity.type === 'updated'"
+                        :key="activity.id"
+                        class="flex items-center gap-2 rounded-lg bg-base-100 p-4 shadow-sm"
+                    >
+                        <p class="text-slate-600">{{ activity.subject.split(' from ').at(0) + ' from' }}</p>
+                        <UBadge :ui="{ rounded: 'rounded-full' }" class="bg-slate-700 capitalize">
+                            {{ activity.subject.split(' from ').at(1)?.split(' to ').at(0) }}
+                        </UBadge>
+                        <UIcon name="i-heroicons-arrow-long-right" />
+                        <UBadge :ui="{ rounded: 'rounded-full' }" class="bg-slate-700 capitalize">
+                            {{ activity.subject.split(' from ').at(1)?.split(' to ').at(1) }}
+                        </UBadge>
+                        <p class="text-slate-400">
+                            {{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
+                        </p>
+                    </li>
+
                     <!-- Lead Source -->
                     <li
                         v-if="activity.type === 'lead created'"
                         :key="activity.id"
-                        class="flex items-center justify-between rounded-lg bg-base-100 p-4 shadow-sm"
+                        class="flex items-center gap-2 rounded-lg bg-base-100 p-4 shadow-sm"
                     >
-                        <div class="item-center flex gap-2">
-                            <p class="text-slate-600">Lead created - Source</p>
-                            <UBadge variant="soft" :ui="{ rounded: 'rounded-full' }" class="capitalize">
-                                {{ activity.subject.toLowerCase().split('source ')?.at(1) ?? '---' }}
-                            </UBadge>
-                            <p class="text-slate-400">
-                                {{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
-                            </p>
-                        </div>
+                        <p class="text-slate-600">Lead created - Source</p>
+                        <UBadge variant="soft" :ui="{ rounded: 'rounded-full' }" class="capitalize">
+                            {{ activity.subject.toLowerCase().split('source ')?.at(1) ?? '---' }}
+                        </UBadge>
+                        <p class="text-slate-400">
+                            {{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
+                        </p>
                     </li>
                 </template>
             </ul>
