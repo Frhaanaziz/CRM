@@ -5,8 +5,8 @@ import type { Contact, Currency, Opportunity } from '~/types';
 import type { FormSubmitEvent } from '#ui/types';
 
 interface IOpportunity extends Opportunity {
-    contact: Pick<Contact, 'first_name' | 'last_name' | 'id'> | null;
-    currency: Pick<Currency, 'name'> | null;
+    contact?: Pick<Contact, 'first_name' | 'last_name' | 'id'> | null;
+    currency?: Pick<Currency, 'name'> | null;
 }
 const props = defineProps<{
     opportunity: IOpportunity;

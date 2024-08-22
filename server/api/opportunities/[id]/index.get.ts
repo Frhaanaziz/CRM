@@ -1,53 +1,26 @@
-import { serverSupabaseClient } from '#supabase/server';
-import type { Database } from '~/types/supabase';
+import type { Company, Contact, Currency, Lead, Opportunity, OpportunityStatus, Task, User } from '~/types';
+import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
+    const id = event.context.params?.id;
+    if (!id) throw createError({ status: 400, statusMessage: 'Opportunity ID is required.' });
 
-    const id = event.context.params!.id;
-
-    const [opportunityRes, tasksRes] = await Promise.all([
-        supabase
-            .from('Opportunities')
-            .select(
-                `
-                *,
-                status: Opportunity_Statuses(*),
-                user: Users(*),
-                contact: Contacts(*),
-                currency: Currencies(*),
-                lead: Leads(*, company: Companies(*))
-                `
-            )
-            .eq('id', id)
-            .single(),
-        supabase
-            .from('Tasks')
-            .select(
-                `
-                id,
-                date,
-                description,
-                is_completed,
-                user: Users(*)
-                `
-            )
-            .eq('opportunity_id', id)
-            .order('created_at', { ascending: false }),
-    ]);
-
-    if (opportunityRes.error) {
-        console.error('Error getting opportunity:', opportunityRes.error);
-        throw createError({ status: 400, statusMessage: opportunityRes.error.message });
+    interface IOpportunity extends Opportunity {
+        status?: OpportunityStatus | null;
+        user?: User | null;
+        contact?: Contact | null;
+        currency?: Currency | null;
+        lead?: (Lead & { company?: Company | null }) | null;
+        tasks?: (Pick<Task, 'id' | 'date' | 'description' | 'is_completed'> & { user?: User | null })[] | null;
     }
 
-    if (tasksRes.error) {
-        console.error('Error getting tasks:', tasksRes.error);
-        throw createError({ status: 400, statusMessage: tasksRes.error.message });
+    try {
+        const fetchApi = await backendApi(event);
+        const { data } = await fetchApi<{ data: IOpportunity }>(`/opportunities/${id}`);
+
+        return data;
+    } catch (error) {
+        console.error(`Error getting opportunity with id ${id} (SERVER):`, error);
+        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
-
-    const { data: opportunityData } = opportunityRes;
-    const { data: tasksData } = tasksRes;
-
-    return { ...opportunityData, tasks: tasksData };
 });

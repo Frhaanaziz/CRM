@@ -173,25 +173,14 @@ function getContact(id: string) {
                                 :class="{ '[&:not(:last-child)]:border-b': !open }"
                             >
                                 <div class="text-start text-slate-700">
-                                    <NuxtLink
-                                        :href="`/dashboard/customer/contacts/${getContact(item.content)?.id}`"
-                                        class="font-semibold text-brand"
-                                    >
+                                    <p class="font-semibold">
                                         {{ getUserFullName(getContact(item.content)) }}
-                                    </NuxtLink>
+                                    </p>
                                     <p v-if="getContact(item.content)?.job_title" class="text-xs">
                                         {{ getContact(item.content)?.job_title }}
                                     </p>
                                 </div>
-                                <UButton
-                                    square
-                                    icon="i-heroicons-chevron-down"
-                                    variant="ghost"
-                                    color="black"
-                                    disabled
-                                    class="transition"
-                                    :class="{ 'rotate-180': open }"
-                                />
+                                <UIcon name="i-heroicons-chevron-down" class="transition" :class="{ 'rotate-180': open }" />
                             </div>
                         </template>
 
