@@ -181,9 +181,12 @@ function useUpdateMoreInfo() {
 
 <template>
     <div v-if="opportunity" class="min-h-screen bg-base-200">
-        <header class="sticky top-0 z-10 bg-base-100 shadow">
-            <div class="flex items-center border-b">
-                <NuxtLink href="/dashboard/pipeline/opportunities" class="flex h-10 w-10 items-center justify-center border">
+        <header class="sticky top-16 z-10 bg-base-100 shadow lg:top-0">
+            <div class="flex items-center overflow-x-auto border-b">
+                <NuxtLink
+                    href="/dashboard/pipeline/opportunities"
+                    class="flex h-10 w-10 shrink-0 items-center justify-center border"
+                >
                     <UIcon name="i-heroicons-arrow-left-20-solid" class="h-[18px] w-[18px]" />
                 </NuxtLink>
 
@@ -341,8 +344,8 @@ function useUpdateMoreInfo() {
                 </LazyUButton>
             </div>
 
-            <div class="flex items-center justify-between p-4">
-                <h1 class="text-xl font-semibold">
+            <div class="flex items-center justify-between gap-x-6 overflow-x-auto p-4">
+                <h1 class="shrink-0 text-xl font-semibold">
                     {{ opportunity.lead?.company?.name }}
                 </h1>
 
@@ -448,7 +451,7 @@ function useUpdateMoreInfo() {
 
                         <div class="flex items-center gap-2">
                             <UAvatar :src="opportunity.user.photo ?? getUserFallbackAvatarUrl(opportunity.user)" />
-                            <div>
+                            <div class="shrink-0">
                                 <p class="font-semibold">{{ getUserFullName(opportunity.user) }}</p>
                                 <p class="text-xs">Owner</p>
                             </div>
@@ -474,7 +477,7 @@ function useUpdateMoreInfo() {
 
                 <UCard>
                     <template #header>
-                        <h2 class="text-xl font-semibold">MORE INFO</h2>
+                        <h2 class="font-semibold text-slate-700">More Info</h2>
                     </template>
 
                     <UForm
@@ -482,60 +485,57 @@ function useUpdateMoreInfo() {
                         :schema="updateOpportunitySchema"
                         :state="moreInfoState"
                         :disabled="isUpdatingMoreInfo"
+                        class="space-y-2 pl-2"
                         @submit="updateMoreInfo"
                         @error="console.error"
                     >
-                        <div class="px-4 py-2">
-                            <UFormGroup label="Current Situation" name="current_situation">
-                                <UTextarea
-                                    v-model="moreInfoState.current_situation"
-                                    autoresize
-                                    :rows="1"
-                                    placeholder="---"
-                                    :ui="{
-                                        color: {
-                                            white: {
-                                                outline: 'ring-0 shadow-none hover:ring-1 ',
-                                            },
+                        <UFormGroup label="Current Situation" name="current_situation">
+                            <UTextarea
+                                v-model="moreInfoState.current_situation"
+                                autoresize
+                                :rows="1"
+                                placeholder="---"
+                                :ui="{
+                                    color: {
+                                        white: {
+                                            outline: 'ring-0 shadow-none hover:ring-1 ',
                                         },
-                                    }"
-                                />
-                            </UFormGroup>
-                        </div>
-                        <div class="px-4 py-2">
-                            <UFormGroup label="Customer Need" name="customer_need">
-                                <UTextarea
-                                    v-model="moreInfoState.customer_need"
-                                    autoresize
-                                    :rows="1"
-                                    placeholder="---"
-                                    :ui="{
-                                        color: {
-                                            white: {
-                                                outline: 'ring-0 shadow-none hover:ring-1 ',
-                                            },
+                                    },
+                                }"
+                            />
+                        </UFormGroup>
+
+                        <UFormGroup label="Customer Need" name="customer_need">
+                            <UTextarea
+                                v-model="moreInfoState.customer_need"
+                                autoresize
+                                :rows="1"
+                                placeholder="---"
+                                :ui="{
+                                    color: {
+                                        white: {
+                                            outline: 'ring-0 shadow-none hover:ring-1 ',
                                         },
-                                    }"
-                                />
-                            </UFormGroup>
-                        </div>
-                        <div class="px-4 py-2">
-                            <UFormGroup label="Proposed Solution" name="proposed_solution">
-                                <UTextarea
-                                    v-model="moreInfoState.proposed_solution"
-                                    autoresize
-                                    :rows="1"
-                                    placeholder="---"
-                                    :ui="{
-                                        color: {
-                                            white: {
-                                                outline: 'ring-0 shadow-none hover:ring-1 ',
-                                            },
+                                    },
+                                }"
+                            />
+                        </UFormGroup>
+
+                        <UFormGroup label="Proposed Solution" name="proposed_solution">
+                            <UTextarea
+                                v-model="moreInfoState.proposed_solution"
+                                autoresize
+                                :rows="1"
+                                placeholder="---"
+                                :ui="{
+                                    color: {
+                                        white: {
+                                            outline: 'ring-0 shadow-none hover:ring-1 ',
                                         },
-                                    }"
-                                />
-                            </UFormGroup>
-                        </div>
+                                    },
+                                }"
+                            />
+                        </UFormGroup>
                     </UForm>
                 </UCard>
             </div>

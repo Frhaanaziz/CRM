@@ -127,6 +127,7 @@ async function handleDeleteLeads() {
             tr: { base: '[&>td]:hover:bg-base-200' },
             td: { base: 'max-w-[0] truncate text-default' },
             th: {
+                base: 'text-nowrap',
                 color: 'text-weak',
                 font: 'font-normal',
             },

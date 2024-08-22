@@ -77,7 +77,7 @@ const companyRecommendation = [
 
         <section class="space-y-2 bg-gray-50 p-4">
             <h2 class="text-xl font-semibold text-slate-700">Our Recommendation</h2>
-            <ul class="grid grid-cols-3 gap-2">
+            <ul class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 <li v-for="company in companyRecommendation" :key="company.id">
                     <NuxtLink
                         :href="`/dashboard/resources/b2b-database/${company.id}`"

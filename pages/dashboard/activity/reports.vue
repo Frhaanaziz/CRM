@@ -232,7 +232,7 @@ function generateDoughnutChartData(data: Record<string, number>) {
         </section>
 
         <section v-if="reportType === 'sales'" class="space-y-10 p-4">
-            <ul class="grid grid-cols-4 gap-5">
+            <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 <li v-for="stat in salesFunnelStat" :key="stat.title" class="space-y-2 rounded-lg border p-4 shadow">
                     <p class="text-center text-xl font-medium">{{ stat.value }}</p>
                     <p class="text-center text-gray-500">{{ stat.title }}</p>
@@ -310,15 +310,15 @@ function generateDoughnutChartData(data: Record<string, number>) {
         </section>
 
         <section v-else-if="reportType === 'activity'" class="grid grid-cols-12 gap-4 bg-base-200 p-4">
-            <div class="col-span-8 flex flex-col gap-5">
-                <ul class="grid grid-cols-3 gap-5">
+            <div class="col-span-full flex flex-col gap-5 lg:col-span-8">
+                <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     <li v-for="stat in activityStat" :key="stat.title" class="space-y-2 rounded-lg bg-base-100 p-4 shadow">
                         <p class="text-center text-xl font-medium">{{ stat.value }}</p>
                         <p class="text-center text-gray-500">{{ stat.title }}</p>
                     </li>
                 </ul>
 
-                <ul class="grid grid-cols-2 gap-5">
+                <ul class="grid gap-5 md:grid-cols-2">
                     <template v-for="chart in doughnutCharts" :key="chart.title">
                         <li v-if="chart.data.labels && chart.data.labels.length > 1" class="rounded bg-base-100 p-4 shadow">
                             <h2 class="mb-4 text-xl font-semibold">{{ chart.title }}</h2>
@@ -352,7 +352,7 @@ function generateDoughnutChartData(data: Record<string, number>) {
                 </ul>
             </div>
 
-            <div class="col-span-4 space-y-2 rounded-lg bg-base-100 p-4 shadow">
+            <div class="col-span-full space-y-2 rounded-lg bg-base-100 p-4 shadow lg:col-span-4">
                 <h2 class="text-xl font-semibold">Leaderboard</h2>
                 <UTable
                     :rows="// opportunitiesData?.opportunity_leaderboard.map(({ name, total }) => ({

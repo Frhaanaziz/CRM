@@ -31,6 +31,7 @@ const pageCount = defineModel('pageCount', { type: Number, required: true });
         :ui="{
             tr: { base: '[&>td]:hover:bg-base-200' },
             td: { base: 'max-w-[0] truncate text-default' },
+            th: { base: 'text-nowrap' },
         }"
         @select="(v: Pick<Opportunity, 'id'>) => emit('select', v)"
     >

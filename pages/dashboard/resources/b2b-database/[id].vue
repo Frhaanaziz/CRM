@@ -76,11 +76,11 @@ function getContact(id: string) {
                     <div class="space-y-1">
                         <h1 class="text-xl font-bold">{{ company.name }}</h1>
                         <p v-if="company.location" class="flex items-center gap-1 text-sm text-slate-600">
-                            <UIcon name="i-heroicons-map-pin" class="h-5 w-5" />
+                            <UIcon name="i-heroicons-map-pin" class="h-5 w-5 shrink-0" />
                             {{ company.location }}
                         </p>
                         <p class="flex items-center gap-1 text-sm text-slate-600">
-                            <UIcon name="i-heroicons-clock" class="h-5 w-5" />
+                            <UIcon name="i-heroicons-clock" class="h-5 w-5 shrink-0" />
                             Last updated
                             {{ useTimeAgo(company.updated_at).value.replace('"', '') }}
                         </p>
@@ -105,7 +105,7 @@ function getContact(id: string) {
         </header>
 
         <section class="grid gap-4 p-4 md:grid-cols-12">
-            <div class="col-span-4 flex flex-col gap-4">
+            <div class="flex flex-col gap-4 md:col-span-4">
                 <UCard>
                     <template #header>
                         <h2 class="font-semibold text-slate-700">Company Information</h2>
@@ -210,69 +210,9 @@ function getContact(id: string) {
                         </template>
                     </UAccordion>
                 </UCard>
-
-                <!-- <UCard :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">
-                    <template #header>
-                        <h2 class="font-semibold text-slate-700">Contacts</h2>
-                    </template>
-
-                    <UAccordion
-                        variant="outline"
-                        multiple
-                        :items="accordionItems"
-                        :ui="{
-                            wrapper: 'w-full flex flex-col gap-2',
-                        }"
-                    >
-                        <template #default="{ item, open }">
-                            <button
-                                class="flex items-center justify-between gap-2 px-2 py-1 text-slate-700"
-                                :class="{ '[&:not(:last-child)]:border-b': !open }"
-                            >
-                                <div>
-                                    <p class="text-start font-semibold">
-                                        {{ getUserFullName(getB2BContact(parseInt(item.content))) }}
-                                    </p>
-                                    <p v-if="getB2BContact(parseInt(item.content))?.job_title" class="text-start text-xs">
-                                        {{ getB2BContact(parseInt(item.content))?.job_title }}
-                                    </p>
-                                </div>
-                                <UIcon
-                                    name="i-heroicons-chevron-up-solid"
-                                    class="shrink-0 transition"
-                                    :class="{ 'rotate-180': open }"
-                                />
-                            </button>
-                        </template>
-
-                        <template v-for="b2b_contact in company.contacts" :key="b2b_contact.id" #[b2b_contact.id.toString()]>
-                            <ul class="space-y-2 px-2">
-                                <li class="grid grid-cols-12 items-center text-slate-700">
-                                    <p class="col-span-4 font-semibold">Mobile Phone</p>
-                                    <p class="col-span-8">{{ company.phone ?? '---' }}</p>
-                                </li>
-                                <li class="grid grid-cols-12 items-center text-slate-700">
-                                    <p class="col-span-4 font-semibold">Email</p>
-                                    <p class="col-span-8">{{ company.email ?? '---' }}</p>
-                                </li>
-                                <li class="grid grid-cols-12 items-center text-slate-700">
-                                    <p class="col-span-4 font-semibold">LinkedIn</p>
-                                    <p class="col-span-8 flex items-center justify-between gap-2">
-                                        <span class="truncate">
-                                            {{ company.linkedin ?? '---' }}
-                                        </span>
-                                        <NuxtLink v-if="company.linkedin" :href="company.linkedin" external target="_blank">
-                                            <UIcon name="i-heroicons-arrow-top-right-on-square" class="h-5 w-5 text-brand" />
-                                        </NuxtLink>
-                                    </p>
-                                </li>
-                            </ul>
-                        </template>
-                    </UAccordion>
-                </UCard> -->
             </div>
 
-            <div class="col-span-8">
+            <div class="md:col-span-8">
                 <UCard :ui="{ body: { padding: 'px-0 py-0 sm:p-0' } }">
                     <template #header>
                         <h2 class="font-semibold text-slate-700">Overviews</h2>
@@ -295,7 +235,7 @@ function getContact(id: string) {
         <section v-if="similarCompanies" class="space-y-4 p-4">
             <h2 class="text-xl font-semibold">Similar Companies</h2>
 
-            <ul class="grid grid-cols-3 gap-2">
+            <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 <li
                     v-for="similarCompany in similarCompanies"
                     :key="similarCompany.id"

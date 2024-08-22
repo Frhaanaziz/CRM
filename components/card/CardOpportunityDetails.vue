@@ -86,148 +86,158 @@ function useUpdateOpportunity() {
 <template>
     <UCard>
         <template #header>
-            <h2 class="text-xl font-semibold">OPPORTUNITY</h2>
+            <h2 class="font-semibold text-slate-700">Opportunity Information</h2>
         </template>
 
-        <div v-if="opportunity" class="flex gap-6 text-sm sm:text-base">
-            <div class="text-weak grid shrink-0 grid-rows-7 gap-y-8">
-                <p>Contact</p>
-                <p>Est. Close Date</p>
-                <p>Currency</p>
-                <p>Budget Amount</p>
-                <p>Est. Revenue</p>
-                <p>Payment Plans</p>
-                <p>Confidence</p>
-            </div>
-
-            <UForm
-                ref="formRef"
-                :schema="updateOpportunitySchema"
-                :state="updateState"
-                class="grid grow grid-rows-7 gap-y-6 font-semibold"
-                :disabled="isUpdating"
-                @submit="updateOpportunity"
-                @error="console.error"
-            >
-                <NuxtLink
-                    v-if="opportunity.contact"
-                    :href="`/dashboard/customer/contacts/${opportunity.contact.id}`"
-                    class="ml-4 line-clamp-1 text-brand"
-                >
-                    {{ getUserFullName(opportunity.contact) }}
-                </NuxtLink>
-                <p v-else class="ml-4">---</p>
-
-                <UFormGroup name="act_close_date" required>
-                    <UInput
-                        v-model="updateState.act_close_date"
-                        type="date"
-                        :disabled="isUpdating"
-                        :ui="{
-                            color: {
-                                white: {
-                                    outline: 'ring-0 shadow-none hover:ring-1',
-                                },
-                            },
-                        }"
-                    />
-                </UFormGroup>
-                <UFormGroup name="currency_id">
-                    <USelectMenu
-                        v-model="updateState.currency_id"
-                        value-attribute="value"
-                        :options="currenciesOption ?? []"
-                        :disabled="isUpdating"
-                        placeholder="---"
-                        :ui="{
-                            color: {
-                                white: {
-                                    outline: 'ring-0 shadow-none hover:ring-1',
-                                },
-                            },
-                        }"
-                    />
-                </UFormGroup>
-                <UFormGroup name="act_budget">
-                    <UInput
-                        v-model.number="updateState.act_budget"
-                        type="number"
-                        inputmode="numeric"
-                        min="0"
-                        :disabled="isUpdating"
-                        :ui="{
-                            form: '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
-                            color: {
-                                white: {
-                                    outline: 'ring-0 shadow-none hover:ring-1',
-                                },
-                            },
-                        }"
+        <UForm
+            v-if="opportunity"
+            ref="formRef"
+            :schema="updateOpportunitySchema"
+            :state="updateState"
+            :disabled="isUpdating"
+            @submit="updateOpportunity"
+            @error="console.error"
+        >
+            <ul class="grid grid-cols-1 gap-2 text-slate-700">
+                <li class="grid grid-cols-12 items-center gap-4">
+                    <p class="col-span-4 font-semibold">Contact</p>
+                    <NuxtLink
+                        v-if="opportunity.contact"
+                        :href="`/dashboard/customer/contacts/${opportunity.contact.id}`"
+                        class="col-span-8 ml-3 line-clamp-1 text-brand"
                     >
-                        <template #leading>
-                            <span class="text-sm"> Rp </span>
-                        </template>
-                    </UInput>
-                </UFormGroup>
-                <UFormGroup name="est_revenue">
-                    <UInput
-                        v-model.number="updateState.est_revenue"
-                        type="number"
-                        inputmode="numeric"
-                        min="0"
-                        :disabled="isUpdating"
-                        :ui="{
-                            form: '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
-                            color: {
-                                white: {
-                                    outline: 'ring-0 shadow-none hover:ring-1',
+                        {{ getUserFullName(opportunity.contact) }}
+                    </NuxtLink>
+                    <p v-else class="col-span-8 ml-3">---</p>
+                </li>
+                <li class="grid grid-cols-12 items-center gap-4">
+                    <p class="col-span-4 font-semibold">Act. Close Date</p>
+                    <UFormGroup name="act_close_date" class="col-span-8">
+                        <UInput
+                            v-model="updateState.act_close_date"
+                            type="date"
+                            :disabled="isUpdating"
+                            :ui="{
+                                color: {
+                                    white: {
+                                        outline: 'ring-0 shadow-none hover:ring-1',
+                                    },
                                 },
-                            },
-                        }"
-                    >
-                        <template #leading>
-                            <span class="text-sm"> Rp </span>
-                        </template>
-                    </UInput>
-                </UFormGroup>
-                <UFormGroup name="payment_plan_id">
-                    <USelectMenu
-                        v-model="updateState.payment_plan"
-                        :options="[...opportunityPaymentPlans]"
-                        :disabled="isUpdating"
-                        placeholder="---"
-                        :ui="{
-                            color: {
-                                white: {
-                                    outline: 'ring-0 shadow-none hover:ring-1',
+                            }"
+                        />
+                    </UFormGroup>
+                </li>
+                <li class="grid grid-cols-12 items-center gap-4">
+                    <p class="col-span-4 font-semibold">Act. Budget</p>
+                    <UFormGroup name="act_budget" class="col-span-8">
+                        <UInput
+                            v-model.number="updateState.act_budget"
+                            type="number"
+                            inputmode="numeric"
+                            min="0"
+                            :disabled="isUpdating"
+                            :ui="{
+                                form: '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+                                color: {
+                                    white: {
+                                        outline: 'ring-0 shadow-none hover:ring-1',
+                                    },
                                 },
-                            },
-                        }"
-                    />
-                </UFormGroup>
-                <UFormGroup name="confidence">
-                    <UInput
-                        v-model.number="updateState.confidence"
-                        type="number"
-                        min="0"
-                        max="100"
-                        :disabled="isUpdating"
-                        placeholder="---"
-                        :ui="{
-                            form: '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
-                            color: {
-                                white: {
-                                    outline: 'ring-0 shadow-none hover:ring-1  ',
+                            }"
+                        >
+                            <template #leading>
+                                <span class="text-sm"> Rp </span>
+                            </template>
+                        </UInput>
+                    </UFormGroup>
+                </li>
+                <li class="grid grid-cols-12 items-center gap-4">
+                    <p class="col-span-4 font-semibold">Est. Revenue</p>
+                    <UFormGroup name="est_revenue" class="col-span-8">
+                        <UInput
+                            v-model.number="updateState.est_revenue"
+                            type="number"
+                            inputmode="numeric"
+                            min="0"
+                            :disabled="isUpdating"
+                            :ui="{
+                                form: '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+                                color: {
+                                    white: {
+                                        outline: 'ring-0 shadow-none hover:ring-1',
+                                    },
                                 },
-                            },
-                        }"
-                    >
-                        <template #trailing>
-                            <span class="text-sm"> % </span>
-                        </template>
-                    </UInput>
-                </UFormGroup>
-            </UForm>
-        </div>
+                            }"
+                        >
+                            <template #leading>
+                                <span class="text-sm"> Rp </span>
+                            </template>
+                        </UInput>
+                    </UFormGroup>
+                </li>
+                <li class="grid grid-cols-12 items-center gap-4">
+                    <p class="col-span-4 font-semibold">Confidence</p>
+                    <UFormGroup name="confidence" class="col-span-8">
+                        <UInput
+                            v-model.number="updateState.confidence"
+                            type="number"
+                            min="0"
+                            max="100"
+                            :disabled="isUpdating"
+                            placeholder="---"
+                            :ui="{
+                                form: '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+                                color: {
+                                    white: {
+                                        outline: 'ring-0 shadow-none hover:ring-1  ',
+                                    },
+                                },
+                            }"
+                        >
+                            <template #trailing>
+                                <span class="text-sm"> % </span>
+                            </template>
+                        </UInput>
+                    </UFormGroup>
+                </li>
+                <li class="grid grid-cols-12 items-center gap-4">
+                    <p class="col-span-4 font-semibold">Payment Plan</p>
+                    <UFormGroup name="payment_plan_id" class="col-span-8">
+                        <USelectMenu
+                            v-model="updateState.payment_plan"
+                            :options="[...opportunityPaymentPlans]"
+                            :disabled="isUpdating"
+                            placeholder="---"
+                            :ui="{
+                                color: {
+                                    white: {
+                                        outline: 'ring-0 shadow-none hover:ring-1',
+                                    },
+                                },
+                            }"
+                        />
+                    </UFormGroup>
+                </li>
+                <li class="grid grid-cols-12 items-center gap-4">
+                    <p class="col-span-4 font-semibold">Currency</p>
+                    <UFormGroup name="currency_id" class="col-span-8">
+                        <USelectMenu
+                            v-model="updateState.currency_id"
+                            value-attribute="value"
+                            :options="currenciesOption ?? []"
+                            :disabled="isUpdating"
+                            placeholder="---"
+                            :ui="{
+                                color: {
+                                    white: {
+                                        outline: 'ring-0 shadow-none hover:ring-1',
+                                    },
+                                },
+                            }"
+                        />
+                    </UFormGroup>
+                </li>
+            </ul>
+        </UForm>
     </UCard>
 </template>
