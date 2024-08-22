@@ -90,7 +90,7 @@ function useUpdateTask() {
     <div class="group px-4 py-2 hover:bg-base-200" :class="[isEditingMode ? 'bg-brand-50 hover:bg-brand-50' : '']">
         <div class="flex justify-between">
             <div class="flex items-center gap-4">
-                <UAvatar :src="task.user?.photo ?? getUserFallbackAvatarUrl(task.user)" size="md" />
+                <UAvatar :src="task.user?.photo ?? getFallbackAvatarUrl(getUserFullName(task.user))" size="md" />
 
                 <div class="flex flex-col">
                     <span class="font-semibold" :class="{ 'line-through': props.task.is_completed }">{{ task.description }}</span>

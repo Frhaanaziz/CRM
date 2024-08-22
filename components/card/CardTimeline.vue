@@ -187,7 +187,7 @@ function useCreateNote() {
 
                             <div class="ml-auto flex items-center gap-1">
                                 <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
-                                <UAvatar :src="getUserFallbackAvatarUrl()" size="3xs" />
+                                <UAvatar :src="getFallbackAvatarUrl(getUserFullName(activity.user))" size="3xs" />
                             </div>
                         </div>
 
@@ -224,7 +224,7 @@ function useCreateNote() {
 
                             <div class="ml-auto flex items-center gap-1">
                                 <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
-                                <UAvatar :src="getUserFallbackAvatarUrl()" size="3xs" />
+                                <UAvatar :src="getFallbackAvatarUrl(getUserFullName(activity.user))" size="3xs" />
                             </div>
                         </div>
                     </li>
@@ -259,7 +259,7 @@ function useCreateNote() {
 
                             <div class="ml-auto flex items-center gap-1">
                                 <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
-                                <UAvatar :src="getUserFallbackAvatarUrl()" size="3xs" />
+                                <UAvatar :src="getFallbackAvatarUrl(getUserFullName(activity.user))" size="3xs" />
                             </div>
                         </div>
                     </li>
@@ -294,7 +294,7 @@ function useCreateNote() {
 
                             <div class="ml-auto flex items-center gap-1">
                                 <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
-                                <UAvatar :src="getUserFallbackAvatarUrl()" size="3xs" />
+                                <UAvatar :src="getFallbackAvatarUrl(getUserFullName(activity.user))" size="3xs" />
                             </div>
                         </div>
                     </li>
@@ -329,7 +329,7 @@ function useCreateNote() {
 
                             <div class="ml-auto flex items-center gap-1">
                                 <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
-                                <UAvatar :src="getUserFallbackAvatarUrl()" size="3xs" />
+                                <UAvatar :src="getFallbackAvatarUrl(getUserFullName(activity.user))" size="3xs" />
                             </div>
                         </div>
                     </li>

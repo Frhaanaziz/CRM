@@ -450,7 +450,7 @@ function useUpdateMoreInfo() {
                         <div class="h-10 border-r border-base-300" />
 
                         <div class="flex items-center gap-2">
-                            <UAvatar :src="opportunity.user.photo ?? getUserFallbackAvatarUrl(opportunity.user)" />
+                            <UAvatar :src="opportunity.user.photo ?? getFallbackAvatarUrl(getUserFullName(opportunity.user))" />
                             <div class="shrink-0">
                                 <p class="font-semibold">{{ getUserFullName(opportunity.user) }}</p>
                                 <p class="text-xs">Owner</p>

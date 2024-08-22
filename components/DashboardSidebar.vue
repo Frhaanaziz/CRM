@@ -61,7 +61,7 @@ watchEffect(() => (pathname.value = route.path));
                 />
                 <div v-if="user" class="flex items-center gap-x-3 border-t px-3 py-2">
                     <UAvatar
-                        :src="user.user_metadata?.photo ?? getUserFallbackAvatarUrl(user.user_metadata)"
+                        :src="user.user_metadata?.photo ?? getFallbackAvatarUrl(getUserFullName(user.user_metadata))"
                         icon="i-heroicons-photo"
                         :alt="`${user.user_metadata.first_name} Avatar`"
                         size="xs"

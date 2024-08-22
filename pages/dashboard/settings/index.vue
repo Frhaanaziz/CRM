@@ -110,7 +110,7 @@ function useUpdateProfile({ user }: { user: User }) {
                     @input="onChangeFile"
                 />
                 <NuxtImg
-                    :src="profile?.photo ?? getUserFallbackAvatarUrl(profile)"
+                    :src="profile?.photo ?? getFallbackAvatarUrl(getUserFullName(profile))"
                     :alt="profile?.first_name + 'Profile'"
                     icon="i-heroicons-user"
                     width="160"

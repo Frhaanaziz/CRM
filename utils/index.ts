@@ -216,21 +216,6 @@ export function getFallbackAvatarUrl(name: string) {
     return baseUrl + '?' + params.toString();
 }
 
-export function getUserFallbackAvatarUrl(user?: Pick<User, 'first_name' | 'last_name'> | { [key: string]: any } | null): string {
-    if (!user || !user.first_name || !user.last_name)
-        return 'https://ui-avatars.com/api/?name=FA&background=F1F5F9&color=000&bold=true';
-
-    const baseUrl = 'https://ui-avatars.com/api/';
-    const params = new URLSearchParams({
-        name: getUserFullName(user),
-        background: 'F1F5F9',
-        color: '000',
-        bold: 'true',
-    });
-
-    return baseUrl + '?' + params.toString();
-}
-
 /**
  * Returns the full name of a user.
  *
@@ -249,6 +234,7 @@ export async function signOutUser() {
         console.error('Sign out error:', error);
         toast.error('Failed to sign out, please try again.');
     }
+
     const sessionStore = userSessionStore();
     sessionStore.session = null;
     sessionStore.user = null;

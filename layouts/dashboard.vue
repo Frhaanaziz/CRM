@@ -124,7 +124,7 @@ const links = computed(() => {
                 <span class="sr-only">Your profile</span>
                 <NuxtImg
                     class="rounded-full bg-gray-50"
-                    :src="user?.user_metadata?.photo ?? getUserFallbackAvatarUrl(user.user_metadata)"
+                    :src="user?.user_metadata?.photo ?? getFallbackAvatarUrl(getUserFullName(user.user_metadata))"
                     :alt="`${user.user_metadata?.first_name} Avatar`"
                     width="32"
                     height="32"
