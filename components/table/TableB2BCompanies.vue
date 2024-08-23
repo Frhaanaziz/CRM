@@ -4,7 +4,7 @@ import { useDateFormat } from '@vueuse/core';
 const { data } = await useLazyAsyncData(
     () => {
         const headers = useRequestHeaders(['cookie']);
-        return Promise.all([$fetch('/api/industries', { headers }), $fetch('/api/sizes', { headers })]);
+        return Promise.all([$fetch('/api/industries/b2b-companies', { headers }), $fetch('/api/sizes', { headers })]);
     },
     {
         transform: ([industries, sizes]) => [industries, sizes] as const,
