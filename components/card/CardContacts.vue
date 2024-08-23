@@ -166,29 +166,6 @@ function getContact(id: string) {
                 </ul>
             </template>
         </UAccordion>
-        <!-- <ul v-if="!!contacts.length" class="text-slate-700">
-            <li
-                v-for="contact in contacts"
-                :key="contact.id"
-                class="flex items-center justify-between px-2 py-1 [&:not(:last-child)]:border-b"
-            >
-                <div class="text-slate-700">
-                    <p class="font-semibold">{{ getUserFullName(contact) }}</p>
-                    <p v-if="contact.job_title" class="text-xs">{{ contact?.job_title }}</p>
-                </div>
-                <div class="flex gap-2">
-                    <UButton square icon="i-heroicons-envelope-solid" variant="ghost" color="black" disabled />
-                    <UButton
-                        square
-                        icon="i-heroicons-phone-solid"
-                        variant="ghost"
-                        color="black"
-                        :disabled="!contact.mobile_phone"
-                        @click="store.makeCall({ contact, lead_id })"
-                    />
-                </div>
-            </li>
-        </ul> -->
 
         <UButton
             v-if="!(isCreatingContact || contacts?.length > 0)"
