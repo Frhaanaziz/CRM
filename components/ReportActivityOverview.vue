@@ -11,14 +11,14 @@ const { data: reports } = await useLazyFetch('/api/reports/activity-overview', {
     query: props,
 });
 
-const stats = ref([
+const stats = computed(() => [
     {
         title: 'Opportunities',
-        value: reports.value?.total_opportunity,
+        value: reports.value?.total_opportunity ?? 0,
     },
     {
         title: 'Win Rate',
-        value: `${reports.value?.win_rate}%`,
+        value: `${reports.value?.win_rate ?? 0}%`,
     },
     {
         title: 'Avg. Time to Win',
@@ -41,14 +41,6 @@ const stats = ref([
 const doughnutCharts = computed(
     () =>
         [
-            // {
-            // title: 'Leads By Rating',
-            // data: generateDoughnutChartData(reports.value?.leads_industry ?? {}),
-            // },
-            // {
-            //     title: 'Deals Lost Reason',
-            //     data: generateDoughnutChartData(reports.value?.opportunity_lost_reason ?? {}),
-            // },
             {
                 title: 'Leads By Industry',
                 data: generateDoughnutChartData(reports.value?.leads_industry ?? {}),

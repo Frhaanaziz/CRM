@@ -7,7 +7,6 @@ const props = defineProps<{
 const { data: reports, status } = await useLazyFetch('/api/reports/performance-comparison', {
     query: props,
 });
-watchEffect(() => console.log('performance', reports.value));
 </script>
 
 <template>

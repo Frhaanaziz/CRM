@@ -10,14 +10,14 @@ const { data: reports } = await useLazyFetch('/api/reports/sales-funnel', {
     query: props,
 });
 
-const stats = ref([
+const stats = computed(() => [
     {
         title: 'Opportunities',
         value: reports.value?.total_opportunity,
     },
     {
         title: 'Win Rate',
-        value: `${reports.value?.win_rate}%`,
+        value: `${reports.value?.win_rate ?? 0}%`,
     },
     {
         title: 'Avg. Time to Win',

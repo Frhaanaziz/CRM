@@ -123,11 +123,11 @@ const userTypeOptions = ['All User', 'Admin', 'User'];
                     <UIcon name="i-heroicons-calendar-days" class="h-5 w-5" />
                 </template>
             </USelectMenu>
-            <USelectMenu v-model="userType" :options="userTypeOptions" disabled>
+            <!-- <USelectMenu v-model="userType" :options="userTypeOptions">
                 <template #leading>
                     <UIcon name="i-heroicons-user" class="h-5 w-5" />
                 </template>
-            </USelectMenu>
+            </USelectMenu> -->
         </section>
 
         <ReportSalesFunnel v-if="reportType === 'sales'" v-bind="selectedRangeOption.value" />
