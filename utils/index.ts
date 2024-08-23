@@ -1,5 +1,6 @@
 import type { User } from '~/types';
 import type { Notification } from '#ui/types';
+import { twMerge } from 'tailwind-merge';
 export * from './validators';
 export * from './validators/auth';
 export * from './validators/user';
@@ -17,6 +18,10 @@ export * from './validators/twilio-agent';
 export * from './validators/company-overview';
 export * from './validators/inbox';
 export * from './constants';
+
+export function cn(inputs: string[]) {
+    return twMerge(inputs);
+}
 
 /**
  * A utility object for displaying toast messages.

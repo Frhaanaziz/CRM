@@ -3,11 +3,13 @@ import { useDateFormat } from '@vueuse/core';
 import type { z } from 'zod';
 import type { FormSubmitEvent } from '#ui/types';
 import type { Activity, ActivityParticipant, ActivityParticipantRoles, Contact, User } from '~/types';
+import DOMPurify from 'isomorphic-dompurify';
 
 const props = defineProps<{
     lead_id?: number;
     opportunity_id?: number;
 }>();
+
 const createMode = ref<'note' | 'email' | undefined>();
 
 interface IActivity extends Activity {
@@ -100,9 +102,9 @@ function useCreateNote() {
                     label="Email"
                     color="white"
                     size="xs"
-                    :ui="{ rounded: 'rounded-full' }"
                     disabled
-                    @click="createMode = 'email'"
+                    :ui="{ rounded: 'rounded-full' }"
+                    @click="createMode === 'email' ? (createMode = undefined) : (createMode = 'email')"
                 >
                     <template #trailing>
                         <UIcon name="i-heroicons-envelope-solid" class="h-4 w-4" />
@@ -129,17 +131,10 @@ function useCreateNote() {
                     <UInput v-model="noteState.subject" variant="none" placeholder="Subject" :disabled="isCreatingNote" />
                 </UFormGroup>
                 <UFormGroup name="description">
-                    <UTextarea
-                        v-model="noteState.description"
-                        variant="none"
-                        placeholder="Description"
-                        autoresize
-                        :maxrows="10"
-                        :disabled="isCreatingNote"
-                    />
+                    <TimelineRichTextEditor v-model="noteState.description" />
                 </UFormGroup>
 
-                <div class="flex items-center gap-4 p-2">
+                <div class="flex gap-4 p-2">
                     <UButton
                         type="submit"
                         icon="i-heroicons-clipboard"
@@ -191,7 +186,11 @@ function useCreateNote() {
                             </div>
                         </div>
 
-                        <p v-if="activity.description" class="text-slate-500">{{ activity.description }}</p>
+                        <div
+                            v-if="activity.description"
+                            class="prose max-w-none text-slate-600"
+                            v-html="DOMPurify.sanitize(activity.description)"
+                        ></div>
                     </li>
 
                     <!-- Called Activity -->

@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     devtools: { enabled: true },
-    modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image', '@pinia/nuxt', 'nuxt-time'],
+    modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image', '@pinia/nuxt', 'nuxt-time', 'nuxt-tiptap-editor'],
 
     routeRules: {
         '/': { redirect: '/dashboard' },
@@ -30,6 +30,10 @@ export default defineNuxtConfig({
 
     ui: {
         icons: ['heroicons'],
+    },
+
+    tiptap: {
+        prefix: 'Tiptap', //prefix for Tiptap imports, composables not included
     },
 
     // UI module options
