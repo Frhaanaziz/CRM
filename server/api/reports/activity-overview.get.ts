@@ -10,9 +10,7 @@ export default defineEventHandler(async (event) => {
         avg_deal_size: number | null;
         opportunity_leaderboard: {
             name: string;
-            opportunity_created: number;
-            total: number;
-            opportunity_won: number;
+            value: number;
         }[];
         leads_industry: {
             [key: string]: number;

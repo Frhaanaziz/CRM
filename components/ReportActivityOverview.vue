@@ -10,6 +10,7 @@ const props = defineProps<{
 const { data: reports } = await useLazyFetch('/api/reports/activity-overview', {
     query: props,
 });
+watchEffect(() => console.log('reports', reports.value?.opportunity_leaderboard));
 
 const stats = computed(() => [
     {
@@ -124,25 +125,15 @@ function generateDoughnutChartData(data: Record<string, number>) {
             </ul>
         </div>
 
-        <div class="col-span-full space-y-2 rounded-lg bg-base-100 p-4 shadow lg:col-span-4">
+        <div class="col-span-full space-y-2 self-start rounded-lg bg-base-100 p-4 shadow lg:col-span-4">
             <h2 class="text-xl font-semibold">Leaderboard</h2>
             <UTable
-                :rows="// opportunitiesData?.opportunity_leaderboard.map(({ name, total }) => ({
-                //     user: name,
-                //     revenue: total,
-                // })) ?? []
-                [
-                    { user: 'Tiana Calzoni', revenue: 'Rp80jt' },
-                    { user: 'Livia Septimus', revenue: 'Rp70jt' },
-                    { user: 'Zain Carder', revenue: 'Rp60' },
-                    { user: 'Angel Westervelt', revenue: 'Rp50jt' },
-                    { user: 'Brandon Mango', revenue: 'Rp40jt' },
-                    { user: 'Alena Rosser', revenue: 'Rp30jt' },
-                    { user: 'Alfonso Torff', revenue: 'Rp20jt' },
-                    { user: 'Alden Kinnear', revenue: 'Rp10jt' },
-                    { user: 'Erin Gouse', revenue: 'Rp5jt' },
-                    { user: 'Kianna Calzoni', revenue: 'Rp1jt' },
-                ]"
+                :rows="
+                    reports?.opportunity_leaderboard.map(({ name, value }) => ({
+                        user: name,
+                        revenue: formatToRupiah(value),
+                    })) ?? []
+                "
             />
         </div>
     </section>
