@@ -2,9 +2,10 @@ import { serverSupabaseClient } from '#supabase/server';
 import type { Database } from '~/types/supabase';
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient<Database>(event);
+    const id = event.context.params?.id;
+    if (!id) throw createError({ status: 400, statusMessage: 'Twilio agent id is needed' });
 
-    const id = event.context.params!.id;
+    const supabase = await serverSupabaseClient<Database>(event);
 
     const { data, error } = await supabase.from('Twilio_Agents').select('*').eq('id', id).single();
     if (error) {

@@ -17,7 +17,8 @@ import type {
 import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const id = event.context.params!.id;
+    const id = event.context.params?.id;
+    if (!id) throw createError({ status: 400, statusMessage: 'Lead id is needed' });
 
     interface ILead extends Lead {
         company:

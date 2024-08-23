@@ -2,7 +2,8 @@ import type { User } from '~/types';
 import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const id = event.context.params!.id;
+    const id = event.context.params?.id;
+    if (!id) throw createError({ status: 400, statusMessage: 'User id is needed' });
 
     try {
         const fetchApi = await backendApi(event);

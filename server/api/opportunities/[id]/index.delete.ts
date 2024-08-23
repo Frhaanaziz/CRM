@@ -1,7 +1,8 @@
 import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const id = event.context.params!.id;
+    const id = event.context.params?.id;
+    if (!id) throw createError({ status: 400, statusMessage: 'Opportunity id is needed' });
 
     try {
         const fetchApi = await backendApi(event);

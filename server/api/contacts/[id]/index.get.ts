@@ -1,8 +1,9 @@
-import type { Company, Contact, User } from '~/types';
+import type { Company, Contact } from '~/types';
 import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const id = event.context.params!.id;
+    const id = event.context.params?.id;
+    if (!id) throw createError({ status: 400, statusMessage: 'Contact id is needed' });
 
     interface IContact extends Contact {
         company?: Company | null;
