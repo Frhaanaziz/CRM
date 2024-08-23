@@ -1,14 +1,7 @@
 <script setup lang="ts">
 import LazyModalConnectEmailManual from '~/components/modal/ModalConnectEmailManual.vue';
 
-const supabase = useSupabaseClient();
-
 const modal = useModal();
-function openConnectEmailModal() {
-    modal.open(LazyModalConnectEmailManual, {
-        onClose: () => modal.close(),
-    });
-}
 </script>
 
 <template>
@@ -37,7 +30,17 @@ function openConnectEmailModal() {
                 </UButton>
 
                 <p class="mt-4 text-slate-500">
-                    Or, <button class="underline" @click="openConnectEmailModal">use another email provider</button>
+                    Or,
+                    <button
+                        class="underline"
+                        @click="
+                            modal.open(LazyModalConnectEmailManual, {
+                                onClose: () => modal.close(),
+                            })
+                        "
+                    >
+                        use another email provider
+                    </button>
                 </p>
             </section>
 
