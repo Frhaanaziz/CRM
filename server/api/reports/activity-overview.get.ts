@@ -4,16 +4,10 @@ export default defineEventHandler(async (event) => {
     const fetchApi = await backendApi(event);
 
     interface IReports {
-        total_opportunity: number;
-        avg_deal_age: number | null;
+        total_opportunity: number | null;
+        win_rate: number | null;
+        avg_deal_time: number | null;
         avg_deal_size: number | null;
-        opportunity_status: {
-            [key: string]: {
-                count: number;
-                est_value?: number | null;
-                act_value: number;
-            };
-        };
         opportunity_leaderboard: {
             name: string;
             opportunity_created: number;
@@ -29,13 +23,13 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        const { data } = await fetchApi<{ data: IReports }>(`/reports`, {
+        const { data } = await fetchApi<{ data: IReports }>(`/reports/activity-overview`, {
             query: getQuery(event),
         });
 
         return data;
     } catch (error) {
-        console.error('Error getting reports (SERVER):', error);
+        console.error('Error getting reports activity overview (SERVER):', error);
         throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
     }
 });

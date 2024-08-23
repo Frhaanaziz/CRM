@@ -97,7 +97,7 @@ async function updateStatus(status: string) {
             body: JSON.stringify({ status }),
         });
 
-        await refreshNuxtData(`leads-${id}`);
+        await refreshNuxtData();
     } catch (e) {
         console.error('Failed to update Lead status:', e);
         toast.error('Failed to update Lead status, please try again later.');
