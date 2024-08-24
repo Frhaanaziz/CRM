@@ -36,7 +36,6 @@
         "nuxt-tiptap-editor": "^1.2.1",
         "pinia": "^2.1.7",
         "qs": "^6.12.3",
-        "twilio": "^5.2.2",
         "vue": "^3.4.30",
         "vue-chartjs": "^5.3.1",
         "vue-router": "^4.4.0",

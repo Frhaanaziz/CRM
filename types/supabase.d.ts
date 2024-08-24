@@ -951,6 +951,41 @@ export type Database = {
           },
         ]
       }
+      Lead_Statuses: {
+        Row: {
+          created_at: string
+          id: number
+          index_number: number
+          name: string
+          organization_id: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          index_number: number
+          name: string
+          organization_id: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          index_number?: number
+          name?: string
+          organization_id?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Lead_Statuses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "Organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Leads: {
         Row: {
           company_id: number
@@ -1649,6 +1684,12 @@ export type Database = {
           lost_reason: string
           total: number
         }[]
+      }
+      get_random_companies: {
+        Args: {
+          limit_num: number
+        }
+        Returns: Record<string, unknown>[]
       }
       get_ratings: {
         Args: {
