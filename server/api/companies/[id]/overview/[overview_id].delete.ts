@@ -1,19 +1,3 @@
-import { getErrorCode, getNestErrorMessage } from '~/utils';
+import { defineProxyProtectedHandler } from '~/server/utils/proxyProtectedHandler';
 
-export default defineEventHandler(async (event) => {
-    const company_id = getRouterParam(event, 'id');
-    if (!company_id) throw createError({ status: 400, statusMessage: 'company_id is required' });
-
-    const overview_id = getRouterParam(event, 'overview_id');
-    if (!overview_id) throw createError({ status: 400, statusMessage: 'overview_id is required' });
-
-    try {
-        const fetchApi = await backendApi(event);
-        await fetchApi(`/companies/${company_id}/overview/${overview_id}`, {
-            method: 'DELETE',
-        });
-    } catch (error) {
-        console.error(`Error deleting company overview with id (${overview_id}) (SERVER):`, error);
-        throw createError({ status: getErrorCode(error), statusMessage: getNestErrorMessage(error) });
-    }
-});
+export default defineProxyProtectedHandler();

@@ -36,6 +36,7 @@ export const updateContactSchema = contactSchema
         whatsapp: true,
         linkedin: true,
         company_id: true,
+        is_valid_email: true,
     })
     .partial();
 

@@ -25,7 +25,7 @@ async function handleSubmit(event: FormSubmitEvent<CloseOpportunityAsLostType>) 
         isSubmitting.value = true;
 
         await $fetch(`/api/opportunities/${props.opportunity.id}/close-as-lost`, {
-            method: 'POST',
+            method: 'PATCH',
             body: JSON.stringify(event.data),
         });
 

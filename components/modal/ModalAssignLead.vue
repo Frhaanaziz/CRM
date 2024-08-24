@@ -37,7 +37,7 @@ async function handleSubmit(event: FormSubmitEvent<UpdateLeadUserId>) {
     try {
         isSubmitting.value = true;
 
-        await $fetch(`/api/leads/${props.lead.id}/user-id`, {
+        await $fetch(`/api/leads/${props.lead.id}/user`, {
             method: 'PATCH',
             body: JSON.stringify(event.data),
         });

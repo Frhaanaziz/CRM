@@ -42,6 +42,8 @@ async function handleSubmit(event: FormSubmitEvent<UpdateOrganizationType>) {
             body: JSON.stringify(event.data),
         });
 
+        await useRefreshAuthSession();
+
         toast.success('Organization updated successfully');
     } catch (e) {
         console.error('Failed to update organization', e);
