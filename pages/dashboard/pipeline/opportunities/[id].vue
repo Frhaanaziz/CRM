@@ -110,7 +110,7 @@ async function updatePriority(priority: PriorityStatuses) {
         isUpdatingPriority.value = true;
 
         await $fetch(`/api/opportunities/${id}`, {
-            method: 'PUT',
+            method: 'PATCH',
             body: JSON.stringify({ id, priority }),
         });
 
@@ -151,7 +151,7 @@ function useUpdateMoreInfo() {
             isUpdating.value = true;
 
             await $fetch(`/api/opportunities/${id}`, {
-                method: 'PUT',
+                method: 'PATCH',
                 body: JSON.stringify(event.data),
             });
 

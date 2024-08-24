@@ -60,7 +60,7 @@ function useUpdateOpportunity() {
             isUpdating.value = true;
 
             await $fetch(`/api/opportunities/${opportunity.value.id}`, {
-                method: 'PUT',
+                method: 'PATCH',
                 body: JSON.stringify({
                     ...event.data,
                     act_close_date: event.data.act_close_date && new Date(event.data.act_close_date),

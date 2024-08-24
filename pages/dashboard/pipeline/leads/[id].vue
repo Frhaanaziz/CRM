@@ -78,7 +78,7 @@ const address = ref(lead.value.company?.address ?? undefined);
 async function updateCompanyAddress() {
     try {
         await $fetch(`/api/companies/${lead.value?.company?.id}`, {
-            method: 'PUT',
+            method: 'PATCH',
             body: JSON.stringify({ address: address.value }),
         });
 

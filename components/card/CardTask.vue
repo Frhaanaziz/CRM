@@ -20,7 +20,7 @@ async function completeTask() {
         isUpdating.value = true;
 
         await $fetch(`/api/tasks/${props.task.id}`, {
-            method: 'PUT',
+            method: 'PATCH',
             body: JSON.stringify({
                 id: props.task.id,
                 is_completed: true,
@@ -66,7 +66,7 @@ function useUpdateTask() {
             isUpdating.value = true;
 
             await $fetch(`/api/tasks/${props.task.id}`, {
-                method: 'PUT',
+                method: 'PATCH',
                 body: JSON.stringify(event.data),
             });
 

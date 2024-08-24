@@ -65,7 +65,7 @@ function useUpdateCompany() {
             isUpdating.value = true;
 
             await $fetch(`/api/companies/${company.value.id}`, {
-                method: 'PUT',
+                method: 'PATCH',
                 body: JSON.stringify(event.data),
             });
 

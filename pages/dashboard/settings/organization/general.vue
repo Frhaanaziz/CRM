@@ -38,7 +38,7 @@ async function handleSubmit(event: FormSubmitEvent<UpdateOrganizationType>) {
     try {
         isSubmitting.value = true;
         await $fetch(`/api/organizations/${organization.value?.id}`, {
-            method: 'PUT',
+            method: 'PATCH',
             body: JSON.stringify(event.data),
         });
 
