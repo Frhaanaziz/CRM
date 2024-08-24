@@ -1,10 +1,10 @@
 import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const company_id = event.context.params?.id;
+    const company_id = getRouterParam(event, 'id');
     if (!company_id) throw createError({ status: 400, statusMessage: 'company_id is required' });
 
-    const overview_id = event.context.params?.overview_id;
+    const overview_id = getRouterParam(event, 'overview_id');
     if (!overview_id) throw createError({ status: 400, statusMessage: 'overview_id is required' });
 
     try {

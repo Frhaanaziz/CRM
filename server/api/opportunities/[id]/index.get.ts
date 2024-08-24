@@ -2,7 +2,7 @@ import type { Company, Contact, Currency, Lead, Opportunity, OpportunityStatus, 
 import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const id = event.context.params?.id;
+    const id = getRouterParam(event, 'id');
     if (!id) throw createError({ status: 400, statusMessage: 'Opportunity ID is required.' });
 
     interface IOpportunity extends Opportunity {

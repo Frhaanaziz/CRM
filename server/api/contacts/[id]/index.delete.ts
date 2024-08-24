@@ -1,7 +1,7 @@
 import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const id = event.context.params?.id;
+    const id = getRouterParam(event, 'id');
     if (!id) throw createError({ status: 400, statusMessage: 'Contact id is needed' });
 
     try {

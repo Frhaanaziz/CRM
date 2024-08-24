@@ -2,7 +2,7 @@ import type { Organization, User } from '~/types';
 import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const user_id = event.context.params?.id;
+    const user_id = getRouterParam(event, 'id');
 
     interface IUser extends User {
         organization: Organization | null;

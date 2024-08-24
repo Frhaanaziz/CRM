@@ -2,8 +2,8 @@ import type { Role, User } from '~/types';
 import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const organizationId = event.context.params?.id;
-    if (!organizationId) throw createError({ status: 400, statusMessage: 'Organization id is needed' });
+    const organization_id = getRouterParam(event, 'id');
+    if (!organization_id) throw createError({ status: 400, statusMessage: 'Organization id is needed' });
 
     interface IUser extends User {
         role?: Pick<Role, 'name'> | null;
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
     try {
         const fetchApi = await backendApi(event);
-        const { data } = await fetchApi<{ data: IUser[] }>(`/organizations/${organizationId}/users`);
+        const { data } = await fetchApi<{ data: IUser[] }>(`/organizations/${organization_id}/users`);
 
         return data;
     } catch (error) {

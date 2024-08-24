@@ -4,7 +4,7 @@ import type { Database } from '~/types/supabase';
 export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient<Database>(event);
 
-    const id = event.context.params?.id;
+    const id = getRouterParam(event, 'id');
     if (!id) throw createError({ status: 400, statusMessage: 'User id is needed' });
 
     const formData = await readFormData(event);

@@ -2,7 +2,7 @@ import type { Invitation, Organization, User } from '~/types';
 import { getErrorCode, getNestErrorMessage } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const code = event.context.params?.code;
+    const code = getRouterParam(event, 'code');
     if (!code) throw createError({ status: 400, statusMessage: 'No id provided' });
 
     interface IInvitation extends Invitation {

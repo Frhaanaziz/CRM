@@ -3,7 +3,7 @@ import type { Database } from '~/types/supabase';
 import { getErrorCode, getNestErrorMessage, updateOrganizationSchema } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const id = event.context.params?.id;
+    const id = getRouterParam(event, 'id');
     if (!id) throw createError({ status: 400, statusMessage: 'Organization id is needed' });
 
     const body = await readValidatedBody(event, updateOrganizationSchema.partial().parse);

@@ -3,7 +3,7 @@ import type { Database } from '~/types/supabase';
 import { updateUserStatusSchema } from '~/utils';
 
 export default defineEventHandler(async (event) => {
-    const id = event.context.params?.id;
+    const id = getRouterParam(event, 'id');
     if (!id) throw createError({ status: 400, statusMessage: 'User id is needed' });
 
     const body = await readValidatedBody(event, updateUserStatusSchema.parse);

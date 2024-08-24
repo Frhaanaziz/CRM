@@ -5,7 +5,7 @@ import { reorderSchema, updateOpportunityStatusId } from '~/utils';
 
 const schema = updateOpportunityStatusId.merge(reorderSchema);
 export default defineEventHandler(async (event) => {
-    const id = event.context.params?.id;
+    const id = getRouterParam(event, 'id');
     if (!id) throw createError({ status: 400, statusMessage: 'Opportunity id is needed' });
 
     const user = await serverSupabaseUser(event);
