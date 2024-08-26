@@ -10,7 +10,6 @@ const props = defineProps<{
 const { data: reports } = await useLazyFetch('/api/reports/activity-overview', {
     query: props,
 });
-watchEffect(() => console.log('reports', reports.value?.opportunity_leaderboard));
 
 const stats = computed(() => [
     {
@@ -19,7 +18,7 @@ const stats = computed(() => [
     },
     {
         title: 'Win Rate',
-        value: `${reports.value?.win_rate ?? 0}%`,
+        value: `${reports.value?.win_rate?.toFixed(2) ?? 0}%`,
     },
     {
         title: 'Avg. Time to Win',

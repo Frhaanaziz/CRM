@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { ChartData } from 'chart.js';
 import { Bar } from 'vue-chartjs';
 
 const props = defineProps<{
@@ -9,6 +10,10 @@ const props = defineProps<{
 const { data: reports } = await useLazyFetch('/api/reports/sales-funnel', {
     query: props,
 });
+const opportunityStatuses = computed(() =>
+    Object.keys(reports.value?.opportunity_status ?? {}).map((key) => ({ name: key, ...reports.value?.opportunity_status[key] }))
+);
+watchEffect(() => console.log('reports', reports.value?.opportunity_status));
 
 const stats = computed(() => [
     {
@@ -17,7 +22,7 @@ const stats = computed(() => [
     },
     {
         title: 'Win Rate',
-        value: `${reports.value?.win_rate ?? 0}%`,
+        value: `${reports.value?.win_rate?.toFixed(2) ?? 0}%`,
     },
     {
         title: 'Avg. Time to Win',
@@ -28,6 +33,29 @@ const stats = computed(() => [
         value: formatToRupiah(reports.value?.avg_deal_size ?? 0),
     },
 ]);
+
+function formatOpportunityStatusToBarData() {
+    const data = reports.value?.opportunity_status ?? {};
+    const labels = Object.keys(data);
+    return {
+        labels,
+        datasets: [
+            {
+                data: labels.map((label) => data[label].count),
+                backgroundColor: labels.map((label) => {
+                    if (label === 'won') return 'rgba(0, 161, 85, 1)';
+                    return 'rgba(37, 99, 235, 1)';
+                }),
+                borderWidth: 0,
+                borderRadius: 10,
+                borderSkipped: false,
+
+                barPercentage: 1,
+                categoryPercentage: 0.9,
+            },
+        ],
+    } satisfies ChartData<'bar'>;
+}
 </script>
 
 <template>
@@ -41,45 +69,19 @@ const stats = computed(() => [
 
         <div class="grid grid-cols-12">
             <ul class="col-span-2 grid grid-cols-1 gap-4 py-2">
-                <li class="space-y-1 px-2">
-                    <p class="truncate rounded bg-blue-800 px-2 py-1 text-center font-semibold text-white">Qualified</p>
-                    <p class="px-2 py-1 text-center font-semibold text-gray-500">70 Days</p>
-                </li>
-                <li class="space-y-1 px-2">
-                    <p class="truncate rounded bg-blue-800 px-2 py-1 text-center font-semibold text-white">Proposal Sent</p>
-                    <p class="px-2 py-1 text-center font-semibold text-gray-500">70 Days</p>
-                </li>
-                <li class="space-y-1 px-2">
-                    <p class="truncate rounded bg-blue-800 px-2 py-1 text-center font-semibold text-white">Contract Sent</p>
-                    <p class="px-2 py-1 text-center font-semibold text-gray-500">70 Days</p>
-                </li>
-                <li class="space-y-1 px-2">
-                    <p class="truncate rounded bg-green-800 px-2 py-1 text-center font-semibold text-white">Won</p>
-                    <!-- <p class="px-2 py-1 text-center font-semibold text-gray-500">70 Days</p> -->
+                <li v-for="status in opportunityStatuses" :key="status.name" class="space-y-1 px-2">
+                    <p
+                        class="truncate rounded px-2 py-1 text-center font-semibold capitalize text-white"
+                        :class="[status.name === 'won' ? 'bg-green-800' : 'bg-blue-800']"
+                    >
+                        {{ status.name }}
+                    </p>
+                    <p class="px-2 py-1 text-center font-semibold text-gray-500">{{ status.count }}</p>
                 </li>
             </ul>
             <div class="col-span-10 h-[345px]">
                 <Bar
-                    :data="{
-                        labels: ['Qualified', 'Proposal Sent', 'Contract Sent', 'Won'],
-                        datasets: [
-                            {
-                                data: [65, 59, 80, 81],
-                                backgroundColor: [
-                                    'rgba(37, 99, 235, 1)',
-                                    'rgba(37, 99, 235, 1)',
-                                    'rgba(37, 99, 235, 1)',
-                                    'rgba(0, 161, 85, 1)',
-                                ],
-                                borderWidth: 0,
-                                borderRadius: 10,
-                                borderSkipped: false,
-
-                                barPercentage: 1,
-                                categoryPercentage: 0.9,
-                            },
-                        ],
-                    }"
+                    :data="formatOpportunityStatusToBarData()"
                     :options="{
                         responsive: true,
                         maintainAspectRatio: false,

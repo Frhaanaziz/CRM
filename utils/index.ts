@@ -78,12 +78,12 @@ export function getErrorMessage(error: unknown): string {
             if (data && typeof data === 'object' && 'statusMessage' in data) {
                 message = String(data.statusMessage);
             } else {
-                console.log('Error data:', data);
+                console.error('Error data:', data);
                 // message = 'Error response structure is not as expected.';
                 message = 'Something went wrong, please try again later.';
             }
         } else {
-            console.log('Error response:', response);
+            console.error('Error response:', response);
             // message = 'Error response does not contain expected data structure.';
             message = 'Something went wrong, please try again later.';
         }
