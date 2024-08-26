@@ -182,7 +182,10 @@ function useCreateNote() {
 
                             <div class="ml-auto flex items-center gap-1">
                                 <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
-                                <UAvatar :src="getFallbackAvatarUrl(getUserFullName(activity.user))" size="3xs" />
+                                <UAvatar
+                                    :src="activity.user?.photo || getFallbackAvatarUrl(getUserFullName(activity.user))"
+                                    size="3xs"
+                                />
                             </div>
                         </div>
 
@@ -223,7 +226,10 @@ function useCreateNote() {
 
                             <div class="ml-auto flex items-center gap-1">
                                 <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
-                                <UAvatar :src="getFallbackAvatarUrl(getUserFullName(activity.user))" size="3xs" />
+                                <UAvatar
+                                    :src="activity.user?.photo || getFallbackAvatarUrl(getUserFullName(activity.user))"
+                                    size="3xs"
+                                />
                             </div>
                         </div>
                     </li>
@@ -258,7 +264,10 @@ function useCreateNote() {
 
                             <div class="ml-auto flex items-center gap-1">
                                 <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
-                                <UAvatar :src="getFallbackAvatarUrl(getUserFullName(activity.user))" size="3xs" />
+                                <UAvatar
+                                    :src="activity.user?.photo || getFallbackAvatarUrl(getUserFullName(activity.user))"
+                                    size="3xs"
+                                />
                             </div>
                         </div>
                     </li>
@@ -293,7 +302,10 @@ function useCreateNote() {
 
                             <div class="ml-auto flex items-center gap-1">
                                 <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
-                                <UAvatar :src="getFallbackAvatarUrl(getUserFullName(activity.user))" size="3xs" />
+                                <UAvatar
+                                    :src="activity.user?.photo || getFallbackAvatarUrl(getUserFullName(activity.user))"
+                                    size="3xs"
+                                />
                             </div>
                         </div>
                     </li>
@@ -328,7 +340,10 @@ function useCreateNote() {
 
                             <div class="ml-auto flex items-center gap-1">
                                 <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
-                                <UAvatar :src="getFallbackAvatarUrl(getUserFullName(activity.user))" size="3xs" />
+                                <UAvatar
+                                    :src="activity.user?.photo || getFallbackAvatarUrl(getUserFullName(activity.user))"
+                                    size="3xs"
+                                />
                             </div>
                         </div>
                     </li>
@@ -337,34 +352,169 @@ function useCreateNote() {
                     <li
                         v-if="activity.type === 'updated'"
                         :key="activity.id"
-                        class="flex items-center gap-2 rounded-lg bg-base-100 p-4 shadow-sm"
+                        class="flex items-center justify-between rounded-lg bg-base-100 p-4 shadow-sm"
                     >
-                        <p class="text-slate-600">{{ activity.subject.split(' from ').at(0) + ' from' }}</p>
-                        <UBadge :ui="{ rounded: 'rounded-full' }" class="bg-slate-700 capitalize">
-                            {{ activity.subject.split(' from ').at(1)?.split(' to ').at(0) }}
-                        </UBadge>
-                        <UIcon name="i-heroicons-arrow-long-right" />
-                        <UBadge :ui="{ rounded: 'rounded-full' }" class="bg-slate-700 capitalize">
-                            {{ activity.subject.split(' from ').at(1)?.split(' to ').at(1) }}
-                        </UBadge>
-                        <p class="text-slate-400">
-                            {{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
-                        </p>
+                        <div class="flex items-center gap-2">
+                            <p class="text-slate-600">{{ activity.subject.split(' from ').at(0) + ' from' }}</p>
+                            <UBadge :ui="{ rounded: 'rounded-full' }" class="bg-slate-700 capitalize">
+                                {{ activity.subject.split(' from ').at(1)?.split(' to ').at(0) }}
+                            </UBadge>
+                            <UIcon name="i-heroicons-arrow-long-right" />
+                            <UBadge :ui="{ rounded: 'rounded-full' }" class="bg-slate-700 capitalize">
+                                {{ activity.subject.split(' from ').at(1)?.split(' to ').at(1) }}
+                            </UBadge>
+                            <p class="text-slate-400">
+                                {{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
+                            </p>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
+                            <UAvatar
+                                :src="activity.user?.photo || getFallbackAvatarUrl(getUserFullName(activity.user))"
+                                size="3xs"
+                            />
+                        </div>
+                    </li>
+
+                    <!-- Close as lost -->
+                    <li
+                        v-if="activity.type === 'closed as lost'"
+                        :key="activity.id"
+                        class="flex items-center justify-between rounded-lg bg-base-100 p-4 shadow-sm"
+                    >
+                        <div class="flex items-center gap-2">
+                            <UIcon name="i-heroicons-x-circle" class="h-5 w-5" />
+
+                            <p class="text-slate-600">
+                                Closed as Lost by
+                                <span class="font-semibold">
+                                    {{ getUserFullName(getParticipantByRole(activity, 'author')?.user) }}
+                                </span>
+                            </p>
+                            <p class="text-slate-400">
+                                {{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
+                            <UAvatar
+                                :src="activity.user?.photo || getFallbackAvatarUrl(getUserFullName(activity.user))"
+                                size="3xs"
+                            />
+                        </div>
+                    </li>
+
+                    <!-- Close as won -->
+                    <li
+                        v-if="activity.type === 'closed as won'"
+                        :key="activity.id"
+                        class="flex items-center justify-between rounded-lg bg-base-100 p-4 shadow-sm"
+                    >
+                        <div class="flex items-center gap-2">
+                            <UIcon name="i-heroicons-check-circle" class="h-5 w-5" />
+
+                            <p class="text-slate-600">
+                                Closed as Won by
+                                <span class="font-semibold">
+                                    {{ getUserFullName(getParticipantByRole(activity, 'author')?.user) }}
+                                </span>
+                            </p>
+                            <p class="text-slate-400">
+                                {{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
+                            <UAvatar
+                                :src="activity.user?.photo || getFallbackAvatarUrl(getUserFullName(activity.user))"
+                                size="3xs"
+                            />
+                        </div>
+                    </li>
+
+                    <!-- Assigned -->
+                    <li
+                        v-if="activity.type === 'assigned'"
+                        :key="activity.id"
+                        class="flex items-center justify-between rounded-lg bg-base-100 p-4 shadow-sm"
+                    >
+                        <div class="flex items-center gap-2">
+                            <UIcon name="i-heroicons-user" class="h-5 w-5 scale-x-[-1]" />
+
+                            <p class="text-slate-600">
+                                <span class="font-semibold">
+                                    {{ getUserFullName(getParticipantByRole(activity, 'author')?.user) }}
+                                </span>
+                                assigned this lead to
+                                <span class="font-semibold">
+                                    {{ getUserFullName(getParticipantByRole(activity, 'assignee')?.user) }}
+                                </span>
+                            </p>
+                            <p class="text-slate-400">
+                                {{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
+                            <UAvatar
+                                :src="activity.user?.photo || getFallbackAvatarUrl(getUserFullName(activity.user))"
+                                size="3xs"
+                            />
+                        </div>
+                    </li>
+
+                    <!-- Reopened -->
+                    <li
+                        v-if="activity.type === 'reopened'"
+                        :key="activity.id"
+                        class="flex items-center justify-between rounded-lg bg-base-100 p-4 shadow-sm"
+                    >
+                        <div class="flex items-center gap-2">
+                            <UIcon name="i-heroicons-arrow-top-right-on-square" class="h-5 w-5 scale-x-[-1]" />
+
+                            <p class="text-slate-600">
+                                Reopened by
+                                <span class="font-semibold">
+                                    {{ getUserFullName(getParticipantByRole(activity, 'author')?.user) }}
+                                </span>
+                            </p>
+                            <p class="text-slate-400">
+                                {{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
+                            <UAvatar
+                                :src="activity.user?.photo || getFallbackAvatarUrl(getUserFullName(activity.user))"
+                                size="3xs"
+                            />
+                        </div>
                     </li>
 
                     <!-- Lead Source -->
                     <li
                         v-if="activity.type === 'lead created'"
                         :key="activity.id"
-                        class="flex items-center gap-2 rounded-lg bg-base-100 p-4 shadow-sm"
+                        class="flex items-center justify-between rounded-lg bg-base-100 p-4 shadow-sm"
                     >
-                        <p class="text-slate-600">Lead created - Source</p>
-                        <UBadge variant="soft" :ui="{ rounded: 'rounded-full' }" class="capitalize">
-                            {{ activity.subject.toLowerCase().split('source ')?.at(1) ?? '---' }}
-                        </UBadge>
-                        <p class="text-slate-400">
-                            {{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
-                        </p>
+                        <div class="flex items-center gap-2">
+                            <p class="text-slate-600">Lead created - Source</p>
+                            <UBadge variant="soft" :ui="{ rounded: 'rounded-full' }" class="capitalize">
+                                {{ activity.subject.toLowerCase().split('source ')?.at(1) ?? '---' }}
+                            </UBadge>
+                            <p class="text-slate-400">
+                                {{ useDateFormat(activity.created_at, 'DD/MM/YYYY hh:mm A').value.replace('"', '') }}
+                            </p>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <p class="text-xs text-slate-400">{{ getUserFullName(activity.user) }}</p>
+                            <UAvatar
+                                :src="activity.user?.photo || getFallbackAvatarUrl(getUserFullName(activity.user))"
+                                size="3xs"
+                            />
+                        </div>
                     </li>
                 </template>
             </ul>

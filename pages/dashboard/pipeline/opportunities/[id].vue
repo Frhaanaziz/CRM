@@ -49,7 +49,7 @@ const opportunityForm = ref<null | {
 }>(null);
 
 async function reopenOpportunity(statusName: OpportunityStatus['name']) {
-    const status = opportunityStatuses.value?.find((s) => s.name.toLowerCase() === statusName);
+    const status = opportunityStatuses.value?.find((s) => s.name.toLowerCase() === statusName.toLowerCase());
     if (!status) {
         console.error(`Opportunity status ${statusName} not found for organization ${organization_id}`);
         toast.error('Opportunity status not found');

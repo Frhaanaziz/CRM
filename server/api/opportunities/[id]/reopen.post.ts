@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     const opportunityRes = await supabase
         .from('Opportunities')
-        .update({ opportunity_status_id, close_reason_id: null, act_revenue: null, act_close_date: null })
+        .update({ opportunity_status_id, act_revenue: null, act_close_date: null })
         .eq('id', id);
     if (opportunityRes.error) {
         console.error('Error updating opportunity status', opportunityRes.error);
