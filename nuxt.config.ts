@@ -1,7 +1,16 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     devtools: { enabled: true },
-    modules: ['@nuxt/eslint', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image', '@pinia/nuxt', 'nuxt-time', 'nuxt-tiptap-editor'],
+    modules: [
+        '@nuxt/eslint',
+        '@nuxtjs/supabase',
+        '@nuxt/ui',
+        '@nuxt/image',
+        '@pinia/nuxt',
+        'nuxt-time',
+        'nuxt-tiptap-editor',
+        '@nuxtjs/seo',
+    ],
 
     routeRules: {
         '/': { redirect: '/dashboard' },
@@ -23,6 +32,16 @@ export default defineNuxtConfig({
             },
         },
     },
+
+    site: {
+        url: process.env.NUXT_PUBLIC_BASE_URL,
+        name: 'IDB2B',
+        description: 'Managing leads and closing sales just got easier with our CRM lead management software.',
+        defaultLocale: 'en',
+
+        indexable: false,
+    },
+    ogImage: { enabled: false },
 
     tailwindcss: {
         viewer: false,

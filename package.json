@@ -20,6 +20,7 @@
         "@nuxt/eslint": "^0.3.13",
         "@nuxt/image": "^1.7.0",
         "@nuxt/ui": "^2.17.0",
+        "@nuxtjs/seo": "2.0.0-rc.19",
         "@nuxtjs/tailwindcss": "6.12.0",
         "@pinia/nuxt": "^0.5.1",
         "@tiptap/extension-placeholder": "^2.6.3",
