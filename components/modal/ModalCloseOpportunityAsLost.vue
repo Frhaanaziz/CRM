@@ -24,10 +24,10 @@ async function handleSubmit(event: FormSubmitEvent<CloseOpportunityAsLostType>) 
     try {
         isSubmitting.value = true;
 
-        await $fetch(`/api/opportunities/${props.opportunity.id}/close-as-lost`, {
-            method: 'PATCH',
-            body: JSON.stringify(event.data),
-        });
+        // await $fetch(`/api/opportunities/${props.opportunity.id}/close-as-lost`, {
+        //     method: 'PATCH',
+        //     body: JSON.stringify(event.data),
+        // });
 
         closeModal();
         await refreshNuxtData();

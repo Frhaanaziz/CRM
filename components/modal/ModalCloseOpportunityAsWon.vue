@@ -23,10 +23,10 @@ async function handleSubmit(event: FormSubmitEvent<CloseOpportunityAsWonType>) {
     try {
         isSubmitting.value = true;
 
-        await $fetch(`/api/opportunities/${props.opportunity.id}/close-as-won`, {
-            method: 'PATCH',
-            body: JSON.stringify(event.data),
-        });
+        // await $fetch(`/api/opportunities/${props.opportunity.id}/close-as-won`, {
+        //     method: 'PATCH',
+        //     body: JSON.stringify(event.data),
+        // });
 
         closeModal();
         toast.success('Opportunity closed as won successfully.');

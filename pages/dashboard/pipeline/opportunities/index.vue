@@ -419,7 +419,7 @@ function useTable() {
                                     <div class="flex items-start justify-between gap-4">
                                         <div class="space-y-0.5">
                                             <NuxtLink
-                                                :href="`/dashboard/pipeline/opportunities/${opportunity.id}`"
+                                                :href="`/dashboard/pipeline/leads/${opportunity.lead?.id}`"
                                                 class="ignore-element truncate font-semibold text-brand"
                                             >
                                                 {{ opportunity.lead?.company?.name }}

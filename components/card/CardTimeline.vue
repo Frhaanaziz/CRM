@@ -7,7 +7,6 @@ import DOMPurify from 'isomorphic-dompurify';
 
 const props = defineProps<{
     lead_id?: number;
-    opportunity_id?: number;
 }>();
 
 const createMode = ref<'note' | 'email' | undefined>();

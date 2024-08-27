@@ -38,7 +38,7 @@ const pageCount = defineModel('pageCount', { type: Number, required: true });
         <template #lead(company(name))-data="{ row }">
             <NuxtLink
                 v-if="row.lead?.company"
-                :href="`/dashboard/pipeline/opportunities/${row.id}`"
+                :href="`/dashboard/pipeline/leads/${row.lead?.id}`"
                 class="text-brand hover:underline"
             >
                 {{ row.lead?.company?.name }}
