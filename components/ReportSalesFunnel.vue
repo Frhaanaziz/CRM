@@ -79,12 +79,11 @@ function formatOpportunityStatusToBarData() {
                     <p class="px-2 py-1 text-center font-semibold text-gray-500">{{ status.count }}</p>
                 </li>
             </ul>
-            <div class="col-span-10 h-[345px]">
+            <div class="col-span-10">
                 <Bar
                     :data="formatOpportunityStatusToBarData()"
                     :options="{
                         responsive: true,
-                        maintainAspectRatio: false,
                         indexAxis: 'y',
                         scales: {
                             x: {
