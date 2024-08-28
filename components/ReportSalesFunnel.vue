@@ -13,7 +13,6 @@ const { data: reports } = await useLazyFetch('/api/reports/sales-funnel', {
 const opportunityStatuses = computed(() =>
     Object.keys(reports.value?.opportunity_status ?? {}).map((key) => ({ name: key, ...reports.value?.opportunity_status[key] }))
 );
-watchEffect(() => console.log('reports', reports.value?.opportunity_status));
 
 const stats = computed(() => [
     {
