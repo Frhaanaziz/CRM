@@ -33,6 +33,15 @@ export default defineNuxtConfig({
         },
     },
 
+    ogImage: {
+        defaults: {
+            width: 1280,
+            height: 720,
+            url: '/og-image.jpg',
+            extension: 'jpg',
+        },
+    },
+
     site: {
         url: process.env.NUXT_PUBLIC_BASE_URL,
         name: 'IDB2B',
@@ -41,7 +50,6 @@ export default defineNuxtConfig({
 
         indexable: false,
     },
-    ogImage: { enabled: false },
 
     tailwindcss: {
         viewer: false,
