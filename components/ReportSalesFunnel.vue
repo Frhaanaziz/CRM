@@ -83,6 +83,7 @@ function formatOpportunityStatusToBarData() {
                 <Bar
                     :data="formatOpportunityStatusToBarData()"
                     :options="{
+                        maintainAspectRatio: false,
                         responsive: true,
                         indexAxis: 'y',
                         scales: {
