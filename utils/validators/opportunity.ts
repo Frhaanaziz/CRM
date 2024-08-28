@@ -86,17 +86,22 @@ export const addLeadOpportunitySchema = opportunitySchema
 
 export const updateOpportunitySchema = opportunitySchema
     .pick({
-        act_close_date: true,
-        currency_id: true,
-        act_budget: true,
-        est_revenue: true,
-        payment_plan: true,
-        confidence: true,
-        priority: true,
+        contact_id: true,
         opportunity_status_id: true,
+        currency_id: true,
+        payment_plan: true,
+        est_budget: true,
+        est_revenue: true,
+        est_close_date: true,
+        confidence: true,
+        act_budget: true,
+        act_revenue: true,
+        act_close_date: true,
         current_situation: true,
         customer_need: true,
         proposed_solution: true,
+        close_reason: true,
+        notes: true,
     })
     .partial();
 

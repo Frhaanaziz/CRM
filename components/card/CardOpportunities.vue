@@ -83,7 +83,7 @@ async function handleSubmit(event: FormSubmitEvent<AddLeadOpportunityType>) {
                 </UFormGroup>
 
                 <div class="grid grid-cols-2 gap-2">
-                    <UFormGroup label="Estimated Close" name="est_close_date" required>
+                    <UFormGroup label="Est. Close" name="est_close_date" required>
                         <UInput
                             v-model.date="state.est_close_date"
                             type="datetime-local"
@@ -111,7 +111,7 @@ async function handleSubmit(event: FormSubmitEvent<AddLeadOpportunityType>) {
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
-                    <UFormGroup label="Value" name="est_revenue" required>
+                    <UFormGroup label="Est. Revenue" name="est_revenue" required>
                         <UInput
                             v-model.number="state.est_revenue"
                             type="number"
@@ -168,7 +168,13 @@ async function handleSubmit(event: FormSubmitEvent<AddLeadOpportunityType>) {
         </div>
 
         <ul v-if="!!opportunities?.length" class="divide-y">
-            <LazyCardOpportunity v-for="opportunity in opportunities" :key="opportunity.id" :opportunity />
+            <LazyCardOpportunity
+                v-for="opportunity in opportunities"
+                :key="opportunity.id"
+                :opportunity
+                :opportunityStatusesOption
+                :contacts
+            />
         </ul>
 
         <UButton
