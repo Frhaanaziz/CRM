@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Call, Device } from '@twilio/voice-sdk';
 import { useDraggable, useWindowSize } from '@vueuse/core';
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import type { Contact, Lead, Opportunity } from '~/types';
 
 const { setMakeCall, setTwilioEnabled } = globalStore();
@@ -311,7 +311,7 @@ function toggleCallWindow() {
     }
 }
 
-onMounted(async () => {
+watchEffect(async () => {
     if (!twilioSetting.value || !user.value) return;
 
     const enabled = twilioSetting.value.enabled;
@@ -326,7 +326,6 @@ onMounted(async () => {
 
     setMakeCall(makeOutgoingCall);
 });
-
 watch(log, (v) => console.log(v));
 </script>
 
