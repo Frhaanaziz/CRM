@@ -214,6 +214,7 @@ function useAddLeadStatus() {
                                 color="white"
                                 icon="i-heroicons-bars-3"
                                 class="handle cursor-move"
+                                :disabled="isReordering"
                                 :padded="false"
                             />
                             <span>{{ index + 1 }}</span>
