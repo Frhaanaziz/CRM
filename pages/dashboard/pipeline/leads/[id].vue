@@ -24,6 +24,15 @@ const { data: lead } = await useFetch(`/api/leads/${id}`, {
 });
 if (!lead.value) throw createError({ status: 404, message: 'Lead not found' });
 
+const { data: leadStatuses } = await useFetch('/api/lead-statuses', {
+    key: 'lead-statuses',
+    headers: useRequestHeaders(['cookie']),
+});
+const leadStatusesItem = computed<DropdownItem[][]>(() => {
+    if (!leadStatuses.value) return [];
+    return [leadStatuses.value.map((status) => ({ label: status.name, click: () => updateStatus(status.name) }))];
+});
+
 const companyForm = ref<FormRef | null>(null);
 const submitCompanyForm = () => companyForm.value?.submitForm();
 const resetCompanyForm = () => companyForm.value?.resetForm();
@@ -32,47 +41,6 @@ const isUpdatingCompany = computed(() => companyForm.value?.isUpdating);
 
 const isUpdatingStatus = ref(false);
 const isEditingAddressMode = ref(false);
-
-const items: DropdownItem[][] = [
-    [
-        {
-            label: 'Inbound - Trial',
-            click: () => updateStatus('Inbound - Trial'),
-        },
-        {
-            label: 'Inbound - Trial Expired',
-            click: () => updateStatus('Inbound - Trial Expired'),
-        },
-        {
-            label: 'Outboud - Potential',
-            click: () => updateStatus('Outboud - Potential'),
-        },
-        {
-            label: 'Outboud - Interested',
-            click: () => updateStatus('Outboud - Interested'),
-        },
-        {
-            label: 'Outboud - Qualified',
-            click: () => updateStatus('Outboud - Qualified'),
-        },
-        {
-            label: 'Customer',
-            click: () => updateStatus('Customer'),
-        },
-        {
-            label: 'Canceled',
-            click: () => updateStatus('Canceled'),
-        },
-        {
-            label: 'Bad Fit',
-            click: () => updateStatus('Bad Fit'),
-        },
-        {
-            label: 'Not Interested',
-            click: () => updateStatus('Not Interested'),
-        },
-    ],
-];
 
 const address = ref(lead.value.company?.address ?? undefined);
 async function updateCompanyAddress() {
@@ -92,10 +60,10 @@ async function updateStatus(status: string) {
     try {
         isUpdatingStatus.value = true;
 
-        await $fetch(`/api/leads/${id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({ status }),
-        });
+        // await $fetch(`/api/leads/${id}`, {
+        //     method: 'PATCH',
+        //     body: JSON.stringify({ status }),
+        // });
 
         await refreshNuxtData();
     } catch (e) {
@@ -214,7 +182,7 @@ async function handleDeleteLead() {
                 </div>
 
                 <UDropdown
-                    :items="items.map((item) => item.filter((i) => i.label !== lead!.status))"
+                    :items="leadStatusesItem?.map((item) => item.filter((i) => i.label !== lead?.status?.name))"
                     :ui="{ item: { disabled: 'cursor-text select-text' } }"
                     :popper="{ placement: 'bottom-start' }"
                     :disabled="isUpdatingStatus"
@@ -222,15 +190,10 @@ async function handleDeleteLead() {
                     <div :class="[isUpdatingStatus ? 'cursor-not-allowed opacity-50' : '']">
                         <p class="text-center text-xs text-gray-500">Status</p>
                         <div class="flex items-center gap-1">
-                            <p class="font-semibold">{{ lead.status || '---' }}</p>
+                            <p class="font-semibold">{{ lead.status?.name || '---' }}</p>
                             <UIcon name="i-heroicons-chevron-down-solid" class="h-5 w-5" />
                         </div>
                     </div>
-                    <!-- <template #item="{ item }">
-                        <span class="truncate">{{ item.label.split(' - ')?.at(1) ?? item.label }}</span>
-
-                        <UIcon :name="item.icon" class="ms-auto h-4 w-4 flex-shrink-0 text-gray-700" />
-                    </template> -->
                 </UDropdown>
             </div>
         </header>

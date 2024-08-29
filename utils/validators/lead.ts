@@ -4,7 +4,7 @@ export const leadSchema = z.object({
     company_id: z.coerce.number().int(),
     created_at: z.coerce.date().optional().nullable(),
     id: z.coerce.number().int(),
-    status: z.string().optional().nullable(),
+    lead_status_id: z.coerce.number().int().optional().nullable(),
     rating_id: z.coerce.number().int(),
     updated_at: z.coerce.date().optional().nullable(),
     source: z.string().optional().nullable(),

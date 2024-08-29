@@ -20,6 +20,7 @@ export type Invitation = Tables<'Invitations'>;
 export type Role = Tables<'Roles'>;
 export type Contact = Tables<'Contacts'>;
 export type Lead = Tables<'Leads'>;
+export type LeadStatus = Tables<'Lead_Statuses'>;
 export type Rating = Tables<'Ratings'>;
 export type Task = Tables<'Tasks'>;
 export type Opportunity = Tables<'Opportunities'>;

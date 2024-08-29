@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import Draggable from 'vuedraggable';
+import type { z } from 'zod';
+import type { FormSubmitEvent } from '#ui/types';
 
 const isReordering = ref(false);
 const drag = ref(false);
@@ -9,39 +11,65 @@ const dragOptions = computed(() => ({
     ghostClass: 'opacity-50',
 }));
 
-const leadStatuses = ref([
-    { id: 1, name: 'Inbound - Trial' },
-    { id: 2, name: 'Inbound - Trial Expired' },
-    { id: 3, name: 'Outbound - Potential' },
-    { id: 4, name: 'Outbound - Interested' },
-    { id: 5, name: 'Outbound - Qualified' },
-    { id: 6, name: 'Customer' },
-    { id: 7, name: 'Canceled' },
-    { id: 8, name: 'Bad Fit' },
-    { id: 9, name: 'Not Interested' },
-]);
+const { data: leadStatuses } = await useFetch('/api/lead-statuses', {
+    key: 'lead-statuses',
+    headers: useRequestHeaders(['cookie']),
+});
+
+const { addLeadStatusState, isSubmittingLeadStatus, addLeadStatus } = useAddLeadStatus();
 
 async function onUpdate({ newIndex }: { newIndex: number; oldIndex: number }) {
-    // if (!opportunityStatuses.value) return;
-    // try {
-    //     isReordering.value = true;
-    //     // index_number of the task above the dragged and dropped task
-    //     const prevElIndexNumber = opportunityStatuses.value[newIndex - 1]?.index_number;
-    //     // index_number of the task under the dragged and dropped task
-    //     const nextElIndexNumber = opportunityStatuses.value[newIndex + 1]?.index_number;
-    //     await $fetch(`/api/opportunity-statuses/${opportunityStatuses.value[newIndex].id}/reorder`, {
-    //         method: 'POST',
-    //         body: JSON.stringify({
-    //             prevElIndexNumber,
-    //             nextElIndexNumber,
-    //         }),
-    //     });
-    // } catch (error) {
-    //     console.error('Error updating opportunity status:', error);
-    //     toast.error('Failed to reorder opportunity status, please try again later.');
-    // } finally {
-    //     isReordering.value = false;
-    // }
+    if (!leadStatuses.value) return;
+    try {
+        isReordering.value = true;
+        // index_number of the task above the dragged and dropped task
+        const prev_index_number = leadStatuses.value[newIndex - 1]?.index_number;
+        // index_number of the task under the dragged and dropped task
+        const next_index_number = leadStatuses.value[newIndex + 1]?.index_number;
+        await $fetch(`/api/lead-statuses/${leadStatuses.value[newIndex].id}/reorder`, {
+            method: 'PATCH',
+            body: JSON.stringify({
+                prev_index_number,
+                next_index_number,
+            }),
+        });
+    } catch (error) {
+        console.error('Error updating lead status:', error);
+        toast.error('Failed to reorder lead status, please try again later.');
+    } finally {
+        isReordering.value = false;
+    }
+}
+
+function useAddLeadStatus() {
+    type AddLeadStatusType = z.infer<typeof addLeadStatusSchema>;
+    const isSubmitting = ref(false);
+    const state = ref({
+        name: '',
+    });
+    async function handleSubmit(event: FormSubmitEvent<AddLeadStatusType>) {
+        try {
+            isSubmitting.value = true;
+
+            await $fetch('/api/lead-statuses', {
+                method: 'POST',
+                body: JSON.stringify(event.data),
+            });
+
+            await refreshNuxtData();
+        } catch (e) {
+            console.error('Failed to add lead status', e);
+            toast.error('Failed to add lead status, please try again later.');
+        } finally {
+            isSubmitting.value = false;
+        }
+    }
+
+    return {
+        addLeadStatusState: state,
+        isSubmittingLeadStatus: isSubmitting,
+        addLeadStatus: handleSubmit,
+    };
 }
 </script>
 
@@ -51,7 +79,7 @@ async function onUpdate({ newIndex }: { newIndex: number; oldIndex: number }) {
             <h1 class="font-semibold">Lead Settings</h1>
         </header>
 
-        <section class="border-b p-4">
+        <!-- <section class="border-b p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <h2 class="font-semibold">Lead Priority</h2>
@@ -135,7 +163,7 @@ async function onUpdate({ newIndex }: { newIndex: number; oldIndex: number }) {
                     </div>
                 </template>
             </UTable>
-        </section>
+        </section> -->
 
         <section class="p-4">
             <h2 class="font-semibold">Lead Statuses</h2>
@@ -143,13 +171,29 @@ async function onUpdate({ newIndex }: { newIndex: number; oldIndex: number }) {
 
             <div class="mt-4 max-w-sm space-y-2 rounded-lg border p-2">
                 <h3 class="text-sm font-semibold">Leads</h3>
-                <div class="flex items-center justify-between gap-1">
-                    <UInput placeholder="Status Name" class="grow" />
-                    <UButton icon="i-heroicons-plus">Add Status</UButton>
-                </div>
+                <UForm
+                    :schema="addLeadStatusSchema"
+                    :state="addLeadStatusState"
+                    class="flex items-start justify-between gap-1"
+                    :disabled="isSubmittingLeadStatus"
+                    @submit="addLeadStatus"
+                    @error="console.error"
+                >
+                    <UFormGroup name="name" class="grow" required>
+                        <UInput v-model="addLeadStatusState.name" placeholder="Status Name" />
+                    </UFormGroup>
+                    <UButton
+                        type="submit"
+                        icon="i-heroicons-plus"
+                        :loading="isSubmittingLeadStatus"
+                        :disabled="isSubmittingLeadStatus"
+                    >
+                        Add Status
+                    </UButton>
+                </UForm>
 
                 <Draggable
-                    :list="leadStatuses"
+                    :list="leadStatuses ?? []"
                     :component-data="{
                         tag: 'ul',
                         type: 'transition-group',

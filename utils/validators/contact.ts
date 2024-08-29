@@ -11,6 +11,7 @@ export const contactSchema = z.object({
     facebook: z.string().optional().nullable(),
     first_name: z.string().optional().nullable(),
     instagram: z.string().optional().nullable(),
+    is_added_to_smartlead: z.coerce.boolean().optional().nullable(),
     is_valid_email: z.boolean().nullable(),
     job_title: z.string().optional().nullable(),
     last_name: z.string().optional().nullable(),

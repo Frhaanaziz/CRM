@@ -618,6 +618,7 @@ export type Database = {
           first_name: string | null
           id: number
           instagram: string | null
+          is_added_to_smartlead: boolean | null
           is_valid_email: boolean | null
           job_title: string | null
           last_name: string | null
@@ -627,6 +628,7 @@ export type Database = {
           organization_id: number
           postal_code: string | null
           province_id: number | null
+          smartlead_lead_id: number | null
           updated_at: string
           website: string | null
           whatsapp: string | null
@@ -642,6 +644,7 @@ export type Database = {
           first_name?: string | null
           id?: number
           instagram?: string | null
+          is_added_to_smartlead?: boolean | null
           is_valid_email?: boolean | null
           job_title?: string | null
           last_name?: string | null
@@ -651,6 +654,7 @@ export type Database = {
           organization_id: number
           postal_code?: string | null
           province_id?: number | null
+          smartlead_lead_id?: number | null
           updated_at?: string
           website?: string | null
           whatsapp?: string | null
@@ -666,6 +670,7 @@ export type Database = {
           first_name?: string | null
           id?: number
           instagram?: string | null
+          is_added_to_smartlead?: boolean | null
           is_valid_email?: boolean | null
           job_title?: string | null
           last_name?: string | null
@@ -675,6 +680,7 @@ export type Database = {
           organization_id?: number
           postal_code?: string | null
           province_id?: number | null
+          smartlead_lead_id?: number | null
           updated_at?: string
           website?: string | null
           whatsapp?: string | null
@@ -893,6 +899,51 @@ export type Database = {
         }
         Relationships: []
       }
+      Integrations: {
+        Row: {
+          api_key: string
+          created_at: string
+          id: number
+          name: string
+          organization_id: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          id?: number
+          name: string
+          organization_id: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          id?: number
+          name?: string
+          organization_id?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Integrations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "Organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Integrations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Invitations: {
         Row: {
           code: string
@@ -991,10 +1042,10 @@ export type Database = {
           company_id: number
           created_at: string | null
           id: number
+          lead_status_id: number | null
           organization_id: number
           rating_id: number
           source: string | null
-          status: string | null
           updated_at: string | null
           user_id: string
         }
@@ -1002,10 +1053,10 @@ export type Database = {
           company_id: number
           created_at?: string | null
           id?: number
+          lead_status_id?: number | null
           organization_id: number
           rating_id: number
           source?: string | null
-          status?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -1013,10 +1064,10 @@ export type Database = {
           company_id?: number
           created_at?: string | null
           id?: number
+          lead_status_id?: number | null
           organization_id?: number
           rating_id?: number
           source?: string | null
-          status?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -1026,6 +1077,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: true
             referencedRelation: "Companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Leads_lead_status_id_fkey"
+            columns: ["lead_status_id"]
+            isOneToOne: false
+            referencedRelation: "Lead_Statuses"
             referencedColumns: ["id"]
           },
           {
@@ -1736,6 +1794,9 @@ export type Database = {
         | "opportunity created"
         | "updated"
         | "incoming call"
+        | "scheduled meeting"
+        | "rescheduled meeting"
+        | "cancelled meeting"
       close_reasons:
         | "pricing"
         | "competition"

@@ -6,6 +6,7 @@ import type {
     Country,
     Industry,
     Lead,
+    LeadStatus,
     Opportunity,
     OpportunityStatus,
     Province,
@@ -36,6 +37,7 @@ export default defineEventHandler(async (event) => {
         user?: User | null;
         tasks?: (Task & { user?: User | null })[] | null;
         opportunities?: (Opportunity & { contact?: Contact | null; status?: OpportunityStatus | null })[] | null;
+        status?: LeadStatus | null;
     }
 
     try {
