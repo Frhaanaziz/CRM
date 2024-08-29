@@ -30,7 +30,7 @@ const { data: leadStatuses } = await useFetch('/api/lead-statuses', {
 });
 const leadStatusesItem = computed<DropdownItem[][]>(() => {
     if (!leadStatuses.value) return [];
-    return [leadStatuses.value.map((status) => ({ label: status.name, click: () => updateStatus(status.name) }))];
+    return [leadStatuses.value.map((status) => ({ label: status.name, click: () => updateStatus(status.id) }))];
 });
 
 const companyForm = ref<FormRef | null>(null);
@@ -56,14 +56,14 @@ async function updateCompanyAddress() {
         toast.error('Failed to update Company address, please try again later.');
     }
 }
-async function updateStatus(status: string) {
+async function updateStatus(lead_status_id: number) {
     try {
         isUpdatingStatus.value = true;
 
-        // await $fetch(`/api/leads/${id}`, {
-        //     method: 'PATCH',
-        //     body: JSON.stringify({ status }),
-        // });
+        await $fetch(`/api/leads/${id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ lead_status_id }),
+        });
 
         await refreshNuxtData();
     } catch (e) {
